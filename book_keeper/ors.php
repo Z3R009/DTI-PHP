@@ -49,7 +49,7 @@ while ($row = $result->fetch_assoc()) {
 
 // retrieve responsibility
 
-$sql_responsibility_center = "SELECT description FROM responsibility_center";
+$sql_responsibility_center = "SELECT code FROM responsibility_center";
 $result_responsibility_center = $connection->query($sql_responsibility_center);
 
 // retrieve fund_cluster
@@ -600,7 +600,7 @@ while ($row = $result_approvers->fetch_assoc()) {
                                         <option selected disabled>Select Responsibility Center</option>
                                         <?php
                                         while ($row = $result_responsibility_center->fetch_assoc()) {
-                                            echo "<option value='" . htmlspecialchars($row['description']) . "'>" . htmlspecialchars($row['description']) . "</option>";
+                                            echo "<option value='" . htmlspecialchars($row['code']) . "'>" . htmlspecialchars($row['code']) . "</option>";
                                         }
                                         ?>
                                     </select>
