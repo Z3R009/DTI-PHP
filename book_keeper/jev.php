@@ -176,16 +176,38 @@
     <main id="main" class="main">
 
         <div class="pagetitle">
-            <h1>Dashboard</h1>
-            <nav>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-                    <li class="breadcrumb-item active">Dashboard</li>
-                </ol>
-            </nav>
+            <h1>Journal Entry Voucher (JEV)</h1>     
         </div><!-- End Page Title -->
 
         <section class="section dashboard">
+            <div class="card">
+                <div class="card-body">
+
+
+                    <!-- Table with stripped rows -->
+                    <table class="table datatable">
+                        <thead>
+                            <tr>
+                                <th>JEV No.</th>
+                                <th>Date</th>
+                                <th>Account Title</th>
+                                <th>Amount</th>
+                                <th>Approver</th>
+                                <th>Budget Officer</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+
+            <!-- modal -->
+
+
 
         </section>
 
