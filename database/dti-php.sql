@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 10, 2025 at 12:24 PM
+-- Generation Time: Mar 11, 2025 at 06:27 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -351,6 +351,33 @@ INSERT INTO `fund_cluster` (`fund_cluster_id`, `fund_cluster_name`, `uacs_code`,
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `oopap`
+--
+
+CREATE TABLE `oopap` (
+  `oopap_id` int(11) NOT NULL,
+  `oopap_name` varchar(255) NOT NULL,
+  `description` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `oopap`
+--
+
+INSERT INTO `oopap` (`oopap_id`, `oopap_name`, `description`) VALUES
+(1, 'GAS', 'General Administration and Support'),
+(2, 'OO1', 'Exports and Investment Program'),
+(3, 'OO2', 'Industry Development Program'),
+(4, 'OO3', 'MSME Development Program'),
+(5, 'OO3.1', 'Negosyo Centers'),
+(6, 'OO3.2', 'OTOP Next Gen'),
+(7, 'OO3.3', 'Shared Service Facilities'),
+(8, 'OO4.1.1', 'Monitoring and Enforcement'),
+(9, 'OO4.1.2', 'Accreditation and Issuance of BN');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `ors`
 --
 
@@ -365,6 +392,7 @@ CREATE TABLE `ors` (
   `notes` varchar(255) NOT NULL,
   `rs_id` int(255) NOT NULL,
   `object_code_id` int(255) NOT NULL,
+  `oopap_id` int(255) NOT NULL,
   `amount` double(40,2) NOT NULL,
   `approver_id` int(255) NOT NULL,
   `budget_officer` varchar(255) NOT NULL
@@ -374,8 +402,8 @@ CREATE TABLE `ors` (
 -- Dumping data for table `ors`
 --
 
-INSERT INTO `ors` (`ors_id`, `fund_cluster_id`, `date`, `ors_no`, `payee_name`, `tin_no`, `address`, `notes`, `rs_id`, `object_code_id`, `amount`, `approver_id`, `budget_officer`) VALUES
-(1, 8, '2025-03-10', '6-2025-03-00001', 'ss', '343434', 'Koronadal', 'wewew', 1, 60, 111.00, 1, 'CONNIE M. BARNACHEA');
+INSERT INTO `ors` (`ors_id`, `fund_cluster_id`, `date`, `ors_no`, `payee_name`, `tin_no`, `address`, `notes`, `rs_id`, `object_code_id`, `oopap_id`, `amount`, `approver_id`, `budget_officer`) VALUES
+(2, 4, '2025-03-11', '12345', 'ee', '424324', 'rrr', 'rrr', 1, 60, 1, 123.00, 1, 'CONNIE M. BARNACHEA');
 
 -- --------------------------------------------------------
 
@@ -445,6 +473,7 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`user_id`, `fullname`, `username`, `password`, `role`, `created_at`, `updated_at`) VALUES
 (175710936, 'f', '', '$2y$10$A/PawVthwn7iKveGnxdNoOCuWZU4ZVUSD.8NNKPjc6rD0dsOA0NEy', '', NULL, NULL),
 (194886581, '', '', '$2y$10$mfLfGhypXKIWT3EFzlYiaOBFVnMLQkJNYcGyEDLI8aCJM9rTCTzde', '', NULL, NULL),
+(251897568, 'test', 'test', '$2y$10$GQCP8D/nSPG/Xl8CqaaTXuHI53eSmhxRXMVv6NDFFsP65jerOma6S', 'Admin', NULL, NULL),
 (401635458, 'CA', 'CA', '$2y$10$skFllfT75nxiPhKzbP1B1OK1GXmSnv1EaZWN1HlYSJDqqKF2OuwUO', 'Chief Accountant', NULL, NULL),
 (443457611, '', '', '$2y$10$XMMYeo9x57ObW5bJsr1i1.jdmOfEGfQM7.KpFST8vaK/jJ6841etq', '', NULL, NULL),
 (484343948, '', '', '$2y$10$OCCPISPjKmpRVnPtZOTsiu.J1gBMPogfhGolD1gFwP3.rAwSsphXm', '', NULL, NULL),
@@ -500,6 +529,12 @@ ALTER TABLE `fund_cluster`
   ADD PRIMARY KEY (`fund_cluster_id`);
 
 --
+-- Indexes for table `oopap`
+--
+ALTER TABLE `oopap`
+  ADD PRIMARY KEY (`oopap_id`);
+
+--
 -- Indexes for table `ors`
 --
 ALTER TABLE `ors`
@@ -507,7 +542,8 @@ ALTER TABLE `ors`
   ADD KEY `fund_cluster_id` (`fund_cluster_id`),
   ADD KEY `rs_id` (`rs_id`),
   ADD KEY `object_code_id` (`object_code_id`),
-  ADD KEY `approver_id` (`approver_id`);
+  ADD KEY `approver_id` (`approver_id`),
+  ADD KEY `oopap_id` (`oopap_id`);
 
 --
 -- Indexes for table `payee`
@@ -568,10 +604,16 @@ ALTER TABLE `fund_cluster`
   MODIFY `fund_cluster_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
+-- AUTO_INCREMENT for table `oopap`
+--
+ALTER TABLE `oopap`
+  MODIFY `oopap_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
 -- AUTO_INCREMENT for table `ors`
 --
 ALTER TABLE `ors`
-  MODIFY `ors_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `ors_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `payee`
@@ -620,7 +662,8 @@ ALTER TABLE `ors`
   ADD CONSTRAINT `ors_ibfk_1` FOREIGN KEY (`fund_cluster_id`) REFERENCES `fund_cluster` (`fund_cluster_id`),
   ADD CONSTRAINT `ors_ibfk_2` FOREIGN KEY (`rs_id`) REFERENCES `responsibility_center` (`rc_id`),
   ADD CONSTRAINT `ors_ibfk_3` FOREIGN KEY (`object_code_id`) REFERENCES `financial_object_code` (`object_code_id`),
-  ADD CONSTRAINT `ors_ibfk_4` FOREIGN KEY (`approver_id`) REFERENCES `approver` (`approver_id`);
+  ADD CONSTRAINT `ors_ibfk_4` FOREIGN KEY (`approver_id`) REFERENCES `approver` (`approver_id`),
+  ADD CONSTRAINT `ors_ibfk_5` FOREIGN KEY (`oopap_id`) REFERENCES `oopap` (`oopap_id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

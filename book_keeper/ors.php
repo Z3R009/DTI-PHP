@@ -4,6 +4,12 @@ include '../DBConnection.php';
 // insert ors
 
 if (isset($_POST['submit'])) {
+    echo "Form submitted!";
+
+    // Debugging: Print all POST data
+    echo "<pre>";
+    print_r($_POST);
+    echo "</pre>";
 
     $fund_cluster_id = $_POST['fund_cluster_id'];
     $date = $_POST['date'];
@@ -14,19 +20,23 @@ if (isset($_POST['submit'])) {
     $notes = $_POST['notes'];
     $rs_id = $_POST['rs_id'];
     $object_code_id = $_POST['object_code_id'];
+    $oopap_id = $_POST['oopap_id'];
     $amount = $_POST['amount'];
     $approver_id = $_POST['approver_id'];
     $budget_officer = $_POST['budget_officer'];
 
-    // Prepare and execute the INSERT query for the main table
-    $sql = "INSERT INTO ors (fund_cluster_id, date, ors_no, payee_name, tin_no, address, notes, rs_id, object_code_id, amount, approver_id, budget_officer) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO ors (fund_cluster_id, date, ors_no, payee_name, tin_no, address, notes, rs_id, object_code_id, oopap_id, amount, approver_id, budget_officer) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     $stmt = $connection->prepare($sql);
-    $stmt->bind_param("issssssiidis", $fund_cluster_id, $date, $ors_no, $payee_name, $tin_no, $address, $notes, $rs_id, $object_code_id, $amount, $approver_id, $budget_officer);
+    if ($stmt === false) {
+        die('Prepare failed: ' . htmlspecialchars($connection->error));
+    }
+
+    $stmt->bind_param("isssissiiidis", $fund_cluster_id, $date, $ors_no, $payee_name, $tin_no, $address, $notes, $rs_id, $object_code_id, $oopap_id, $amount, $approver_id, $budget_officer);
 
     if ($stmt->execute()) {
-        header('Location: ors.php'); // Redirect to the voucher list page after successful insertion
+        header('Location: ors.php');
         exit();
     } else {
         echo "Error: " . $stmt->error;
@@ -546,22 +556,22 @@ while ($row = $result_approvers->fetch_assoc()) {
                             <div class="form-row">
                                 <div class="form-group">
                                     <label class="form-label">Fund Cluster</label>
-                                    <select class="form-control" id="fundCluster">
-                                        <option value="">Select Fund Cluster</option>
-                                        <?php
-                                        while ($row = $result_fund_cluster->fetch_assoc()) {
-                                            echo "<option value='" . htmlspecialchars($row['uacs_code']) . "'>" . htmlspecialchars($row['fund_cluster_name']) . "</option>";
-                                        }
-                                        ?>
-                                    </select>
+                                    <select class="form-control" id="fundCluster" name="fund_cluster_id">
+    <option value="">Select Fund Cluster</option>
+    <?php
+    while ($row = $result_fund_cluster->fetch_assoc()) {
+        echo "<option value='" . htmlspecialchars($row['fund_cluster_id']) . "'>" . htmlspecialchars($row['fund_cluster_name']) . "</option>";
+    }
+    ?>
+</select>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Date</label>
-                                    <input type="date" class="form-control" id="dvDate">
+                                    <input type="date" class="form-control" id="dvDate" name="date">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Obligation Request No.</label>
-                                    <input type="text" class="form-control" required>
+                                    <input type="text" class="form-control" name="ors_no" required>
                                 </div>
                             </div>
                         </div>
@@ -573,16 +583,16 @@ while ($row = $result_approvers->fetch_assoc()) {
                             <div class="form-row">
                                 <div class="form-group">
                                     <label class="form-label">Payee Name</label>
-                                    <input type="text" class="form-control" required>
+                                    <input type="text" class="form-control" name="payee_name" required>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">TIN/Employee No.</label>
-                                    <input type="text" class="form-control" required>
+                                    <input type="text" class="form-control" name="tin_no" required>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Address</label>
-                                <select class="form-control">
+                                <select class="form-control" name="address">
                                     <option>Koronadal City</option>
 
                                 </select>
@@ -595,13 +605,13 @@ while ($row = $result_approvers->fetch_assoc()) {
                             <div class="form-row">
                                 <div class="form-group full-width">
                                     <label class="form-label">NOTES</label>
-                                    <textarea class="form-control"></textarea>
+                                    <textarea class="form-control" name="notes"></textarea>
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-group">
                                     <label class="form-label">Responsibility Center</label>
-                                    <select class="form-control" name="responsibility_center">
+                                    <select class="form-control" name="rs_id">
                                         <option selected disabled>Select Responsibility Center</option>
                                         <?php
                                         while ($row = $result_responsibility_center->fetch_assoc()) {
@@ -631,7 +641,7 @@ while ($row = $result_approvers->fetch_assoc()) {
                                         <!-- First row -->
                                         <tr class="entry-row">
                                             <td>
-                                                <select class="form-control account-title">
+                                                <select class="form-control account-title" name="object_code_id">
                                                     <option selected disabled>Select Account</option>
                                                     <?php
                                                     foreach ($accountData as $accountName => $uacsCode) {
@@ -641,7 +651,7 @@ while ($row = $result_approvers->fetch_assoc()) {
                                                 </select>
                                             </td>
                                             <td>
-                                                <select class="form-control" name="oopap">
+                                                <select class="form-control" name="oopap_id">
                                                     <option selected disabled>Select OO/PAP</option>
                                                     <?php
                                                     while ($row = $result_oopap->fetch_assoc()) {
@@ -651,13 +661,13 @@ while ($row = $result_approvers->fetch_assoc()) {
                                                 </select>
                                             </td>
                                             <td><input type="text" class="form-control uacs-code" readonly></td>
-                                            <td><input type="number" class="form-control" step="0.01"></td>
+                                            <td><input type="number" class="form-control" name="amount" step="0.01"></td>
                                         </tr>
 
                                         <!-- Add Row button row (this will stay at the bottom) -->
                                         <tr id="add-row-container">
                                             <td colspan="4" class="text-left">
-                                                <button type="button" id="addAccountRow" class="btn btn-secondary">
+                                                <button type="button" name="submit" id="addAccountRow" class="btn btn-secondary">
                                                     <ion-icon name="add-outline"></ion-icon> Add Row
                                                 </button>
                                             </td>
@@ -673,7 +683,7 @@ while ($row = $result_approvers->fetch_assoc()) {
                             <div class="form-row">
                                 <div class="form-group">
                                     <label class="form-label" id="designationLabel">Designation</label>
-                                    <select class="form-control" id="approverSelect">
+                                    <select class="form-control" id="approverSelect" name="approver_id">
                                         <option value="">Select Approver</option>
                                         <?php
                                         foreach ($approverData as $approver_name => $designation) {
@@ -684,7 +694,7 @@ while ($row = $result_approvers->fetch_assoc()) {
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Budget Officer</label>
-                                    <select class="form-control">
+                                    <select class="form-control" name="budget_officer">
                                         <option>CONNIE M. BARNACHEA</option>
 
                                     </select>
@@ -697,7 +707,7 @@ while ($row = $result_approvers->fetch_assoc()) {
                         <!-- Form Buttons -->
                         <div class="btn-container">
                             <button type="button" class="btn btn-secondary">Clear Form</button>
-                            <button type="submit" class="btn btn-primary">Submit Voucher</button>
+                            <button type="submit" class="btn btn-primary" name="submit">Submit Voucher</button>
                         </div>
 
                     </form>

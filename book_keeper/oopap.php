@@ -278,9 +278,8 @@ $select = mysqli_query($connection, "SELECT * FROM oopap");
                                     <form method="post" id="addUserForm">
                                         <div class="mb-3">
                                             <label for="oopap_name" class="form-label">OO/PAP</label>
-                                            <input type="text" class="form-control" id="oopap_name"
-                                                name="oopap_name" placeholder="Enter OO/PAP" required
-                                                autocomplete="off">
+                                            <input type="text" class="form-control" id="oopap_name" name="oopap_name"
+                                                placeholder="Enter OO/PAP" required autocomplete="off">
                                         </div>
                                         <div class="mb-3">
                                             <label for="description" class="form-label">Description</label>
