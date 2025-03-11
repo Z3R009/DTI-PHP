@@ -18,23 +18,25 @@ if (isset($_POST['submit'])) {
     $tin_no = $_POST['tin_no'];
     $address = $_POST['address'];
     $notes = $_POST['notes'];
-    $rs_id = $_POST['rs_id'];
+    $rc_id = $_POST['rc_id'];
     $object_code_id = $_POST['object_code_id'];
     $oopap_id = $_POST['oopap_id'];
     $amount = $_POST['amount'];
     $approver_id = $_POST['approver_id'];
     $budget_officer = $_POST['budget_officer'];
 
-    $sql = "INSERT INTO ors (fund_cluster_id, date, ors_no, payee_name, tin_no, address, notes, rs_id, object_code_id, oopap_id, amount, approver_id, budget_officer) 
+    $sql = "INSERT INTO ors (fund_cluster_id, date, ors_no, payee_name, tin_no, address, notes, rc_id, object_code_id, oopap_id, amount, approver_id, budget_officer) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+    $sql = "INSERT INTO ors (fund_cluster_id, date, ors_no, payee_name, tin_no, address, notes, rc_id, object_code_id, oopap_id, amount, approver_id, budget_officer) 
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     $stmt = $connection->prepare($sql);
     if ($stmt === false) {
         die('Prepare failed: ' . htmlspecialchars($connection->error));
     }
 
-    $stmt->bind_param("isssissiiidis", $fund_cluster_id, $date, $ors_no, $payee_name, $tin_no, $address, $notes, $rs_id, $object_code_id, $oopap_id, $amount, $approver_id, $budget_officer);
-
+    $stmt->bind_param("isssisssiidis", $fund_cluster_id, $date, $ors_no, $payee_name, $tin_no, $address, $notes, $rc_id, $object_code_id, $oopap_id, $amount, $approver_id, $budget_officer);
     if ($stmt->execute()) {
         header('Location: ors.php');
         exit();
@@ -48,26 +50,22 @@ if (isset($_POST['submit'])) {
 
 
 // Query to fetch account titles and their corresponding UACS codes
-$sql = "SELECT object_name, uacs_code FROM financial_object_code";
-$result = $connection->query($sql);
+$sql_object_code = "SELECT object_code_id, object_name FROM financial_object_code";
+$result_object_code = $connection->query($sql_object_code);
 
-// Prepare an array to store account-title-to-UACS mapping for JavaScript
-$accountData = [];
-while ($row = $result->fetch_assoc()) {
-    $accountData[$row['object_name']] = $row['uacs_code'];
-}
 
 // retrieve responsibility
 
-$sql_responsibility_center = "SELECT code FROM responsibility_center";
+$sql_responsibility_center = "SELECT rc_id, code FROM responsibility_center";
 $result_responsibility_center = $connection->query($sql_responsibility_center);
 
 // retrieve fund_cluster
-$sql_fund_cluster = "SELECT fund_cluster_name, uacs_code FROM fund_cluster";
+$sql_fund_cluster = "SELECT fund_cluster_id, fund_cluster_name FROM fund_cluster";
 $result_fund_cluster = $connection->query($sql_fund_cluster);
 
+
 // retrieve oo/pap
-$sql_oopap = "SELECT oopap_name FROM oopap";
+$sql_oopap = "SELECT oopap_id, oopap_name FROM oopap";
 $result_oopap = $connection->query($sql_oopap);
 
 
@@ -89,16 +87,20 @@ if ($last_ors_no) {
 $new_sequence = str_pad($last_sequence, 5, '0', STR_PAD_LEFT);
 
 // Fetch Approvers Data
-$sql_approvers = "SELECT approver_name, designation FROM approver";
+$sql_approvers = "SELECT approver_id, approver_name, designation FROM approver";
 $result_approvers = $connection->query($sql_approvers);
 
 // Store Approver Data for JavaScript
 $approverData = [];
 while ($row = $result_approvers->fetch_assoc()) {
-    $approverData[$row['approver_name']] = $row['designation'];
+    $approverData[$row['approver_id']] = [
+        'name' => $row['approver_name'],
+        'designation' => $row['designation']
+    ];
 }
 
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -556,14 +558,14 @@ while ($row = $result_approvers->fetch_assoc()) {
                             <div class="form-row">
                                 <div class="form-group">
                                     <label class="form-label">Fund Cluster</label>
-                                    <select class="form-control" id="fundCluster" name="fund_cluster_id">
-    <option value="">Select Fund Cluster</option>
-    <?php
-    while ($row = $result_fund_cluster->fetch_assoc()) {
-        echo "<option value='" . htmlspecialchars($row['fund_cluster_id']) . "'>" . htmlspecialchars($row['fund_cluster_name']) . "</option>";
-    }
-    ?>
-</select>
+                                    <select class="form-control" name="fund_cluster_id">
+                                        <option selected disabled>Select Fund Cluster</option>
+                                        <?php
+                                        while ($row = $result_fund_cluster->fetch_assoc()) {
+                                            echo "<option value='" . htmlspecialchars($row['fund_cluster_id']) . "'>" . htmlspecialchars($row['fund_cluster_name']) . "</option>";
+                                        }
+                                        ?>
+                                    </select>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Date</label>
@@ -611,11 +613,11 @@ while ($row = $result_approvers->fetch_assoc()) {
                             <div class="form-row">
                                 <div class="form-group">
                                     <label class="form-label">Responsibility Center</label>
-                                    <select class="form-control" name="rs_id">
+                                    <select class="form-control" name="rc_id">
                                         <option selected disabled>Select Responsibility Center</option>
                                         <?php
                                         while ($row = $result_responsibility_center->fetch_assoc()) {
-                                            echo "<option value='" . htmlspecialchars($row['code']) . "'>" . htmlspecialchars($row['code']) . "</option>";
+                                            echo "<option value='" . htmlspecialchars($row['rc_id']) . "'>" . htmlspecialchars($row['code']) . "</option>";
                                         }
                                         ?>
                                     </select>
@@ -633,7 +635,6 @@ while ($row = $result_approvers->fetch_assoc()) {
                                         <tr>
                                             <th>Account Title</th>
                                             <th>OO/PAP</th>
-                                            <th>UACS Object Code</th>
                                             <th>Amount</th>
                                         </tr>
                                     </thead>
@@ -641,11 +642,11 @@ while ($row = $result_approvers->fetch_assoc()) {
                                         <!-- First row -->
                                         <tr class="entry-row">
                                             <td>
-                                                <select class="form-control account-title" name="object_code_id">
+                                                <select class="form-control" name="object_code_id">
                                                     <option selected disabled>Select Account</option>
                                                     <?php
-                                                    foreach ($accountData as $accountName => $uacsCode) {
-                                                        echo "<option value='" . htmlspecialchars($uacsCode) . "'>" . htmlspecialchars($accountName) . "</option>";
+                                                    while ($row = $result_object_code->fetch_assoc()) {
+                                                        echo "<option value='" . htmlspecialchars($row['object_code_id']) . "'>" . htmlspecialchars($row['object_name']) . "</option>";
                                                     }
                                                     ?>
                                                 </select>
@@ -655,19 +656,20 @@ while ($row = $result_approvers->fetch_assoc()) {
                                                     <option selected disabled>Select OO/PAP</option>
                                                     <?php
                                                     while ($row = $result_oopap->fetch_assoc()) {
-                                                        echo "<option value='" . htmlspecialchars($row['oopap_name']) . "'>" . htmlspecialchars($row['oopap_name']) . "</option>";
+                                                        echo "<option value='" . htmlspecialchars($row['oopap_id']) . "'>" . htmlspecialchars($row['oopap_name']) . "</option>";
                                                     }
                                                     ?>
                                                 </select>
                                             </td>
-                                            <td><input type="text" class="form-control uacs-code" readonly></td>
-                                            <td><input type="number" class="form-control" name="amount" step="0.01"></td>
+                                            <td><input type="number" class="form-control" name="amount" step="0.01">
+                                            </td>
                                         </tr>
 
                                         <!-- Add Row button row (this will stay at the bottom) -->
                                         <tr id="add-row-container">
                                             <td colspan="4" class="text-left">
-                                                <button type="button" name="submit" id="addAccountRow" class="btn btn-secondary">
+                                                <button type="button" name="submit" id="addAccountRow"
+                                                    class="btn btn-secondary">
                                                     <ion-icon name="add-outline"></ion-icon> Add Row
                                                 </button>
                                             </td>
@@ -686,8 +688,8 @@ while ($row = $result_approvers->fetch_assoc()) {
                                     <select class="form-control" id="approverSelect" name="approver_id">
                                         <option value="">Select Approver</option>
                                         <?php
-                                        foreach ($approverData as $approver_name => $designation) {
-                                            echo "<option value='" . htmlspecialchars($approver_name) . "' data-designation='" . htmlspecialchars($designation) . "'>" . htmlspecialchars($approver_name) . "</option>";
+                                        foreach ($approverData as $approver_id => $data) {
+                                            echo "<option value='" . htmlspecialchars($approver_id) . "' data-designation='" . htmlspecialchars($data['designation']) . "'>" . htmlspecialchars($data['name']) . "</option>";
                                         }
                                         ?>
                                     </select>
@@ -832,45 +834,68 @@ while ($row = $result_approvers->fetch_assoc()) {
     </script>
 
 
-    <!-- add row & uacs-code -->
+    <!-- add row  -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const tableBody = document.querySelector("#accounting-table-body");
             const addRowContainer = document.querySelector("#add-row-container");
 
-            // Handle Account Title selection to auto-fill UACS Object Code
-            tableBody.addEventListener("change", function (event) {
-                if (event.target.classList.contains("account-title")) {
-                    let selectedOption = event.target.options[event.target.selectedIndex];
-                    let uacsInput = event.target.closest("tr").querySelector(".uacs-code");
+            // Fetch the options for object_code_id and oopap_id from the first row
+            const objectCodeOptions = Array.from(tableBody.querySelector(".entry-row select[name='object_code_id']").options)
+                .map(option => ({ value: option.value, text: option.text }));
+            const oopapOptions = Array.from(tableBody.querySelector(".entry-row select[name='oopap_id']").options)
+                .map(option => ({ value: option.value, text: option.text }));
 
-                    // Update the UACS Code field based on the selected account
-                    uacsInput.value = selectedOption.value;
-                }
-            });
-
-            // Add new row functionality (ensuring it appears before the "Add Row" button)
+            // Add new row functionality
             document.querySelector("#addAccountRow").addEventListener("click", function () {
                 let newRow = document.createElement("tr");
                 newRow.classList.add("entry-row");
 
-                newRow.innerHTML = `
-            <td>
-                <select class="form-control account-title">
-                    <option value="">Select Account</option>
-                    <?php
-                    foreach ($accountData as $accountName => $uacsCode) {
-                        echo "<option value='" . htmlspecialchars($uacsCode) . "'>" . htmlspecialchars($accountName) . "</option>";
-                    }
-                    ?>
-                </select>
-            </td>
-            <td><input type="text" class="form-control"></td>
-            <td><input type="text" class="form-control uacs-code" readonly></td>
-            <td><input type="number" class="form-control" step="0.01"></td>
-        `;
+                // Create the Account Title dropdown
+                const objectCodeSelect = document.createElement("select");
+                objectCodeSelect.className = "form-control";
+                objectCodeSelect.name = "object_code_id";
+                objectCodeSelect.innerHTML = '<option selected disabled>Select Account</option>';
+                objectCodeOptions.forEach(option => {
+                    const optionElement = document.createElement("option");
+                    optionElement.value = option.value;
+                    optionElement.textContent = option.text;
+                    objectCodeSelect.appendChild(optionElement);
+                });
 
-                tableBody.insertBefore(newRow, addRowContainer); // Insert new row before the button row
+                // Create the OO/PAP dropdown
+                const oopapSelect = document.createElement("select");
+                oopapSelect.className = "form-control";
+                oopapSelect.name = "oopap_id";
+                oopapSelect.innerHTML = '<option selected disabled>Select OO/PAP</option>';
+                oopapOptions.forEach(option => {
+                    const optionElement = document.createElement("option");
+                    optionElement.value = option.value;
+                    optionElement.textContent = option.text;
+                    oopapSelect.appendChild(optionElement);
+                });
+
+                // Create the Amount input
+                const amountInput = document.createElement("input");
+                amountInput.type = "number";
+                amountInput.className = "form-control";
+                amountInput.name = "amount";
+                amountInput.step = "0.01";
+
+                // Append the elements to the new row
+                const accountTitleCell = document.createElement("td");
+                accountTitleCell.appendChild(objectCodeSelect);
+                const oopapCell = document.createElement("td");
+                oopapCell.appendChild(oopapSelect);
+                const amountCell = document.createElement("td");
+                amountCell.appendChild(amountInput);
+
+                newRow.appendChild(accountTitleCell);
+                newRow.appendChild(oopapCell);
+                newRow.appendChild(amountCell);
+
+                // Insert the new row before the "Add Row" button row
+                tableBody.insertBefore(newRow, addRowContainer);
             });
         });
     </script>
