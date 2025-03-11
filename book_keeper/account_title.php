@@ -3,7 +3,7 @@
 $servername = "localhost";
 $username = "root";
 $password = "";
-$database = "dti";
+$database = "dti-php";
 
 $conn = new mysqli($servername, $username, $password, $database);
 
