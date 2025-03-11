@@ -1,3 +1,32 @@
+<?php
+include '../DBConnection.php';
+
+
+//Add users
+
+if (isset($_POST['submit'])) {
+    $oopap_name = $_POST['oopap_name'];
+    $description = $_POST['description'];
+
+
+
+    $sql = "INSERT INTO oopap (oopap_name, description) VALUES (?, ?)";
+    $stmt = $connection->prepare($sql);
+    $stmt->bind_param("ss", $oopap_name, $description);
+
+    if ($stmt->execute()) {
+        header('Location: oopap.php');
+    } else {
+        echo "Error: " . $stmt->error;
+    }
+}
+
+
+// retrieve users
+
+$select = mysqli_query($connection, "SELECT * FROM oopap");
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -226,6 +255,86 @@
         </div><!-- End Page Title -->
 
         <section class="section dashboard">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#addUserModal">Add OO/PAP</button>
+                    </h5>
+                    <p></p>
+
+                    <!-- Modal for Add User Form -->
+                    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="addUserModalLabel">Add OO/PAP
+                                    </h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form method="post" id="addUserForm">
+                                        <div class="mb-3">
+                                            <label for="oopap_name" class="form-label">OO/PAP</label>
+                                            <input type="text" class="form-control" id="oopap_name"
+                                                name="oopap_name" placeholder="Enter OO/PAP" required
+                                                autocomplete="off">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="description" class="form-label">Description</label>
+                                            <input type="text" class="form-control" id="description" name="description"
+                                                placeholder="Enter Description" required autocomplete="off">
+                                        </div>
+                                        <div class="modal-footer">
+                                            <!-- <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Close</button> -->
+                                            <button type="button" class="btn btn-secondary"
+                                                onclick="clearForm()">Clear</button>
+                                            <button type="submit" id="submit" name="submit"
+                                                class="btn btn-primary">Save</button>
+                                        </div>
+                                    </form>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Table with stripped rows -->
+                    <table class="table datatable">
+                        <thead>
+                            <tr>
+                                <th>OO/PAP</th>
+                                <th>Description</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php while ($row = mysqli_fetch_assoc($select)) { ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($row['oopap']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['description']); ?></td>
+                                    <td>
+                                        <button type="button" class="btn btn-primary"
+                                            onclick="editUser(<?php echo $row['oopap']; ?>, '<?php echo $row['description']; ?>')">
+                                            <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top"
+                                                title="Edit"></i>
+                                        </button>
+
+                                        <button type="button" class="btn btn-danger"
+                                            onclick="deleteUser(<?php echo $row['oopap_id']; ?>)"><i class="bi bi-trash"
+                                                data-bs-toggle="tooltip" data-bs-placement="top"
+                                                title="Delete"></i></i></button>
+                                    </td>
+                                </tr>
+                            <?php } ?>
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
 
         </section>
 

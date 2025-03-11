@@ -56,6 +56,11 @@ $result_responsibility_center = $connection->query($sql_responsibility_center);
 $sql_fund_cluster = "SELECT fund_cluster_name, uacs_code FROM fund_cluster";
 $result_fund_cluster = $connection->query($sql_fund_cluster);
 
+// retrieve oo/pap
+$sql_oopap = "SELECT oopap_name FROM oopap";
+$result_oopap = $connection->query($sql_oopap);
+
+
 // Fetch Last Disbursement Voucher No.
 $sql_last_dv = "SELECT ors_no FROM ors ORDER BY ors_id DESC LIMIT 1";
 $result_last_dv = $connection->query($sql_last_dv);
@@ -635,7 +640,16 @@ while ($row = $result_approvers->fetch_assoc()) {
                                                     ?>
                                                 </select>
                                             </td>
-                                            <td><input type="text" class="form-control"></td>
+                                            <td>
+                                                <select class="form-control" name="oopap">
+                                                    <option selected disabled>Select OO/PAP</option>
+                                                    <?php
+                                                    while ($row = $result_oopap->fetch_assoc()) {
+                                                        echo "<option value='" . htmlspecialchars($row['oopap_name']) . "'>" . htmlspecialchars($row['oopap_name']) . "</option>";
+                                                    }
+                                                    ?>
+                                                </select>
+                                            </td>
                                             <td><input type="text" class="form-control uacs-code" readonly></td>
                                             <td><input type="number" class="form-control" step="0.01"></td>
                                         </tr>

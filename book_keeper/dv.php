@@ -1,9 +1,6 @@
 <?php
 include '../DBConnection.php';
 
-// dvgfvsgdvfgsv
-
-// retrieve users
 
 $select = mysqli_query($connection, "SELECT * FROM ors ");
 ?>
