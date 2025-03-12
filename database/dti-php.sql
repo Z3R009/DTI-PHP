@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 11, 2025 at 06:27 AM
+-- Generation Time: Mar 12, 2025 at 07:19 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -390,7 +390,7 @@ CREATE TABLE `ors` (
   `tin_no` varchar(255) NOT NULL,
   `address` varchar(255) NOT NULL,
   `notes` varchar(255) NOT NULL,
-  `rs_id` int(255) NOT NULL,
+  `rc_id` int(255) NOT NULL,
   `object_code_id` int(255) NOT NULL,
   `oopap_id` int(255) NOT NULL,
   `amount` double(40,2) NOT NULL,
@@ -402,8 +402,8 @@ CREATE TABLE `ors` (
 -- Dumping data for table `ors`
 --
 
-INSERT INTO `ors` (`ors_id`, `fund_cluster_id`, `date`, `ors_no`, `payee_name`, `tin_no`, `address`, `notes`, `rs_id`, `object_code_id`, `oopap_id`, `amount`, `approver_id`, `budget_officer`) VALUES
-(2, 4, '2025-03-11', '12345', 'ee', '424324', 'rrr', 'rrr', 1, 60, 1, 123.00, 1, 'CONNIE M. BARNACHEA');
+INSERT INTO `ors` (`ors_id`, `fund_cluster_id`, `date`, `ors_no`, `payee_name`, `tin_no`, `address`, `notes`, `rc_id`, `object_code_id`, `oopap_id`, `amount`, `approver_id`, `budget_officer`) VALUES
+(17, 3, '2025-03-11', '111', '111', '111', 'Koronadal City', '111', 11, 19, 8, 1111.00, 1, 'CONNIE M. BARNACHEA');
 
 -- --------------------------------------------------------
 
@@ -540,7 +540,7 @@ ALTER TABLE `oopap`
 ALTER TABLE `ors`
   ADD PRIMARY KEY (`ors_id`),
   ADD KEY `fund_cluster_id` (`fund_cluster_id`),
-  ADD KEY `rs_id` (`rs_id`),
+  ADD KEY `rs_id` (`rc_id`),
   ADD KEY `object_code_id` (`object_code_id`),
   ADD KEY `approver_id` (`approver_id`),
   ADD KEY `oopap_id` (`oopap_id`);
@@ -613,7 +613,7 @@ ALTER TABLE `oopap`
 -- AUTO_INCREMENT for table `ors`
 --
 ALTER TABLE `ors`
-  MODIFY `ors_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `ors_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `payee`
@@ -659,11 +659,11 @@ ALTER TABLE `financial_submodules`
 -- Constraints for table `ors`
 --
 ALTER TABLE `ors`
-  ADD CONSTRAINT `ors_ibfk_1` FOREIGN KEY (`fund_cluster_id`) REFERENCES `fund_cluster` (`fund_cluster_id`),
-  ADD CONSTRAINT `ors_ibfk_2` FOREIGN KEY (`rs_id`) REFERENCES `responsibility_center` (`rc_id`),
-  ADD CONSTRAINT `ors_ibfk_3` FOREIGN KEY (`object_code_id`) REFERENCES `financial_object_code` (`object_code_id`),
-  ADD CONSTRAINT `ors_ibfk_4` FOREIGN KEY (`approver_id`) REFERENCES `approver` (`approver_id`),
-  ADD CONSTRAINT `ors_ibfk_5` FOREIGN KEY (`oopap_id`) REFERENCES `oopap` (`oopap_id`);
+  ADD CONSTRAINT `ors_ibfk_1` FOREIGN KEY (`fund_cluster_id`) REFERENCES `fund_cluster` (`fund_cluster_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `ors_ibfk_2` FOREIGN KEY (`rc_id`) REFERENCES `responsibility_center` (`rc_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `ors_ibfk_4` FOREIGN KEY (`approver_id`) REFERENCES `approver` (`approver_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `ors_ibfk_5` FOREIGN KEY (`oopap_id`) REFERENCES `oopap` (`oopap_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `ors_ibfk_6` FOREIGN KEY (`object_code_id`) REFERENCES `financial_object_code` (`object_code_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
