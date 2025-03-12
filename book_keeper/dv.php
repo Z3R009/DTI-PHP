@@ -1,13 +1,12 @@
 <?php
 include '../DBConnection.php';
 
-
 $select = mysqli_query($connection, "
     SELECT 
         ors.*, 
         financial_object_code.object_name, 
         approver.approver_name,
-        fund_cluster.fund_cluster_name,
+        CONCAT(fund_cluster.uacs_code, '-', fund_cluster.fund_cluster_name) AS fund_cluster,
         responsibility_center.code,
         oopap.oopap_name
     FROM ors
@@ -17,6 +16,47 @@ $select = mysqli_query($connection, "
     LEFT JOIN responsibility_center ON ors.rc_id = responsibility_center.rc_id
     LEFT JOIN oopap ON ors.oopap_id = oopap.oopap_id
 ");
+
+// Function to generate the next DV number
+function generateDVNumber($connection, $fund_cluster_id, $year, $month)
+{
+    // Fetch the latest DV number for the given fund cluster, year, and month
+    $query = "SELECT dv_no FROM dv WHERE fund_cluster_id = ? AND YEAR(date) = ? AND MONTH(date) = ? ORDER BY dv_no DESC LIMIT 1";
+    $stmt = $connection->prepare($query);
+    $stmt->bind_param("iii", $fund_cluster_id, $year, $month);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        $last_dv_no = $row['dv_no'];
+        // Extract the series number and increment it
+        $series = intval(substr($last_dv_no, -3)) + 1;
+    } else {
+        // If no DV number exists, start with 001
+        $series = 1;
+    }
+
+    // Format the series to 3 digits
+    $series = str_pad($series, 3, '0', STR_PAD_LEFT);
+
+    // Generate the new DV number
+    $dv_no = sprintf("%02d-%02d-%02d-%s", $fund_cluster_id, $month, $year % 100, $series);
+
+    return $dv_no;
+}
+
+// Handle AJAX request to get the next DV number
+if (isset($_GET['fund_cluster_id']) && isset($_GET['year']) && isset($_GET['month'])) {
+    $fund_cluster_id = intval($_GET['fund_cluster_id']);
+    $year = intval($_GET['year']);
+    $month = intval($_GET['month']);
+
+    $dv_no = generateDVNumber($connection, $fund_cluster_id, $year, $month);
+
+    echo json_encode(['dv_no' => $dv_no]);
+    exit;
+}
 ?>
 
 <!DOCTYPE html>
@@ -884,15 +924,15 @@ $select = mysqli_query($connection, "
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">Fund Cluster</label>
-                                <input type="text" class="form-control" id="fund_cluster_name">
+                                <input type="text" class="form-control" id="fund_cluster">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Date</label>
-                                <input type="date" class="form-control" id="date">
+                                <input type="date" class="form-control" name="date">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Disbursement Voucher No.</label>
-                                <input type="text" class="form-control" id="ors_no">
+                                <input type="text" class="form-control" name="dv_no">
                             </div>
                         </div>
                     </div>
@@ -1083,9 +1123,7 @@ $select = mysqli_query($connection, "
                     fetch(`get_ors_details.php?id=${orsId}`)
                         .then(response => response.json())
                         .then(data => {
-                            document.getElementById('fund_cluster_name').value = data.fund_cluster_name;
-                            document.getElementById('date').value = data.date;
-                            document.getElementById('ors_no').value = data.ors_no;
+                            document.getElementById('fund_cluster').value = data.fund_cluster;
                             document.getElementById('payee_name').value = data.payee_name;
                             document.getElementById('tin_no').value = data.tin_no;
                             document.getElementById('address').value = data.address;
@@ -1383,6 +1421,43 @@ $select = mysqli_query($connection, "
         document.addEventListener('DOMContentLoaded', function () {
             calculateTaxes();
             calculateTotals();
+        });
+    </script>
+
+
+    <!-- dv_no -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const dateInput = document.querySelector('input[name="date"]');
+            const dvNoInput = document.querySelector('input[name="dv_no"]');
+            const fundClusterInput = document.getElementById('fund_cluster_name');
+
+            dateInput.addEventListener('change', function () {
+                const date = new Date(this.value);
+                const year = date.getFullYear();
+                const month = date.getMonth() + 1; // Months are 0-based in JavaScript
+                const fundClusterId = fundClusterInput.value.split('-')[0]; // Extract fund_cluster_id from fund_cluster_name
+
+                if (fundClusterId && year && month) {
+                    fetch(`dv.php?fund_cluster_id=${fundClusterId}&year=${year}&month=${month}`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.dv_no) {
+                                dvNoInput.value = data.dv_no;
+                            } else {
+                                console.error('No DV number returned from the server');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching DV number:', error);
+                        });
+                }
+            });
         });
     </script>
 </body>
