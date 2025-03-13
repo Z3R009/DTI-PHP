@@ -1,4 +1,9 @@
 <!DOCTYPE html>
+<?php
+include '../DBConnection.php';
+
+
+?>
 <html lang="en">
 
 <head>

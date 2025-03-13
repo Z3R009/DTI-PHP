@@ -20,6 +20,21 @@ $select = mysqli_query($connection, "
 // Function to generate the next DV number
 function generateDVNumber($connection, $fund_cluster_id, $year, $month)
 {
+    // Fetch the uacs_code for the given fund_cluster_id
+    $uacsQuery = "SELECT uacs_code FROM fund_cluster WHERE fund_cluster_id = ?";
+    $uacsStmt = $connection->prepare($uacsQuery);
+    $uacsStmt->bind_param("i", $fund_cluster_id);
+    $uacsStmt->execute();
+    $uacsResult = $uacsStmt->get_result();
+
+    if ($uacsResult->num_rows > 0) {
+        $uacsRow = $uacsResult->fetch_assoc();
+        $uacs_code = $uacsRow['uacs_code']; // Get the uacs_code
+    } else {
+        // If no uacs_code is found, use a default value or handle the error
+        throw new Exception("UACS code not found for fund_cluster_id: $fund_cluster_id");
+    }
+
     // Fetch the latest DV number for the given fund cluster, year, and month
     $query = "SELECT dv_no FROM dv WHERE fund_cluster_id = ? AND YEAR(date) = ? AND MONTH(date) = ? ORDER BY dv_no DESC LIMIT 1";
     $stmt = $connection->prepare($query);
@@ -40,8 +55,8 @@ function generateDVNumber($connection, $fund_cluster_id, $year, $month)
     // Format the series to 3 digits
     $series = str_pad($series, 3, '0', STR_PAD_LEFT);
 
-    // Generate the new DV number
-    $dv_no = sprintf("%02d-%02d-%02d-%s", $fund_cluster_id, $month, $year % 100, $series);
+    // Generate the new DV number using uacs_code instead of fund_cluster_id
+    $dv_no = sprintf("%s-%02d-%02d-%s", $uacs_code, $month, $year % 100, $series);
 
     return $dv_no;
 }
@@ -58,6 +73,7 @@ if (isset($_GET['fund_cluster_id']) && isset($_GET['year']) && isset($_GET['mont
     exit;
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -92,7 +108,21 @@ if (isset($_GET['fund_cluster_id']) && isset($_GET['year']) && isset($_GET['mont
     <!-- Template Main CSS File -->
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
 
+    <!-- Additional custom styles for form validation -->
+
+</head>
     <style>
+        .is-invalid {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25) !important;
+        }
+        
+        .required-field::after {
+            content: " *";
+            color: red;
+        }
+
+       
         .form-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -694,177 +724,15 @@ if (isset($_GET['fund_cluster_id']) && isset($_GET['year']) && isset($_GET['mont
                 min-width: 100%;
             }
         }
+    
     </style>
-</head>
 
 <body>
 
-    <!-- ======= Header ======= -->
-    <header id="header" class="header fixed-top d-flex align-items-center">
+        <?php include "Includes/header.php";?>
+        <?php include "Includes/sidebar.php";?>
 
-        <div class="d-flex align-items-center justify-content-between">
-            <a href="index.html" class="logo d-flex align-items-center">
-                <img src="../img/DTI_short.png" alt="">
-                <span class="d-none d-lg-block">Region 12</span>
-            </a>
-            <i class="bi bi-list toggle-sidebar-btn"></i>
-        </div><!-- End Logo -->
-
-
-        <nav class="header-nav ms-auto">
-            <ul class="d-flex align-items-center">
-
-
-
-                <li class="nav-item dropdown pe-3">
-
-                    <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-                        <i class="ri-account-circle-fill fs-2"></i>
-                        <span class="d-none d-md-block dropdown-toggle ps-2"></span>
-                    </a>
-
-                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
-                        <li class="dropdown-header">
-                            <h6>Kevin Anderson</h6>
-                            <span>Web Designer</span>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center" href="users-profile.html">
-                                <i class="bi bi-person"></i>
-                                <span>My Profile</span>
-                            </a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center" href="users-profile.html">
-                                <i class="bi bi-gear"></i>
-                                <span>Account Settings</span>
-                            </a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center" href="pages-faq.html">
-                                <i class="bi bi-question-circle"></i>
-                                <span>Need Help?</span>
-                            </a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center" href="../logout.php">
-                                <i class="bi bi-box-arrow-right"></i>
-                                <span>Sign Out</span>
-                            </a>
-                        </li>
-
-                    </ul><!-- End Profile Dropdown Items -->
-                </li><!-- End Profile Nav -->
-
-            </ul>
-        </nav><!-- End Icons Navigation -->
-
-    </header><!-- End Header -->
-
-    <!-- ======= Sidebar ======= -->
-    <aside id="sidebar" class="sidebar">
-
-        <ul class="sidebar-nav" id="sidebar-nav">
-
-            <li class="nav-item">
-                <a class="navbar-brand ps-3" href="">
-                    <img src="../img/DTI_w12.png" alt="Logo" style="height: 100px; width: auto; max-width: 100%; ">
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link " href="dashboard.php">
-                    <i class="bi bi-grid"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link collapsed" data-bs-target="#charts-nav" data-bs-toggle="collapse" href="#">
-                    <i class="bi bi-bar-chart"></i><span>Forms</span><i class="bi bi-chevron-down ms-auto"></i>
-                </a>
-                <ul id="charts-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-                    <li>
-                        <a href="ors.php">
-                            <i class="bi bi-circle"></i><span>Obligation Request and Status</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="dv.php">
-                            <i class="bi bi-circle"></i><span>Disbursement Voucher</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="jev.php">
-                            <i class="bi bi-circle"></i><span>JEV</span>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link collapsed" data-bs-target="#components-nav" data-bs-toggle="collapse" href="#">
-                    <i class="bi bi-menu-button-wide"></i><span>UACS</span><i class="bi bi-chevron-down ms-auto"></i>
-                </a>
-                <ul id="components-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-                    <li>
-                        <a href="account_title.php">
-                            <i class="bi bi-circle"></i><span>Account Title</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="fund_cluster.php">
-                            <i class="bi bi-circle"></i><span>Fund Cluster</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="responsibility.php">
-                            <i class="bi bi-circle"></i><span>Responsibility Center</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="payee.php">
-                            <i class="bi bi-circle"></i><span>Payee</span>
-                        </a>
-                    </li>
-
-                    <li>
-                        <a href="approver.php">
-                            <i class="bi bi-circle"></i><span>Approver</span>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="reports_copy.php">
-                    <i class="bi bi-journal-text"></i>
-                    <span>Reports</span>
-                </a>
-            </li>
-
-
-
-        </ul>
-
-    </aside><!-- End Sidebar-->
-
-    <main id="main" class="main">
+        <main id="main" class="main">
         <div class="pagetitle">
             <h1>Disbursement</h1>
         </div><!-- End Page Title -->
@@ -896,7 +764,8 @@ if (isset($_GET['fund_cluster_id']) && isset($_GET['year']) && isset($_GET['mont
                                     <td><?php echo htmlspecialchars($row['budget_officer']); ?></td>
                                     <td>
                                         <button type="button" class="btn btn-primary view-details"
-                                            data-id="<?php echo $row['ors_id']; ?>">
+                                            data-id="<?php echo $row['ors_id']; ?>"
+                                            data-fund-cluster-id="<?php echo $row['fund_cluster_id']; ?>">
                                             <i class="bi bi-eye" data-bs-toggle="tooltip" data-bs-placement="top"
                                                 title="View Details"></i>
                                         </button>
@@ -918,21 +787,24 @@ if (isset($_GET['fund_cluster_id']) && isset($_GET['year']) && isset($_GET['mont
                 <span class="close-modal" id="closeDvModal">&times;</span>
             </div>
             <div class="modal-body">
-                <div class="form-container">
+                <form id="dvForm" class="form-container">
+                    <input type="hidden" id="ors_id" name="ors_id">
+                    <input type="hidden" id="fund_cluster_id" name="fund_cluster_id">
+
                     <div class="form-section">
                         <h3>General Information</h3>
                         <div class="form-row">
                             <div class="form-group">
-                                <label class="form-label">Fund Cluster</label>
-                                <input type="text" class="form-control" id="fund_cluster">
+                                <label class="form-label required-field">Fund Cluster</label>
+                                <input type="text" class="form-control" id="fund_cluster" name="fund_cluster" required>
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Date</label>
-                                <input type="date" class="form-control" name="date">
+                                <label class="form-label required-field">Date</label>
+                                <input type="date" class="form-control" id="date" name="date" required>
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Disbursement Voucher No.</label>
-                                <input type="text" class="form-control" name="dv_no">
+                                <label class="form-label required-field">Disbursement Voucher No.</label>
+                                <input type="text" class="form-control" id="dv_no" name="dv_no" required>
                             </div>
                         </div>
                     </div>
@@ -943,21 +815,21 @@ if (isset($_GET['fund_cluster_id']) && isset($_GET['year']) && isset($_GET['mont
                             <div class="form-group full-width">
                                 <div class="checkbox-group">
                                     <div class="checkbox-item">
-                                        <input type="checkbox" id="mds" name="payment_mode">
+                                        <input type="checkbox" id="mds" name="payment_mode" value="MDS Check">
                                         <label for="mds">MDS Check</label>
                                     </div>
                                     <div class="checkbox-item">
-                                        <input type="checkbox" id="commercial" name="payment_mode">
+                                        <input type="checkbox" id="commercial" name="payment_mode" value="Commercial Check">
                                         <label for="commercial">Commercial Check</label>
                                     </div>
                                     <div class="checkbox-item">
-                                        <input type="checkbox" id="ada" name="payment_mode">
+                                        <input type="checkbox" id="ada" name="payment_mode" value="ADA">
                                         <label for="ada">ADA</label>
                                     </div>
                                     <div class="checkbox-item">
-                                        <input type="checkbox" id="others" name="payment_mode">
+                                        <input type="checkbox" id="others" name="payment_mode" value="Others">
                                         <label for="others">Others (Specify):</label>
-                                        <input type="text" class="form-control" style="width: 200px;">
+                                        <input type="text" class="form-control" id="other_payment_mode" style="width: 200px;">
                                     </div>
                                 </div>
                             </div>
@@ -969,42 +841,45 @@ if (isset($_GET['fund_cluster_id']) && isset($_GET['year']) && isset($_GET['mont
                         <h3>Payee Details</h3>
                         <div class="form-row">
                             <div class="form-group">
-                                <label class="form-label">Payee Name</label>
-                                <input type="text" class="form-control" id="payee_name">
+                                <label class="form-label required-field">Payee Name</label>
+                                <input type="text" class="form-control" id="payee_name" name="payee_name" required>
                             </div>
                             <div class="form-group">
-                                <label class="form-label">TIN/Employee No.</label>
-                                <input type="text" class="form-control" id="tin_no">
+                                <label class="form-label required-field">TIN/Employee No.</label>
+                                <input type="text" class="form-control" id="tin_no" name="tin_no" required>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Address</label>
-                            <select class="form-control" id="address">
-                                <option>Koronadal City</option>
+                            <label class="form-label required-field">Address</label>
+                            <select class="form-control" id="address" name="address" required>
+                                <option value="">Select Address</option>
+                                <option value="Koronadal City">Koronadal City</option>
+                                <!-- Add more options as needed -->
                             </select>
                         </div>
                     </div>
+                    
                     <!-- Payment Details Section -->
                     <div class="form-section">
                         <h3>Particulars</h3>
                         <div class="form-row">
                             <div class="form-group full-width">
-                                <label class="form-label">NOTES</label>
-                                <textarea class="form-control" id="notes"></textarea>
+                                <label class="form-label required-field">NOTES</label>
+                                <textarea class="form-control" id="notes" name="notes" required></textarea>
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label class="form-label">Responsibility Center</label>
-                                <input type="text" class="form-control" id="code">
+                                <label class="form-label required-field">Responsibility Center</label>
+                                <input type="text" class="form-control" id="code" name="rc_id" required>
                             </div>
                             <div class="form-group">
-                                <label class="form-label">OO/PAP</label>
-                                <input type="text" class="form-control" id="oopap_name">
+                                <label class="form-label required-field">OO/PAP</label>
+                                <input type="text" class="form-control" id="oopap_name" name="oopap_id" required>
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Amount</label>
-                                <input type="number" class="form-control" id="amount" step="0.01">
+                                <label class="form-label required-field">Amount</label>
+                                <input type="number" class="form-control" id="amount" name="amount" step="0.01" required>
                             </div>
                         </div>
                     </div>
@@ -1014,13 +889,13 @@ if (isset($_GET['fund_cluster_id']) && isset($_GET['year']) && isset($_GET['mont
                         <h3>Breakdown of Expenses</h3>
                         <div class="form-row">
                             <div class="form-group half-width">
-                                <label class="form-label">Gross Amount</label>
-                                <input type="number" class="form-control" id="gross_amount" step="0.01"
-                                    onchange="calculateTaxes()">
+                                <label class="form-label required-field">Gross Amount</label>
+                                <input type="number" class="form-control" id="gross_amount" name="gross_amount" step="0.01"
+                                    onchange="calculateTaxes()" required>
                             </div>
                             <div class="form-group half-width">
                                 <div class="checkbox-item">
-                                    <input type="checkbox" class="apply_taxes" id="apply_taxes" checked
+                                    <input type="checkbox" class="apply_taxes" id="apply_taxes" name="apply_taxes" checked
                                         onchange="toggleTaxFields()">
                                     <label for="apply_taxes">Apply Tax Calculations</label>
                                 </div>
@@ -1031,30 +906,30 @@ if (isset($_GET['fund_cluster_id']) && isset($_GET['year']) && isset($_GET['mont
                             <div class="form-row">
                                 <div class="form-group half-width">
                                     <label class="form-label">VAT <input type="number" class="tax-percentage"
-                                            id="vat_percentage" value="12" min="0" max="100" step="0.01"
+                                            id="vat_percentage" name="vat_percentage" value="12" min="0" max="100" step="0.01"
                                             onchange="calculateTaxes()"> %</label>
-                                    <input type="number" class="form-control calculation-field" id="vat_amount"
+                                    <input type="number" class="form-control calculation-field" id="vat_amount" name="vat"
                                         step="0.01" readonly>
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-group">
                                     <label class="form-label">Tax Base</label>
-                                    <input type="number" class="form-control calculation-field" id="tax_base"
+                                    <input type="number" class="form-control calculation-field" id="tax_base" name="tax_base"
                                         step="0.01" readonly>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Less: <input type="number" class="tax-percentage"
-                                            id="tax1_percentage" value="5" min="0" max="100" step="0.01"
+                                            id="tax1_percentage" name="tax1_percentage" value="5" min="0" max="100" step="0.01"
                                             onchange="calculateTaxes()"> % Tax</label>
-                                    <input type="number" class="form-control calculation-field" id="tax_1" step="0.01"
+                                    <input type="number" class="form-control calculation-field" id="tax_1" name="tax_1" step="0.01"
                                         readonly>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Less: <input type="number" class="tax-percentage"
-                                            id="tax2_percentage" value="2" min="0" max="100" step="0.01"
+                                            id="tax2_percentage" name="tax2_percentage" value="2" min="0" max="100" step="0.01"
                                             onchange="calculateTaxes()"> % Tax</label>
-                                    <input type="number" class="form-control calculation-field" id="tax_2" step="0.01"
+                                    <input type="number" class="form-control calculation-field" id="tax_2" name="tax_2" step="0.01"
                                         readonly>
                                 </div>
                             </div>
@@ -1062,9 +937,9 @@ if (isset($_GET['fund_cluster_id']) && isset($_GET['year']) && isset($_GET['mont
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label class="form-label">Net Amount</label>
-                                <input type="number" class="form-control calculation-field" id="net_amount" step="0.01"
-                                    readonly>
+                                <label class="form-label required-field">Net Amount</label>
+                                <input type="number" class="form-control calculation-field" id="net_amount" name="net_amount" step="0.01"
+                                    readonly required>
                             </div>
                         </div>
                     </div>
@@ -1074,21 +949,28 @@ if (isset($_GET['fund_cluster_id']) && isset($_GET['year']) && isset($_GET['mont
                         <h3>Approver Details</h3>
                         <div class="form-row">
                             <div class="form-group">
-                                <label class="form-label">Approver</label>
-                                <input type="text" class="form-control" id="approver_name">
+                                <label class="form-label required-field">Approver</label>
+                                <input type="text" class="form-control" id="approver_name" name="approver_id" required>
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Budget Officer</label>
-                                <input type="text" class="form-control" id="budget_officer">
+                                <label class="form-label required-field">Budget Officer</label>
+                                <input type="text" class="form-control" id="budget_officer" name="budget_officer" required>
                             </div>
                         </div>
+                        
+                        <!-- Additional fields required by backend -->
+                        <input type="hidden" id="chief_accountant" name="chief_accountant" value="Default Chief Accountant">
+                        <input type="hidden" id="regional_director" name="regional_director" value="Default Regional Director">
+                        <input type="hidden" id="check_no" name="check_no" value="">
+                        <input type="hidden" id="bank_acc_no" name="bank_acc_no" value="">
                     </div>
+                    
                     <!-- Buttons -->
                     <div class="btn-container">
                         <button type="button" class="btn btn-secondary" id="clearFormBtn">Clear Form</button>
-                        <button type="submit" class="btn btn-primary">Print</button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">Submit/Print</button>
                     </div>
-                </div>
+                </form>
             </div>
         </div>
     </div>
@@ -1109,14 +991,150 @@ if (isset($_GET['fund_cluster_id']) && isset($_GET['year']) && isset($_GET['mont
     <!-- Template Main JS File -->
     <script src="../NiceAdmin/assets/js/main.js"></script>
 
-    <!-- Custom Script for Modal -->
+    <!-- Custom Script for Modal and Form Submission -->
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        // Form Validation Function
+        function validateForm() {
+            const requiredFields = [
+                'fund_cluster',
+                'date',
+                'dv_no',
+                'payee_name',
+                'tin_no',
+                'address',
+                'notes',
+                'code',
+                'oopap_name',
+                'amount',
+                'gross_amount',
+                'net_amount',
+                'approver_name',
+                'budget_officer'
+            ];
+            
+            let isValid = true;
+            let missingFields = [];
+            
+            for (const field of requiredFields) {
+                const element = document.getElementById(field);
+                if (!element || !element.value.trim()) {
+                    isValid = false;
+                    missingFields.push(field.replace('_', ' '));
+                    if (element) element.classList.add('is-invalid');
+                } else if (element) {
+                    element.classList.remove('is-invalid');
+                }
+            }
+            
+            // Check at least one payment mode is selected
+            const paymentModes = document.querySelectorAll('input[name="payment_mode"]:checked');
+            if (paymentModes.length === 0) {
+                isValid = false;
+                missingFields.push('payment mode');
+                document.querySelectorAll('input[name="payment_mode"]').forEach(cb => {
+                    cb.parentElement.classList.add('is-invalid');
+                });
+            } else {
+                document.querySelectorAll('input[name="payment_mode"]').forEach(cb => {
+                    cb.parentElement.classList.remove('is-invalid');
+                });
+            }
+            
+            if (!isValid) {
+                alert('Please fill in all required fields: ' + missingFields.join(', '));
+            }
+            
+            return isValid;
+        }
+
+        // Toggle Tax Fields
+        function toggleTaxFields() {
+            const applyTaxesCheckbox = document.getElementById('apply_taxes');
+            const taxFieldsContainer = document.getElementById('tax_fields_container');
+            
+            if (applyTaxesCheckbox.checked) {
+                taxFieldsContainer.style.display = 'block';
+                calculateTaxes();
+            } else {
+                taxFieldsContainer.style.display = 'none';
+                
+                document.getElementById('vat_amount').value = '0.00';
+                document.getElementById('tax_1').value = '0.00';
+                document.getElementById('tax_2').value = '0.00';
+                document.getElementById('tax_base').value = '0.00';
+                
+                const grossAmount = parseFloat(document.getElementById('gross_amount').value) || 0;
+                document.getElementById('net_amount').value = grossAmount.toFixed(2);
+                
+                const amountField = document.getElementById('amount');
+                if (!amountField.value) {
+                    amountField.value = grossAmount.toFixed(2);
+                }
+            }
+        }
+
+        // Calculate Taxes
+        function calculateTaxes() {
+            const grossAmount = parseFloat(document.getElementById('gross_amount').value) || 0;
+            const vatPercentage = parseFloat(document.getElementById('vat_percentage').value) || 0;
+            const tax1Percentage = parseFloat(document.getElementById('tax1_percentage').value) || 0;
+            const tax2Percentage = parseFloat(document.getElementById('tax2_percentage').value) || 0;
+            
+            const vatAmount = grossAmount * (vatPercentage / 100);
+            const taxBase = grossAmount - vatAmount;
+            const tax1 = taxBase * (tax1Percentage / 100);
+            const tax2 = taxBase * (tax2Percentage / 100);
+            const netAmount = grossAmount - vatAmount - tax1 - tax2;
+            
+            document.getElementById('vat_amount').value = vatAmount.toFixed(2);
+            document.getElementById('tax_base').value = taxBase.toFixed(2);
+            document.getElementById('tax_1').value = tax1.toFixed(2);
+            document.getElementById('tax_2').value = tax2.toFixed(2);
+            document.getElementById('net_amount').value = netAmount.toFixed(2);
+            
+            const amountField = document.getElementById('amount');
+            if (!amountField.value) {
+                amountField.value = grossAmount.toFixed(2);
+            }
+        }
+
+        // Clear Form
+        document.getElementById('clearFormBtn').addEventListener('click', function() {
+            const formInputs = document.querySelectorAll('.form-control:not(.calculation-field)');
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            
+            formInputs.forEach(input => {
+                input.value = '';
+                input.classList.remove('is-invalid');
+            });
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            
+            // Reset tax percentages to defaults
+            document.getElementById('vat_percentage').value = '12';
+            document.getElementById('tax1_percentage').value = '5';
+            document.getElementById('tax2_percentage').value = '2';
+            document.getElementById('apply_taxes').checked = true;
+            
+            // Clear calculation fields
+            document.getElementById('vat_amount').value = '';
+            document.getElementById('tax_base').value = '';
+            document.getElementById('tax_1').value = '';
+            document.getElementById('tax_2').value = '';
+            document.getElementById('net_amount').value = '';
+            
+            toggleTaxFields();
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
             const modal = document.getElementById('dvFormModal');
             const closeModalBtn = document.getElementById('closeDvModal');
             const viewDetailsButtons = document.querySelectorAll('.view-details');
-
-            // Open modal and populate data
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // When view details button is clicked
             viewDetailsButtons.forEach(button => {
                 button.addEventListener('click', function () {
                     const orsId = this.getAttribute('data-id');
@@ -1152,6 +1170,313 @@ if (isset($_GET['fund_cluster_id']) && isset($_GET['year']) && isset($_GET['mont
                 }
             });
         });
+    </script>
+    
+    <script>
+             
+             document.addEventListener('DOMContentLoaded', function() {
+            // Get the form and submit button
+            const form = document.querySelector('.form-container');
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const modal = document.getElementById('dvFormModal');
+            const closeModalBtn = document.getElementById('closeDvModal');
+            const viewDetailsButtons = document.querySelectorAll('.view-details');
+            
+            // When view details button is clicked
+            viewDetailsButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const orsId = this.getAttribute('data-id');
+                    const fundClusterId = this.getAttribute('data-fund-cluster-id');
+                    
+                    // Store these values in hidden fields
+                    document.getElementById('ors_id').value = orsId;
+                    document.getElementById('fund_cluster_id').value = fundClusterId;
+                    
+                    // Set current date by default
+                    const today = new Date();
+                    const formattedDate = today.toISOString().split('T')[0];
+                    document.getElementById('date').value = formattedDate;
+                    
+                    fetch(`get_ors_details.php?id=${orsId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            document.getElementById('fund_cluster').value = data.fund_cluster;
+                            document.getElementById('payee_name').value = data.payee_name;
+                            document.getElementById('tin_no').value = data.tin_no;
+                            document.getElementById('address').value = data.address || "Koronadal City"; // Default value
+                            document.getElementById('notes').value = data.notes || "";
+                            document.getElementById('code').value = data.code;
+                            document.getElementById('oopap_name').value = data.oopap_name;
+                            document.getElementById('amount').value = data.amount;
+                            document.getElementById('gross_amount').value = data.amount; // Set gross amount same as amount
+                            document.getElementById('approver_name').value = data.approver_name;
+                            document.getElementById('budget_officer').value = data.budget_officer;
+                            
+                            // Set MDS Check as default payment mode
+                            document.getElementById('mds').checked = true;
+                            
+                            // Calculate taxes after setting the gross amount
+                            calculateTaxes();
+                            
+                            // Generate DV number based on date and fund_cluster_id
+                            generateDVNumber();
+                            
+                            modal.style.display = 'block';
+                        })
+                        .catch(error => {
+                            console.error('Error fetching ORS details:', error);
+                            alert('Error loading data. Please try again.');
+                        });
+                });
+            });
+            
+            // Generate DV Number when date changes
+            document.getElementById('date').addEventListener('change', generateDVNumber);
+            
+            function generateDVNumber() {
+                const dateInput = document.getElementById('date');
+                const fundClusterId = document.getElementById('fund_cluster_id').value;
+                
+                if (dateInput.value && fundClusterId) {
+                    const date = new Date(dateInput.value);
+                    const year = date.getFullYear();
+                    const month = date.getMonth() + 1; // Months are 0-based in JavaScript
+                    
+                    fetch(`dv.php?fund_cluster_id=${fundClusterId}&year=${year}&month=${month}`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.dv_no) {
+                                document.getElementById('dv_no').value = data.dv_no;
+                            } else {
+                                console.error('No DV number returned from the server');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching DV number:', error);
+                        });
+                }
+            }
+            
+            // Form validation function
+            function validateForm() {
+                const requiredFields = [
+                    'fund_cluster',
+                    'date',
+                    'dv_no',
+                    'payee_name',
+                    'tin_no',
+                    'address',
+                    'notes',
+                    'code',
+                    'oopap_name',
+                    'amount',
+                    'gross_amount',
+                    'net_amount',
+                    'approver_name',
+                    'budget_officer'
+                ];
+                
+                let isValid = true;
+                let missingFields = [];
+                
+                for (const field of requiredFields) {
+                    const element = document.getElementById(field);
+                    if (!element || !element.value.trim()) {
+                        isValid = false;
+                        missingFields.push(field.replace('_', ' '));
+                        if (element) element.classList.add('is-invalid');
+                    } else if (element) {
+                        element.classList.remove('is-invalid');
+                    }
+                }
+                
+                // Check at least one payment mode is selected
+                const paymentModes = document.querySelectorAll('input[name="payment_mode"]:checked');
+                if (paymentModes.length === 0) {
+                    isValid = false;
+                    missingFields.push('payment mode');
+                    document.querySelectorAll('input[name="payment_mode"]').forEach(cb => {
+                        cb.parentElement.classList.add('is-invalid');
+                    });
+                } else {
+                    document.querySelectorAll('input[name="payment_mode"]').forEach(cb => {
+                        cb.parentElement.classList.remove('is-invalid');
+                    });
+                }
+                
+                if (!isValid) {
+                    alert('Please fill in all required fields: ' + missingFields.join(', '));
+                }
+                
+                return isValid;
+            }
+            
+            // Form submission
+            submitBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Validate form before submission
+                if (!validateForm()) {
+                    return; // Stop submission if validation fails
+                }
+                
+                // Gather all form data
+                const formData = new FormData();
+                
+                // Add all the form fields to the FormData object
+                // Get fund_cluster_id safely
+                const fundClusterValue = document.getElementById('fund_cluster').value;
+                let fundClusterId;
+                
+                if (document.getElementById('fund_cluster_id').value) {
+                    // Use the stored fund_cluster_id if available
+                    fundClusterId = document.getElementById('fund_cluster_id').value;
+                } else if (fundClusterValue.includes('-')) {
+                    // Extract from the format "ID-Name"
+                    fundClusterId = fundClusterValue.split('-')[0];
+                } else {
+                    // Fallback to the full value
+                    fundClusterId = fundClusterValue;
+                }
+                
+                formData.append('fund_cluster_id', fundClusterId);
+                formData.append('date', document.getElementById('date').value);
+                formData.append('dv_no', document.getElementById('dv_no').value);
+                
+                // ORS ID if available
+                if (document.getElementById('ors_id').value) {
+                    formData.append('ors_id', document.getElementById('ors_id').value);
+                }
+                
+                // Mode of payment
+                const paymentModes = document.querySelectorAll('input[name="payment_mode"]:checked');
+                let modePayment = '';
+                paymentModes.forEach(mode => {
+                    if (mode.id === 'others') {
+                        const otherValue = document.getElementById('other_payment_mode').value;
+                        modePayment += (modePayment ? ', ' : '') + 'Others: ' + otherValue;
+                    } else {
+                        modePayment += (modePayment ? ', ' : '') + mode.value;
+                    }
+                });
+                formData.append('mode_payment', modePayment);
+                
+                // Payee details
+                formData.append('payee_name', document.getElementById('payee_name').value);
+                formData.append('tin_no', document.getElementById('tin_no').value);
+                formData.append('address', document.getElementById('address').value);
+                
+                // Payment details
+                formData.append('notes', document.getElementById('notes').value);
+                formData.append('rc_id', document.getElementById('code').value);
+                formData.append('oopap_id', document.getElementById('oopap_name').value);
+                formData.append('amount', document.getElementById('amount').value);
+                
+                // Tax calculations
+                formData.append('gross_amount', document.getElementById('gross_amount').value);
+                formData.append('vat', document.getElementById('vat_amount').value);
+                formData.append('tax_1', document.getElementById('tax_1').value);
+                formData.append('tax_2', document.getElementById('tax_2').value);
+                formData.append('tax_base', document.getElementById('tax_base').value);
+                formData.append('net_amount', document.getElementById('net_amount').value);
+                
+                // Approver details
+                formData.append('approver_id', document.getElementById('approver_name').value);
+                formData.append('budget_officer', document.getElementById('budget_officer').value);
+                
+                // Add default values for fields not in the form
+                formData.append('chief_accountant', 'Default Chief Accountant');
+                formData.append('regional_director', 'Default Regional Director');
+                formData.append('check_no', '');
+                formData.append('bank_acc_no', '');
+                
+                // Log all form data for debugging
+                console.log("Form data being submitted:");
+                for (let pair of formData.entries()) {
+                    console.log(pair[0] + ': ' + pair[1]);
+                }
+                
+                // Send the form data to the server
+                fetch('save_dv.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Server responded with an error status: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        alert('Disbursement Voucher saved successfully!');
+                        
+                        // Open print window with the saved DV
+                        const printWindow = window.open(`print_dv.php?id=${data.dv_id}`, '_blank');
+                        
+                        // After successful submission and printing, reset the form
+                        document.getElementById('closeDvModal').click();
+                        
+                        // Refresh the datatable to show new entry
+                        location.reload();
+                    } else {
+                        alert('Error saving Disbursement Voucher: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while saving the Disbursement Voucher: ' + error.message);
+                });
+            });
+            
+            // Close modal
+            closeModalBtn.addEventListener('click', function () {
+                modal.style.display = 'none';
+            });
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', function (event) {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+            
+            // Clear Form Button
+            document.getElementById('clearFormBtn').addEventListener('click', function() {
+                const formInputs = document.querySelectorAll('.form-control:not(.calculation-field)');
+                const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+                
+                formInputs.forEach(input => {
+                    input.value = '';
+                    input.classList.remove('is-invalid');
+                });
+                
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                
+                // Reset tax percentages to defaults
+                document.getElementById('vat_percentage').value = '12';
+                document.getElementById('tax1_percentage').value = '5';
+                document.getElementById('tax2_percentage').value = '2';
+                document.getElementById('apply_taxes').checked = true;
+                
+                // Clear calculation fields
+                document.getElementById('vat_amount').value = '';
+                document.getElementById('tax_base').value = '';
+                document.getElementById('tax_1').value = '';
+                document.getElementById('tax_2').value = '';
+                document.getElementById('net_amount').value = '';
+                
+                toggleTaxFields();
+            });
+        });
+
     </script>
 
 
@@ -1286,24 +1611,78 @@ if (isset($_GET['fund_cluster_id']) && isset($_GET['year']) && isset($_GET['mont
             }
         }
 
-        function calculateTotals() {
-            const debitAmounts = document.querySelectorAll('.debit-amount');
-            const creditAmounts = document.querySelectorAll('.credit-amount');
-
-            let totalDebit = 0;
-            let totalCredit = 0;
-
-            debitAmounts.forEach(input => {
-                totalDebit += parseFloat(input.value) || 0;
-            });
-
-            creditAmounts.forEach(input => {
-                totalCredit += parseFloat(input.value) || 0;
-            });
-
-            document.getElementById('total-debit').value = totalDebit.toFixed(2);
-            document.getElementById('total-credit').value = totalCredit.toFixed(2);
+        function toggleTaxFields() {
+            const applyTaxesCheckbox = document.getElementById('apply_taxes');
+            const taxFieldsContainer = document.getElementById('tax_fields_container');
+            
+            if (applyTaxesCheckbox.checked) {
+                taxFieldsContainer.style.display = 'block';
+                calculateTaxes();
+            } else {
+                taxFieldsContainer.style.display = 'none';
+                
+                document.getElementById('vat_amount').value = '0.00';
+                document.getElementById('tax_1').value = '0.00';
+                document.getElementById('tax_2').value = '0.00';
+                document.getElementById('tax_base').value = '0.00';
+                
+                const grossAmount = parseFloat(document.getElementById('gross_amount').value) || 0;
+                document.getElementById('net_amount').value = grossAmount.toFixed(2);
+                
+                const amountField = document.getElementById('amount');
+                if (!amountField.value) {
+                    amountField.value = grossAmount.toFixed(2);
+                }
+            }
         }
+
+        // Calculate Taxes
+        function calculateTaxes() {
+            const grossAmount = parseFloat(document.getElementById('gross_amount').value) || 0;
+            const vatPercentage = parseFloat(document.getElementById('vat_percentage').value) || 0;
+            const tax1Percentage = parseFloat(document.getElementById('tax1_percentage').value) || 0;
+            const tax2Percentage = parseFloat(document.getElementById('tax2_percentage').value) || 0;
+            
+            // Make sure we have a valid gross amount
+            if (grossAmount <= 0) {
+                document.getElementById('vat_amount').value = '0.00';
+                document.getElementById('tax_base').value = '0.00';
+                document.getElementById('tax_1').value = '0.00';
+                document.getElementById('tax_2').value = '0.00';
+                document.getElementById('net_amount').value = '0.00';
+                return;
+            }
+            
+            const vatAmount = grossAmount * (vatPercentage / 100);
+            const taxBase = grossAmount - vatAmount;
+            const tax1 = taxBase * (tax1Percentage / 100);
+            const tax2 = taxBase * (tax2Percentage / 100);
+            const netAmount = grossAmount - vatAmount - tax1 - tax2;
+            
+            document.getElementById('vat_amount').value = vatAmount.toFixed(2);
+            document.getElementById('tax_base').value = taxBase.toFixed(2);
+            document.getElementById('tax_1').value = tax1.toFixed(2);
+            document.getElementById('tax_2').value = tax2.toFixed(2);
+            document.getElementById('net_amount').value = netAmount.toFixed(2);
+            
+            const amountField = document.getElementById('amount');
+            if (!amountField.value) {
+                amountField.value = grossAmount.toFixed(2);
+            }
+        }
+
+        // Make sure these event listeners are set up
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up listeners for tax calculation fields
+            document.getElementById('gross_amount').addEventListener('input', calculateTaxes);
+            document.getElementById('vat_percentage').addEventListener('input', calculateTaxes);
+            document.getElementById('tax1_percentage').addEventListener('input', calculateTaxes);
+            document.getElementById('tax2_percentage').addEventListener('input', calculateTaxes);
+            document.getElementById('apply_taxes').addEventListener('change', toggleTaxFields);
+            
+            // Initialize tax fields
+            toggleTaxFields();
+        });
 
 
         document.getElementById('addAccountRow').addEventListener('click', function () {
