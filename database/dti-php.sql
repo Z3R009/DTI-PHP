@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 13, 2025 at 01:34 AM
+-- Generation Time: Mar 13, 2025 at 03:18 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -372,6 +372,22 @@ INSERT INTO `fund_cluster` (`fund_cluster_id`, `fund_cluster_name`, `uacs_code`,
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `jev`
+--
+
+CREATE TABLE `jev` (
+  `jev_id` int(11) NOT NULL,
+  `date` date NOT NULL,
+  `ors_no` varchar(255) NOT NULL,
+  `dv_no` varchar(255) NOT NULL,
+  `jev_no` varchar(255) NOT NULL,
+  `prepared` varchar(255) NOT NULL,
+  `certified` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `oopap`
 --
 
@@ -556,6 +572,12 @@ ALTER TABLE `fund_cluster`
   ADD PRIMARY KEY (`fund_cluster_id`);
 
 --
+-- Indexes for table `jev`
+--
+ALTER TABLE `jev`
+  ADD PRIMARY KEY (`jev_id`);
+
+--
 -- Indexes for table `oopap`
 --
 ALTER TABLE `oopap`
@@ -635,6 +657,12 @@ ALTER TABLE `financial_submodules`
 --
 ALTER TABLE `fund_cluster`
   MODIFY `fund_cluster_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- AUTO_INCREMENT for table `jev`
+--
+ALTER TABLE `jev`
+  MODIFY `jev_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `oopap`
