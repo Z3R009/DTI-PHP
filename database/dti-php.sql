@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 12, 2025 at 07:19 AM
+-- Generation Time: Mar 13, 2025 at 01:34 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -43,6 +43,27 @@ INSERT INTO `approver` (`approver_id`, `approver_name`, `designation`) VALUES
 (3, 'ROBERT A. ORFRECIO', 'Division Chief, SDD'),
 (4, 'ELBERT G. CAPECIO', 'Division Chief, IDD'),
 (5, 'MA. THERESA T. CHUA', 'Division Chief, CPD');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `dv`
+--
+
+CREATE TABLE `dv` (
+  `dv_id` int(11) NOT NULL,
+  `date` date NOT NULL,
+  `dv_no` varchar(255) NOT NULL,
+  `mode_payment` varchar(255) NOT NULL,
+  `vat` double(40,2) NOT NULL,
+  `tax_1` double(40,2) NOT NULL,
+  `tax_2` double(40,2) NOT NULL,
+  `net_amount` double(40,2) NOT NULL,
+  `chief_accountant` varchar(255) NOT NULL,
+  `regional_director` varchar(255) NOT NULL,
+  `check_no` varchar(255) NOT NULL,
+  `bank_acc_no` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -496,6 +517,12 @@ ALTER TABLE `approver`
   ADD PRIMARY KEY (`approver_id`);
 
 --
+-- Indexes for table `dv`
+--
+ALTER TABLE `dv`
+  ADD PRIMARY KEY (`dv_id`);
+
+--
 -- Indexes for table `financial_categories`
 --
 ALTER TABLE `financial_categories`
@@ -572,6 +599,12 @@ ALTER TABLE `users`
 --
 ALTER TABLE `approver`
   MODIFY `approver_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `dv`
+--
+ALTER TABLE `dv`
+  MODIFY `dv_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `financial_categories`
