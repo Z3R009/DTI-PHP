@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 13, 2025 at 03:18 AM
+-- Generation Time: Mar 14, 2025 at 03:23 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -52,17 +52,21 @@ INSERT INTO `approver` (`approver_id`, `approver_name`, `designation`) VALUES
 
 CREATE TABLE `dv` (
   `dv_id` int(11) NOT NULL,
-  `date` date NOT NULL,
-  `dv_no` varchar(255) NOT NULL,
-  `mode_payment` varchar(255) NOT NULL,
-  `vat` double(40,2) NOT NULL,
-  `tax_1` double(40,2) NOT NULL,
-  `tax_2` double(40,2) NOT NULL,
-  `net_amount` double(40,2) NOT NULL,
-  `chief_accountant` varchar(255) NOT NULL,
-  `regional_director` varchar(255) NOT NULL,
-  `check_no` varchar(255) NOT NULL,
-  `bank_acc_no` varchar(255) NOT NULL
+  `fund_cluster_id` int(11) DEFAULT NULL,
+  `date` date DEFAULT NULL,
+  `dv_no` varchar(50) DEFAULT NULL,
+  `payment_mode` varchar(100) DEFAULT NULL,
+  `vat` decimal(10,2) DEFAULT NULL,
+  `tax_1` decimal(10,2) DEFAULT NULL,
+  `tax_2` decimal(10,2) DEFAULT NULL,
+  `net_amount` decimal(10,2) DEFAULT NULL,
+  `object_code_id` int(255) NOT NULL,
+  `debit` double(40,2) NOT NULL,
+  `credit` double(40,2) NOT NULL,
+  `chief_accountant` varchar(255) DEFAULT NULL,
+  `regional_director` varchar(255) DEFAULT NULL,
+  `check_no` varchar(50) DEFAULT NULL,
+  `bank_acc_no` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -440,7 +444,9 @@ CREATE TABLE `ors` (
 --
 
 INSERT INTO `ors` (`ors_id`, `fund_cluster_id`, `date`, `ors_no`, `payee_name`, `tin_no`, `address`, `notes`, `rc_id`, `object_code_id`, `oopap_id`, `amount`, `approver_id`, `budget_officer`) VALUES
-(17, 3, '2025-03-11', '111', '111', '111', 'Koronadal City', '111', 11, 19, 8, 1111.00, 1, 'CONNIE M. BARNACHEA');
+(17, 3, '2025-03-11', '111', '111', '111', 'Koronadal City', '111', 11, 19, 8, 1111.00, 1, 'CONNIE M. BARNACHEA'),
+(18, 4, '0000-00-00', '12345', 'john', '54321', 'Koronadal City', 'asd', 11, 111, 6, 1000.00, 4, 'CONNIE M. BARNACHEA'),
+(19, 9, '2025-03-14', '123', 'asd', '3445', 'Koronadal City', '535asdada', 9, 3, 3, 43434.00, 4, 'CONNIE M. BARNACHEA');
 
 -- --------------------------------------------------------
 
@@ -536,7 +542,8 @@ ALTER TABLE `approver`
 -- Indexes for table `dv`
 --
 ALTER TABLE `dv`
-  ADD PRIMARY KEY (`dv_id`);
+  ADD PRIMARY KEY (`dv_id`),
+  ADD KEY `fund_cluster_id` (`fund_cluster_id`);
 
 --
 -- Indexes for table `financial_categories`
@@ -674,7 +681,7 @@ ALTER TABLE `oopap`
 -- AUTO_INCREMENT for table `ors`
 --
 ALTER TABLE `ors`
-  MODIFY `ors_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `ors_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `payee`

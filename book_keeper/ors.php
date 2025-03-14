@@ -11,6 +11,7 @@ if (isset($_POST['submit'])) {
     print_r($_POST);
     echo "</pre>";
 
+
     $fund_cluster_id = $_POST['fund_cluster_id'];
     $date = $_POST['date'];
     $ors_no = $_POST['ors_no'];
@@ -28,17 +29,30 @@ if (isset($_POST['submit'])) {
     $sql = "INSERT INTO ors (fund_cluster_id, date, ors_no, payee_name, tin_no, address, notes, rc_id, object_code_id, oopap_id, amount, approver_id, budget_officer) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-    $sql = "INSERT INTO ors (fund_cluster_id, date, ors_no, payee_name, tin_no, address, notes, rc_id, object_code_id, oopap_id, amount, approver_id, budget_officer) 
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
     $stmt = $connection->prepare($sql);
-    if ($stmt === false) {
-        die('Prepare failed: ' . htmlspecialchars($connection->error));
+    if (!$stmt) {
+        die('Prepare failed: ' . $connection->error);
     }
 
-    $stmt->bind_param("isssisssiidis", $fund_cluster_id, $date, $ors_no, $payee_name, $tin_no, $address, $notes, $rc_id, $object_code_id, $oopap_id, $amount, $approver_id, $budget_officer);
+    $stmt->bind_param(
+        "isssisssiidis",
+        $fund_cluster_id,
+        $date,
+        $ors_no,
+        $payee_name,
+        $tin_no,
+        $address,
+        $notes,
+        $rc_id,
+        $object_code_id,
+        $oopap_id,
+        $amount,
+        $approver_id,
+        $budget_officer
+    );
+
     if ($stmt->execute()) {
-        header('Location: ors.php');
+        header("Location: ors_form.php?ors_no=$ors_no");
         exit();
     } else {
         echo "Error: " . $stmt->error;
@@ -47,6 +61,7 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt->close();
     $connection->close();
 }
+
 
 
 // Query to fetch account titles and their corresponding UACS codes
@@ -573,7 +588,7 @@ while ($row = $result_approvers->fetch_assoc()) {
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Obligation Request No.</label>
-                                    <input type="text" class="form-control" name="ors_no" required>
+                                    <input type="text" class="form-control" name="ors_no" required autocomplete="off">
                                 </div>
                             </div>
                         </div>
@@ -585,11 +600,12 @@ while ($row = $result_approvers->fetch_assoc()) {
                             <div class="form-row">
                                 <div class="form-group">
                                     <label class="form-label">Payee Name</label>
-                                    <input type="text" class="form-control" name="payee_name" required>
+                                    <input type="text" class="form-control" name="payee_name" required
+                                        autocomplete="off">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">TIN/Employee No.</label>
-                                    <input type="text" class="form-control" name="tin_no" required>
+                                    <input type="text" class="form-control" name="tin_no" required autocomplete="off">
                                 </div>
                             </div>
                             <div class="form-group">
@@ -607,7 +623,7 @@ while ($row = $result_approvers->fetch_assoc()) {
                             <div class="form-row">
                                 <div class="form-group full-width">
                                     <label class="form-label">NOTES</label>
-                                    <textarea class="form-control" name="notes"></textarea>
+                                    <textarea class="form-control" name="notes"></textarea autocomplete="off">
                                 </div>
                             </div>
                             <div class="form-row">
@@ -661,7 +677,7 @@ while ($row = $result_approvers->fetch_assoc()) {
                                                     ?>
                                                 </select>
                                             </td>
-                                            <td><input type="number" class="form-control" name="amount" step="0.01">
+                                            <td><input type="number" class="form-control" name="amount" step="0.01" autocomplete="off">
                                             </td>
                                         </tr>
 
