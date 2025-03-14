@@ -16,6 +16,7 @@ $select = mysqli_query($connection, "
     LEFT JOIN responsibility_center ON ors.rc_id = responsibility_center.rc_id
     LEFT JOIN oopap ON ors.oopap_id = oopap.oopap_id
 ");
+// Function to generate the next DV number1
 
 // Function to generate the next DV number
 function generateDVNumber($connection, $fund_cluster_id, $year, $month)
