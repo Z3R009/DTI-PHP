@@ -29,7 +29,24 @@ if ($result1->num_rows > 0) {
 $stmt1->close();
 
 // Prepare SQL query to fetch ORS record using ors_id
-$query2 = "SELECT * FROM ors WHERE ors_id = ?";
+// Prepare SQL query to fetch ORS record and join with the Approver table
+$query2 = "
+    SELECT ors.*, 
+    financial_object_code.object_name, 
+    financial_object_code.uacs_code,
+        approver.approver_name,
+        approver.designation,
+        CONCAT(fund_cluster.uacs_code, '-', fund_cluster.fund_cluster_name) AS fund_cluster,
+        responsibility_center.code AS code,
+        oopap.oopap_name
+    FROM ors 
+    LEFT JOIN financial_object_code ON ors.object_code_id = financial_object_code.object_code_id
+    LEFT JOIN approver ON ors.approver_id = approver.approver_id
+    LEFT JOIN fund_cluster ON ors.fund_cluster_id = fund_cluster.fund_cluster_id
+    LEFT JOIN responsibility_center ON ors.rc_id = responsibility_center.rc_id
+    LEFT JOIN oopap ON ors.oopap_id = oopap.oopap_id
+    WHERE ors.ors_id = ?";
+
 $stmt2 = $connection->prepare($query2);
 if (!$stmt2) {
     die("Query preparation failed: " . $connection->error);
@@ -45,6 +62,7 @@ if ($result2->num_rows > 0) {
     $ors_form = []; // If no ORS record found
 }
 $stmt2->close();
+
 
 // Close the database connection
 $connection->close();
@@ -143,7 +161,7 @@ echo "</pre>";
                     </th>
                     <td rowspan="3" class="left-align">
                         <b>Fund Cluster:</b><br>
-                        <span><?php echo $ors_form['fund_cluster_id']; ?></span><br><br>
+                        <span><?php echo $ors_form['fund_cluster']; ?></span><br><br>
                         <b>Date:</b> <?php echo $dv_form['date']; ?><br><br>
                         <b>DV No.:</b><br>
                         <?php echo $dv_form['dv_no']; ?>
@@ -191,42 +209,37 @@ echo "</pre>";
 
                 <tr>
                     <td><strong><?php echo $ors_form['notes']; ?></strong></td>
-                    <td><?php echo $ors_form['rc_id']; ?></td>
-                    <td><?php echo $ors_form['oopap_id']; ?></td>
-                    <td><?php echo $ors_form['amount']; ?></td>
+                    <td rowspan="5"><?php echo $ors_form['code']; ?></td>
+                    <td rowspan="5"><?php echo $ors_form['oopap_name']; ?></td>
+                    <td rowspan="4"></td>
                 </tr>
 
                 <tr>
                     <td><?php echo $ors_form['notes']; ?></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
                 </tr>
 
                 <tr>
-                    <td><strong>Total Amount Billed:</strong> <span
-                            style=" padding-left: 180px;"><?php echo $ors_form['amount']; ?></span></td>
-                    </td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
                 </tr>
 
                 <tr>
                     <td>
+                        <strong>Total Amount Billed:</strong> <span
+                            style=" padding-left: 180px;"><?php echo $ors_form['amount']; ?></span> <br>
                         <span style="padding-left: 100px;"><strong>Gross
                                 Amount</strong></span><span
                             style="padding-left: 30px "><?php echo $ors_form['amount']; ?></span> <br>
 
                         <span style="padding-left: 100px;"><strong>Less VAT
-                                <?php echo $dv_form['vat']; ?></strong></span><span style="padding-left: 30px ">1,607.14
+                                <?php echo $dv_form['vat']; ?>%</strong></span><span
+                            style="padding-left: 30px "><?php echo $dv_form['vat_amount']; ?>
                         </span> <br>
 
                         <span style="padding-left: 100px;"><strong>Tax Base</strong></span><span
-                            style="padding-left: 30px ">13,392.86 </span> <br>
+                            style="padding-left: 30px "><?php echo $dv_form['tax_base']; ?></span> <br>
 
-                        <span style="padding-left: 100px;"><strong>Less 5%</strong></span><span
-                            style="padding-left: 30px ">669.64 </span> <br>
+                        <span style="padding-left: 100px;"><strong>Less
+                                <?php echo $dv_form['tax_1']; ?>%</strong></span><span
+                            style="padding-left: 30px "><?php echo $dv_form['tax_1_amount']; ?></span> <br>
 
                         <span style="padding-left: 100px;"><strong>Less 2%</strong></span><span
                             style="padding-left: 30px ">937.50 </span> <br>
@@ -234,15 +247,10 @@ echo "</pre>";
                         <span style="padding-left: 100px;"><strong>Net Amount</strong></span><span
                             style="padding-left: 30px "><?php echo $dv_form['net_amount']; ?></span> <br>
                     </td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
                 </tr>
 
                 <tr>
                     <td><strong style="padding-left: 200px;">Amount Due</strong></td>
-                    <td></td>
-                    <td></td>
                     <td><strong><?php echo $dv_form['net_amount']; ?></strong></td>
                 </tr>
             </table>
@@ -251,7 +259,7 @@ echo "</pre>";
                 <tr>
                     <td><strong>A. Certified: Expenses/Cash Advance necessary, lawful and incurred under my direct
                             supervision.</strong>
-                        <p style="text-align: center;"><u><?php echo $ors_form['approver_id']; ?></u></p>
+                        <p style="text-align: center;"><u><?php echo $ors_form['approver_name']; ?></u></p>
                         <p style="text-align: center;">Chief Administrative Officer</p>
                     </td>
                 </tr>
@@ -279,8 +287,8 @@ echo "</pre>";
                 </tr>
 
                 <tr>
-                    <td><?php echo $dv_form['object_code_id']; ?></td>
-                    <td>5029901000</td>
+                    <td><?php echo $ors_form['object_name']; ?></td>
+                    <td><?php echo $ors_form['uacs_code']; ?></td>
                     <td><?php echo $dv_form['debit']; ?></td>
                     <td><?php echo $dv_form['credit']; ?></td>
                 </tr>

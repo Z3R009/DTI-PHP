@@ -16,8 +16,12 @@ if (isset($_POST['submit'])) {
     $ors_id = $_POST['ors_id'];
     $payment_mode = $_POST['payment_mode'];
     $vat = $_POST['vat'];
+    $vat_amount = $_POST['vat_amount'];
+    $tax_base = $_POST['tax_base'];
     $tax_1 = $_POST['tax_1'];
+    $tax_1_amount = $_POST['tax_1_amount'];
     $tax_2 = $_POST['tax_2'];
+    $tax_2_amount = $_POST['tax_2_amount'];
     $net_amount = $_POST['net_amount'];
     $object_code_id = $_POST['object_code_id'];
     $debit = $_POST['debit'];
@@ -27,8 +31,8 @@ if (isset($_POST['submit'])) {
     $check_no = $_POST['check_no'];
     $bank_acc_no = $_POST['bank_acc_no'];
 
-    $sql = "INSERT INTO dv (date, dv_no, ors_id, payment_mode, vat, tax_1, tax_2, net_amount, object_code_id, debit, credit, chief_accountant, regional_director, check_no, bank_acc_no) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO dv (date, dv_no, ors_id, payment_mode, vat, vat_amount, tax_base, tax_1, tax_1_amount, tax_2, tax_2_amount, net_amount, object_code_id, debit, credit, chief_accountant, regional_director, check_no, bank_acc_no) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 
     $stmt = $connection->prepare($sql);
@@ -36,7 +40,7 @@ if (isset($_POST['submit'])) {
         die('Prepare failed: ' . htmlspecialchars($connection->error));
     }
 
-    $stmt->bind_param("siisiiiiiiissss", $date, $dv_no, $ors_id, $payment_mode, $vat, $tax_1, $tax_2, $net_amount, $object_code_id, $debit, $credit, $chief_accountant, $regional_director, $check_no, $bank_acc_no);
+    $stmt->bind_param("siisiiiiiiiiiiissss", $date, $dv_no, $ors_id, $payment_mode, $vat, $vat_amount, $tax_base, $tax_1, $tax_1_amount, $tax_2, $tax_2_amount, $net_amount, $object_code_id, $debit, $credit, $chief_accountant, $regional_director, $check_no, $bank_acc_no);
     if ($stmt->execute()) {
         header("Location: dv_form.php?dv_no=$dv_no");
         exit();
@@ -1054,28 +1058,28 @@ $result_object_code = $connection->query($sql_object_code);
                                                     id="vat_percentage" name="vat" value="12" min="0" max="100"
                                                     step="0.01" onchange="calculateTaxes()"> %</label>
                                             <input type="number" class="form-control calculation-field" id="vat_amount"
-                                                step="0.01" readonly>
+                                                name="vat_amount" step="0.01" readonly>
                                         </div>
                                     </div>
                                     <div class="form-row">
                                         <div class="form-group">
                                             <label class="form-label">Tax Base</label>
                                             <input type="number" class="form-control calculation-field" id="tax_base"
-                                                step="0.01" readonly>
+                                                name="tax_base" step="0.01" readonly>
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label">Less: <input type="number" class="tax-percentage"
                                                     id="tax1_percentage" name="tax_1" value="5" min="0" max="100"
                                                     step="0.01" onchange="calculateTaxes()"> % Tax</label>
                                             <input type="number" class="form-control calculation-field" id="tax_1"
-                                                step="0.01" readonly>
+                                                name="tax_1_amount" step="0.01" readonly>
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label">Less: <input type="number" class="tax-percentage"
                                                     id="tax2_percentage" name="tax_2" value="2" min="0" max="100"
                                                     step="0.01" onchange="calculateTaxes()"> % Tax</label>
                                             <input type="number" class="form-control calculation-field" id="tax_2"
-                                                step="0.01" readonly>
+                                                name="tax_2_amount" step="0.01" readonly>
                                         </div>
                                     </div>
                                 </div>
