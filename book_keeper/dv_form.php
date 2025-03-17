@@ -369,6 +369,8 @@ echo "</pre>";
         </tr>
     </table>
     <button class="btn-print" onclick="window.print()">Print DV</button>
+    <br>
+    <a href="dv.php">Submit Another</a>
     </div>
     </div>
 </body>

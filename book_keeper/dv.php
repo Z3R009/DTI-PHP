@@ -1182,7 +1182,6 @@ $result_object_code = $connection->query($sql_object_code);
                             </div>
                             <!-- Buttons -->
                             <div class="btn-container">
-                                <button type="button" class="btn btn-secondary" id="clearFormBtn">Clear Form</button>
                                 <button type="submit" class="btn btn-primary" name="submit">Print</button>
                             </div>
                         </div>
