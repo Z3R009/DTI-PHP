@@ -82,25 +82,8 @@ $result = $conn->query($sql);
 
 <body>
 
-    <!-- ======= Header ======= -->
-    <header id="header" class="header fixed-top d-flex align-items-center">
-
-        <div class="d-flex align-items-center justify-content-between">
-            <a href="index.html" class="logo d-flex align-items-center">
-                <img src="../img/DTI_short.png" alt="">
-                <span class="d-none d-lg-block">Region 12</span>
-            </a>
-            <i class="bi bi-list toggle-sidebar-btn"></i>
-        </div><!-- End Logo -->
-
-        <?php include "Includes/header.php";?>
-        <?php include "Includes/sidebar.php";?>
-        
-    <main id="main" class="main">
-
-        <div class="pagetitle">
-            <h1>Account Title</h1>
-        </div><!-- End Page Title -->
+<?php include "Includes/header.php";?>
+    <?php include "Includes/sidebar.php";?>
 
 
 

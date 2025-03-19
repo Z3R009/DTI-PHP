@@ -8,18 +8,22 @@ if (isset($_GET['ors_no'])) {
     $query = "
     SELECT 
         ors.*, 
-        financial_object_code.object_name, 
+        financial_object_code.object_name,
+        financial_object_code.uacs_code,
         approver.approver_name,
         approver.designation,
         CONCAT(fund_cluster.uacs_code, '-', fund_cluster.fund_cluster_name) AS fund_cluster,
         responsibility_center.code AS parent_code,
-        oopap.oopap_name
+        oopap.oopap_name, 
+        payee.payee_name,
+        payee.address
     FROM ors
     LEFT JOIN financial_object_code ON ors.object_code_id = financial_object_code.object_code_id
     LEFT JOIN approver ON ors.approver_id = approver.approver_id
     LEFT JOIN fund_cluster ON ors.fund_cluster_id = fund_cluster.fund_cluster_id
     LEFT JOIN responsibility_center ON ors.rc_id = responsibility_center.rc_id
     LEFT JOIN oopap ON ors.oopap_id = oopap.oopap_id
+    LEFT JOIN payee ON ors.payee_id = payee.payee_id
     WHERE ors.ors_no = ?
     ";
 
@@ -108,93 +112,151 @@ if (isset($_GET['ors_no'])) {
 
         <table>
             <tr>
-                <th colspan="3" class="centered">
+                <th colspan="5" class="centered">
                     <h3>OBLIGATION REQUEST AND STATUS</h3>
                     <h3>DEPARTMENT OF TRADE AND INDUSTRY 12</h3>
                     <h5>Entity Name</h5>
                 </th>
-                <td rowspan="3">
+                <td colspan="3">
                     <p>ORS No..: <b><?php echo $ors_form['ors_no']; ?></b></p>
                     <p>Date: <b><?php echo date('m-d-Y'); ?></b></p>
                     <p>Fund Cluster: <b><?php echo $ors_form['fund_cluster']; ?></b></p>
                 </td>
             </tr>
-        </table>
 
-        <table>
             <tr>
                 <td>Payee</td>
-                <td>
+                <td colspan="7">
                     <p><?php echo $ors_form['payee_name']; ?></p>
                 </td>
             </tr>
             <tr>
                 <td>Office</td>
-                <td>DTI-XII</td>
+                <td colspan="7">DTI-XII</td>
             </tr>
             <tr>
                 <td>Address</td>
-                <td>
+                <td colspan="7">
                     <p><?php echo $ors_form['address']; ?></p>
                 </td>
             </tr>
-        </table>
-
-        <table>
+            
             <tr>
-                <td>Responsibility Center</td>
-                <td>Particulars</td>
+                <td colspan="2">Responsibility Center</td>
+                <td colspan="3">Particulars</td>
                 <td>OO/PAP</td>
-                <td>UACS Object Code</td>
+                <td>UACS Code</td>
                 <td>Amount</td>
             </tr>
             <tr>
-                <td>
+                <td rowspan="3" colspan="2" style="vertical-align: top;"><br><br>
                     <p><?php echo $ors_form['parent_code']; ?></p>
                 </td>
-                <td>
-                    <p><?php echo $ors_form['notes']; ?></p>
+
+                <td colspan="3" style="border: none;">
+                    <p>To Payment of:</p>
+                    <p><strong><?php echo $ors_form['object_name']; ?></strong></p>
+                    
                 </td>
-                <td>
+                <td rowspan="2" style="vertical-align: top;"><br><br>
                     <p><?php echo $ors_form['oopap_name']; ?></p>
                 </td>
-                <td>
-                    <p><?php echo $ors_form['object_name']; ?></p>
+                <td rowspan="2" style="vertical-align: top;"><br><br>
+                    <p><?php echo $ors_form['uacs_code']; ?></p>
                 </td>
-                <td>
+                <td rowspan="2" style="vertical-align: top;"><br><br>
                     <p><?php echo $ors_form['amount']; ?></p>
                 </td>
             </tr>
-            <tr>
-                <td></td>
-                <td>Total</td>
-                <td></td>
-                <td></td>
-                <td>
-                    <p><?php echo $ors_form['amount']; ?></p>
-                </td>
-            </tr>
-        </table>
 
-        <table>
             <tr>
-                <td colspan="2">Certified by:</td>
-                <td colspan="2">Certified by:</td>
+                <td colspan="4" style="border: none;">
+                <p>Purpose:</p>
+                    <p></p><?php echo $ors_form['notes']; ?></p>
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="3">Total</td>
+                <td></td>
+                <td></td>
+                <td>
+                    <p><?php echo $ors_form['amount']; ?></p>
+                </td>
+            </tr>
+            
+            <tr>
+                <td colspan="4">Certified by:</td>
+                <td colspan="4">Certified by:</td>
             </tr>
             <tr>
-                <td colspan="2">
-                    <p><b>A. Certified:</b> Charges to appropriation/allotment are necessary, lawful, and under my
+                <td colspan="4" >
+                    <p style="height: 200px;"><b>A. Certified:</b> Charges to appropriation/allotment are necessary, lawful, and under my
                         direct supervision.</p>
-                    <p><strong><?php echo $ors_form['approver_name']; ?></strong></p>
-                    <p><?php echo $ors_form['designation']; ?></p>
+
+                        <p>Signature:</p>
+<hr style="width: 500px; border: 1px solid black; margin: 5px 0 0 20;">
+
+                    <p style="text-align: center;"><strong><?php echo $ors_form['approver_name']; ?></strong></p>
+                    <p style="text-align: center;"><?php echo $ors_form['designation']; ?></p>
                 </td>
-                <td colspan="2">
-                    <p><b>B. Certified:</b> Allotment available and obligated for the purpose.</p>
-                    <p><strong><?php echo $ors_form['budget_officer']; ?></strong></p>
-                    <p>Budget Officer</p>
+                <td colspan="4" >
+                    <p style="height: 200px;"><b>B. Certified:</b> Allotment available and obligated for the purpose/adjustment necessary as indicated above.</p>
+                    <p>Signature:</p>
+<hr style="width: 500px; border: 1px solid black; margin: 5px 0 0 20;">
+                    <p style="text-align: center;"><strong><?php echo $ors_form['budget_officer']; ?></strong></p>
+                    <p style="text-align: center;">Budget Officer</p>
                 </td>
             </tr>
-        </table>
+            
+    <tr>
+        <td colspan="8" class="header">C.STATUS OF OBLIGATION</td>
+    </tr>
+    <tr>
+        <th colspan="3">Reference</th>
+        <th colspan="5">Amount</th>
+    </tr>
+    <tr>
+        <th rowspan="3">Date</th>
+        <th rowspan="3">Particulars</th>
+        <th rowspan="3">ORS/JEV/Check/ ADA/TRA No.</th>
+        <th rowspan="2">Obligation (a)</th>
+        <th rowspan="2">Payable (b)</th>
+        <th rowspan="2">Payment (c)</th>
+        <th colspan="2">Balance</th>
+        
+    </tr>
+   
+    <tr>
+        
+        <th>Not Yet Due (a-b)</th>
+        <th>Due and Demandable (b-c)</th>
+    </tr>
+    <tr></tr>
+    <tr></tr>
+    <tr></tr>
+    <tr></tr>
+    <tr>
+        <th></th>
+        <th></th>
+        <th></th>
+    <th>(a)</th>
+    <th>(b)</th>
+    <th>(c)</th>
+    <th>(a-b)</th>
+    <th>(b-c)</th>
+    </tr>
+    <tr>
+        <td><p><?php echo $ors_form['date']; ?></p></td>
+        <td>Representation Expenses</td>
+        <td>ADMIN&POLICY-25-02-008</td>
+        <td><p><?php echo $ors_form['amount']; ?></p></td>
+        <td><p><?php echo $ors_form['amount']; ?></p></td>
+        <td><p><?php echo $ors_form['amount']; ?></p></td>
+        <td></td>
+        <td></td>
+    </tr>
+</table>
 
         <button class="btn-print" onclick="window.print()">Print ORS</button>
         <br>

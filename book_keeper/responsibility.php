@@ -117,23 +117,23 @@ $select = mysqli_query($connection, "SELECT * FROM responsibility_center");
                                         </div>
                                         <div class="mb-3">
                                             <label for="parent_code" class="form-label">Parent Code</label>
-                                            <input type="parent_code" class="form-control" id="parent_code"
+                                            <input type="text" class="form-control" id="parent_code"
                                                 name="parent_code" placeholder="Enter Parent Code" required
                                                 autocomplete="off">
                                         </div>
                                         <div class="mb-3">
                                             <label for="type" class="form-label">Type</label>
-                                            <input type="type" class="form-control" id="type" name="type"
+                                            <input type="text" class="form-control" id="type" name="type"
                                                 placeholder="Enter Type" required autocomplete="off">
                                         </div>
                                         <div class="mb-3">
                                             <label for="acronym" class="form-label">Acronym</label>
-                                            <input type="acronym" class="form-control" id="acronym" name="acronym"
+                                            <input type="text" class="form-control" id="acronym" name="acronym"
                                                 placeholder="Enter Acronym" required autocomplete="off">
                                         </div>
                                         <div class="mb-3">
                                             <label for="description" class="form-label">Description</label>
-                                            <input type="description" class="form-control" id="description"
+                                            <input type="text" class="form-control" id="description"
                                                 name="description" placeholder="Enter Description" required
                                                 autocomplete="off">
                                         </div>
@@ -173,11 +173,17 @@ $select = mysqli_query($connection, "SELECT * FROM responsibility_center");
                                     <td><?php echo htmlspecialchars($row['acronym']); ?></td>
                                     <td><?php echo htmlspecialchars($row['description']); ?></td>
                                     <td>
-                                        <button type="button" class="btn btn-primary"
-                                            onclick="editUser( '<?php echo $row['code']; ?>', '<?php echo $row['parent_code']; ?>', '<?php echo $row['type']; ?>', '<?php echo $row['acronym']; ?>', '<?php echo $row['description']; ?>')">
-                                            <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top"
-                                                title="Edit"></i>
-                                        </button>
+                                    <button type="button" class="btn btn-primary edit-btn"
+    data-bs-toggle="modal" 
+    data-bs-target="#editUserModal"
+    data-id="<?php echo $row['rc_id']; ?>"
+    data-code="<?php echo htmlspecialchars($row['code']); ?>"
+    data-parent_code="<?php echo htmlspecialchars($row['parent_code']); ?>"
+    data-type="<?php echo htmlspecialchars($row['type']); ?>"
+    data-acronym="<?php echo htmlspecialchars($row['acronym']); ?>"
+    data-description="<?php echo htmlspecialchars($row['description']); ?>">
+    <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"></i>
+</button>
 
                                         <button type="button" class="btn btn-danger"
                                             onclick="deleteUser(<?php echo $row['rc_id']; ?>)"><i class="bi bi-trash"
@@ -196,6 +202,48 @@ $select = mysqli_query($connection, "SELECT * FROM responsibility_center");
 
     </main><!-- End #main -->
 
+    <!-- update modal -->
+
+    <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editUserModalLabel">Edit Responsibility Center</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" id="editUserForm" action="update_responsibility.php" >
+                    <input type="hidden" id="edit_rc_id" name="rc_id">
+                    <div class="mb-3">
+                        <label for="edit_code" class="form-label">Code</label>
+                        <input type="text" class="form-control" id="edit_code" name="code" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_parent_code" class="form-label">Parent Code</label>
+                        <input type="text" class="form-control" id="edit_parent_code" name="parent_code" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_type" class="form-label">Type</label>
+                        <input type="text" class="form-control" id="edit_type" name="type" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_acronym" class="form-label">Acronym</label>
+                        <input type="text" class="form-control" id="edit_acronym" name="acronym" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_description" class="form-label">Description</label>
+                        <input type="text" class="form-control" id="edit_description" name="description" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" id="update" name="update" class="btn btn-primary">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
             class="bi bi-arrow-up-short"></i></a>
@@ -212,6 +260,39 @@ $select = mysqli_query($connection, "SELECT * FROM responsibility_center");
 
     <!-- Template Main JS File -->
     <script src="../NiceAdmin/assets/js/main.js"></script>
+
+    <script>
+document.addEventListener("DOMContentLoaded", function() {
+    const editButtons = document.querySelectorAll(".edit-btn");
+
+    editButtons.forEach(button => {
+        button.addEventListener("click", function() {
+            const id = this.getAttribute("data-id");
+            const code = this.getAttribute("data-code");
+            const parent_code = this.getAttribute("data-parent_code");
+            const type = this.getAttribute("data-type");
+            const acronym = this.getAttribute("data-acronym");
+            const description = this.getAttribute("data-description");
+
+            document.getElementById("edit_rc_id").value = id;
+            document.getElementById("edit_code").value = code;
+            document.getElementById("edit_parent_code").value = parent_code;
+            document.getElementById("edit_type").value = type;
+            document.getElementById("edit_acronym").value = acronym;
+            document.getElementById("edit_description").value = description;
+        });
+    });
+});
+</script>
+
+ <!-- delete -->
+ <script>
+        function deleteUser(userID) {
+            if (confirm("Are you sure you want to delete this user?")) {
+                window.location.href = 'delete_responsibility.php?rc_id=' + userID + '&confirm=yes';
+            }
+        }
+    </script>
 
 </body>
 

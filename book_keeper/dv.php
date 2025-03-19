@@ -40,7 +40,7 @@ if (isset($_POST['submit'])) {
         die('Prepare failed: ' . htmlspecialchars($connection->error));
     }
 
-    $stmt->bind_param("siisiiiiiiiiiiissss", $date, $dv_no, $ors_id, $payment_mode, $vat, $vat_amount, $tax_base, $tax_1, $tax_1_amount, $tax_2, $tax_2_amount, $net_amount, $object_code_id, $debit, $credit, $chief_accountant, $regional_director, $check_no, $bank_acc_no);
+    $stmt->bind_param("ssisiiiiiiiiiiissss", $date, $dv_no, $ors_id, $payment_mode, $vat, $vat_amount, $tax_base, $tax_1, $tax_1_amount, $tax_2, $tax_2_amount, $net_amount, $object_code_id, $debit, $credit, $chief_accountant, $regional_director, $check_no, $bank_acc_no);
     if ($stmt->execute()) {
         header("Location: dv_form.php?dv_no=$dv_no");
         exit();
@@ -60,13 +60,17 @@ $select = mysqli_query($connection, "
         approver.approver_name,
         CONCAT(fund_cluster.uacs_code, '-', fund_cluster.fund_cluster_name) AS fund_cluster,
         responsibility_center.code,
-        oopap.oopap_name
+        oopap.oopap_name,
+        payee.payee_name,
+        payee.tin_no,
+        payee.address
     FROM ors
     LEFT JOIN financial_object_code ON ors.object_code_id = financial_object_code.object_code_id
     LEFT JOIN approver ON ors.approver_id = approver.approver_id
     LEFT JOIN fund_cluster ON ors.fund_cluster_id = fund_cluster.fund_cluster_id
     LEFT JOIN responsibility_center ON ors.rc_id = responsibility_center.rc_id
     LEFT JOIN oopap ON ors.oopap_id = oopap.oopap_id
+    LEFT JOIN payee ON ors.payee_id = payee.payee_id
 ");
 // Function to generate the next DV number1
 
@@ -951,7 +955,7 @@ $result_object_code = $connection->query($sql_object_code);
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">ORS No.</label>
-                                    <input type="text" class="form-control" id="ors_id" name="ors_id">
+                                    <input type="text" class="form-control" id="ors_no" name="ors_id">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Disbursement Voucher No.</label>
@@ -1003,9 +1007,7 @@ $result_object_code = $connection->query($sql_object_code);
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Address</label>
-                                    <select class="form-control" id="address">
-                                        <option>Koronadal City</option>
-                                    </select>
+                                    <input type="text" class="form-control" id="address">
                                 </div>
                             </div>
                             <!-- Payment Details Section -->
@@ -1046,13 +1048,16 @@ $result_object_code = $connection->query($sql_object_code);
                                         <div class="checkbox-item">
                                             <input type="checkbox" class="apply_taxes" id="apply_taxes" checked
                                                 onchange="toggleTaxFields()">
-                                            <label for="apply_taxes">Apply Tax Calculations</label>
+                                            <label for="apply_taxes">With VAT</label>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div id="tax_fields_container" class="tax-fields">
                                     <div class="form-row">
+
+                                        </div>
+
                                         <div class="form-group half-width">
                                             <label class="form-label">VAT <input type="number" class="tax-percentage"
                                                     id="vat_percentage" name="vat" value="12" min="0" max="100"
@@ -1094,58 +1099,6 @@ $result_object_code = $connection->query($sql_object_code);
                             </div>
 
 
-                            <div class="form-section">
-                                <h3>Accounting Entry</h3>
-                                <div class="table-responsive">
-                                    <table class="accounting-entry-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Account Title</th>
-                                                <th></th>
-                                                <th>Debit Amount</th>
-                                                <th>Credit Amount</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="accountingTableBody">
-                                            <tr>
-                                                <td colspan="2">
-                                                    <select class="form-control" name="object_code_id">
-                                                        <option selected disabled>Select Account</option>
-                                                        <?php
-                                                        while ($row = $result_object_code->fetch_assoc()) {
-                                                            echo "<option value='" . htmlspecialchars($row['object_code_id']) . "'>" . htmlspecialchars($row['object_name']) . "</option>";
-                                                        }
-                                                        ?>
-                                                    </select>
-                                                </td>
-                                                <td><input type="number" class="form-control debit-amount" name="debit"
-                                                        value="0.00" step="0.01" onchange="calculateTotals()"></td>
-                                                <td><input type="number" class="form-control credit-amount"
-                                                        name="credit" value="0.00" step="0.01"
-                                                        onchange="calculateTotals()"></td>
-                                            </tr>
-                                        </tbody>
-                                        <tfoot>
-                                            <tr>
-                                                <td colspan="2" style="text-align: right;"><strong>Totals:</strong></td>
-                                                <td><input type="number" id="total-debit"
-                                                        class="form-control calculation-field" readonly></td>
-                                                <td><input type="number" id="total-credit"
-                                                        class="form-control calculation-field" readonly></td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    <button type="button" id="addAccountRow" class="btn btn-secondary"
-                                                        style="padding: 5px 10px; font-size: 12px;">
-                                                        <ion-icon name="add-outline"></ion-icon> Add Row
-                                                    </button>
-                                                </td>
-                                                <td colspan="3"></td>
-                                            </tr>
-                                        </tfoot>
-                                    </table>
-                                </div>
-                            </div>
 
                             <!-- Approver Section -->
                             <div class="form-section">
@@ -1168,18 +1121,7 @@ $result_object_code = $connection->query($sql_object_code);
                                 </div>
                             </div>
 
-                            <div class="form-section">
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label class="form-label">Check/ADA No.</label>
-                                        <input type="text" class="form-control" name="check_no">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Bank Name & Account Number</label>
-                                        <input type="text" class="form-control" name="bank_acc_no">
-                                    </div>
-                                </div>
-                            </div>
+                           
                             <!-- Buttons -->
                             <div class="btn-container">
                                 <button type="submit" class="btn btn-primary" name="submit">Print</button>
@@ -1220,7 +1162,7 @@ $result_object_code = $connection->query($sql_object_code);
                         fetch(`get_ors_details.php?id=${orsId}`)
                             .then(response => response.json())
                             .then(data => {
-                                document.getElementById('ors_id').value = data.ors_id;
+                                document.getElementById('ors_no').value = data.ors_no;
                                 document.getElementById('fund_cluster').value = data.fund_cluster;
                                 document.getElementById('payee_name').value = data.payee_name;
                                 document.getElementById('tin_no').value = data.tin_no;
@@ -1365,7 +1307,7 @@ $result_object_code = $connection->query($sql_object_code);
                 const vatPercentage = parseFloat(document.getElementById('vat_percentage').value) || 0;
                 const tax1Percentage = parseFloat(document.getElementById('tax1_percentage').value) || 0;
                 const tax2Percentage = parseFloat(document.getElementById('tax2_percentage').value) || 0;
-                const vatAmount = grossAmount * (vatPercentage / 100);
+                const vatAmount = grossAmount / 1.12;
 
                 const taxBase = grossAmount - vatAmount;
                 const tax1 = taxBase * (tax1Percentage / 100);

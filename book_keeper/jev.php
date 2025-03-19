@@ -3,60 +3,48 @@ include '../DBConnection.php';
 
 // insert
 
-// if (isset($_POST['submit'])) {
-//     echo "Form submitted!";
+if (isset($_POST['submit'])) {
+    echo "Form submitted!";
 
-//     // Debugging: Print all POST data
-//     echo "<pre>";
-//     print_r($_POST);
-//     echo "</pre>";
+    // Debugging: Print all POST data
+    echo "<pre>";
+    print_r($_POST);
+    echo "</pre>";
 
-//     $date = $_POST['date'];
-//     $dv_no = $_POST['dv_no'];
-//     $ors_id = $_POST['ors_id'];
-//     $payment_mode = $_POST['payment_mode'];
-//     $vat = $_POST['vat'];
-//     $vat_amount = $_POST['vat_amount'];
-//     $tax_base = $_POST['tax_base'];
-//     $tax_1 = $_POST['tax_1'];
-//     $tax_1_amount = $_POST['tax_1_amount'];
-//     $tax_2 = $_POST['tax_2'];
-//     $tax_2_amount = $_POST['tax_2_amount'];
-//     $net_amount = $_POST['net_amount'];
-//     $object_code_id = $_POST['object_code_id'];
-//     $debit = $_POST['debit'];
-//     $credit = $_POST['credit'];
-//     $chief_accountant = $_POST['chief_accountant'];
-//     $regional_director = $_POST['regional_director'];
-//     $check_no = $_POST['check_no'];
-//     $bank_acc_no = $_POST['bank_acc_no'];
+    $date = $_POST['date'];
+    $dv_id = $_POST['dv_id'];
+    $ors_no = $_POST['ors_no'];
+    $dv_no = $_POST['dv_no'];
+    $jev_no = $_POST['jev_no'];
+    $administrative_aide = $_POST['administrative_aide'];
+    $accountant = $_POST['accountant'];
 
-//     $sql = "INSERT INTO dv (date, dv_no, ors_id, payment_mode, vat, vat_amount, tax_base, tax_1, tax_1_amount, tax_2, tax_2_amount, net_amount, object_code_id, debit, credit, chief_accountant, regional_director, check_no, bank_acc_no) 
-//             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO jev (date, dv_id, ors_no, dv_no, jev_no, administrative_aide, accountant) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)";
 
 
-//     $stmt = $connection->prepare($sql);
-//     if ($stmt === false) {
-//         die('Prepare failed: ' . htmlspecialchars($connection->error));
-//     }
+    $stmt = $connection->prepare($sql);
+    if ($stmt === false) {
+        die('Prepare failed: ' . htmlspecialchars($connection->error));
+    }
 
-//     $stmt->bind_param("siisiiiiiiiiiiissss", $date, $dv_no, $ors_id, $payment_mode, $vat, $vat_amount, $tax_base, $tax_1, $tax_1_amount, $tax_2, $tax_2_amount, $net_amount, $object_code_id, $debit, $credit, $chief_accountant, $regional_director, $check_no, $bank_acc_no);
-//     if ($stmt->execute()) {
-//         header("Location: dv_form.php?dv_no=$dv_no");
-//         exit();
-//     } else {
-//         echo "Error: " . $stmt->error;
-//     }
+    $stmt->bind_param("sisssss", $date, $dv_id, $ors_no, $dv_no, $jev_no, $administrative_aide, $accountant);
+    if ($stmt->execute()) {
+        header("Location: jev_form.php?jev_no=$jev_no");
+        exit();
+    } else {
+        echo "Error: " . $stmt->error;
+    }
 
-//     $stmt->close();
-//     $connection->close();
-// }
+    $stmt->close();
+    $connection->close();
+}
 
 // retrieve
 $select = mysqli_query($connection, "
     SELECT dv.*, ors.*, 
-    fund_cluster.fund_cluster_id,
-    responsibility_center.rc_id,
+    CONCAT(fund_cluster.uacs_code, '-', fund_cluster.fund_cluster_name) AS fund_cluster,
+    responsibility_center.code,
     financial_object_code.object_code_id,
     oopap.oopap_id
     FROM dv
@@ -712,170 +700,8 @@ $result_object_code = $connection->query($sql_object_code);
 
 <body>
 
-    <!-- ======= Header ======= -->
-    <header id="header" class="header fixed-top d-flex align-items-center">
-
-        <div class="d-flex align-items-center justify-content-between">
-            <a href="index.html" class="logo d-flex align-items-center">
-                <img src="../img/DTI_short.png" alt="">
-                <span class="d-none d-lg-block">Region 12</span>
-            </a>
-            <i class="bi bi-list toggle-sidebar-btn"></i>
-        </div><!-- End Logo -->
-
-
-        <nav class="header-nav ms-auto">
-            <ul class="d-flex align-items-center">
-
-
-
-                <li class="nav-item dropdown pe-3">
-
-                    <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-                        <i class="ri-account-circle-fill fs-2"></i>
-                        <span class="d-none d-md-block dropdown-toggle ps-2"></span>
-                    </a>
-
-                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
-                        <li class="dropdown-header">
-                            <h6>Kevin Anderson</h6>
-                            <span>Web Designer</span>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center" href="users-profile.html">
-                                <i class="bi bi-person"></i>
-                                <span>My Profile</span>
-                            </a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center" href="users-profile.html">
-                                <i class="bi bi-gear"></i>
-                                <span>Account Settings</span>
-                            </a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center" href="pages-faq.html">
-                                <i class="bi bi-question-circle"></i>
-                                <span>Need Help?</span>
-                            </a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center" href="../logout.php">
-                                <i class="bi bi-box-arrow-right"></i>
-                                <span>Sign Out</span>
-                            </a>
-                        </li>
-
-                    </ul><!-- End Profile Dropdown Items -->
-                </li><!-- End Profile Nav -->
-
-            </ul>
-        </nav><!-- End Icons Navigation -->
-
-    </header><!-- End Header -->
-
-    <!-- ======= Sidebar ======= -->
-    <aside id="sidebar" class="sidebar">
-
-        <ul class="sidebar-nav" id="sidebar-nav">
-
-            <li class="nav-item">
-                <a class="navbar-brand ps-3" href="">
-                    <img src="../img/DTI_w12.png" alt="Logo" style="height: 100px; width: auto; max-width: 100%; ">
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link " href="dashboard.php">
-                    <i class="bi bi-grid"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link collapsed" data-bs-target="#charts-nav" data-bs-toggle="collapse" href="#">
-                    <i class="bi bi-bar-chart"></i><span>Forms</span><i class="bi bi-chevron-down ms-auto"></i>
-                </a>
-                <ul id="charts-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-                    <li>
-                        <a href="ors.php">
-                            <i class="bi bi-circle"></i><span>Obligation Request and Status</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="dv.php">
-                            <i class="bi bi-circle"></i><span>Disbursement Voucher</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="jev.php">
-                            <i class="bi bi-circle"></i><span>JEV</span>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link collapsed" data-bs-target="#components-nav" data-bs-toggle="collapse" href="#">
-                    <i class="bi bi-menu-button-wide"></i><span>UACS</span><i class="bi bi-chevron-down ms-auto"></i>
-                </a>
-                <ul id="components-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-                    <li>
-                        <a href="account_title.php">
-                            <i class="bi bi-circle"></i><span>Account Title</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="fund_cluster.php">
-                            <i class="bi bi-circle"></i><span>Fund Cluster</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="responsibility.php">
-                            <i class="bi bi-circle"></i><span>Responsibility Center</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="payee.php">
-                            <i class="bi bi-circle"></i><span>Payee</span>
-                        </a>
-                    </li>
-
-                    <li>
-                        <a href="approver.php">
-                            <i class="bi bi-circle"></i><span>Approver</span>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="reports_copy.php">
-                    <i class="bi bi-journal-text"></i>
-                    <span>Reports</span>
-                </a>
-            </li>
-
-
-
-        </ul>
-
-    </aside><!-- End Sidebar-->
+<?php include "Includes/header.php";?>
+        <?php include "Includes/sidebar.php";?>
 
     <main id="main" class="main">
         <div class="pagetitle">
@@ -901,7 +727,7 @@ $result_object_code = $connection->query($sql_object_code);
                                     <td><?php echo htmlspecialchars($row['date']); ?></td>
                                     <td>
                                         <button type="button" class="btn btn-primary view-details"
-                                            data-id="<?php echo $row['ors_id']; ?>">
+                                            data-id="<?php echo $row['dv_id']; ?>">
                                             <i class="bi bi-eye" data-bs-toggle="tooltip" data-bs-placement="top"
                                                 title="View Details"></i>
                                         </button>
@@ -939,11 +765,11 @@ $result_object_code = $connection->query($sql_object_code);
                             <div class="form-row">
                                 <div class="form-group">
                                     <label class="form-label">Fund Cluster</label>
-                                    <input type="text" class="form-control" id="fund_cluster_id" name="fund_cluster_id">
+                                    <input type="text" class="form-control" id="fund_cluster" name="fund_cluster_id">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Responsibility Center</label>
-                                    <input type="text" class="form-control" id="rc_id" name="rc_id">
+                                    <input type="text" class="form-control" id="code" name="rc_id">
                                 </div>
                             </div>
 
@@ -958,11 +784,13 @@ $result_object_code = $connection->query($sql_object_code);
                                 </div>
                             </div>
 
+                            <input type="hidden" class="form-control" id="dv_id" name="dv_id">
 
                             <div class="form-row">
+                                    
                                 <div class="form-group">
                                     <label class="form-label">ORS No.</label>
-                                    <input type="text" class="form-control" id="ors_id" name="ors_no">
+                                    <input type="text" class="form-control" id="ors_no" name="ors_no">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">DV No.</label>
@@ -985,7 +813,7 @@ $result_object_code = $connection->query($sql_object_code);
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Accountant III</label>
-                                    <select class="form-control" name="Accountant">
+                                    <select class="form-control" name="accountant">
                                         <option>NEIL ANTHONY T. MORALA</option>
 
                                     </select>
@@ -1053,10 +881,11 @@ $result_object_code = $connection->query($sql_object_code);
                         fetch(`get_jev_details.php?id=${orsId}`)
                             .then(response => response.json())
                             .then(data => {
-                                document.getElementById('fund_cluster_id').value = data.fund_cluster_id;
+                                document.getElementById('fund_cluster').value = data.fund_cluster;
                                 document.getElementById('payee_name').value = data.payee_name;
-                                document.getElementById('rc_id').value = data.rc_id;
-                                document.getElementById('ors_id').value = data.ors_id;
+                                document.getElementById('code').value = data.code;
+                                document.getElementById('dv_id').value = data.dv_id;
+                                document.getElementById('ors_no').value = data.ors_no;
                                 document.getElementById('dv_no').value = data.dv_no;
 
                                 modal.style.display = 'block';

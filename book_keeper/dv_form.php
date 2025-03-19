@@ -87,8 +87,79 @@ echo "</pre>";
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            background-color: #f8f9fa;
         }
+        .floating-card {
+            width: 900px;
+            margin: 50px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        .header-table td {
+            border: none;
+        }
+        .signature {
+            margin-top: 20px;
+        }
+        
+         /* Hide buttons when printing */
+    @media print {
+        .no-print {
+            display: none !important;
+        }
+    }
+
+    /* Center the button group */
+    .modal-footer {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    /* Button styles */
+    .btn {
+        padding: 10px 20px;
+        font-size: 16px;
+        font-weight: bold;
+        border: none;
+        border-radius: 8px;
+        transition: all 0.3s ease-in-out;
+        cursor: pointer;
+    }
+
+    /* Primary Button */
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+    /* Secondary Button */
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+    }
+    
 
         .container {
             width: 80%;
@@ -150,6 +221,7 @@ echo "</pre>";
 
 <body>
     <div class="container">
+    <div class="floating-card">
         <div class="container">
 
             <table>
@@ -224,34 +296,34 @@ echo "</pre>";
                 <tr>
                     <td>
                         <strong>Total Amount Billed:</strong> <span
-                            style=" padding-left: 180px;"><?php echo $ors_form['amount']; ?></span> <br>
+                            style=" padding-left: 180px;"><?php echo number_format($ors_form['amount'], 2, '.', ','); ?></span> <br>
                         <span style="padding-left: 100px;"><strong>Gross
                                 Amount</strong></span><span
-                            style="padding-left: 30px "><?php echo $ors_form['amount']; ?></span> <br>
+                            style="padding-left: 30px "><?php echo number_format($ors_form['amount'], 2, '.', ','); ?></span> <br>
 
                         <span style="padding-left: 100px;"><strong>Less VAT
                                 <?php echo $dv_form['vat']; ?>%</strong></span><span
-                            style="padding-left: 30px "><?php echo $dv_form['vat_amount']; ?>
+                            style="padding-left: 30px "><?php echo number_format($dv_form['vat_amount'], 2, '.', ','); ?>
                         </span> <br>
 
                         <span style="padding-left: 100px;"><strong>Tax Base</strong></span><span
-                            style="padding-left: 30px "><?php echo $dv_form['tax_base']; ?></span> <br>
+                            style="padding-left: 30px "><?php echo number_format($dv_form['tax_base'], 2, '.', ','); ?></span> <br>
 
                         <span style="padding-left: 100px;"><strong>Less
                                 <?php echo $dv_form['tax_1']; ?>%</strong></span><span
                             style="padding-left: 30px "><?php echo $dv_form['tax_1_amount']; ?></span> <br>
 
-                        <span style="padding-left: 100px;"><strong>Less 2%</strong></span><span
-                            style="padding-left: 30px ">937.50 </span> <br>
+                        <span style="padding-left: 100px;"><strong>Less <?php echo $dv_form['tax_2']; ?>%</strong></span><span
+                            style="padding-left: 30px "><?php echo $dv_form['tax_2_amount']; ?></span> <br>
 
                         <span style="padding-left: 100px;"><strong>Net Amount</strong></span><span
-                            style="padding-left: 30px "><?php echo $dv_form['net_amount']; ?></span> <br>
+                            style="padding-left: 30px "><?php echo number_format($dv_form['net_amount'], 2, '.', ','); ?></span> <br>
                     </td>
                 </tr>
 
                 <tr>
                     <td><strong style="padding-left: 200px;">Amount Due</strong></td>
-                    <td><strong><?php echo $dv_form['net_amount']; ?></strong></td>
+                    <td><strong><?php echo number_format($dv_form['net_amount'], 2, '.', ','); ?></strong></td>
                 </tr>
             </table>
 
@@ -368,9 +440,12 @@ echo "</pre>";
             <td style="font-size: 12px;" colspan="4  ">Official Receipt No. & Date/Other Documents</td>
         </tr>
     </table>
-    <button class="btn-print" onclick="window.print()">Print DV</button>
-    <br>
-    <a href="dv.php">Submit Another</a>
+    <div class="modal-footer no-print text-center">
+    <button type="button" class="btn btn-primary" onclick="window.print()">Print DV</button>
+    <a href="dv.php" class="btn btn-secondary">Submit Another</a>
+</div>
+
+    </div>
     </div>
     </div>
 </body>

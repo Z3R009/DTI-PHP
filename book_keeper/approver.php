@@ -22,6 +22,7 @@ if (isset($_POST['submit'])) {
 }
 
 
+
 // retrieve users
 
 $select = mysqli_query($connection, "SELECT * FROM approver");
@@ -143,11 +144,15 @@ $select = mysqli_query($connection, "SELECT * FROM approver");
                                     <td><?php echo htmlspecialchars($row['approver_name']); ?></td>
                                     <td><?php echo htmlspecialchars($row['designation']); ?></td>
                                     <td>
-                                        <button type="button" class="btn btn-primary"
-                                            onclick="editUser(<?php echo $row['approver_name']; ?>, '<?php echo $row['designation']; ?>')">
-                                            <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top"
-                                                title="Edit"></i>
-                                        </button>
+                                    <button type="button" class="btn btn-primary edit-btn"
+    data-bs-toggle="modal" 
+    data-bs-target="#editUserModal"
+    data-id="<?php echo $row['approver_id']; ?>"
+    data-name="<?php echo htmlspecialchars($row['approver_name']); ?>"
+    data-designation="<?php echo htmlspecialchars($row['designation']); ?>">
+    <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"></i>
+</button>
+
 
                                         <button type="button" class="btn btn-danger"
                                             onclick="deleteUser(<?php echo $row['approver_id']; ?>)"><i class="bi bi-trash"
@@ -167,6 +172,36 @@ $select = mysqli_query($connection, "SELECT * FROM approver");
     </main><!-- End #main -->
 
 
+    <!-- update modal -->
+    <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editUserModalLabel">Edit Approver</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" id="editUserForm" action="update_approver.php" >
+                    <input type="hidden" id="edit_approver_id" name="approver_id">
+                    <div class="mb-3">
+                        <label for="edit_approver_name" class="form-label">Approver Name</label>
+                        <input type="text" class="form-control" id="edit_approver_name" name="approver_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_designation" class="form-label">Designation</label>
+                        <input type="text" class="form-control" id="edit_designation" name="designation" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" id="update" name="update" class="btn btn-primary">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
             class="bi bi-arrow-up-short"></i></a>
 
@@ -183,6 +218,34 @@ $select = mysqli_query($connection, "SELECT * FROM approver");
     <!-- Template Main JS File -->
     <script src="../NiceAdmin/assets/js/main.js"></script>
 
+    <script>
+document.addEventListener("DOMContentLoaded", function() {
+    const editButtons = document.querySelectorAll(".edit-btn");
+
+    editButtons.forEach(button => {
+        button.addEventListener("click", function() {
+            const id = this.getAttribute("data-id");
+            const name = this.getAttribute("data-name");
+            const designation = this.getAttribute("data-designation");
+
+            document.getElementById("edit_approver_id").value = id;
+            document.getElementById("edit_approver_name").value = name;
+            document.getElementById("edit_designation").value = designation;
+        });
+    });
+});
+</script>
+
+ <!-- delete -->
+ <script>
+        function deleteUser(userID) {
+            if (confirm("Are you sure you want to delete this user?")) {
+                window.location.href = 'delete_approver.php?approver_id=' + userID + '&confirm=yes';
+            }
+        }
+    </script>
+
+    
 </body>
 
 </html>

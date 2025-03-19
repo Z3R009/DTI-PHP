@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 17, 2025 at 11:22 AM
+-- Generation Time: Mar 19, 2025 at 06:55 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -38,7 +38,7 @@ CREATE TABLE `approver` (
 --
 
 INSERT INTO `approver` (`approver_id`, `approver_name`, `designation`) VALUES
-(1, 'HAZEL E. HAUTEA', 'Chief Administrative Officer'),
+(1, 'HAZEL E. HAUTEA', 'Chief Administrative Officer111'),
 (2, 'EPIFANIA L. EALDAMA', 'OIC Division Chief, MSSD'),
 (3, 'ROBERT A. ORFRECIO', 'Division Chief, SDD'),
 (4, 'ELBERT G. CAPECIO', 'Division Chief, IDD'),
@@ -72,13 +72,6 @@ CREATE TABLE `dv` (
   `check_no` varchar(50) DEFAULT NULL,
   `bank_acc_no` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `dv`
---
-
-INSERT INTO `dv` (`dv_id`, `date`, `ors_id`, `dv_no`, `payment_mode`, `vat`, `vat_amount`, `tax_base`, `tax_1`, `tax_1_amount`, `tax_2`, `tax_2_amount`, `net_amount`, `object_code_id`, `debit`, `credit`, `chief_accountant`, `regional_director`, `check_no`, `bank_acc_no`) VALUES
-(17, '2025-03-06', 19, '1234', 'Commercial Check', 12.00, 5212.00, 38221.00, 5.00, 1911.00, 2.00, 764.00, 35546.00, 7, 1111.00, 0.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', '9080080', '80979');
 
 -- --------------------------------------------------------
 
@@ -382,7 +375,8 @@ INSERT INTO `fund_cluster` (`fund_cluster_id`, `fund_cluster_name`, `uacs_code`,
 (6, 'Special Account - Foreign Assisted/Foreign Grants Fund', 4, 'Active'),
 (7, 'Internally Generated Funds', 5, 'Active'),
 (8, 'Business Related Funds', 6, 'Active'),
-(9, 'Trust Receipts ', 7, 'Active');
+(9, 'Trust Receipts ', 7, 'Active'),
+(13, 'wew', 2323, 'Active');
 
 -- --------------------------------------------------------
 
@@ -393,11 +387,12 @@ INSERT INTO `fund_cluster` (`fund_cluster_id`, `fund_cluster_name`, `uacs_code`,
 CREATE TABLE `jev` (
   `jev_id` int(11) NOT NULL,
   `date` date NOT NULL,
+  `dv_id` int(11) NOT NULL,
   `ors_no` varchar(255) NOT NULL,
   `dv_no` varchar(255) NOT NULL,
   `jev_no` varchar(255) NOT NULL,
-  `prepared` varchar(255) NOT NULL,
-  `certified` varchar(255) NOT NULL
+  `administrative_aide` varchar(255) NOT NULL,
+  `accountant` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -438,9 +433,7 @@ CREATE TABLE `ors` (
   `fund_cluster_id` int(255) NOT NULL,
   `date` date NOT NULL,
   `ors_no` varchar(255) NOT NULL,
-  `payee_name` varchar(255) NOT NULL,
-  `tin_no` varchar(255) NOT NULL,
-  `address` varchar(255) NOT NULL,
+  `payee_id` int(255) NOT NULL,
   `notes` varchar(255) NOT NULL,
   `rc_id` int(255) NOT NULL,
   `object_code_id` int(255) NOT NULL,
@@ -454,11 +447,8 @@ CREATE TABLE `ors` (
 -- Dumping data for table `ors`
 --
 
-INSERT INTO `ors` (`ors_id`, `fund_cluster_id`, `date`, `ors_no`, `payee_name`, `tin_no`, `address`, `notes`, `rc_id`, `object_code_id`, `oopap_id`, `amount`, `approver_id`, `budget_officer`) VALUES
-(17, 3, '2025-03-11', '111', '111', '111', 'Koronadal City', '111', 11, 19, 8, 1111.00, 1, 'CONNIE M. BARNACHEA'),
-(18, 4, '0000-00-00', '12345', 'john', '54321', 'Koronadal City', 'asd', 11, 111, 6, 1000.00, 4, 'CONNIE M. BARNACHEA'),
-(19, 9, '2025-03-14', '123', 'asd', '3445', 'Koronadal City', '535asdada', 9, 3, 3, 43434.00, 4, 'CONNIE M. BARNACHEA'),
-(20, 8, '2025-03-14', '09-09-988-67787', 'ES', '34234', 'Koronadal City', 'payment', 11, 61, 7, 900.00, 5, 'CONNIE M. BARNACHEA');
+INSERT INTO `ors` (`ors_id`, `fund_cluster_id`, `date`, `ors_no`, `payee_id`, `notes`, `rc_id`, `object_code_id`, `oopap_id`, `amount`, `approver_id`, `budget_officer`) VALUES
+(24, 4, '2025-03-19', '123-456', 5, 'payment', 11, 43, 4, 1000.00, 4, 'CONNIE M. BARNACHEA');
 
 -- --------------------------------------------------------
 
@@ -467,9 +457,18 @@ INSERT INTO `ors` (`ors_id`, `fund_cluster_id`, `date`, `ors_no`, `payee_name`, 
 --
 
 CREATE TABLE `payee` (
-  `payee_name_id` int(11) NOT NULL,
-  `payee_name` varchar(255) NOT NULL
+  `payee_id` int(11) NOT NULL,
+  `payee_name` varchar(255) NOT NULL,
+  `tin_no` varchar(255) NOT NULL,
+  `address` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `payee`
+--
+
+INSERT INTO `payee` (`payee_id`, `payee_name`, `tin_no`, `address`) VALUES
+(5, 'CINCO NIÑAS RESTO', '123-456', 'CITY OF KORONADAL');
 
 -- --------------------------------------------------------
 
@@ -555,7 +554,8 @@ ALTER TABLE `approver`
 --
 ALTER TABLE `dv`
   ADD PRIMARY KEY (`dv_id`),
-  ADD KEY `ors_id` (`ors_id`);
+  ADD KEY `ors_id` (`ors_id`),
+  ADD KEY `object_code_id` (`object_code_id`);
 
 --
 -- Indexes for table `financial_categories`
@@ -594,7 +594,8 @@ ALTER TABLE `fund_cluster`
 -- Indexes for table `jev`
 --
 ALTER TABLE `jev`
-  ADD PRIMARY KEY (`jev_id`);
+  ADD PRIMARY KEY (`jev_id`),
+  ADD KEY `dv_id` (`dv_id`);
 
 --
 -- Indexes for table `oopap`
@@ -611,13 +612,14 @@ ALTER TABLE `ors`
   ADD KEY `rs_id` (`rc_id`),
   ADD KEY `object_code_id` (`object_code_id`),
   ADD KEY `approver_id` (`approver_id`),
-  ADD KEY `oopap_id` (`oopap_id`);
+  ADD KEY `oopap_id` (`oopap_id`),
+  ADD KEY `payee_id` (`payee_id`);
 
 --
 -- Indexes for table `payee`
 --
 ALTER TABLE `payee`
-  ADD PRIMARY KEY (`payee_name_id`);
+  ADD PRIMARY KEY (`payee_id`);
 
 --
 -- Indexes for table `responsibility_center`
@@ -639,13 +641,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `approver`
 --
 ALTER TABLE `approver`
-  MODIFY `approver_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `approver_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `dv`
 --
 ALTER TABLE `dv`
-  MODIFY `dv_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `dv_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `financial_categories`
@@ -675,13 +677,13 @@ ALTER TABLE `financial_submodules`
 -- AUTO_INCREMENT for table `fund_cluster`
 --
 ALTER TABLE `fund_cluster`
-  MODIFY `fund_cluster_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `fund_cluster_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `jev`
 --
 ALTER TABLE `jev`
-  MODIFY `jev_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `jev_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `oopap`
@@ -693,19 +695,19 @@ ALTER TABLE `oopap`
 -- AUTO_INCREMENT for table `ors`
 --
 ALTER TABLE `ors`
-  MODIFY `ors_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `ors_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `payee`
 --
 ALTER TABLE `payee`
-  MODIFY `payee_name_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `payee_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `responsibility_center`
 --
 ALTER TABLE `responsibility_center`
-  MODIFY `rc_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `rc_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -721,7 +723,8 @@ ALTER TABLE `users`
 -- Constraints for table `dv`
 --
 ALTER TABLE `dv`
-  ADD CONSTRAINT `dv_ibfk_1` FOREIGN KEY (`ors_id`) REFERENCES `ors` (`ors_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `dv_ibfk_1` FOREIGN KEY (`ors_id`) REFERENCES `ors` (`ors_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `dv_ibfk_2` FOREIGN KEY (`object_code_id`) REFERENCES `financial_object_code` (`object_code_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `financial_object_code`
@@ -742,6 +745,12 @@ ALTER TABLE `financial_submodules`
   ADD CONSTRAINT `financial_submodules_ibfk_2` FOREIGN KEY (`subcategory_id`) REFERENCES `financial_subcategories` (`subcategory_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
+-- Constraints for table `jev`
+--
+ALTER TABLE `jev`
+  ADD CONSTRAINT `jev_ibfk_1` FOREIGN KEY (`dv_id`) REFERENCES `dv` (`dv_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
 -- Constraints for table `ors`
 --
 ALTER TABLE `ors`
@@ -749,7 +758,8 @@ ALTER TABLE `ors`
   ADD CONSTRAINT `ors_ibfk_2` FOREIGN KEY (`rc_id`) REFERENCES `responsibility_center` (`rc_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `ors_ibfk_4` FOREIGN KEY (`approver_id`) REFERENCES `approver` (`approver_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `ors_ibfk_5` FOREIGN KEY (`oopap_id`) REFERENCES `oopap` (`oopap_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `ors_ibfk_6` FOREIGN KEY (`object_code_id`) REFERENCES `financial_object_code` (`object_code_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `ors_ibfk_6` FOREIGN KEY (`object_code_id`) REFERENCES `financial_object_code` (`object_code_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `ors_ibfk_7` FOREIGN KEY (`payee_id`) REFERENCES `payee` (`payee_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
