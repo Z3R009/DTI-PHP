@@ -72,11 +72,6 @@ $select = mysqli_query($connection, "
     LEFT JOIN oopap ON ors.oopap_id = oopap.oopap_id
     LEFT JOIN payee ON ors.payee_id = payee.payee_id
 ");
-// Function to generate the next DV number1
-
-// Query to fetch account titles and their corresponding UACS codes
-$sql_object_code = "SELECT object_code_id, object_name FROM financial_object_code";
-$result_object_code = $connection->query($sql_object_code);
 
 ?>
 
@@ -909,7 +904,7 @@ $result_object_code = $connection->query($sql_object_code);
                         <tbody>
                             <?php while ($row = mysqli_fetch_assoc($select)) { ?>
                                 <tr>
-                                    <td><?php echo htmlspecialchars($row['ors_id']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['ors_no']); ?></td>
                                     <td><?php echo htmlspecialchars($row['payee_name']); ?></td>
                                     <td><?php echo htmlspecialchars($row['object_name']); ?></td>
                                     <td><?php echo htmlspecialchars($row['amount']); ?></td>
@@ -959,7 +954,7 @@ $result_object_code = $connection->query($sql_object_code);
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Disbursement Voucher No.</label>
-                                    <input type="text" class="form-control" name="dv_no">
+                                    <input type="text" class="form-control" id="dv_no" name="dv_no">
                                 </div>
                             </div>
                         </div>
@@ -1041,492 +1036,284 @@ $result_object_code = $connection->query($sql_object_code);
                                 <div class="form-row">
                                     <div class="form-group half-width">
                                         <label class="form-label">Gross Amount</label>
-                                        <input type="number" class="form-control" id="amount" step="0.01"
-                                            onchange="calculateTaxes()">
+                                        <input type="number" class="form-control" id="amount" step="0.01">
                                     </div>
                                     <div class="form-group half-width">
                                         <div class="checkbox-item">
-                                            <input type="checkbox" class="apply_taxes" id="apply_taxes" checked
-                                                onchange="toggleTaxFields()">
+                                            <input type="checkbox" class="apply_taxes" id="apply_taxes">
                                             <label for="apply_taxes">With VAT</label>
                                         </div>
+
                                     </div>
                                 </div>
 
                                 <div id="tax_fields_container" class="tax-fields">
                                     <div class="form-row">
 
-                                        </div>
-
-                                        <div class="form-group half-width">
-                                            <label class="form-label">VAT <input type="number" class="tax-percentage"
-                                                    id="vat_percentage" name="vat" value="12" min="0" max="100"
-                                                    step="0.01" onchange="calculateTaxes()"> %</label>
-                                            <input type="number" class="form-control calculation-field" id="vat_amount"
-                                                name="vat_amount" step="0.01" readonly>
-                                        </div>
                                     </div>
-                                    <div class="form-row">
-                                        <div class="form-group">
-                                            <label class="form-label">Tax Base</label>
-                                            <input type="number" class="form-control calculation-field" id="tax_base"
-                                                name="tax_base" step="0.01" readonly>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="form-label">Less: <input type="number" class="tax-percentage"
-                                                    id="tax1_percentage" name="tax_1" value="5" min="0" max="100"
-                                                    step="0.01" onchange="calculateTaxes()"> % Tax</label>
-                                            <input type="number" class="form-control calculation-field" id="tax_1"
-                                                name="tax_1_amount" step="0.01" readonly>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="form-label">Less: <input type="number" class="tax-percentage"
-                                                    id="tax2_percentage" name="tax_2" value="2" min="0" max="100"
-                                                    step="0.01" onchange="calculateTaxes()"> % Tax</label>
-                                            <input type="number" class="form-control calculation-field" id="tax_2"
-                                                name="tax_2_amount" step="0.01" readonly>
-                                        </div>
+
+                                    <div class="form-group half-width">
+                                        <label class="form-label">VAT <input type="number" class="tax-percentage"
+                                                id="vat_percentage" name="vat" value="12" min="0" max="100" step="0.01">
+                                            %</label>
+                                        <input type="number" class="form-control calculation-field" id="vat_amount"
+                                            name="vat_amount" step="0.01" readonly>
                                     </div>
                                 </div>
-
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label class="form-label">Net Amount</label>
-                                        <input type="number" class="form-control calculation-field" id="net_amount"
-                                            name="net_amount" step="0.01" readonly>
+                                        <label class="form-label">Tax Base</label>
+                                        <input type="number" class="form-control calculation-field" id="tax_base"
+                                            name="tax_base" step="0.01" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Less: <input type="number" class="tax-percentage"
+                                                id="tax1_percentage" name="tax_1" value="5" min="0" max="100"
+                                                step="0.01"> % Tax</label>
+                                        <input type="number" class="form-control calculation-field" id="tax_1"
+                                            name="tax_1_amount" step="0.01" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Less: <input type="number" class="tax-percentage"
+                                                id="tax2_percentage" name="tax_2" value="2" min="0" max="100"
+                                                step="0.01"> % Tax</label>
+                                        <input type="number" class="form-control calculation-field" id="tax_2"
+                                            name="tax_2_amount" step="0.01" readonly>
                                     </div>
                                 </div>
                             </div>
 
-
-
-                            <!-- Approver Section -->
-                            <div class="form-section">
-                                <h3>Approver Details</h3>
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label class="form-label">Chief Accountant</label>
-                                        <select class="form-control" name="chief_accountant">
-                                            <option>NEIL ANTHONY T. MORALA</option>
-
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Regional Director</label>
-                                        <select class="form-control" name="regional_director">
-                                            <option>FLORA D. POLITUD-GABUNALES, CESO V</option>
-
-                                        </select>
-                                    </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Net Amount</label>
+                                    <input type="number" class="form-control calculation-field" id="net_amount"
+                                        name="net_amount" step="0.01" readonly>
                                 </div>
-                            </div>
 
-                           
-                            <!-- Buttons -->
-                            <div class="btn-container">
-                                <button type="submit" class="btn btn-primary" name="submit">Print</button>
+
                             </div>
                         </div>
+
+
+
+                        <!-- Approver Section -->
+                        <div class="form-section">
+                            <h3>Approver Details</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Chief Accountant</label>
+                                    <select class="form-control" name="chief_accountant">
+                                        <option>NEIL ANTHONY T. MORALA</option>
+
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Regional Director</label>
+                                    <select class="form-control" name="regional_director">
+                                        <option>FLORA D. POLITUD-GABUNALES, CESO V</option>
+
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Buttons -->
+                        <div class="btn-container">
+                            <button type="submit" class="btn btn-primary" name="submit">Print</button>
+                        </div>
                     </div>
-                </form>
             </div>
+            </form>
         </div>
+    </div>
 
-        <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
-                class="bi bi-arrow-up-short"></i></a>
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
+            class="bi bi-arrow-up-short"></i></a>
 
-        <!-- Vendor JS Files -->
-        <script src="../NiceAdmin/assets/vendor/apexcharts/apexcharts.min.js"></script>
-        <script src="../NiceAdmin/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-        <script src="../NiceAdmin/assets/vendor/chart.js/chart.umd.js"></script>
-        <script src="../NiceAdmin/assets/vendor/echarts/echarts.min.js"></script>
-        <script src="../NiceAdmin/assets/vendor/quill/quill.js"></script>
-        <script src="../NiceAdmin/assets/vendor/simple-datatables/simple-datatables.js"></script>
-        <script src="../NiceAdmin/assets/vendor/tinymce/tinymce.min.js"></script>
-        <script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
+    <!-- Vendor JS Files -->
+    <script src="../NiceAdmin/assets/vendor/apexcharts/apexcharts.min.js"></script>
+    <script src="../NiceAdmin/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../NiceAdmin/assets/vendor/chart.js/chart.umd.js"></script>
+    <script src="../NiceAdmin/assets/vendor/echarts/echarts.min.js"></script>
+    <script src="../NiceAdmin/assets/vendor/quill/quill.js"></script>
+    <script src="../NiceAdmin/assets/vendor/simple-datatables/simple-datatables.js"></script>
+    <script src="../NiceAdmin/assets/vendor/tinymce/tinymce.min.js"></script>
+    <script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
 
-        <!-- Template Main JS File -->
-        <script src="../NiceAdmin/assets/js/main.js"></script>
+    <!-- Template Main JS File -->
+    <script src="../NiceAdmin/assets/js/main.js"></script>
 
-        <!-- Custom Script for Modal -->
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const modal = document.getElementById('dvFormModal');
-                const closeModalBtn = document.getElementById('closeDvModal');
-                const viewDetailsButtons = document.querySelectorAll('.view-details');
+    <!-- Custom Script for Modal -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const modal = document.getElementById('dvFormModal');
+            const closeModalBtn = document.getElementById('closeDvModal');
+            const viewDetailsButtons = document.querySelectorAll('.view-details');
 
-                // Open modal and populate data
-                viewDetailsButtons.forEach(button => {
-                    button.addEventListener('click', function () {
-                        const orsId = this.getAttribute('data-id');
-                        fetch(`get_ors_details.php?id=${orsId}`)
-                            .then(response => response.json())
-                            .then(data => {
-                                document.getElementById('ors_no').value = data.ors_no;
-                                document.getElementById('fund_cluster').value = data.fund_cluster;
-                                document.getElementById('payee_name').value = data.payee_name;
-                                document.getElementById('tin_no').value = data.tin_no;
-                                document.getElementById('address').value = data.address;
-                                document.getElementById('notes').value = data.notes;
-                                document.getElementById('code').value = data.code;
-                                document.getElementById('oopap_name').value = data.oopap_name;
-                                document.getElementById('amount').value = data.amount;
+            // Open modal and populate data
+            viewDetailsButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const orsId = this.getAttribute('data-id');
+                    fetch(`get_ors_details.php?id=${orsId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            document.getElementById('ors_no').value = data.ors_no;
+                            document.getElementById('fund_cluster').value = data.fund_cluster;
+                            document.getElementById('payee_name').value = data.payee_name;
+                            document.getElementById('tin_no').value = data.tin_no;
+                            document.getElementById('address').value = data.address;
+                            document.getElementById('notes').value = data.notes;
+                            document.getElementById('code').value = data.code;
+                            document.getElementById('oopap_name').value = data.oopap_name;
+                            document.getElementById('amount').value = data.amount;
 
-                                modal.style.display = 'block';
-                            })
-                            .catch(error => console.error('Error fetching ORS details:', error));
-                    });
-                });
-
-                // Close modal
-                closeModalBtn.addEventListener('click', function () {
-                    modal.style.display = 'none';
-                });
-
-                // Close modal when clicking outside
-                window.addEventListener('click', function (event) {
-                    if (event.target === modal) {
-                        modal.style.display = 'none';
-                    }
+                            modal.style.display = 'block';
+                        })
+                        .catch(error => console.error('Error fetching ORS details:', error));
                 });
             });
-        </script>
 
-
-        <!-- tax -->
-
-        <script>
-
-
-
-            function redirectToPage() {
-                window.location.href = "DVForm.html";
-            }
-
-
-            document.addEventListener('DOMContentLoaded', function () {
-                const dateFilter = document.getElementById('date-filter');
-                const statusFilter = document.getElementById('status-filter');
-                const payeeFilter = document.getElementById('payee-filter');
-                const clearFiltersBtn = document.getElementById('clear-filters');
-                const filtersContainer = document.querySelector('.filters');
-
-                dateFilter.addEventListener('change', applyFilters);
-                statusFilter.addEventListener('change', applyFilters);
-                payeeFilter.addEventListener('input', applyFilters);
-
-                clearFiltersBtn.addEventListener('click', function () {
-                    dateFilter.value = '';
-                    statusFilter.value = '';
-                    payeeFilter.value = '';
-                    applyFilters();
-                });
-
-                function applyFilters() {
-                    const selectedDate = dateFilter.value;
-                    const selectedStatus = statusFilter.value.toLowerCase();
-                    const searchPayee = payeeFilter.value.toLowerCase();
-
-                    const hasActiveFilters = selectedDate || selectedStatus || searchPayee;
-
-                    if (hasActiveFilters) {
-                        filtersContainer.classList.add('active-filters');
-                    } else {
-                        filtersContainer.classList.remove('active-filters');
-                    }
-                    const tableRows = document.querySelectorAll('.assessments-table tbody tr');
-
-                    tableRows.forEach(row => {
-                        let showRow = true;
-                        if (selectedDate) {
-                            const dateCell = row.querySelector('td:nth-child(5)').textContent.trim();
-                            if (dateCell !== selectedDate) {
-                                showRow = false;
-                            }
-                        }
-                        if (showRow && selectedStatus) {
-                            const statusCell = row.querySelector('td:nth-child(4)').textContent.trim().toLowerCase();
-                            if (!statusCell.includes(selectedStatus)) {
-                                showRow = false;
-                            }
-                        }
-                        if (showRow && searchPayee) {
-                            const payeeCell = row.querySelector('td:nth-child(2)').textContent.trim().toLowerCase();
-                            if (!payeeCell.includes(searchPayee)) {
-                                showRow = false;
-                            }
-                        }
-
-                        row.style.display = showRow ? '' : 'none';
-                    });
-
-                    updateResultsCount();
-                }
-
-                function updateResultsCount() {
-                    const visibleRows = document.querySelectorAll('.assessments-table tbody tr:not([style*="display: none"])');
-                    const totalRows = document.querySelectorAll('.assessments-table tbody tr');
-                    console.log(`Showing ${visibleRows.length} of ${totalRows.length} records`);
-                }
+            // Close modal
+            closeModalBtn.addEventListener('click', function () {
+                modal.style.display = 'none';
             });
 
-            function toggleTaxFields() {
-                const applyTaxesCheckbox = document.getElementById('apply_taxes');
-                const taxFieldsContainer = document.getElementById('tax_fields_container');
-                if (applyTaxesCheckbox.checked) {
-                    taxFieldsContainer.style.display = 'block';
-
-                    calculateTaxes();
-                } else {
-                    taxFieldsContainer.style.display = 'none';
-
-                    document.getElementById('vat_amount').value = '0.00';
-                    document.getElementById('tax_1').value = '0.00';
-                    document.getElementById('tax_2').value = '0.00';
-                    document.getElementById('tax_base').value = '0.00';
-
-
-                    const grossAmount = parseFloat(document.getElementById('amount').value) || 0;
-                    document.getElementById('net_amount').value = grossAmount.toFixed(2);
-
-                    const amountField = document.getElementById('amount');
-                    if (!amountField.value) {
-                        amountField.value = grossAmount.toFixed(2);
-                    }
-                }
-            }
-
-
-            document.addEventListener('DOMContentLoaded', function () {
-                toggleTaxFields();
-            });
-
-
-            function calculateTaxes() {
-                const grossAmount = parseFloat(document.getElementById('amount').value) || 0;
-                const vatPercentage = parseFloat(document.getElementById('vat_percentage').value) || 0;
-                const tax1Percentage = parseFloat(document.getElementById('tax1_percentage').value) || 0;
-                const tax2Percentage = parseFloat(document.getElementById('tax2_percentage').value) || 0;
-                const vatAmount = grossAmount / 1.12;
-
-                const taxBase = grossAmount - vatAmount;
-                const tax1 = taxBase * (tax1Percentage / 100);
-                const tax2 = taxBase * (tax2Percentage / 100);
-                const netAmount = grossAmount - vatAmount - tax1 - tax2;
-                document.getElementById('vat_amount').value = vatAmount.toFixed(2);
-                document.getElementById('tax_base').value = taxBase.toFixed(2);
-                document.getElementById('tax_1').value = tax1.toFixed(2);
-                document.getElementById('tax_2').value = tax2.toFixed(2);
-                document.getElementById('net_amount').value = netAmount.toFixed(2);
-                const amountField = document.getElementById('amount');
-                if (!amountField.value) {
-                    amountField.value = grossAmount.toFixed(2);
-                }
-            }
-
-            function calculateTotals() {
-                const debitAmounts = document.querySelectorAll('.debit-amount');
-                const creditAmounts = document.querySelectorAll('.credit-amount');
-
-                let totalDebit = 0;
-                let totalCredit = 0;
-
-                debitAmounts.forEach(input => {
-                    totalDebit += parseFloat(input.value) || 0;
-                });
-
-                creditAmounts.forEach(input => {
-                    totalCredit += parseFloat(input.value) || 0;
-                });
-
-                document.getElementById('total-debit').value = totalDebit.toFixed(2);
-                document.getElementById('total-credit').value = totalCredit.toFixed(2);
-            }
-
-
-            document.getElementById('addAccountRow').addEventListener('click', function () {
-                const tableBody = document.getElementById('accountingTableBody');
-                const newRow = document.createElement('tr');
-
-                newRow.innerHTML = `
-                <td colspan="2">
-                <select class="form-control" name="object_code_id">
-                            <option selected disabled>Select Account</option>
-                             <?php
-                             while ($row = $result_object_code->fetch_assoc()) {
-                                 echo "<option value='" . htmlspecialchars($row['object_code_id']) . "'>" . htmlspecialchars($row['object_name']) . "</option>";
-                             }
-                             ?>
-                 </select>
-                </td>
-                <td><input type="number" class="form-control debit-amount" step="0.01" onchange="calculateTotals()"></td>
-                <td><input type="number" class="form-control credit-amount" step="0.01" onchange="calculateTotals()"></td>
-            `;
-
-                tableBody.appendChild(newRow);
-            });
-
-            document.getElementById('clearFormBtn').addEventListener('click', function () {
-                const formInputs = document.querySelectorAll('.form-control:not(.calculation-field)');
-                const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-
-                formInputs.forEach(input => {
-                    input.value = '';
-                });
-
-                checkboxes.forEach(checkbox => {
-                    checkbox.checked = false;
-                });
-
-                document.getElementById('vat_percentage').value = '12';
-                document.getElementById('tax1_percentage').value = '5';
-                document.getElementById('tax2_percentage').value = '2';
-
-                document.getElementById('vat_amount').value = '';
-                document.getElementById('tax_base').value = '';
-                document.getElementById('tax_1').value = '';
-                document.getElementById('tax_2').value = '';
-                document.getElementById('net_amount').value = '';
-                document.getElementById('total-debit').value = '';
-                document.getElementById('total-credit').value = '';
-            });
-
-            function openDVModal(dvNumber) {
-                document.getElementById('dvFormModal').style.display = 'block';
-
-                document.querySelector('.modal-title').textContent = `Disbursement Voucher: ${dvNumber}`;
-            }
-
-            document.getElementById('closeDvModal').addEventListener('click', function () {
-                document.getElementById('dvFormModal').style.display = 'none';
-            });
-
+            // Close modal when clicking outside
             window.addEventListener('click', function (event) {
-                const modal = document.getElementById('dvFormModal');
                 if (event.target === modal) {
                     modal.style.display = 'none';
                 }
             });
+        });
+    </script>
 
-            const dropdowns = document.querySelectorAll('.dropdown');
+    <!-- mode of payment -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const checkboxes = document.querySelectorAll('input[name="payment_mode"]');
+            const otherText = document.getElementById('otherText');
 
-            dropdowns.forEach(dropdown => {
-                const header = dropdown.querySelector('.dropdown-header');
-
-                header.addEventListener('click', function () {
-                    dropdown.classList.toggle('active');
-
-                    const icon = this.querySelector('.dropdown-icon');
-                    if (dropdown.classList.contains('active')) {
-                        icon.setAttribute('name', 'chevron-up-outline');
-                    } else {
-                        icon.setAttribute('name', 'chevron-down-outline');
-                    }
-                });
-            });
-
-
-            document.addEventListener('DOMContentLoaded', function () {
-                const sidebar = document.querySelector('.sidebar');
-                const dashboardContainer = document.querySelector('.dashboard-container');
-
-                if (sidebar && dashboardContainer) {
-                    sidebar.addEventListener('click', function (e) {
-
-                        if (e.target === sidebar || e.target.classList.contains('logo-container') ||
-                            e.target.closest('.logo-container')) {
-                            dashboardContainer.classList.toggle('collapsed');
-                        }
-                    });
-                }
-
-
-                const dropdown = document.querySelector('.dropdown');
-
-                if (dropdown) {
-                    dropdown.addEventListener('click', function (e) {
-
-                        if (!e.target.closest('.dropdown-content')) {
-                            e.stopPropagation();
-                            this.classList.toggle('active');
-                        }
-                    });
-                }
-
-
-
-            });
-            document.addEventListener('DOMContentLoaded', function () {
-                calculateTaxes();
-                calculateTotals();
-            });
-        </script>
-
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const dateInput = document.querySelector('input[name="date"]');
-                const dvNoInput = document.querySelector('input[name="dv_no"]');
-                const fundClusterInput = document.getElementById('fund_cluster'); // Already populated
-
-                dateInput.addEventListener('change', function () {
-                    const selectedDate = dateInput.value;
-                    const fundCluster = fundClusterInput.value.trim(); // Ensure it's not empty
-
-                    console.log("Fund Cluster Value:", fundCluster); // Debug
-                    console.log("Selected Date:", selectedDate); // Debug
-
-                    if (selectedDate && fundCluster) {
-                        const dateParts = selectedDate.split("-");
-                        const year = dateParts[0].slice(-2);
-                        const month = dateParts[1];
-
-                        fetch(`get_latest_dv.php?fund_cluster=${fundCluster}&year=${year}&month=${month}`)
-                            .then(response => response.json())
-                            .then(data => {
-                                console.log("API Response:", data); // Debug
-
-                                if (data.next_series) {
-                                    const nextSeries = String(data.next_series).padStart(3, '0');
-                                    dvNoInput.value = `${fundCluster}-${month}-${year}-${nextSeries}`;
-                                    console.log("Generated DV No:", dvNoInput.value); // Debug
-                                } else {
-                                    console.error("Error in response data:", data);
-                                }
-                            })
-                            .catch(error => console.error('Error fetching latest DV No:', error));
-                    }
-                });
-            });
-
-        </script>
-
-        <!-- mode of payment -->
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                const checkboxes = document.querySelectorAll('input[name="payment_mode"]');
-                const otherText = document.getElementById('otherText');
-
-                checkboxes.forEach(checkbox => {
-                    checkbox.addEventListener('change', function () {
-                        if (this.checked) {
-                            checkboxes.forEach(cb => {
-                                if (cb !== this) {
-                                    cb.checked = false;
-                                }
-                            });
-
-                            // Enable/Disable text field based on "Others" selection
-                            if (this.id === "others") {
-                                otherText.disabled = false;
-                            } else {
-                                otherText.disabled = true;
-                                otherText.value = ""; // Clear input if another option is selected
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function () {
+                    if (this.checked) {
+                        checkboxes.forEach(cb => {
+                            if (cb !== this) {
+                                cb.checked = false;
                             }
+                        });
+
+                        // Enable/Disable text field based on "Others" selection
+                        if (this.id === "others") {
+                            otherText.disabled = false;
+                        } else {
+                            otherText.disabled = true;
+                            otherText.value = ""; // Clear input if another option is selected
                         }
-                    });
+                    }
                 });
             });
-        </script>
+        });
+    </script>
+
+    <!-- tax calculation -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const amountInput = document.getElementById("amount");
+            const applyTaxesCheckbox = document.getElementById("apply_taxes");
+            const vatPercentageInput = document.getElementById("vat_percentage");
+            const tax1PercentageInput = document.getElementById("tax1_percentage");
+            const tax2PercentageInput = document.getElementById("tax2_percentage");
+
+            const vatAmountInput = document.getElementById("vat_amount");
+            const taxBaseInput = document.getElementById("tax_base");
+            const tax1Input = document.getElementById("tax_1");
+            const tax2Input = document.getElementById("tax_2");
+            const netAmountInput = document.getElementById("net_amount");
+
+            function calculate() {
+                let grossAmount = parseFloat(amountInput.value) || 0;
+
+                // Update tax percentages based on VAT selection
+                if (applyTaxesCheckbox.checked) {
+                    tax1PercentageInput.value = 5; // Set to 5% if VAT is applied
+                    tax2PercentageInput.value = 2; // Set to 2% if VAT is applied
+                } else {
+                    tax1PercentageInput.value = 3; // Set to 3% if Non-VAT
+                    tax2PercentageInput.value = 1; // Set to 1% if Non-VAT
+                }
+
+                let vatPercentage = applyTaxesCheckbox.checked ? parseFloat(vatPercentageInput.value) || 0 : 0;
+                let tax1Percentage = parseFloat(tax1PercentageInput.value) || 0;
+                let tax2Percentage = parseFloat(tax2PercentageInput.value) || 0;
+
+                let vatAmount = (grossAmount * vatPercentage) / 100;
+                let taxBase = grossAmount - vatAmount;
+                let tax1Amount = (taxBase * tax1Percentage) / 100;
+                let tax2Amount = (taxBase * tax2Percentage) / 100;
+                let netAmount = taxBase - (tax1Amount + tax2Amount);
+
+                vatAmountInput.value = vatAmount.toFixed(2);
+                taxBaseInput.value = taxBase.toFixed(2);
+                tax1Input.value = tax1Amount.toFixed(2);
+                tax2Input.value = tax2Amount.toFixed(2);
+                netAmountInput.value = netAmount.toFixed(2);
+            }
+
+            // Function to ensure calculations run correctly at page load
+            function initializeCalculation() {
+                if (amountInput.value.trim() !== "" && parseFloat(amountInput.value) > 0) {
+                    calculate();
+                } else {
+                    setTimeout(initializeCalculation, 100);
+                }
+            }
+
+            // Event listeners to update calculations dynamically
+            amountInput.addEventListener("input", calculate);
+            applyTaxesCheckbox.addEventListener("change", function () {
+                calculate();
+            });
+            vatPercentageInput.addEventListener("input", calculate);
+            tax1PercentageInput.addEventListener("input", calculate);
+            tax2PercentageInput.addEventListener("input", calculate);
+
+            // Run calculations when the page loads
+            initializeCalculation();
+        });
+
+    </script>
+
+    <!-- dv number -->
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            generateDVNumber(); // Call function when page loads
+        });
+
+        function generateDVNumber() {
+            fetch("fetch_dv_number.php") // Call backend to get latest DV number
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Fetched DV Data:", data); // Debugging
+                    let dvNoInput = document.querySelector('input[name="dv_no"]');
+
+                    if (dvNoInput) {
+                        if (data.success) {
+                            dvNoInput.value = data.dv_no;
+                            console.log("DV No Set:", dvNoInput.value);
+                        } else {
+                            console.error("Error fetching DV number:", data.error);
+                        }
+                    } else {
+                        console.error("DV Number input field not found!");
+                    }
+                })
+                .catch(error => console.error("Fetch error:", error));
+        }
+
+
+    </script>
 
 </body>
 
