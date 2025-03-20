@@ -114,6 +114,10 @@ while ($row = $result_approvers->fetch_assoc()) {
     ];
 }
 
+$sql_object_code = "SELECT object_code_id, object_name, uacs_code FROM financial_object_code";
+$result_object_code = $connection->query($sql_object_code);
+
+
 ?>
 
 
@@ -395,171 +399,173 @@ while ($row = $result_approvers->fetch_assoc()) {
 
 <body>
 
-      <!-- ======= Header ======= -->
-      <header id="header" class="header fixed-top d-flex align-items-center">
+    <!-- ======= Header ======= -->
+    <header id="header" class="header fixed-top d-flex align-items-center">
 
-<div class="d-flex align-items-center justify-content-between">
-    <a href="index.html" class="logo d-flex align-items-center">
-        <img src="../img/DTI_short.png" alt="">
-        <span class="d-none d-lg-block">Region 12</span>
-    </a>
-    <i class="bi bi-list toggle-sidebar-btn"></i>
-</div><!-- End Logo -->
-
-
-<nav class="header-nav ms-auto">
-    <ul class="d-flex align-items-center">
-
-
-
-        <li class="nav-item dropdown pe-3">
-
-            <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-                <i class="ri-account-circle-fill fs-2"></i>
-                <span class="d-none d-md-block dropdown-toggle ps-2"></span>
+        <div class="d-flex align-items-center justify-content-between">
+            <a href="index.html" class="logo d-flex align-items-center">
+                <img src="../img/DTI_short.png" alt="">
+                <span class="d-none d-lg-block">Region 12</span>
             </a>
+            <i class="bi bi-list toggle-sidebar-btn"></i>
+        </div><!-- End Logo -->
 
-            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
-                <li class="dropdown-header">
-                    <h6>Kevin Anderson</h6>
-                    <span>Web Designer</span>
-                </li>
-                <li>
-                    <hr class="dropdown-divider">
-                </li>
 
-                <li>
-                    <a class="dropdown-item d-flex align-items-center" href="users-profile.html">
-                        <i class="bi bi-person"></i>
-                        <span>My Profile</span>
+        <nav class="header-nav ms-auto">
+            <ul class="d-flex align-items-center">
+
+
+
+                <li class="nav-item dropdown pe-3">
+
+                    <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
+                        <i class="ri-account-circle-fill fs-2"></i>
+                        <span class="d-none d-md-block dropdown-toggle ps-2"></span>
                     </a>
-                </li>
-                <li>
-                    <hr class="dropdown-divider">
-                </li>
 
-                <li>
-                    <a class="dropdown-item d-flex align-items-center" href="users-profile.html">
-                        <i class="bi bi-gear"></i>
-                        <span>Account Settings</span>
-                    </a>
-                </li>
-                <li>
-                    <hr class="dropdown-divider">
-                </li>
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
+                        <li class="dropdown-header">
+                            <h6>Kevin Anderson</h6>
+                            <span>Web Designer</span>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
 
-                <li>
-                    <a class="dropdown-item d-flex align-items-center" href="pages-faq.html">
-                        <i class="bi bi-question-circle"></i>
-                        <span>Need Help?</span>
-                    </a>
-                </li>
-                <li>
-                    <hr class="dropdown-divider">
-                </li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center" href="users-profile.html">
+                                <i class="bi bi-person"></i>
+                                <span>My Profile</span>
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
 
-                <li>
-                    <a class="dropdown-item d-flex align-items-center" href="../logout.php">
-                        <i class="bi bi-box-arrow-right"></i>
-                        <span>Sign Out</span>
-                    </a>
-                </li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center" href="users-profile.html">
+                                <i class="bi bi-gear"></i>
+                                <span>Account Settings</span>
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
 
-            </ul><!-- End Profile Dropdown Items -->
-        </li><!-- End Profile Nav -->
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center" href="pages-faq.html">
+                                <i class="bi bi-question-circle"></i>
+                                <span>Need Help?</span>
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
 
-    </ul>
-</nav><!-- End Icons Navigation -->
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center" href="../logout.php">
+                                <i class="bi bi-box-arrow-right"></i>
+                                <span>Sign Out</span>
+                            </a>
+                        </li>
 
-</header><!-- End Header -->
+                    </ul><!-- End Profile Dropdown Items -->
+                </li><!-- End Profile Nav -->
 
-<!-- ======= Sidebar ======= -->
-<aside id="sidebar" class="sidebar">
+            </ul>
+        </nav><!-- End Icons Navigation -->
 
-<ul class="sidebar-nav" id="sidebar-nav">
+    </header><!-- End Header -->
 
-    <li class="nav-item">
-        <a class="navbar-brand ps-3" href="">
-            <img src="../img/DTI_w12.png" alt="Logo" style="height: 100px; width: auto; max-width: 100%; ">
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link " href="dashboard.php">
-            <i class="bi bi-grid"></i>
-            <span>Dashboard</span>
-        </a>
-    </li>
+    <!-- ======= Sidebar ======= -->
+    <aside id="sidebar" class="sidebar">
 
-    <li class="nav-item">
-        <a class="nav-link collapsed" data-bs-target="#charts-nav" data-bs-toggle="collapse" href="#">
-            <i class="bi bi-bar-chart"></i><span>Forms</span><i class="bi bi-chevron-down ms-auto"></i>
-        </a>
-        <ul id="charts-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-            <li>
-                <a href="ors.php">
-                    <i class="bi bi-circle"></i><span>Obligation Request and Status</span>
+        <ul class="sidebar-nav" id="sidebar-nav">
+
+            <li class="nav-item">
+                <a class="navbar-brand ps-3" href="">
+                    <img src="../img/DTI_w12.png" alt="Logo" style="height: 100px; width: auto; max-width: 100%; ">
                 </a>
             </li>
-            <li>
-                <a href="dv.php">
-                    <i class="bi bi-circle"></i><span>Disbursement Voucher</span>
+            <li class="nav-item">
+                <a class="nav-link " href="dashboard.php">
+                    <i class="bi bi-grid"></i>
+                    <span>Dashboard</span>
                 </a>
             </li>
-            <li>
-                <a href="jev.php">
-                    <i class="bi bi-circle"></i><span>JEV</span>
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" data-bs-target="#charts-nav" data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-bar-chart"></i><span>Forms</span><i class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <ul id="charts-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                    <li>
+                        <a href="ors.php">
+                            <i class="bi bi-circle"></i><span>Obligation Request and Status</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="dv.php">
+                            <i class="bi bi-circle"></i><span>Disbursement Voucher</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="jev.php">
+                            <i class="bi bi-circle"></i><span>JEV</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" data-bs-target="#components-nav" data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-menu-button-wide"></i><span>UACS</span><i class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <ul id="components-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                    <li>
+                        <a href="account_title.php">
+                            <i class="bi bi-circle"></i><span>Account Title</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="fund_cluster.php">
+                            <i class="bi bi-circle"></i><span>Fund Cluster</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="responsibility.php">
+                            <i class="bi bi-circle"></i><span>Responsibility Center</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="payee.php">
+                            <i class="bi bi-circle"></i><span>Payee</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="approver.php">
+                            <i class="bi bi-circle"></i><span>Approver</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="reports_copy.php">
+                    <i class="bi bi-journal-text"></i>
+                    <span>Reports</span>
                 </a>
             </li>
+
+
+
         </ul>
-    </li>
-
-    <li class="nav-item">
-        <a class="nav-link collapsed" data-bs-target="#components-nav" data-bs-toggle="collapse" href="#">
-            <i class="bi bi-menu-button-wide"></i><span>UACS</span><i class="bi bi-chevron-down ms-auto"></i>
-        </a>
-        <ul id="components-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-            <li>
-                <a href="account_title.php">
-                    <i class="bi bi-circle"></i><span>Account Title</span>
-                </a>
-            </li>
-            <li>
-                <a href="fund_cluster.php">
-                    <i class="bi bi-circle"></i><span>Fund Cluster</span>
-                </a>
-            </li>
-            <li>
-                <a href="responsibility.php">
-                    <i class="bi bi-circle"></i><span>Responsibility Center</span>
-                </a>
-            </li>
-            <li>
-                <a href="payee.php">
-                    <i class="bi bi-circle"></i><span>Payee</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="approver.php">
-                    <i class="bi bi-circle"></i><span>Approver</span>
-                </a>
-            </li>
-        </ul>
-    </li>
-
-    <li class="nav-item">
-        <a class="nav-link collapsed" href="reports_copy.php">
-            <i class="bi bi-journal-text"></i>
-            <span>Reports</span>
-        </a>
-    </li>
 
 
+    </aside><!-- End Sidebar-->
 
-</ul>
 
-
-</aside><!-- End Sidebar-->
 
     <main id="main" class="main">
 
@@ -574,177 +580,197 @@ while ($row = $result_approvers->fetch_assoc()) {
 
                     <!-- General Information Section -->
 
-                    <form method="post">
-                        <div class="form-section">
-                            <h3>General Information</h3>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label">Fund Cluster</label>
-                                    <select class="form-control" name="fund_cluster_id">
-                                        <option selected disabled>Select Fund Cluster</option>
-                                        <?php
-                                        while ($row = $result_fund_cluster->fetch_assoc()) {
-                                            echo "<option value='" . htmlspecialchars($row['fund_cluster_id']) . "'>" . htmlspecialchars($row['fund_cluster_name']) . "</option>";
-                                        }
-                                        ?>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Date</label>
-                                    <input type="date" class="form-control" id="dvDate" name="date">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Obligation Request No.</label>
-                                    <input type="text" class="form-control" name="ors_no" required autocomplete="off">
+                    <!-- ORS Type Selection -->
+                    <div class="form-group">
+                        <label class="form-label">Select ORS Type</label>
+                        <select class="form-control" id="ors_type">
+                            <option value="" selected disabled>Select ORS Type</option>
+                            <option value="cash_advance">Cash Advance</option>
+                            <option value="transfer_fund">Transfer of Fund</option>
+                        </select>
+                    </div>
+
+
+                    <div id="ors_form" style="display: none;">
+                        <form method="post">
+                            <div class="form-section">
+                                <h3>General Information</h3>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Fund Cluster</label>
+                                        <select class="form-control" name="fund_cluster_id">
+                                            <option selected disabled>Select Fund Cluster</option>
+                                            <?php
+                                            while ($row = $result_fund_cluster->fetch_assoc()) {
+                                                echo "<option value='" . htmlspecialchars($row['fund_cluster_id']) . "'>" . htmlspecialchars($row['fund_cluster_name']) . "</option>";
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Date</label>
+                                        <input type="date" class="form-control" id="dvDate" name="date">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Obligation Request No.</label>
+                                        <input type="text" class="form-control" name="ors_no" required
+                                            autocomplete="off">
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
 
-                        <!-- Payee Details Section -->
-                        <div class="form-section">
-                            <h3> Payee Details</h3>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label">Payee Name</label>
-                                    <select class="form-control" name="payee_id" id="payee_id">
+                            <!-- Payee Details Section -->
+                            <div class="form-section">
+                                <h3> Payee Details</h3>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Payee Name</label>
+                                        <select class="form-control" name="payee_id" id="payee_id">
                                             <option selected disabled>Select Payee</option>
                                             <?php
                                             while ($row = $result_payee->fetch_assoc()) {
                                                 echo "<option value='" . htmlspecialchars($row['payee_id']) . "' 
-                                                        data-tin='" . htmlspecialchars($row['tin_no']) . "' 
-                                                        data-address='" . htmlspecialchars($row['address']) . "'>" 
-                                                        . htmlspecialchars($row['payee_name']) . 
+                                                            data-tin='" . htmlspecialchars($row['tin_no']) . "' 
+                                                            data-address='" . htmlspecialchars($row['address']) . "'>"
+                                                    . htmlspecialchars($row['payee_name']) .
                                                     "</option>";
                                             }
                                             ?>
-                                     </select>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">TIN/Employee No.</label>
+                                        <input type="text" class="form-control" name="tin_no" id="tin_no" required
+                                            autocomplete="off">
+
+                                    </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label">TIN/Employee No.</label>
-                                    <input type="text" class="form-control" name="tin_no" id="tin_no" required autocomplete="off">
+                                    <label class="form-label">Address</label>
+                                    <input type="text" class="form-control" name="address" id="address" required
+                                        autocomplete="off">
 
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label">Address</label>
-                                <input type="text" class="form-control" name="address" id="address" required autocomplete="off">
 
-                            </div>
-                        </div>
+                            <!-- Payment Details Section -->
+                            <div class="form-section">
+                                <h3></h3>
+                                <div class="form-row">
+                                    <div class="form-group full-width">
+                                        <label class="form-label">NOTES</label>
+                                        <textarea class="form-control" name="notes"></textarea autocomplete="off">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Responsibility Center</label>
+                                        <select class="form-control" name="rc_id">
+                                            <option selected disabled>Select Responsibility Center</option>
+                                            <?php
+                                            while ($row = $result_responsibility_center->fetch_assoc()) {
+                                                echo "<option value='" . htmlspecialchars($row['rc_id']) . "'>" . htmlspecialchars($row['code']) . "</option>";
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
 
-                        <!-- Payment Details Section -->
-                        <div class="form-section">
-                            <h3></h3>
-                            <div class="form-row">
-                                <div class="form-group full-width">
-                                    <label class="form-label">NOTES</label>
-                                    <textarea class="form-control" name="notes"></textarea autocomplete="off">
                                 </div>
                             </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label">Responsibility Center</label>
-                                    <select class="form-control" name="rc_id">
-                                        <option selected disabled>Select Responsibility Center</option>
-                                        <?php
-                                        while ($row = $result_responsibility_center->fetch_assoc()) {
-                                            echo "<option value='" . htmlspecialchars($row['rc_id']) . "'>" . htmlspecialchars($row['code']) . "</option>";
-                                        }
-                                        ?>
-                                    </select>
-                                </div>
 
-                            </div>
-                        </div>
-
-                        <!-- Accounting Entry Section -->
-                        <div class="form-section">
-                            <h3>Accounting Entry</h3>
-                            <div class="table-responsive">
-                                <table class="accounting-entry-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Account Title</th>
-                                            <th>OO/PAP</th>
-                                            <th>Amount</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="accounting-table-body">
-                                        <!-- First row -->
-                                        <tr class="entry-row">
+                            <!-- Accounting Entry Section -->
+                            <div class="form-section">
+                                <h3>Accounting Entry</h3>
+                                <div class="table-responsive">
+                                    <table class="accounting-entry-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Account Title</th>
+                                                <th>OO/PAP</th>
+                                                <th>Amount</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="accounting-table-body">
+                                            <!-- First row -->
+                                            <tr class="entry-row">
                                             <td>
-                                                <select class="form-control" name="object_code_id">
-                                                    <option selected disabled>Select Account</option>
-                                                    <?php
-                                                    while ($row = $result_object_code->fetch_assoc()) {
-                                                        echo "<option value='" . htmlspecialchars($row['object_code_id']) . "'>" . htmlspecialchars($row['object_name']) . "</option>";
-                                                    }
-                                                    ?>
-                                                </select>
+                                        <select class="form-control" name="object_code_id" id="account_title">
+                                            <option selected disabled>Select Account</option>
+                                            <?php
+                                            while ($row = $result_object_code->fetch_assoc()) {
+                                                echo "<option value='" . htmlspecialchars($row['object_code_id']) . "' 
+                                                    data-uacs='" . htmlspecialchars($row['uacs_code']) . "'>"
+                                                    . htmlspecialchars($row['object_name']) .
+                                                    "</option>";
+                                            }
+                                            ?>
+                                        </select>
                                             </td>
-                                            <td>
-                                                <select class="form-control" name="oopap_id">
-                                                    <option selected disabled>Select OO/PAP</option>
-                                                    <?php
-                                                    while ($row = $result_oopap->fetch_assoc()) {
-                                                        echo "<option value='" . htmlspecialchars($row['oopap_id']) . "'>" . htmlspecialchars($row['oopap_name']) . "</option>";
-                                                    }
-                                                    ?>
-                                                </select>
-                                            </td>
-                                            <td><input type="number" class="form-control" name="amount" step="0.01" autocomplete="off">
-                                            </td>
-                                        </tr>
 
-                                        <!-- Add Row button row (this will stay at the bottom) -->
-                                        <tr id="add-row-container">
-                                            <td colspan="4" class="text-left">
-                                                <button type="button" name="submit" id="addAccountRow"
-                                                    class="btn btn-secondary">
-                                                    <ion-icon name="add-outline"></ion-icon> Add Row
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                                                <td>
+                                                    <select class="form-control" name="oopap_id">
+                                                        <option selected disabled>Select OO/PAP</option>
+                                                        <?php
+                                                        while ($row = $result_oopap->fetch_assoc()) {
+                                                            echo "<option value='" . htmlspecialchars($row['oopap_id']) . "'>" . htmlspecialchars($row['oopap_name']) . "</option>";
+                                                        }
+                                                        ?>
+                                                    </select>
+                                                </td>
+                                                <td><input type="number" class="form-control" name="amount" step="0.01" autocomplete="off">
+                                                </td>
+                                            </tr>
 
-
-                        <!-- Receipt Section -->
-                        <div class="form-section">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label" id="designationLabel">Designation</label>
-                                    <select class="form-control" id="approverSelect" name="approver_id">
-                                        <option value="">Select Approver</option>
-                                        <?php
-                                        foreach ($approverData as $approver_id => $data) {
-                                            echo "<option value='" . htmlspecialchars($approver_id) . "' data-designation='" . htmlspecialchars($data['designation']) . "'>" . htmlspecialchars($data['name']) . "</option>";
-                                        }
-                                        ?>
-                                    </select>
+                                            <!-- Add Row button row (this will stay at the bottom) -->
+                                            <tr id="add-row-container">
+                                                <td colspan="4" class="text-left">
+                                                    <button type="button" name="submit" id="addAccountRow"
+                                                        class="btn btn-secondary">
+                                                        <ion-icon name="add-outline"></ion-icon> Add Row
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
-                                <div class="form-group">
-                                    <label class="form-label">Budget Officer</label>
-                                    <select class="form-control" name="budget_officer">
-                                        <option>CONNIE M. BARNACHEA</option>
-
-                                    </select>
-                                </div>
-
                             </div>
 
-                        </div>
 
-                        <!-- Form Buttons -->
-                        <div class="btn-container">
-                            <button type="button" class="btn btn-secondary">Clear Form</button>
-                            <button type="submit" class="btn btn-primary" name="submit">Submit Voucher</button>
-                        </div>
+                            <!-- Receipt Section -->
+                            <div class="form-section">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label" id="designationLabel">Designation</label>
+                                        <select class="form-control" id="approverSelect" name="approver_id">
+                                            <option value="">Select Approver</option>
+                                            <?php
+                                            foreach ($approverData as $approver_id => $data) {
+                                                echo "<option value='" . htmlspecialchars($approver_id) . "' data-designation='" . htmlspecialchars($data['designation']) . "'>" . htmlspecialchars($data['name']) . "</option>";
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Budget Officer</label>
+                                        <select class="form-control" name="budget_officer">
+                                            <option>CONNIE M. BARNACHEA</option>
 
-                    </form>
+                                        </select>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <!-- Form Buttons -->
+                            <div class="btn-container">
+                                <button type="button" class="btn btn-secondary">Clear Form</button>
+                                <button type="submit" class="btn btn-primary" name="submit">Submit Voucher</button>
+                            </div>
+
+                        </form>
+                    </div>
                 </div>
             </div>
         </section>
@@ -988,14 +1014,54 @@ while ($row = $result_approvers->fetch_assoc()) {
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    $(document).ready(function() {
-        $('#payee_id').on('change', function() {
+    $(document).ready(function () {
+        $('#payee_id').on('change', function () {
             var selectedOption = $(this).find('option:selected');
             var tinNo = selectedOption.data('tin');
             var address = selectedOption.data('address');
 
             $('#tin_no').val(tinNo);
             $('#address').val(address);
+        });
+    });
+</script>
+
+<!-- account_title -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const orsTypeSelect = document.getElementById("ors_type");
+        const accountTitleSelect = document.getElementById("account_title");
+
+        orsTypeSelect.addEventListener("change", function () {
+            const selectedType = this.value;
+
+            Array.from(accountTitleSelect.options).forEach(option => {
+                const uacsCode = option.getAttribute("data-uacs");
+                if (!uacsCode) return; // Skip the "Select Account" option
+
+                if ((selectedType === "cash_advance" && uacsCode.startsWith("19")) ||
+                    (selectedType === "transfer_fund" && uacsCode.startsWith("10"))) {
+                    option.hidden = false;
+                } else {
+                    option.hidden = true;
+                }
+            });
+
+            accountTitleSelect.value = ""; // Reset selection
+        });
+    });
+</script>
+
+<!-- show form after selecting ors type  -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const orsTypeSelect = document.getElementById("ors_type");
+        const orsForm = document.getElementById("ors_form");
+
+        orsTypeSelect.addEventListener("change", function () {
+            if (this.value) {
+                orsForm.style.display = "block";  // Show the form
+            }
         });
     });
 </script>

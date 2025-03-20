@@ -1,17 +1,23 @@
 <?php
-include '../DBconnection.php'; // Ensure your database connectionection is correct
+include '../DBconnection.php'; // Ensure correct DB connection
 
-// Get fund cluster
-$query = "SELECT uacs_code FROM fund_cluster LIMIT 1";
-$result = $connection->query($query);
-$fund_cluster = $result->fetch_assoc()['uacs_code'];
+if (!isset($_POST['fund_cluster_id']) || empty($_POST['fund_cluster_id'])) {
+    echo json_encode(["success" => false, "error" => "Fund cluster ID is missing"]);
+    exit;
+}
 
-$year = date("y"); // Get last two digits of year
+$fund_cluster = $_POST['fund_cluster_id']; // Directly use input as fund cluster
+
+$year = date("y"); // Get last two digits of the year
 $month = date("m"); // Get two-digit month
 
-// Check latest DV number
-$query = "SELECT dv_no FROM dv WHERE dv_no LIKE '$fund_cluster-$year-$month-%' ORDER BY dv_no DESC LIMIT 1";
-$result = $connection->query($query);
+// Check latest DV number for the selected fund cluster
+$query = "SELECT dv_no FROM dv WHERE dv_no LIKE ? ORDER BY dv_no DESC LIMIT 1";
+$like_pattern = "$fund_cluster-$year-$month-%";
+$stmt = $connection->prepare($query);
+$stmt->bind_param("s", $like_pattern);
+$stmt->execute();
+$result = $stmt->get_result();
 
 if ($result->num_rows > 0) {
     $last_dv = $result->fetch_assoc()['dv_no'];

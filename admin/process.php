@@ -3,7 +3,7 @@
 $servername = "localhost";
 $username = "root";
 $password = "";
-$database = "dti";
+$database = "dti-php";
 
 $conn = new mysqli($servername, $username, $password, $database);
 
@@ -30,25 +30,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     } elseif ($type == "submodule") {
         // Insert into financial_submodules
-        $category_id = $_POST['category_id'];
+        $subcategory_id = $_POST['subcategory_id'];
         $submodule_name = $_POST['submodule_name'];
-        $stmt = $conn->prepare("INSERT INTO financial_submodules (category_id, submodule_name) VALUES (?, ?)");
-        $stmt->bind_param("is", $category_id, $submodule_name);
+        $stmt = $conn->prepare("INSERT INTO financial_submodules (subcategory_id, submodule_name) VALUES (?, ?)");
+        $stmt->bind_param("is", $subcategory_id, $submodule_name);
 
     } elseif ($type == "object_code") {
         // Insert into financial_object_codes
         $submodule_id = $_POST['submodule_id'];
-        $object_code_name = $_POST['object_code_name'];
+        $object_name = $_POST['object_name'];
         $uacs_code = $_POST['uacs_code'];
         $status = $_POST['status'];
 
         $stmt = $conn->prepare("INSERT INTO financial_object_code (submodule_id, object_name, uacs_code, status) VALUES (?, ?, ?, ?)");
-        $stmt->bind_param("isss", $submodule_id, $object_code_name, $uacs_code, $status);
+        $stmt->bind_param("isss", $submodule_id, $object_name, $uacs_code, $status);
     }
 
     // Execute query and check for success
     if ($stmt->execute()) {
-        echo "<script>alert('Record added successfully!'); window.location.href='add.php';</script>";
+        echo "<script>alert('Record added successfully!'); window.location.href='account_title.php';</script>";
     } else {
         echo "Error: " . $stmt->error;
     }

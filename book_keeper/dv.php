@@ -942,7 +942,7 @@ $select = mysqli_query($connection, "
                             <div class="form-row">
                                 <div class="form-group">
                                     <label class="form-label">Fund Cluster</label>
-                                    <input type="text" class="form-control" id="fund_cluster">
+                                    <input type="text" class="form-control" id="fund_cluster" readonly>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Date</label>
@@ -950,11 +950,11 @@ $select = mysqli_query($connection, "
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">ORS No.</label>
-                                    <input type="text" class="form-control" id="ors_no" name="ors_id">
+                                    <input type="text" class="form-control" id="ors_no" name="ors_id" readonly>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Disbursement Voucher No.</label>
-                                    <input type="text" class="form-control" id="dv_no" name="dv_no">
+                                    <input type="text" class="form-control" id="dv_no" name="dv_no" readonly>
                                 </div>
                             </div>
                         </div>
@@ -993,16 +993,16 @@ $select = mysqli_query($connection, "
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label class="form-label">Payee Name</label>
-                                        <input type="text" class="form-control" id="payee_name">
+                                        <input type="text" class="form-control" id="payee_name" readonly>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label">TIN/Employee No.</label>
-                                        <input type="text" class="form-control" id="tin_no">
+                                        <input type="text" class="form-control" id="tin_no" readonly>
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Address</label>
-                                    <input type="text" class="form-control" id="address">
+                                    <input type="text" class="form-control" id="address" readonly>
                                 </div>
                             </div>
                             <!-- Payment Details Section -->
@@ -1011,17 +1011,17 @@ $select = mysqli_query($connection, "
                                 <div class="form-row">
                                     <div class="form-group full-width">
                                         <label class="form-label">NOTES</label>
-                                        <textarea class="form-control" id="notes"></textarea>
+                                        <textarea class="form-control" id="notes"></textarea  readonly>
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label class="form-label">Responsibility Center</label>
-                                        <input type="text" class="form-control" id="code">
+                                        <input type="text" class="form-control" id="code" readonly>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label">OO/PAP</label>
-                                        <input type="text" class="form-control" id="oopap_name">
+                                        <input type="text" class="form-control" id="oopap_name" readonly>
                                     </div>
                                     <!-- <div class="form-group">
                                         <label class="form-label">Amount</label>
@@ -1036,7 +1036,7 @@ $select = mysqli_query($connection, "
                                 <div class="form-row">
                                     <div class="form-group half-width">
                                         <label class="form-label">Gross Amount</label>
-                                        <input type="number" class="form-control" id="amount" step="0.01">
+                                        <input type="number" class="form-control" id="amount" step="0.01" readonly>
                                     </div>
                                     <div class="form-group half-width">
                                         <div class="checkbox-item">
@@ -1054,7 +1054,7 @@ $select = mysqli_query($connection, "
 
                                     <div class="form-group half-width">
                                         <label class="form-label">VAT <input type="number" class="tax-percentage"
-                                                id="vat_percentage" name="vat" value="12" min="0" max="100" step="0.01">
+                                                id="vat_percentage" name="vat" value="12" min="0" max="100" step="0.01"  readonly>
                                             %</label>
                                         <input type="number" class="form-control calculation-field" id="vat_amount"
                                             name="vat_amount" step="0.01" readonly>
@@ -1069,14 +1069,14 @@ $select = mysqli_query($connection, "
                                     <div class="form-group">
                                         <label class="form-label">Less: <input type="number" class="tax-percentage"
                                                 id="tax1_percentage" name="tax_1" value="5" min="0" max="100"
-                                                step="0.01"> % Tax</label>
+                                                step="0.01" readonly> % Tax</label>
                                         <input type="number" class="form-control calculation-field" id="tax_1"
                                             name="tax_1_amount" step="0.01" readonly>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label">Less: <input type="number" class="tax-percentage"
                                                 id="tax2_percentage" name="tax_2" value="2" min="0" max="100"
-                                                step="0.01"> % Tax</label>
+                                                step="0.01" readonly> % Tax</label>
                                         <input type="number" class="form-control calculation-field" id="tax_2"
                                             name="tax_2_amount" step="0.01" readonly>
                                     </div>
@@ -1168,6 +1168,9 @@ $select = mysqli_query($connection, "
                             document.getElementById('oopap_name').value = data.oopap_name;
                             document.getElementById('amount').value = data.amount;
 
+                            // Trigger generateDVNumber after setting fund_cluster
+                            generateDVNumber();
+
                             modal.style.display = 'block';
                         })
                         .catch(error => console.error('Error fetching ORS details:', error));
@@ -1186,6 +1189,7 @@ $select = mysqli_query($connection, "
                 }
             });
         });
+
     </script>
 
     <!-- mode of payment -->
@@ -1289,14 +1293,42 @@ $select = mysqli_query($connection, "
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             generateDVNumber(); // Call function when page loads
+
+            // Re-fetch DV number when fund cluster input changes
+            let fundClusterInput = document.getElementById("fund_cluster");
+            if (fundClusterInput) {
+                fundClusterInput.addEventListener("input", generateDVNumber);
+            } else {
+                console.error("Fund cluster input field not found!");
+            }
         });
 
         function generateDVNumber() {
-            fetch("fetch_dv_number.php") // Call backend to get latest DV number
+            let fundClusterInput = document.getElementById("fund_cluster");
+            if (!fundClusterInput) {
+                console.error("Fund cluster input field not found!");
+                return;
+            }
+
+            let fundClusterValue = fundClusterInput.value.trim();
+            let fundClusterNumber = fundClusterValue.match(/^\d+/); // Extract only the leading number
+
+            if (!fundClusterNumber) {
+                console.error("Fund cluster ID is missing or invalid!");
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append("fund_cluster_id", fundClusterNumber[0]); // Send only the number
+
+            fetch("fetch_dv_number.php", {
+                method: "POST",
+                body: formData,
+            })
                 .then(response => response.json())
                 .then(data => {
                     console.log("Fetched DV Data:", data); // Debugging
-                    let dvNoInput = document.querySelector('input[name="dv_no"]');
+                    let dvNoInput = document.getElementById("dv_no");
 
                     if (dvNoInput) {
                         if (data.success) {
