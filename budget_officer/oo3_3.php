@@ -5,17 +5,17 @@ include '../DBConnection.php';
 //Add users
 
 if (isset($_POST['submit'])) {
-    $gas_id = $_POST['gas_id'];
+    $oo3_3_id = $_POST['oo3_3_id'];
     $project = $_POST['project'];
     $uacs_code = $_POST['uacs_code'];
     $allotment = $_POST['allotment'];
 
-    $sql = "INSERT INTO gas_allotment (gas_id, project, uacs_code, allotment) VALUES (?, ?, ?, ?)";
+    $sql = "INSERT INTO oo3_3_allotment (oo3_3_id, project, uacs_code, allotment) VALUES (?, ?, ?, ?)";
     $stmt = $connection->prepare($sql);
-    $stmt->bind_param("isss", $gas_id, $project, $uacs_code, $allotment);
+    $stmt->bind_param("isss", $oo3_3_id, $project, $uacs_code, $allotment);
 
     if ($stmt->execute()) {
-        header('Location: gas.php');
+        header('Location: oo3_3.php');
     } else {
         echo "Error: " . $stmt->error;
     }
@@ -24,12 +24,12 @@ if (isset($_POST['submit'])) {
 
 // retrieve users
 
-$select = mysqli_query($connection, "SELECT * FROM gas_allotment ");
+$select = mysqli_query($connection, "SELECT * FROM oo3_3_allotment ");
 ?>
 
 <?php
 // Fetch total allotment
-$total_allotment_query = "SELECT SUM(allotment) AS total_allotment FROM gas_allotment";
+$total_allotment_query = "SELECT SUM(allotment) AS total_allotment FROM oo3_3_allotment";
 $total_allotment_result = mysqli_query($connection, $total_allotment_query);
 $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'];
 ?>
@@ -84,7 +84,7 @@ $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'
     <main id="main" class="main">
 
         <div class="pagetitle">
-            <h1>GAS</h1>
+            <h1>OO3.3</h1>
         </div><!-- End Page Title -->
 
         <section class="section dashboard">
@@ -166,7 +166,7 @@ $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'
                                     <td><?php echo htmlspecialchars(number_format($row['balances'], 2)); ?></td>
                                     <td>
                                         <button type="button" class="btn btn-primary edit-btn" data-bs-toggle="modal"
-                                            data-bs-target="#editModal" data-id="<?php echo $row['gas_id']; ?>"
+                                            data-bs-target="#editModal" data-id="<?php echo $row['oo3_3_id']; ?>"
                                             data-project="<?php echo htmlspecialchars($row['project']); ?>"
                                             data-uacs="<?php echo htmlspecialchars($row['uacs_code']); ?>"
                                             data-allotment="<?php echo htmlspecialchars($row['allotment']); ?>">
@@ -175,7 +175,7 @@ $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'
                                         </button>
 
                                         <button type="button" class="btn btn-danger"
-                                            onclick="deleteUser(<?php echo $row['gas_id']; ?>)"><i class="bi bi-trash"
+                                            onclick="deleteUser(<?php echo $row['oo3_3_id']; ?>)"><i class="bi bi-trash"
                                                 data-bs-toggle="tooltip" data-bs-placement="top"
                                                 title="Delete"></i></i></button>
                                     </td>
@@ -201,8 +201,8 @@ $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form method="post" id="editUserForm" action="update_gas.php">
-                        <input type="hidden" id="edit_gas_id" name="gas_id">
+                    <form method="post" id="editUserForm" action="update_oo3_3.php">
+                        <input type="hidden" id="edit_oo3_3_id" name="oo3_3_id">
                         <div class="mb-3">
                             <label for="edit_project" class="form-label">Project/Program/Activities</label>
                             <input type="text" class="form-control" id="edit_project" name="project" required
@@ -274,7 +274,7 @@ $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'
                     const uacs = this.getAttribute("data-uacs");
                     const allotment = this.getAttribute("data-allotment");
 
-                    document.getElementById("edit_gas_id").value = id;
+                    document.getElementById("edit_oo3_3_id").value = id;
                     document.getElementById("edit_project").value = project;
                     document.getElementById("edit_uacs_code").value = uacs;
                     document.getElementById("edit_allotment").value = allotment;
@@ -285,9 +285,9 @@ $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'
 
     <!-- delete -->
     <script>
-        function deleteUser(gasID) {
-            if (confirm("Are you sure you want to delete this GAS?")) {
-                window.location.href = 'delete_gas.php?gas_id=' + gasID + '&confirm=yes';
+        function deleteUser(oo3_3ID) {
+            if (confirm("Are you sure you want to delete this 003.3?")) {
+                window.location.href = 'delete_oo3_3.php?oo3_3_id=' + oo3_3ID + '&confirm=yes';
             }
         }
     </script>

@@ -659,7 +659,7 @@ $result_object_code = $connection->query($sql_object_code);
                                 <h3></h3>
                                 <div class="form-row">
                                     <div class="form-group full-width">
-                                        <label class="form-label">NOTES</label>
+                                        <label class="form-label">Particulars</label>
                                         <textarea class="form-control" name="notes"></textarea autocomplete="off">
                                     </div>
                                 </div>

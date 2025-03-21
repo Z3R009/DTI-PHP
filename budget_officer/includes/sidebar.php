@@ -26,42 +26,42 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#">
+                    <a href="oo1.php">
                         <i class="bi bi-circle"></i><span>OO1</span>
                     </a>
                 </li>
                 <li>
-                    <a href="#">
+                    <a href="oo2.php">
                         <i class="bi bi-circle"></i><span>OO2</span>
                     </a>
                 </li>
                 <li>
-                    <a href="#">
+                    <a href="oo3.php">
                         <i class="bi bi-circle"></i><span>OO3</span>
                     </a>
                 </li>
                 <li>
-                    <a href="#">
+                    <a href="oo3_1.php">
                         <i class="bi bi-circle"></i><span>OO3.1</span>
                     </a>
                 </li>
                 <li>
-                    <a href="#">
+                    <a href="oo3_2.php">
                         <i class="bi bi-circle"></i><span>OO3.2</span>
                     </a>
                 </li>
                 <li>
-                    <a href="#">
+                    <a href="oo3_3.php">
                         <i class="bi bi-circle"></i><span>OO3.3</span>
                     </a>
                 </li>
                 <li>
-                    <a href="#">
+                    <a href="oo4_1_1.php">
                         <i class="bi bi-circle"></i><span>OO4.1.1</span>
                     </a>
                 </li>
                 <li>
-                    <a href="#">
+                    <a href="oo4_1_2.php">
                         <i class="bi bi-circle"></i><span>OO4.1.2</span>
                     </a>
                 </li>
@@ -74,15 +74,6 @@
                 <span>Reports</span>
             </a>
         </li>
-
-        <li class="nav-heading">User Management</li>
-
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="manage_users.php">
-                <i class="bi bi-person"></i>
-                <span>Manage Users</span>
-            </a>
-        </li><!-- End Profile Page Nav -->
 
 
 

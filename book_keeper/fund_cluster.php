@@ -71,8 +71,8 @@ $select = mysqli_query($connection, "SELECT * FROM fund_cluster ");
 <body>
 
     <!-- ======= Header ======= -->
-    <?php include "Includes/header.php";?>
-    <?php include "Includes/sidebar.php";?>
+    <?php include "Includes/header.php"; ?>
+    <?php include "Includes/sidebar.php"; ?>
 
     <main id="main" class="main">
 
@@ -155,15 +155,14 @@ $select = mysqli_query($connection, "SELECT * FROM fund_cluster ");
                                     <td><?php echo htmlspecialchars($row['uacs_code']); ?></td>
                                     <td><?php echo htmlspecialchars($row['status']); ?></td>
                                     <td>
-                                    <button type="button" class="btn btn-primary edit-btn"
-    data-bs-toggle="modal" 
-    data-bs-target="#editModal"
-    data-id="<?php echo $row['fund_cluster_id']; ?>"
-    data-name="<?php echo htmlspecialchars($row['fund_cluster_name']); ?>"
-    data-uacs="<?php echo htmlspecialchars($row['uacs_code']); ?>"
-    data-status="<?php echo htmlspecialchars($row['status']); ?>">
-    <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"></i>
-</button>
+                                        <button type="button" class="btn btn-primary edit-btn" data-bs-toggle="modal"
+                                            data-bs-target="#editModal" data-id="<?php echo $row['fund_cluster_id']; ?>"
+                                            data-name="<?php echo htmlspecialchars($row['fund_cluster_name']); ?>"
+                                            data-uacs="<?php echo htmlspecialchars($row['uacs_code']); ?>"
+                                            data-status="<?php echo htmlspecialchars($row['status']); ?>">
+                                            <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top"
+                                                title="Edit"></i>
+                                        </button>
 
                                         <button type="button" class="btn btn-danger"
                                             onclick="deleteUser(<?php echo $row['fund_cluster_id']; ?>)"><i
@@ -185,40 +184,41 @@ $select = mysqli_query($connection, "SELECT * FROM fund_cluster ");
     <!-- update modal -->
 
     <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editModalLabel">Edit Fund Cluster</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form method="post" id="editUserForm" action="update_fund_cluster.php" >
-                    <input type="hidden" id="edit_fund_cluster_id" name="fund_cluster_id">
-                    <div class="mb-3">
-                        <label for="edit_fund_cluster_name" class="form-label">Fund Cluster Name</label>
-                        <input type="text" class="form-control" id="edit_fund_cluster_name" name="fund_cluster_name" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="edit_uacs_code" class="form-label">UACS Code</label>
-                        <input type="text" class="form-control" id="edit_uacs_code" name="uacs_code" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="edit_status" class="form-label">Status</label>
-                        <select class="form-select" id="edit_status" name="status">
-                            <option selected disabled>Select Status</option>
-                            <option value="Active">Active</option>
-                            <option value="Inactive">Inactive</option>
-                        </select>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" id="update" name="update" class="btn btn-primary">Update</button>
-                    </div>
-                </form>
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Edit Fund Cluster</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" id="editUserForm" action="update_fund_cluster.php">
+                        <input type="hidden" id="edit_fund_cluster_id" name="fund_cluster_id">
+                        <div class="mb-3">
+                            <label for="edit_fund_cluster_name" class="form-label">Fund Cluster Name</label>
+                            <input type="text" class="form-control" id="edit_fund_cluster_name" name="fund_cluster_name"
+                                required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_uacs_code" class="form-label">UACS Code</label>
+                            <input type="text" class="form-control" id="edit_uacs_code" name="uacs_code" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_status" class="form-label">Status</label>
+                            <select class="form-select" id="edit_status" name="status">
+                                <option selected disabled>Select Status</option>
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                            </select>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" id="update" name="update" class="btn btn-primary">Update</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
             class="bi bi-arrow-up-short"></i></a>
@@ -247,24 +247,24 @@ $select = mysqli_query($connection, "SELECT * FROM fund_cluster ");
     <!-- show update -->
 
     <script>
-document.addEventListener("DOMContentLoaded", function() {
-    const editButtons = document.querySelectorAll(".edit-btn");
+        document.addEventListener("DOMContentLoaded", function () {
+            const editButtons = document.querySelectorAll(".edit-btn");
 
-    editButtons.forEach(button => {
-        button.addEventListener("click", function() {
-            const id = this.getAttribute("data-id");
-            const name = this.getAttribute("data-name");
-            const uacs = this.getAttribute("data-uacs");
-            const status = this.getAttribute("data-status");
+            editButtons.forEach(button => {
+                button.addEventListener("click", function () {
+                    const id = this.getAttribute("data-id");
+                    const name = this.getAttribute("data-name");
+                    const uacs = this.getAttribute("data-uacs");
+                    const status = this.getAttribute("data-status");
 
-            document.getElementById("edit_fund_cluster_id").value = id;
-            document.getElementById("edit_fund_cluster_name").value = name;
-            document.getElementById("edit_uacs_code").value = uacs;
-            document.getElementById("edit_status").value = status;
+                    document.getElementById("edit_fund_cluster_id").value = id;
+                    document.getElementById("edit_fund_cluster_name").value = name;
+                    document.getElementById("edit_uacs_code").value = uacs;
+                    document.getElementById("edit_status").value = status;
+                });
+            });
         });
-    });
-});
-</script>
+    </script>
 
     <!-- delete -->
     <script>
