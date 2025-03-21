@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 19, 2025 at 06:55 AM
+-- Generation Time: Mar 21, 2025 at 08:09 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -256,7 +256,9 @@ INSERT INTO `financial_object_code` (`object_code_id`, `object_name`, `submodule
 (147, 'Raw Materials Inventory', 67, 10403010, 'Active'),
 (148, ' Allowance for Impairment - Raw Materials Inventory', 67, 10403012, 'Active'),
 (149, ' Finished Goods Inventory', 67, 10403030, 'Active'),
-(150, 'Allowance for Impairment - Finished Goods Inventory ', 67, 10403032, 'Active');
+(150, 'Allowance for Impairment - Finished Goods Inventory ', 67, 10403032, 'Active'),
+(152, 'Representation Expenses', 97, 50299030, 'Active'),
+(153, 'Advances for Payroll', 92, 19901020, 'Active');
 
 -- --------------------------------------------------------
 
@@ -283,7 +285,8 @@ INSERT INTO `financial_subcategories` (`subcategory_id`, `subcategory_name`, `ca
 (11, 'Investment Property', 1),
 (12, 'Biological Assets', 1),
 (13, 'Intangible Assets', 1),
-(14, 'Other Assets', 1);
+(14, 'Other Assets', 1),
+(17, 'Personnel Services', 5);
 
 -- --------------------------------------------------------
 
@@ -349,7 +352,8 @@ INSERT INTO `financial_submodules` (`submodule_id`, `submodule_name`, `subcatego
 (93, 'Prepayments', 14),
 (94, 'Deposits', 14),
 (95, 'Deferred Charges', 14),
-(96, 'Cash in Bank - Local Currency', 1);
+(96, 'Cash in Bank - Local Currency', 1),
+(97, 'Other Maintenance and Operating Expenses', 17);
 
 -- --------------------------------------------------------
 
@@ -375,8 +379,42 @@ INSERT INTO `fund_cluster` (`fund_cluster_id`, `fund_cluster_name`, `uacs_code`,
 (6, 'Special Account - Foreign Assisted/Foreign Grants Fund', 4, 'Active'),
 (7, 'Internally Generated Funds', 5, 'Active'),
 (8, 'Business Related Funds', 6, 'Active'),
-(9, 'Trust Receipts ', 7, 'Active'),
-(13, 'wew', 2323, 'Active');
+(9, 'Trust Receipts ', 7, 'Active');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `gas_allotment`
+--
+
+CREATE TABLE `gas_allotment` (
+  `gas_id` int(11) NOT NULL,
+  `project` varchar(255) NOT NULL,
+  `uacs_code` varchar(255) NOT NULL,
+  `allotment` double(40,2) NOT NULL,
+  `balances` double(40,2) NOT NULL DEFAULT 0.00
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `gas_allotment`
+--
+
+INSERT INTO `gas_allotment` (`gas_id`, `project`, `uacs_code`, `allotment`, `balances`) VALUES
+(1, 'Travelling Expense - LOCAL ', '50201010-00', 1562000.00, 0.00),
+(4, 'Training Expenses', '50202010-00', 800000.00, 0.00);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `gas_balances`
+--
+
+CREATE TABLE `gas_balances` (
+  `gb_id` int(11) NOT NULL,
+  `gas_id` int(255) NOT NULL,
+  `allotment` double(40,2) NOT NULL,
+  `balances` double(40,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -393,6 +431,118 @@ CREATE TABLE `jev` (
   `jev_no` varchar(255) NOT NULL,
   `administrative_aide` varchar(255) NOT NULL,
   `accountant` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `oo1_allotment`
+--
+
+CREATE TABLE `oo1_allotment` (
+  `oo1_id` int(11) NOT NULL,
+  `project` varchar(255) NOT NULL,
+  `uacs_code` varchar(255) NOT NULL,
+  `allotment` double(40,2) NOT NULL,
+  `balances` double(40,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `oo2_allotment`
+--
+
+CREATE TABLE `oo2_allotment` (
+  `oo2_id` int(11) NOT NULL,
+  `project` varchar(255) NOT NULL,
+  `uacs_code` varchar(255) NOT NULL,
+  `allotment` double(40,2) NOT NULL,
+  `balances` double(40,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `oo3_1_allotment`
+--
+
+CREATE TABLE `oo3_1_allotment` (
+  `oo3_1_id` int(11) NOT NULL,
+  `project` varchar(255) NOT NULL,
+  `uacs_code` varchar(255) NOT NULL,
+  `allotment` double(40,2) NOT NULL,
+  `balances` double(40,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `oo3_2_allotment`
+--
+
+CREATE TABLE `oo3_2_allotment` (
+  `oo3_2_id` int(11) NOT NULL,
+  `project` varchar(255) NOT NULL,
+  `uacs_code` varchar(255) NOT NULL,
+  `allotment` double(40,2) NOT NULL,
+  `balances` double(40,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `oo3_3_allotment`
+--
+
+CREATE TABLE `oo3_3_allotment` (
+  `oo3_3_id` int(11) NOT NULL,
+  `project` varchar(255) NOT NULL,
+  `uacs_code` varchar(255) NOT NULL,
+  `allotment` double(40,2) NOT NULL,
+  `balances` double(40,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `oo3_allotment`
+--
+
+CREATE TABLE `oo3_allotment` (
+  `oo3_id` int(11) NOT NULL,
+  `project` varchar(255) NOT NULL,
+  `uacs_code` varchar(255) NOT NULL,
+  `allotment` double(40,2) NOT NULL,
+  `balances` double(40,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `oo4_1_1_allotment`
+--
+
+CREATE TABLE `oo4_1_1_allotment` (
+  `oo4_1_1_id` int(11) NOT NULL,
+  `project` varchar(255) NOT NULL,
+  `uacs_code` varchar(255) NOT NULL,
+  `allotment` double(40,2) NOT NULL,
+  `balances` double(40,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `oo4_1_2_allotment`
+--
+
+CREATE TABLE `oo4_1_2_allotment` (
+  `oo4_1_2_id` int(11) NOT NULL,
+  `project` varchar(255) NOT NULL,
+  `uacs_code` varchar(255) NOT NULL,
+  `allotment` double(40,2) NOT NULL,
+  `balances` double(40,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -448,7 +598,9 @@ CREATE TABLE `ors` (
 --
 
 INSERT INTO `ors` (`ors_id`, `fund_cluster_id`, `date`, `ors_no`, `payee_id`, `notes`, `rc_id`, `object_code_id`, `oopap_id`, `amount`, `approver_id`, `budget_officer`) VALUES
-(24, 4, '2025-03-19', '123-456', 5, 'payment', 11, 43, 4, 1000.00, 4, 'CONNIE M. BARNACHEA');
+(24, 4, '2025-03-19', '123-456', 5, 'payment', 11, 43, 4, 1000.00, 4, 'CONNIE M. BARNACHEA'),
+(25, 8, '2025-03-13', '9909-99', 5, 'Transfer', 4, 59, 4, 1650.00, 4, 'CONNIE M. BARNACHEA'),
+(26, 3, '2025-03-06', '12334342', 5, 'acs casedca', 3, 7, 3, 123.00, 2, 'CONNIE M. BARNACHEA');
 
 -- --------------------------------------------------------
 
@@ -591,11 +743,72 @@ ALTER TABLE `fund_cluster`
   ADD PRIMARY KEY (`fund_cluster_id`);
 
 --
+-- Indexes for table `gas_allotment`
+--
+ALTER TABLE `gas_allotment`
+  ADD PRIMARY KEY (`gas_id`);
+
+--
+-- Indexes for table `gas_balances`
+--
+ALTER TABLE `gas_balances`
+  ADD PRIMARY KEY (`gb_id`),
+  ADD KEY `gas_id` (`gas_id`);
+
+--
 -- Indexes for table `jev`
 --
 ALTER TABLE `jev`
   ADD PRIMARY KEY (`jev_id`),
   ADD KEY `dv_id` (`dv_id`);
+
+--
+-- Indexes for table `oo1_allotment`
+--
+ALTER TABLE `oo1_allotment`
+  ADD PRIMARY KEY (`oo1_id`);
+
+--
+-- Indexes for table `oo2_allotment`
+--
+ALTER TABLE `oo2_allotment`
+  ADD PRIMARY KEY (`oo2_id`);
+
+--
+-- Indexes for table `oo3_1_allotment`
+--
+ALTER TABLE `oo3_1_allotment`
+  ADD PRIMARY KEY (`oo3_1_id`);
+
+--
+-- Indexes for table `oo3_2_allotment`
+--
+ALTER TABLE `oo3_2_allotment`
+  ADD PRIMARY KEY (`oo3_2_id`);
+
+--
+-- Indexes for table `oo3_3_allotment`
+--
+ALTER TABLE `oo3_3_allotment`
+  ADD PRIMARY KEY (`oo3_3_id`);
+
+--
+-- Indexes for table `oo3_allotment`
+--
+ALTER TABLE `oo3_allotment`
+  ADD PRIMARY KEY (`oo3_id`);
+
+--
+-- Indexes for table `oo4_1_1_allotment`
+--
+ALTER TABLE `oo4_1_1_allotment`
+  ADD PRIMARY KEY (`oo4_1_1_id`);
+
+--
+-- Indexes for table `oo4_1_2_allotment`
+--
+ALTER TABLE `oo4_1_2_allotment`
+  ADD PRIMARY KEY (`oo4_1_2_id`);
 
 --
 -- Indexes for table `oopap`
@@ -653,25 +866,25 @@ ALTER TABLE `dv`
 -- AUTO_INCREMENT for table `financial_categories`
 --
 ALTER TABLE `financial_categories`
-  MODIFY `category_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50606001;
+  MODIFY `category_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50606002;
 
 --
 -- AUTO_INCREMENT for table `financial_object_code`
 --
 ALTER TABLE `financial_object_code`
-  MODIFY `object_code_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=151;
+  MODIFY `object_code_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=154;
 
 --
 -- AUTO_INCREMENT for table `financial_subcategories`
 --
 ALTER TABLE `financial_subcategories`
-  MODIFY `subcategory_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `subcategory_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `financial_submodules`
 --
 ALTER TABLE `financial_submodules`
-  MODIFY `submodule_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=97;
+  MODIFY `submodule_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=98;
 
 --
 -- AUTO_INCREMENT for table `fund_cluster`
@@ -680,10 +893,70 @@ ALTER TABLE `fund_cluster`
   MODIFY `fund_cluster_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
+-- AUTO_INCREMENT for table `gas_allotment`
+--
+ALTER TABLE `gas_allotment`
+  MODIFY `gas_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- AUTO_INCREMENT for table `gas_balances`
+--
+ALTER TABLE `gas_balances`
+  MODIFY `gb_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `jev`
 --
 ALTER TABLE `jev`
   MODIFY `jev_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- AUTO_INCREMENT for table `oo1_allotment`
+--
+ALTER TABLE `oo1_allotment`
+  MODIFY `oo1_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `oo2_allotment`
+--
+ALTER TABLE `oo2_allotment`
+  MODIFY `oo2_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `oo3_1_allotment`
+--
+ALTER TABLE `oo3_1_allotment`
+  MODIFY `oo3_1_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `oo3_2_allotment`
+--
+ALTER TABLE `oo3_2_allotment`
+  MODIFY `oo3_2_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `oo3_3_allotment`
+--
+ALTER TABLE `oo3_3_allotment`
+  MODIFY `oo3_3_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `oo3_allotment`
+--
+ALTER TABLE `oo3_allotment`
+  MODIFY `oo3_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `oo4_1_1_allotment`
+--
+ALTER TABLE `oo4_1_1_allotment`
+  MODIFY `oo4_1_1_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `oo4_1_2_allotment`
+--
+ALTER TABLE `oo4_1_2_allotment`
+  MODIFY `oo4_1_2_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `oopap`
@@ -695,7 +968,7 @@ ALTER TABLE `oopap`
 -- AUTO_INCREMENT for table `ors`
 --
 ALTER TABLE `ors`
-  MODIFY `ors_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `ors_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT for table `payee`
@@ -743,6 +1016,12 @@ ALTER TABLE `financial_subcategories`
 --
 ALTER TABLE `financial_submodules`
   ADD CONSTRAINT `financial_submodules_ibfk_2` FOREIGN KEY (`subcategory_id`) REFERENCES `financial_subcategories` (`subcategory_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `gas_balances`
+--
+ALTER TABLE `gas_balances`
+  ADD CONSTRAINT `gas_balances_ibfk_1` FOREIGN KEY (`gas_id`) REFERENCES `gas_allotment` (`gas_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `jev`
