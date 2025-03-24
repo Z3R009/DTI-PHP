@@ -6,7 +6,7 @@ if (isset($_GET['project_id']) && $_GET['confirm'] == 'yes') {
     $project_id = intval($_GET['project_id']);
 
     // Prepare and execute the deletion query for 'users' table
-    $deleteUserSql = "DELETE FROM Project WHERE project_id = ?";
+    $deleteUserSql = "DELETE FROM project WHERE project_id = ?";
     $stmtUser = $connection->prepare($deleteUserSql);
     $stmtUser->bind_param("i", $project_id);
 

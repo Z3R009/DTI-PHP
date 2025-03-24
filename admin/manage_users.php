@@ -90,8 +90,8 @@ $select = mysqli_query($connection, "SELECT * FROM users WHERE role IN ($roles_s
 
 <body>
 
-    <?php include "Includes/header.php";?>
-    <?php include "Includes/sidebar.php";?>
+    <?php include "Includes/header.php"; ?>
+    <?php include "Includes/sidebar.php"; ?>
 
     <main id="main" class="main">
 
@@ -184,8 +184,11 @@ $select = mysqli_query($connection, "SELECT * FROM users WHERE role IN ($roles_s
                                     <td><?php echo htmlspecialchars($row['username']); ?></td>
                                     <td><?php echo htmlspecialchars($row['role']); ?></td>
                                     <td>
-                                        <button type="button" class="btn btn-primary"
-                                            onclick="editUser(<?php echo $row['user_id']; ?>, '<?php echo $row['fullname']; ?>', '<?php echo $row['username']; ?>', '<?php echo $row['password']; ?>', '<?php echo $row['role']; ?>')">
+                                        <button type="button" class="btn btn-primary edit-btn" data-bs-toggle="modal"
+                                            data-bs-target="#editModal" data-id="<?php echo $row['user_id']; ?>"
+                                            data-fullname="<?php echo htmlspecialchars($row['fullname']); ?>"
+                                            data-username="<?php echo htmlspecialchars($row['username']); ?>"
+                                            data-role="<?php echo htmlspecialchars($row['role']); ?>">
                                             <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top"
                                                 title="Edit"></i>
                                         </button>
@@ -206,6 +209,57 @@ $select = mysqli_query($connection, "SELECT * FROM users WHERE role IN ($roles_s
         </section>
 
     </main><!-- End #main -->
+
+    <!-- update modal -->
+
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Edit User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" id="editUserForm" action="update_user.php">
+                        <input type="hidden" id="edit_user_id" name="user_id">
+                        <div class="mb-3">
+                            <label for="edit_fullname" class="form-label">Fullname</label>
+                            <input type="text" class="form-control" id="edit_fullname" name="fullname" required
+                                autocomplete="off">
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="edit_username" name="username" required
+                                autocomplete="off">
+                        </div>
+                        <div class="mb-3">
+                            <label for="role" class="form-label">Role</label>
+                            <select class="form-select" id="edit_role" name="role">
+                                <option selected disabled>Select Role</option>
+                                <option value="Admin">Admin</option>
+                                <option value="Budget Officer">Budget Officer</option>
+                                <option value="Chief Accountant">Chief Accountant</option>
+                                <option value="Bookkeeper">Bookkeeper</option>
+                                <option value="Guest">Guest</option>
+                            </select>
+                        </div>
+
+                        <script>
+                            document.getElementById("edit_allotment").addEventListener("blur", function () {
+                                // Ensure the value is formatted to 2 decimal places
+                                this.value = parseFloat(this.value).toFixed(2);
+                            });
+                        </script>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" id="update" name="update" class="btn btn-primary">Update</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
@@ -232,10 +286,32 @@ $select = mysqli_query($connection, "SELECT * FROM users WHERE role IN ($roles_s
         }
     </script>
 
+    <!-- show update -->
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const editButtons = document.querySelectorAll(".edit-btn");
+
+            editButtons.forEach(button => {
+                button.addEventListener("click", function () {
+                    const id = this.getAttribute("data-id");
+                    const fullname = this.getAttribute("data-fullname");
+                    const username = this.getAttribute("data-username");
+                    const role = this.getAttribute("data-role");
+
+                    document.getElementById("edit_user_id").value = id;
+                    document.getElementById("edit_fullname").value = fullname;
+                    document.getElementById("edit_username").value = username;
+                    document.getElementById("edit_role").value = role;
+                });
+            });
+        });
+    </script>
+
     <!-- delete -->
     <script>
         function deleteUser(userID) {
-            if (confirm("Are you sure you want to delete this user?")) {
+            if (confirm("Are you sure you want to delete this User?")) {
                 window.location.href = 'delete_user.php?user_id=' + userID + '&confirm=yes';
             }
         }

@@ -24,6 +24,7 @@ $sql = "
         fc.category_name, 
         fsc.subcategory_name, 
         fsm.submodule_name, 
+        foc.object_code_id,
         foc.object_name, 
         foc.uacs_code, 
         foc.status 
@@ -100,11 +101,13 @@ $result = $conn->query($sql);
             <div class="card">
                 <div class="card-body">
 
-                    <h5 class="card-title">
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                    <h5 class="card-title d-flex align-items-center">
+                        <button type="button" class="btn btn-primary w-25 me-5" data-bs-toggle="modal"
                             data-bs-target="#formModal">
                             Add
                         </button>
+                        <input type="text" id="searchInput" class="form-control w-50" placeholder="Search..."
+                            onkeyup="searchTable()">
                     </h5>
 
                     <!-- Modal -->
@@ -252,6 +255,19 @@ $result = $conn->query($sql);
                                 echo "<td>{$row['object_name']}</td>";
                                 echo "<td>{$row['uacs_code']}</td>";
                                 echo "<td>{$row['status']}</td>";
+                                echo "<td>
+                <button type='button' class='btn btn-primary edit-btn' data-bs-toggle='modal'
+                    data-bs-target='#editModal' data-id='{$row['object_code_id']}'
+                    data-object_name='" . htmlspecialchars($row['object_name']) . "'
+                    data-uacs_code='" . htmlspecialchars($row['uacs_code']) . "'
+                    data-status='" . htmlspecialchars($row['status']) . "'>
+                    <i class='bi bi-pencil' data-bs-toggle='tooltip' data-bs-placement='top' title='Edit'></i>
+                </button>
+
+                <button type='button' class='btn btn-danger' onclick='deleteUser({$row['object_code_id']})'>
+                    <i class='bi bi-trash' data-bs-toggle='tooltip' data-bs-placement='top' title='Delete'></i>
+                </button>
+            </td>";
                                 echo "</tr>";
 
                                 $rowNumber++;
@@ -264,6 +280,55 @@ $result = $conn->query($sql);
         </section>
 
     </main><!-- End #main -->
+
+    <!-- update modal -->
+
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Edit Account Name</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" id="editUserForm" action="update_account.php">
+                        <input type="hidden" id="edit_object_code_id" name="object_code_id">
+                        <div class="mb-3">
+                            <label for="edit_object_name" class="form-label">Object Name</label>
+                            <input type="text" class="form-control" id="edit_object_name" name="object_name" required
+                                autocomplete="off">
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_uacs_code" class="form-label">UACS Code</label>
+                            <input type="text" class="form-control" id="edit_uacs_code" name="uacs_code" required
+                                autocomplete="off">
+                        </div>
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="edit_status" name="status">
+                                <option selected disabled>Select Status</option>
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                            </select>
+                        </div>
+
+                        <script>
+                            document.getElementById("edit_allotment").addEventListener("blur", function () {
+                                // Ensure the value is formatted to 2 decimal places
+                                this.value = parseFloat(this.value).toFixed(2);
+                            });
+                        </script>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" id="update" name="update" class="btn btn-primary">Update</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
 
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
@@ -281,6 +346,71 @@ $result = $conn->query($sql);
 
     <!-- Template Main JS File -->
     <script src="../NiceAdmin/assets/js/main.js"></script>
+
+
+    <!-- clear -->
+    <script>
+        // Function to clear form
+        function clearForm() {
+            document.getElementById('addUserForm').reset();
+        }
+    </script>
+
+    <!-- show update -->
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const editButtons = document.querySelectorAll(".edit-btn");
+
+            editButtons.forEach(button => {
+                button.addEventListener("click", function () {
+                    const id = this.getAttribute("data-id");
+                    const object_name = this.getAttribute("data-object_name");
+                    const uacs_code = this.getAttribute("data-uacs_code");
+                    const status = this.getAttribute("data-status");
+
+                    document.getElementById("edit_object_code_id").value = id;
+                    document.getElementById("edit_object_name").value = object_name;
+                    document.getElementById("edit_uacs_code").value = uacs_code;
+                    document.getElementById("edit_status").value = status;
+                });
+            });
+        });
+    </script>
+
+    <!-- delete -->
+    <script>
+        function deleteUser(userID) {
+            if (confirm("Are you sure you want to delete this User?")) {
+                window.location.href = 'delete_account.php?object_code_id=' + userID + '&confirm=yes';
+            }
+        }
+    </script>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+
+    </script>
+
+    <!-- search -->
+
+    <script>
+        function searchTable() {
+            let input = document.getElementById("searchInput").value.toLowerCase();
+            let rows = document.querySelectorAll(".datatable tbody tr");
+
+            rows.forEach(row => {
+                let text = row.innerText.toLowerCase();
+                row.style.display = text.includes(input) ? "" : "none";
+            });
+        }
+    </script>
 
 </body>
 

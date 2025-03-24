@@ -2,6 +2,8 @@
 include '../DBConnection.php';
 
 // insert ors
+// insert ors
+
 if (isset($_POST['submit'])) {
     echo "Form submitted!";
 
@@ -9,6 +11,7 @@ if (isset($_POST['submit'])) {
     echo "<pre>";
     print_r($_POST);
     echo "</pre>";
+
 
     $fund_cluster_id = $_POST['fund_cluster_id'];
     $date = $_POST['date'];
@@ -18,11 +21,11 @@ if (isset($_POST['submit'])) {
     $rc_id = $_POST['rc_id'];
     $object_code_id = $_POST['object_code_id'];
     $oopap_id = $_POST['oopap_id'];
-    $amount = floatval($_POST['amount']);
+    $amount = $_POST['amount'];
     $approver_id = $_POST['approver_id'];
     $budget_officer = $_POST['budget_officer'];
 
-    $sql = "INSERT INTO ors (fund_cluster_id, date, ors_no, payee_id, notes, rc_id, object_code_id, oopap_id, amount, approver_id, budget_officer) 
+    $sql = "INSERT INTO ors (fund_cluster_id, date, ors_no, payee_id,  notes, rc_id, object_code_id, oopap_id, amount, approver_id, budget_officer) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     $stmt = $connection->prepare($sql);
@@ -46,46 +49,6 @@ if (isset($_POST['submit'])) {
     );
 
     if ($stmt->execute()) {
-        // Get the related project details
-        $query = "SELECT project_id, allotment FROM project WHERE oopap_id = ?";
-        $stmt_project = $connection->prepare($query);
-        $stmt_project->bind_param("i", $oopap_id);
-        $stmt_project->execute();
-        $result_project = $stmt_project->get_result();
-
-        if ($row = $result_project->fetch_assoc()) {
-            $project_id = $row['project_id'];
-            $current_allotment = floatval($row['allotment']);
-
-            // Check if object_code_id matches project_id
-            if ($object_code_id == $project_id) {
-                // Deduct the amount
-                $new_allotment = $current_allotment - $amount;
-
-                if ($new_allotment < 0) {
-                    die("Error: Insufficient funds in the allotment!");
-                }
-
-                // Update the project with the new allotment
-                $update_query = "UPDATE project SET allotment = ? WHERE project_id = ?";
-                $update_stmt = $connection->prepare($update_query);
-                $update_stmt->bind_param("di", $new_allotment, $project_id);
-                $update_stmt->execute();
-
-                // Insert into deduction_history
-                $history_query = "INSERT INTO deduction_history (project_id, oopap_id, object_code_id, amount, date) VALUES (?, ?, ?, ?, NOW())";
-                $history_stmt = $connection->prepare($history_query);
-                $history_stmt->bind_param("iiid", $project_id, $oopap_id, $object_code_id, $amount);
-                $history_stmt->execute();
-
-                echo "Deduction successful! Remaining allotment: " . number_format($new_allotment, 2);
-            } else {
-                echo "Error: Object Code does not match the project!";
-            }
-        } else {
-            echo "Error: Project not found!";
-        }
-
         header("Location: ors_form.php?ors_no=$ors_no");
         exit();
     } else {
@@ -95,6 +58,7 @@ if (isset($_POST['submit'])) {
     $stmt->close();
     $connection->close();
 }
+
 
 
 

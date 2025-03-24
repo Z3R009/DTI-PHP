@@ -1,19 +1,19 @@
 <?php
 include '../DBConnection.php';
 
-if (isset($_GET['project_id']) && $_GET['confirm'] == 'yes') {
+if (isset($_GET['object_code_id']) && $_GET['confirm'] == 'yes') {
     // Get the user ID from the query string
-    $project_id = intval($_GET['project_id']);
+    $object_code_id = intval($_GET['object_code_id']);
 
     // Prepare and execute the deletion query for 'users' table
-    $deleteUserSql = "DELETE FROM project WHERE project_id = ?";
+    $deleteUserSql = "DELETE FROM financial_object_code WHERE object_code_id = ?";
     $stmtUser = $connection->prepare($deleteUserSql);
-    $stmtUser->bind_param("i", $project_id);
+    $stmtUser->bind_param("i", $object_code_id);
 
     // Execute both deletion queries
     if ($stmtUser->execute()) {
         // Redirect to the manage members page after successful deletion
-        header('Location: oo1.php');
+        header('Location: account_title.php');
         exit();
     } else {
         // Handle error if either query fails
