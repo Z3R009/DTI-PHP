@@ -2,14 +2,14 @@
 
 include '../DBConnection.php';
 if (isset($_POST['update'])) {
-    $gas_id = $_POST['gas_id'];
-    $project = $_POST['project'];
+    $project_id = $_POST['project_id'];
+    $project_name = $_POST['project_name'];
     $uacs_code = $_POST['uacs_code'];
     $allotment = $_POST['allotment'];
 
-    $sql = "UPDATE gas_allotment SET project = ?, uacs_code = ?, allotment = ? WHERE gas_id = ?";
+    $sql = "UPDATE project SET project_name = ?, uacs_code = ?, allotment = ? WHERE project_id = ?";
     $stmt = $connection->prepare($sql);
-    $stmt->bind_param("sssi", $project, $uacs_code, $allotment, $gas_id);
+    $stmt->bind_param("sssi", $project_name, $uacs_code, $allotment, $project_id);
 
     if ($stmt->execute()) {
         header('Location: gas.php');

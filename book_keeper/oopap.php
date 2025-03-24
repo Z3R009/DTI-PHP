@@ -71,13 +71,7 @@ $select = mysqli_query($connection, "SELECT * FROM oopap");
     <main id="main" class="main">
 
         <div class="pagetitle">
-            <h1>Dashboard</h1>
-            <nav>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-                    <li class="breadcrumb-item active">Dashboard</li>
-                </ol>
-            </nav>
+            <h1>OO/PAP</h1>
         </div><!-- End Page Title -->
 
         <section class="section dashboard">
@@ -139,11 +133,13 @@ $select = mysqli_query($connection, "SELECT * FROM oopap");
                         <tbody>
                             <?php while ($row = mysqli_fetch_assoc($select)) { ?>
                                 <tr>
-                                    <td><?php echo htmlspecialchars($row['oopap']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['oopap_name']); ?></td>
                                     <td><?php echo htmlspecialchars($row['description']); ?></td>
                                     <td>
-                                        <button type="button" class="btn btn-primary"
-                                            onclick="editUser(<?php echo $row['oopap']; ?>, '<?php echo $row['description']; ?>')">
+                                        <button type="button" class="btn btn-primary edit-btn" data-bs-toggle="modal"
+                                            data-bs-target="#editModal" data-id="<?php echo $row['oopap_id']; ?>"
+                                            data-oopap_name="<?php echo htmlspecialchars($row['oopap_name']); ?>"
+                                            data-description="<?php echo htmlspecialchars($row['description']); ?>">
                                             <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top"
                                                 title="Edit"></i>
                                         </button>
@@ -165,6 +161,46 @@ $select = mysqli_query($connection, "SELECT * FROM oopap");
 
     </main><!-- End #main -->
 
+    <!-- update modal -->
+
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Edit OO/PAP</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" id="editUserForm" action="update_oopap.php">
+                        <input type="hidden" id="edit_oopap_id" name="oopap_id">
+                        <div class="mb-3">
+                            <label for="edit_oopap_name" class="form-label">OO/PAP</label>
+                            <input type="text" class="form-control" id="edit_oopap_name" name="oopap_name" required
+                                autocomplete="off">
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_description" class="form-label">Description</label>
+                            <input type="text" class="form-control" id="edit_description" name="description" required
+                                autocomplete="off">
+                        </div>
+
+                        <script>
+                            document.getElementById("edit_oopap").addEventListener("blur", function () {
+                                // Ensure the value is formatted to 2 decimal places
+                                this.value = parseFloat(this.value).toFixed(2);
+                            });
+                        </script>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" id="update" name="update" class="btn btn-primary">Update</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
             class="bi bi-arrow-up-short"></i></a>
@@ -181,6 +217,55 @@ $select = mysqli_query($connection, "SELECT * FROM oopap");
 
     <!-- Template Main JS File -->
     <script src="../NiceAdmin/assets/js/main.js"></script>
+
+    <!-- clear -->
+    <script>
+        // Function to clear form
+        function clearForm() {
+            document.getElementById('addUserForm').reset();
+        }
+    </script>
+
+    <!-- show update -->
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const editButtons = document.querySelectorAll(".edit-btn");
+
+            editButtons.forEach(button => {
+                button.addEventListener("click", function () {
+                    const id = this.getAttribute("data-id");
+                    const oopap_name = this.getAttribute("data-oopap_name");
+                    const description = this.getAttribute("data-description");
+
+                    document.getElementById("edit_oopap_id").value = id;
+                    document.getElementById("edit_oopap_name").value = oopap_name;
+                    document.getElementById("edit_description").value = description;
+                });
+            });
+        });
+    </script>
+
+    <!-- delete -->
+    <script>
+        function deleteUser(oopapID) {
+            if (confirm("Are you sure you want to delete this OO/PAP?")) {
+                window.location.href = 'delete_oopap.php?oopap_id=' + oopapID + '&confirm=yes';
+            }
+        }
+    </script>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+
+    </script>
+
 
 </body>
 

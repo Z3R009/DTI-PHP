@@ -5,14 +5,16 @@ include '../DBConnection.php';
 //Add users
 
 if (isset($_POST['submit'])) {
-    $oo1_id = $_POST['oo1_id'];
-    $project = $_POST['project'];
+    $project_id = $_POST['project_id'];
+    $oopap_id = $_POST['oopap_id'];
+    $project_name = $_POST['project_name'];
     $uacs_code = $_POST['uacs_code'];
     $allotment = $_POST['allotment'];
+    $balances = $_POST['balances'];
 
-    $sql = "INSERT INTO oo1_allotment (oo1_id, project, uacs_code, allotment) VALUES (?, ?, ?, ?)";
+    $sql = "INSERT INTO project (project_id, oopap_id, project_name, uacs_code, allotment, balances) VALUES (?, ?, ?, ?, ?, ?)";
     $stmt = $connection->prepare($sql);
-    $stmt->bind_param("isss", $oo1_id, $project, $uacs_code, $allotment);
+    $stmt->bind_param("iissss", $project_id, $oopap_id, $project_name, $uacs_code, $allotment, $balances);
 
     if ($stmt->execute()) {
         header('Location: oo1.php');
@@ -24,12 +26,12 @@ if (isset($_POST['submit'])) {
 
 // retrieve users
 
-$select = mysqli_query($connection, "SELECT * FROM oo1_allotment ");
+$select = mysqli_query($connection, "SELECT * FROM project WHERE oopap_id = 2");
 ?>
 
 <?php
 // Fetch total allotment
-$total_allotment_query = "SELECT SUM(allotment) AS total_allotment FROM oo1_allotment";
+$total_allotment_query = "SELECT SUM(allotment) AS total_allotment FROM project WHERE oopap_id = 2";
 $total_allotment_result = mysqli_query($connection, $total_allotment_query);
 $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'];
 ?>
@@ -118,9 +120,14 @@ $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'
                                 <div class="modal-body">
                                     <form method="post" id="addUserForm">
                                         <div class="mb-3">
-                                            <label for="project" class="form-label">Project</label>
-                                            <input type="text" class="form-control" id="project" name="project"
-                                                placeholder="Enter Project" required autocomplete="off">
+                                            <input type="hidden" class="form-control" id="oopap_id" name="oopap_id"
+                                                value="2" readonly required autocomplete="off">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="project_name" class="form-label">Project Name</label>
+                                            <input type="text" class="form-control" id="project_name"
+                                                name="project_name" placeholder="Enter Project Name" required
+                                                autocomplete="off">
                                         </div>
                                         <div class="mb-3">
                                             <label for="uacs_code" class="form-label">UACS Code</label>
@@ -129,8 +136,13 @@ $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'
                                         </div>
                                         <div class="mb-3">
                                             <label for="allotment" class="form-label">Allotment</label>
-                                            <input type="allotment" class="form-control" id="allotment" name="allotment"
-                                                placeholder="Enter Allotment" required autocomplete="off">
+                                            <input type="number" class="form-control" id="allotment" name="allotment"
+                                                placeholder="Enter Allotment" required autocomplete="off"
+                                                oninput="updateBalances()">
+                                        </div>
+                                        <div class="mb-3">
+                                            <input type="hidden" class="form-control" id="balances" name="balances"
+                                                placeholder="Balances" readonly>
                                         </div>
                                         <div class="modal-footer">
                                             <!-- <button type="button" class="btn btn-secondary"
@@ -160,14 +172,14 @@ $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'
                         <tbody>
                             <?php while ($row = mysqli_fetch_assoc($select)) { ?>
                                 <tr>
-                                    <td><?php echo htmlspecialchars($row['project']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['project_name']); ?></td>
                                     <td><?php echo htmlspecialchars($row['uacs_code']); ?></td>
                                     <td><?php echo htmlspecialchars(number_format($row['allotment'], 2)); ?></td>
                                     <td><?php echo htmlspecialchars(number_format($row['balances'], 2)); ?></td>
                                     <td>
                                         <button type="button" class="btn btn-primary edit-btn" data-bs-toggle="modal"
-                                            data-bs-target="#editModal" data-id="<?php echo $row['oo1_id']; ?>"
-                                            data-project="<?php echo htmlspecialchars($row['project']); ?>"
+                                            data-bs-target="#editModal" data-id="<?php echo $row['project_id']; ?>"
+                                            data-project_name="<?php echo htmlspecialchars($row['project_name']); ?>"
                                             data-uacs="<?php echo htmlspecialchars($row['uacs_code']); ?>"
                                             data-allotment="<?php echo htmlspecialchars($row['allotment']); ?>">
                                             <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top"
@@ -175,7 +187,7 @@ $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'
                                         </button>
 
                                         <button type="button" class="btn btn-danger"
-                                            onclick="deleteUser(<?php echo $row['oo1_id']; ?>)"><i class="bi bi-trash"
+                                            onclick="deleteUser(<?php echo $row['project_id']; ?>)"><i class="bi bi-trash"
                                                 data-bs-toggle="tooltip" data-bs-placement="top"
                                                 title="Delete"></i></i></button>
                                     </td>
@@ -202,10 +214,10 @@ $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'
                 </div>
                 <div class="modal-body">
                     <form method="post" id="editUserForm" action="update_oo1.php">
-                        <input type="hidden" id="edit_oo1_id" name="oo1_id">
+                        <input type="hidden" id="edit_project_id" name="project_id">
                         <div class="mb-3">
-                            <label for="edit_project" class="form-label">Project/Program/Activities</label>
-                            <input type="text" class="form-control" id="edit_project" name="project" required
+                            <label for="edit_project_name" class="form-label">Project/Program/Activities</label>
+                            <input type="text" class="form-control" id="edit_project_name" name="project_name" required
                                 autocomplete="off">
                         </div>
                         <div class="mb-3">
@@ -270,12 +282,12 @@ $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'
             editButtons.forEach(button => {
                 button.addEventListener("click", function () {
                     const id = this.getAttribute("data-id");
-                    const project = this.getAttribute("data-project");
+                    const project_name = this.getAttribute("data-project_name");
                     const uacs = this.getAttribute("data-uacs");
                     const allotment = this.getAttribute("data-allotment");
 
-                    document.getElementById("edit_oo1_id").value = id;
-                    document.getElementById("edit_project").value = project;
+                    document.getElementById("edit_project_id").value = id;
+                    document.getElementById("edit_project_name").value = project_name;
                     document.getElementById("edit_uacs_code").value = uacs;
                     document.getElementById("edit_allotment").value = allotment;
                 });
@@ -287,7 +299,7 @@ $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'
     <script>
         function deleteUser(oo1ID) {
             if (confirm("Are you sure you want to delete this OO1?")) {
-                window.location.href = 'delete_oo1.php?oo1_id=' + oo1ID + '&confirm=yes';
+                window.location.href = 'delete_oo1.php?project_id=' + oo1ID + '&confirm=yes';
             }
         }
     </script>
@@ -303,6 +315,18 @@ $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'
 
     </script>
 
+    <!-- balances -->
+    <script>
+        function updateBalances() {
+            var allotmentValue = document.getElementById('allotment').value;
+            document.getElementById('balances').value = allotmentValue;
+        }
+
+        function clearForm() {
+            document.getElementById("addUserForm").reset();
+            updateBalances();
+        }
+    </script>
 
 </body>
 

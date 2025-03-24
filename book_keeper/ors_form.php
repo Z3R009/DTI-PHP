@@ -103,6 +103,53 @@ if (isset($_GET['ors_no'])) {
             vertical-align: text-top;
             text-align: left;
         }
+
+        /* Hide buttons when printing */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+        }
+
+        /* Center the button group */
+        .modal-footer {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* Button styles */
+        .btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            transition: all 0.3s ease-in-out;
+            cursor: pointer;
+        }
+
+        /* Primary Button */
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        /* Secondary Button */
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
     </style>
 </head>
 
@@ -140,7 +187,7 @@ if (isset($_GET['ors_no'])) {
                     <p><?php echo $ors_form['address']; ?></p>
                 </td>
             </tr>
-            
+
             <tr>
                 <td colspan="2">Responsibility Center</td>
                 <td colspan="3">Particulars</td>
@@ -156,7 +203,7 @@ if (isset($_GET['ors_no'])) {
                 <td colspan="3" style="border: none;">
                     <p>To Payment of:</p>
                     <p><strong><?php echo $ors_form['object_name']; ?></strong></p>
-                    
+
                 </td>
                 <td rowspan="2" style="vertical-align: top;"><br><br>
                     <p><?php echo $ors_form['oopap_name']; ?></p>
@@ -171,7 +218,7 @@ if (isset($_GET['ors_no'])) {
 
             <tr>
                 <td colspan="4" style="border: none;">
-                <p>Purpose:</p>
+                    <p>Purpose:</p>
                     <p></p><?php echo $ors_form['notes']; ?></p>
                 </td>
             </tr>
@@ -184,83 +231,94 @@ if (isset($_GET['ors_no'])) {
                     <p><?php echo $ors_form['amount']; ?></p>
                 </td>
             </tr>
-            
+
             <tr>
                 <td colspan="4">Certified by:</td>
                 <td colspan="4">Certified by:</td>
             </tr>
             <tr>
-                <td colspan="4" >
-                    <p style="height: 200px;"><b>A. Certified:</b> Charges to appropriation/allotment are necessary, lawful, and under my
+                <td colspan="4">
+                    <p style="height: 200px;"><b>A. Certified:</b> Charges to appropriation/allotment are necessary,
+                        lawful, and under my
                         direct supervision.</p>
 
-                        <p>Signature:</p>
-<hr style="width: 500px; border: 1px solid black; margin: 5px 0 0 20;">
+                    <p>Signature:</p>
+                    <hr style="width: 500px; border: 1px solid black; margin: 5px 0 0 20;">
 
                     <p style="text-align: center;"><strong><?php echo $ors_form['approver_name']; ?></strong></p>
                     <p style="text-align: center;"><?php echo $ors_form['designation']; ?></p>
                 </td>
-                <td colspan="4" >
-                    <p style="height: 200px;"><b>B. Certified:</b> Allotment available and obligated for the purpose/adjustment necessary as indicated above.</p>
+                <td colspan="4">
+                    <p style="height: 200px;"><b>B. Certified:</b> Allotment available and obligated for the
+                        purpose/adjustment necessary as indicated above.</p>
                     <p>Signature:</p>
-<hr style="width: 500px; border: 1px solid black; margin: 5px 0 0 20;">
+                    <hr style="width: 500px; border: 1px solid black; margin: 5px 0 0 20;">
                     <p style="text-align: center;"><strong><?php echo $ors_form['budget_officer']; ?></strong></p>
                     <p style="text-align: center;">Budget Officer</p>
                 </td>
             </tr>
-            
-    <tr>
-        <td colspan="8" class="header">C.STATUS OF OBLIGATION</td>
-    </tr>
-    <tr>
-        <th colspan="3">Reference</th>
-        <th colspan="5">Amount</th>
-    </tr>
-    <tr>
-        <th rowspan="3">Date</th>
-        <th rowspan="3">Particulars</th>
-        <th rowspan="3">ORS/JEV/Check/ ADA/TRA No.</th>
-        <th rowspan="2">Obligation (a)</th>
-        <th rowspan="2">Payable (b)</th>
-        <th rowspan="2">Payment (c)</th>
-        <th colspan="2">Balance</th>
-        
-    </tr>
-   
-    <tr>
-        
-        <th>Not Yet Due (a-b)</th>
-        <th>Due and Demandable (b-c)</th>
-    </tr>
-    <tr></tr>
-    <tr></tr>
-    <tr></tr>
-    <tr></tr>
-    <tr>
-        <th></th>
-        <th></th>
-        <th></th>
-    <th>(a)</th>
-    <th>(b)</th>
-    <th>(c)</th>
-    <th>(a-b)</th>
-    <th>(b-c)</th>
-    </tr>
-    <tr>
-        <td><p><?php echo $ors_form['date']; ?></p></td>
-        <td>Representation Expenses</td>
-        <td>ADMIN&POLICY-25-02-008</td>
-        <td><p><?php echo $ors_form['amount']; ?></p></td>
-        <td><p><?php echo $ors_form['amount']; ?></p></td>
-        <td><p><?php echo $ors_form['amount']; ?></p></td>
-        <td></td>
-        <td></td>
-    </tr>
-</table>
 
-        <button class="btn-print" onclick="window.print()">Print ORS</button>
-        <br>
-        <a href="ors.php">Submit Another</a>
+            <tr>
+                <td colspan="8" class="header">C.STATUS OF OBLIGATION</td>
+            </tr>
+            <tr>
+                <th colspan="3">Reference</th>
+                <th colspan="5">Amount</th>
+            </tr>
+            <tr>
+                <th rowspan="3">Date</th>
+                <th rowspan="3">Particulars</th>
+                <th rowspan="3">ORS/JEV/Check/ ADA/TRA No.</th>
+                <th rowspan="2">Obligation (a)</th>
+                <th rowspan="2">Payable (b)</th>
+                <th rowspan="2">Payment (c)</th>
+                <th colspan="2">Balance</th>
+
+            </tr>
+
+            <tr>
+
+                <th>Not Yet Due (a-b)</th>
+                <th>Due and Demandable (b-c)</th>
+            </tr>
+            <tr></tr>
+            <tr></tr>
+            <tr></tr>
+            <tr></tr>
+            <tr>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th>(a)</th>
+                <th>(b)</th>
+                <th>(c)</th>
+                <th>(a-b)</th>
+                <th>(b-c)</th>
+            </tr>
+            <tr>
+                <td>
+                    <p><?php echo $ors_form['date']; ?></p>
+                </td>
+                <td>Representation Expenses</td>
+                <td>ADMIN&POLICY-25-02-008</td>
+                <td>
+                    <p><?php echo $ors_form['amount']; ?></p>
+                </td>
+                <td>
+                    <p><?php echo $ors_form['amount']; ?></p>
+                </td>
+                <td>
+                    <p><?php echo $ors_form['amount']; ?></p>
+                </td>
+                <td></td>
+                <td></td>
+            </tr>
+        </table>
+
+        <div class="modal-footer no-print text-center">
+            <button type="button" class="btn btn-primary" onclick="window.print()">Print ORS</button>
+            <a href="ors.php" class="btn btn-secondary">Submit Another</a>
+        </div>
 
     </div>
 </body>

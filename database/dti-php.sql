@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 21, 2025 at 08:09 AM
+-- Generation Time: Mar 22, 2025 at 02:19 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -406,19 +406,6 @@ INSERT INTO `gas_allotment` (`gas_id`, `project`, `uacs_code`, `allotment`, `bal
 -- --------------------------------------------------------
 
 --
--- Table structure for table `gas_balances`
---
-
-CREATE TABLE `gas_balances` (
-  `gb_id` int(11) NOT NULL,
-  `gas_id` int(255) NOT NULL,
-  `allotment` double(40,2) NOT NULL,
-  `balances` double(40,2) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `jev`
 --
 
@@ -749,13 +736,6 @@ ALTER TABLE `gas_allotment`
   ADD PRIMARY KEY (`gas_id`);
 
 --
--- Indexes for table `gas_balances`
---
-ALTER TABLE `gas_balances`
-  ADD PRIMARY KEY (`gb_id`),
-  ADD KEY `gas_id` (`gas_id`);
-
---
 -- Indexes for table `jev`
 --
 ALTER TABLE `jev`
@@ -899,12 +879,6 @@ ALTER TABLE `gas_allotment`
   MODIFY `gas_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
--- AUTO_INCREMENT for table `gas_balances`
---
-ALTER TABLE `gas_balances`
-  MODIFY `gb_id` int(11) NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT for table `jev`
 --
 ALTER TABLE `jev`
@@ -962,7 +936,7 @@ ALTER TABLE `oo4_1_2_allotment`
 -- AUTO_INCREMENT for table `oopap`
 --
 ALTER TABLE `oopap`
-  MODIFY `oopap_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `oopap_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `ors`
@@ -1016,12 +990,6 @@ ALTER TABLE `financial_subcategories`
 --
 ALTER TABLE `financial_submodules`
   ADD CONSTRAINT `financial_submodules_ibfk_2` FOREIGN KEY (`subcategory_id`) REFERENCES `financial_subcategories` (`subcategory_id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Constraints for table `gas_balances`
---
-ALTER TABLE `gas_balances`
-  ADD CONSTRAINT `gas_balances_ibfk_1` FOREIGN KEY (`gas_id`) REFERENCES `gas_allotment` (`gas_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `jev`

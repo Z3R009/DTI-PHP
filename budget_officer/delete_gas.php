@@ -1,14 +1,14 @@
 <?php
 include '../DBConnection.php';
 
-if (isset($_GET['gas_id']) && $_GET['confirm'] == 'yes') {
+if (isset($_GET['project_id']) && $_GET['confirm'] == 'yes') {
     // Get the user ID from the query string
-    $gas_id = intval($_GET['gas_id']);
+    $project_id = intval($_GET['project_id']);
 
     // Prepare and execute the deletion query for 'users' table
-    $deleteUserSql = "DELETE FROM gas_allotment WHERE gas_id = ?";
+    $deleteUserSql = "DELETE FROM Project WHERE project_id = ?";
     $stmtUser = $connection->prepare($deleteUserSql);
-    $stmtUser->bind_param("i", $gas_id);
+    $stmtUser->bind_param("i", $project_id);
 
     // Execute both deletion queries
     if ($stmtUser->execute()) {

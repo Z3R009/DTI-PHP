@@ -1,5 +1,5 @@
 <?php
-// Database connection
+
 $servername = "localhost";
 $username = "root";
 $password = "";
@@ -82,8 +82,16 @@ $result = $conn->query($sql);
 
 <body>
 
-<?php include "Includes/header.php";?>
-    <?php include "Includes/sidebar.php";?>
+    <?php include "Includes/header.php"; ?>
+    <?php include "Includes/sidebar.php"; ?>
+
+
+
+    <main id="main" class="main">
+
+        <div class="pagetitle">
+            <h1>Account Title</h1>
+        </div><!-- End Page Title -->
 
 
 
@@ -168,6 +176,11 @@ $result = $conn->query($sql);
                                                 autocomplete="off">
                                             <label>UACS Code:</label>
                                             <input type="text" name="uacs_code" class="form-control" autocomplete="off">
+                                            <label>Status:</label>
+                                            <select name="status">
+                                                <option value="active">Active</option>
+                                                <option value="inactive">Inactive</option>
+                                            </select>
                                         </div>
 
                                         <div class="modal-footer mt-3">
