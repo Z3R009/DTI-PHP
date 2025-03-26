@@ -746,7 +746,7 @@ $select = mysqli_query($connection, "
                                     <td><?php echo htmlspecialchars($row['ors_no']); ?></td>
                                     <td><?php echo htmlspecialchars($row['payee_name']); ?></td>
                                     <td><?php echo htmlspecialchars($row['account_title']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['amount']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['total_amount']); ?></td>
                                     <td><?php echo htmlspecialchars($row['approver_name']); ?></td>
                                     <td><?php echo htmlspecialchars($row['budget_officer']); ?></td>
                                     <td>
@@ -886,7 +886,8 @@ $select = mysqli_query($connection, "
                                     <div class="form-row">
                                         <div class="form-group half-width">
                                             <label class="form-label">Gross Amount</label>
-                                            <input type="number" class="form-control" id="amount" step="0.01" readonly>
+                                            <input type="number" class="form-control" id="total_amount" step="0.01"
+                                                readonly>
                                         </div>
                                         <div class="form-group half-width">
                                             <div class="checkbox-item">
@@ -1084,7 +1085,7 @@ $select = mysqli_query($connection, "
                             document.getElementById('notes').value = data.notes;
                             document.getElementById('code').value = data.code;
                             document.getElementById('oopap_name').value = data.oopap_name;
-                            document.getElementById('amount').value = data.amount;
+                            document.getElementById('total_amount').value = data.total_amount;
 
                             // Trigger generateDVNumber after setting fund_cluster
                             generateDVNumber();
@@ -1141,7 +1142,7 @@ $select = mysqli_query($connection, "
     <!-- tax calculation -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const amountInput = document.getElementById("amount");
+            const amountInput = document.getElementById("total_amount");
             const applyTaxesCheckbox = document.getElementById("apply_taxes");
             const vatPercentageInput = document.getElementById("vat_percentage");
             const tax1PercentageInput = document.getElementById("tax1_percentage");

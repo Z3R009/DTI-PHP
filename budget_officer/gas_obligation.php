@@ -100,7 +100,7 @@ $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'
                                 <th>Obligation Number</th>
                                 <th>Payee</th>
                                 <th>Particulars</th>
-                                <th>Obligations</th>
+                                <th>Obligation</th>
                                 <th>Allotment</th>
                                 <th>NET</th>
                             </tr>

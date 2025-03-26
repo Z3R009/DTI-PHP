@@ -51,6 +51,11 @@ $result_account = $connection->query($query_account);
 $total_allotment_query = "SELECT SUM(allotment) AS total_allotment FROM project WHERE oopap_id = 4";
 $total_allotment_result = mysqli_query($connection, $total_allotment_query);
 $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'];
+
+// Fetch total balances
+$total_balances_query = "SELECT SUM(balances) AS total_balances FROM project WHERE oopap_id = 4";
+$total_balances_result = mysqli_query($connection, $total_balances_query);
+$total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
 ?>
 
 <!DOCTYPE html>
@@ -108,11 +113,24 @@ $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'
 
         <section class="section dashboard">
 
-            <!-- Total Allotment Card -->
-            <div class="card bg-white text-dark mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Total Allotment</h5>
-                    <h3 class="card-text">₱<?php echo number_format($total_allotment, 2); ?></h3>
+            <div class="row">
+                <!-- Total Allotment Card -->
+                <div class="col-md-6">
+                    <div class="card bg-white text-dark mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Allotment</h5>
+                            <h3 class="card-text">₱<?php echo number_format($total_allotment, 2); ?></h3>
+                        </div>
+                    </div>
+                </div>
+                <!-- Total Balances Card -->
+                <div class="col-md-6">
+                    <div class="card bg-white text-dark mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Balances</h5>
+                            <h3 class="card-text">₱<?php echo number_format($total_balances, 2); ?></h3>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="card">

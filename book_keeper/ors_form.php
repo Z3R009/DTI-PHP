@@ -193,7 +193,7 @@ if (isset($_GET['ors_no'])) {
                 <td colspan="3">Particulars</td>
                 <td>OO/PAP</td>
                 <td>UACS Code</td>
-                <td>Amount</td>
+                <td>total_amount</td>
             </tr>
             <tr>
                 <td rowspan="3" colspan="2" style="vertical-align: top;"><br><br>
@@ -201,7 +201,7 @@ if (isset($_GET['ors_no'])) {
                 </td>
 
                 <td colspan="3" style="border: none;">
-                    <p><?php echo $ors_form['purpose']; ?></p>
+                    <p><?php echo $ors_form['purpose']; ?>:</p>
                     <p><strong><?php echo $ors_form['account_title']; ?></strong></p>
 
                 </td>
@@ -212,7 +212,7 @@ if (isset($_GET['ors_no'])) {
                     <p><?php echo $ors_form['account_code']; ?></p>
                 </td>
                 <td rowspan="2" style="vertical-align: top;"><br><br>
-                    <p>₱<?php echo number_format((float) $ors_form['amount'], 2, '.', ','); ?></p>
+                    <p>₱<?php echo number_format((float) $ors_form['total_amount'], 2, '.', ','); ?></p>
                 </td>
             </tr>
 
@@ -228,7 +228,7 @@ if (isset($_GET['ors_no'])) {
                 <td></td>
                 <td></td>
                 <td>
-                    <p>₱<?php echo number_format((float) $ors_form['amount'], 2, '.', ','); ?></p>
+                    <p>₱<?php echo number_format((float) $ors_form['total_amount'], 2, '.', ','); ?></p>
                 </td>
             </tr>
 
@@ -263,7 +263,7 @@ if (isset($_GET['ors_no'])) {
             </tr>
             <tr>
                 <th colspan="3">Reference</th>
-                <th colspan="5">Amount</th>
+                <th colspan="5">total_amount</th>
             </tr>
             <tr>
                 <th rowspan="3">Date</th>
@@ -297,19 +297,19 @@ if (isset($_GET['ors_no'])) {
             </tr>
             <tr>
                 <td>
-                    <p>Date: <br> <b><?php echo date('F d, Y'); ?></b></p>
+                    <p><b><?php echo date('F d, Y'); ?></b></p>
 
                 </td>
-                <td>Representation Expenses</td>
+                <td><?php echo $ors_form['account_title']; ?></td>
                 <td>ADMIN&POLICY-25-02-008</td>
                 <td>
-                    <p>₱<?php echo number_format((float) $ors_form['amount'], 2, '.', ','); ?></p>
+                    <p>₱<?php echo number_format((float) $ors_form['total_amount'], 2, '.', ','); ?></p>
                 </td>
                 <td>
-                    <p>₱<?php echo number_format((float) $ors_form['amount'], 2, '.', ','); ?></p>
+                    <p>₱<?php echo number_format((float) $ors_form['total_amount'], 2, '.', ','); ?></p>
                 </td>
                 <td>
-                    <p>₱<?php echo number_format((float) $ors_form['amount'], 2, '.', ','); ?></p>
+                    <p>₱<?php echo number_format((float) $ors_form['total_amount'], 2, '.', ','); ?></p>
                 </td>
                 <td></td>
                 <td></td>

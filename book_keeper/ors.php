@@ -1,7 +1,7 @@
 <?php
 include '../DBConnection.php';
 
-// insert ors
+
 // insert ors
 
 if (isset($_POST['submit'])) {
@@ -22,43 +22,100 @@ if (isset($_POST['submit'])) {
     $rc_id = $_POST['rc_id'];
     $account_id = $_POST['account_id'];
     $oopap_id = $_POST['oopap_id'];
-    $amount = $_POST['amount'];
+    $total_amount = $_POST['total_amount'];
     $approver_id = $_POST['approver_id'];
     $budget_officer = $_POST['budget_officer'];
 
-    $sql = "INSERT INTO ors (fund_cluster_id, date, ors_no, payee_id, purpose, notes, rc_id, account_id, oopap_id, amount, approver_id, budget_officer) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    // Start transaction
+    $connection->begin_transaction();
 
-    $stmt = $connection->prepare($sql);
-    if (!$stmt) {
-        die('Prepare failed: ' . $connection->error);
-    }
+    try {
+        // Check if sufficient allotment exists
+        $check_sql = "SELECT project_id, balances FROM project 
+                     WHERE account_id = ? AND oopap_id = ? AND balances >= ?";
+        $check_stmt = $connection->prepare($check_sql);
+        $check_stmt->bind_param("iid", $account_id, $oopap_id, $total_amount);
+        $check_stmt->execute();
+        $result = $check_stmt->get_result();
 
-    $stmt->bind_param(
-        "issssssiidis",
-        $fund_cluster_id,
-        $date,
-        $ors_no,
-        $payee_id,
-        $purpose,
-        $notes,
-        $rc_id,
-        $account_id,
-        $oopap_id,
-        $amount,
-        $approver_id,
-        $budget_officer
-    );
+        if ($result->num_rows === 0) {
+            throw new Exception("Insufficient allotment for the selected account and OO/PAP combination.");
+        }
 
-    if ($stmt->execute()) {
+        $project = $result->fetch_assoc();
+        $project_id = $project['project_id'];
+        $new_balance = $project['balances'] - $total_amount;
+
+        // Update project allotment
+        $update_sql = "UPDATE project SET balances = ? WHERE project_id = ?";
+        $update_stmt = $connection->prepare($update_sql);
+        $update_stmt->bind_param("di", $new_balance, $project_id);
+        $update_stmt->execute();
+
+        // Insert ORS record
+        $sql = "INSERT INTO ors (fund_cluster_id, date, ors_no, payee_id, purpose, notes, rc_id, account_id, oopap_id, total_amount, approver_id, budget_officer) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        $stmt = $connection->prepare($sql);
+        if (!$stmt) {
+            throw new Exception('Prepare failed: ' . $connection->error);
+        }
+
+        $stmt->bind_param(
+            "issssssiidis",
+            $fund_cluster_id,
+            $date,
+            $ors_no,
+            $payee_id,
+            $purpose,
+            $notes,
+            $rc_id,
+            $account_id,
+            $oopap_id,
+            $total_amount,
+            $approver_id,
+            $budget_officer
+        );
+
+        if (!$stmt->execute()) {
+            throw new Exception("Error inserting ORS: " . $stmt->error);
+        }
+
+        // Get the inserted ORS ID
+        $ors_id = $connection->insert_id;
+
+        // Insert into obligation_history
+        $history_sql = "INSERT INTO obligation_history (ors_id, project_id, net) VALUES (?, ?, ?)";
+        $history_stmt = $connection->prepare($history_sql);
+        if (!$history_stmt) {
+            throw new Exception('Prepare failed for obligation_history: ' . $connection->error);
+        }
+
+        $history_stmt->bind_param("iid", $ors_id, $project_id, $total_amount);
+        if (!$history_stmt->execute()) {
+            throw new Exception("Error inserting obligation history: " . $history_stmt->error);
+        }
+
+        $connection->commit();
         header("Location: ors_form.php?ors_no=$ors_no");
         exit();
-    } else {
-        echo "Error: " . $stmt->error;
-    }
 
-    $stmt->close();
-    $connection->close();
+    } catch (Exception $e) {
+        $connection->rollback();
+        echo "Error: " . $e->getMessage();
+        exit(); // Add exit here to prevent further execution
+    } finally {
+        // Close statements in finally block to ensure they are always closed
+        if (isset($check_stmt))
+            $check_stmt->close();
+        if (isset($update_stmt))
+            $update_stmt->close();
+        if (isset($stmt))
+            $stmt->close();
+        if (isset($history_stmt))
+            $history_stmt->close();
+        $connection->close();
+    }
 }
 
 
@@ -122,8 +179,6 @@ while ($row = $result_approvers->fetch_assoc()) {
         'designation' => $row['designation']
     ];
 }
-
-
 
 ?>
 
@@ -560,7 +615,8 @@ while ($row = $result_approvers->fetch_assoc()) {
                                                         ?>
                                                     </select>
                                                 </td>
-                                                <td><input type="number" class="form-control" name="amount" step="0.01" autocomplete="off">
+                                                <td>
+                                                    <input type="number" class="form-control amount-input" name="amount" step="0.01" autocomplete="off">
                                                 </td>
                                             </tr>
 
@@ -573,10 +629,18 @@ while ($row = $result_approvers->fetch_assoc()) {
                                                     </button>
                                                 </td>
                                             </tr>
+
+                                            <!-- Total Amount Row -->
+                                            <tr>
+                                                <td colspan="2" class="text-right font-weight-bold">Total Amount:</td>
+                                                <td><input type="text" id="total_amount" class="form-control" name="total_amount" readonly></td>
+                                            </tr>
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
+
+                            <input type="hidden" class="form-control" id="project_id" name="project_id" readonly placeholder="Project ID">
 
 
                             <!-- Receipt Section -->
@@ -755,7 +819,6 @@ while ($row = $result_approvers->fetch_assoc()) {
                 const objectCodeSelect = document.createElement("select");
                 objectCodeSelect.className = "form-control";
                 objectCodeSelect.name = "account_id";
-                objectCodeSelect.innerHTML = '<option selected disabled>Select Account</option>';
                 objectCodeOptions.forEach(option => {
                     const optionElement = document.createElement("option");
                     optionElement.value = option.value;
@@ -868,6 +931,81 @@ while ($row = $result_approvers->fetch_assoc()) {
     });
 </script>
 
+<!-- total_amount -->
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        function updateTotal() {
+            let total = 0;
+            document.querySelectorAll(".amount-input").forEach(function (input) {
+                total += parseFloat(input.value) || 0;
+            });
+            document.getElementById("total_amount").value = total.toFixed(2);
+        }
+
+        // Listen for input changes
+        document.getElementById("accounting-table-body").addEventListener("input", function (event) {
+            if (event.target.classList.contains("amount-input")) {
+                updateTotal();
+            }
+        });
+
+        // Add new row functionality
+        document.getElementById("addAccountRow").addEventListener("click", function () {
+            let newRow = document.querySelector(".entry-row").cloneNode(true);
+            newRow.querySelector(".amount-input").value = "";
+            document.getElementById("add-row-container").before(newRow);
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const accountSelect = document.querySelector('select[name="account_id"]');
+        const oopapSelect = document.querySelector('select[name="oopap_id"]');
+        const amountInput = document.querySelector('.amount-input');
+        const projectIdInput = document.getElementById('project_id');
+
+        async function checkAllotment() {
+            const accountId = accountSelect.value;
+            const oopapId = oopapSelect.value;
+            const amount = parseFloat(amountInput.value) || 0;
+
+            if (!accountId || !oopapId || amount === 0) {
+                projectIdInput.value = '';
+                return;
+            }
+
+            try {
+                const response = await fetch('check_allotment.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `account_id=${accountId}&oopap_id=${oopapId}&amount=${amount}`
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    projectIdInput.value = data.project_id;
+                    projectIdInput.style.backgroundColor = '#e8f5e9';
+                } else {
+                    projectIdInput.value = '';
+                    projectIdInput.style.backgroundColor = '#ffebee';
+                    alert('Insufficient allotment for this combination!');
+                }
+            } catch (error) {
+                console.error('Error checking allotment:', error);
+                alert('Error checking allotment availability');
+            }
+        }
+
+        accountSelect.addEventListener('change', checkAllotment);
+        oopapSelect.addEventListener('change', checkAllotment);
+        amountInput.addEventListener('input', checkAllotment);
+    });
+</script>
 
 </body>
 
