@@ -1,14 +1,14 @@
 <?php
 include '../DBConnection.php';
 
-if (isset($_GET['object_code_id']) && $_GET['confirm'] == 'yes') {
+if (isset($_GET['account_id']) && $_GET['confirm'] == 'yes') {
     // Get the user ID from the query string
-    $object_code_id = intval($_GET['object_code_id']);
+    $account_id = intval($_GET['account_id']);
 
     // Prepare and execute the deletion query for 'users' table
-    $deleteUserSql = "DELETE FROM financial_object_code WHERE object_code_id = ?";
+    $deleteUserSql = "DELETE FROM account_title WHERE account_id = ?";
     $stmtUser = $connection->prepare($deleteUserSql);
-    $stmtUser->bind_param("i", $object_code_id);
+    $stmtUser->bind_param("i", $account_id);
 
     // Execute both deletion queries
     if ($stmtUser->execute()) {

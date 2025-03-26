@@ -79,42 +79,42 @@
                     </a>
                 </li>
                 <li>
-                    <a href="oo1.php">
+                    <a href="oo1_obligation.php">
                         <i class="bi bi-circle"></i><span>OO1</span>
                     </a>
                 </li>
                 <li>
-                    <a href="oo2.php">
+                    <a href="oo2_obligation.php">
                         <i class="bi bi-circle"></i><span>OO2</span>
                     </a>
                 </li>
                 <li>
-                    <a href="oo3.php">
+                    <a href="oo3_obligation.php">
                         <i class="bi bi-circle"></i><span>OO3</span>
                     </a>
                 </li>
                 <li>
-                    <a href="oo3_1.php">
+                    <a href="oo3_1_obligation.php">
                         <i class="bi bi-circle"></i><span>OO3.1</span>
                     </a>
                 </li>
                 <li>
-                    <a href="oo3_2.php">
+                    <a href="oo3_2_obligation.php">
                         <i class="bi bi-circle"></i><span>OO3.2</span>
                     </a>
                 </li>
                 <li>
-                    <a href="oo3_3.php">
+                    <a href="oo3_3_obligation.php">
                         <i class="bi bi-circle"></i><span>OO3.3</span>
                     </a>
                 </li>
                 <li>
-                    <a href="oo4_1_1.php">
+                    <a href="oo4_1_1_obligation.php">
                         <i class="bi bi-circle"></i><span>OO4.1.1</span>
                     </a>
                 </li>
                 <li>
-                    <a href="oo4_1_2.php">
+                    <a href="oo4_1_2_obligation.php">
                         <i class="bi bi-circle"></i><span>OO4.1.2</span>
                     </a>
                 </li>

@@ -1087,9 +1087,10 @@ $select = mysqli_query($connection, "
                             document.getElementById('oopap_name').value = data.oopap_name;
                             document.getElementById('total_amount').value = data.total_amount;
 
-                            // Trigger generateDVNumber after setting fund_cluster
+                            // Trigger calculations after populating data
+                            calculate(); // Add this line to trigger calculation
                             generateDVNumber();
-
+                            
                             modal.style.display = 'block';
                         })
                         .catch(error => console.error('Error fetching ORS details:', error));
@@ -1108,7 +1109,6 @@ $select = mysqli_query($connection, "
                 }
             });
         });
-
     </script>
 
     <!-- mode of payment -->
@@ -1141,6 +1141,8 @@ $select = mysqli_query($connection, "
 
     <!-- tax calculation -->
     <script>
+        let calculate; // Declare calculate in wider scope
+
         document.addEventListener("DOMContentLoaded", function () {
             const amountInput = document.getElementById("total_amount");
             const applyTaxesCheckbox = document.getElementById("apply_taxes");
@@ -1154,71 +1156,70 @@ $select = mysqli_query($connection, "
             const tax2Input = document.getElementById("tax_2");
             const netAmountInput = document.getElementById("net_amount");
 
-            function calculate() {
-                let grossAmount = parseFloat(amountInput.value) || 0;
+            calculate = function() { // Assign calculate function to the wider scope variable
+                const grossAmount = parseFloat(amountInput.value) || 0;
 
-                // Set default tax percentages only if the user hasn't changed them
-                if (!tax1PercentageInput.dataset.userEdited) {
-                    tax1PercentageInput.value = applyTaxesCheckbox.checked ? 5 : 3;
-                }
-                if (!tax2PercentageInput.dataset.userEdited) {
-                    tax2PercentageInput.value = applyTaxesCheckbox.checked ? 2 : 1;
-                }
+                if (applyTaxesCheckbox.checked) {
+                    // With VAT calculation
+                    // VAT calculation (12% of gross)
+                    const vatPercentage = 12;
+                    const vatAmount = (grossAmount * vatPercentage) / (100 + vatPercentage);
+                    
+                    // Tax base is gross minus VAT
+                    const taxBase = grossAmount - vatAmount;
+                    
+                    // Calculate 5% and 2% from tax base
+                    const tax1Amount = taxBase * 0.05; // 5% with VAT
+                    const tax2Amount = taxBase * 0.02; // 2% with VAT
+                    
+                    // Update tax percentage displays
+                    tax1PercentageInput.value = "5";
+                    tax2PercentageInput.value = "2";
+                    
+                    // Net amount is gross amount minus the sum of taxes
+                    const totalTaxes = tax1Amount + tax2Amount;
+                    const netAmount = grossAmount - totalTaxes;
 
-                let vatPercentage = applyTaxesCheckbox.checked ? parseFloat(vatPercentageInput.value) || 0 : 0;
-                let tax1Percentage = parseFloat(tax1PercentageInput.value) || 0;
-                let tax2Percentage = parseFloat(tax2PercentageInput.value) || 0;
-
-                let vatAmount = (grossAmount * vatPercentage) / 100;
-                let taxBase = grossAmount - vatAmount;
-
-                // Only update tax amounts if the user is not manually editing them
-                if (!tax1Input.matches(":focus")) {
-                    let tax1Amount = (taxBase * tax1Percentage) / 100;
+                    // Update form fields
+                    vatAmountInput.value = vatAmount.toFixed(2);
+                    taxBaseInput.value = taxBase.toFixed(2);
                     tax1Input.value = tax1Amount.toFixed(2);
-                }
-
-                if (!tax2Input.matches(":focus")) {
-                    let tax2Amount = (taxBase * tax2Percentage) / 100;
                     tax2Input.value = tax2Amount.toFixed(2);
-                }
+                    netAmountInput.value = netAmount.toFixed(2);
 
-                let netAmount = taxBase - (parseFloat(tax1Input.value) || 0) - (parseFloat(tax2Input.value) || 0);
-                vatAmountInput.value = vatAmount.toFixed(2);
-                taxBaseInput.value = taxBase.toFixed(2);
-                netAmountInput.value = netAmount.toFixed(2);
-            }
-
-            // Mark inputs as manually edited when user types
-            tax1PercentageInput.addEventListener("input", function () {
-                this.dataset.userEdited = "true";
-            });
-            tax2PercentageInput.addEventListener("input", function () {
-                this.dataset.userEdited = "true";
-            });
-
-            // Function to ensure calculations run correctly at page load
-            function initializeCalculation() {
-                if (amountInput.value.trim() !== "" && parseFloat(amountInput.value) > 0) {
-                    calculate();
+                    // Show tax fields
+                    document.getElementById('tax_fields_container').style.display = 'block';
                 } else {
-                    setTimeout(initializeCalculation, 100);
+                    // Without VAT - use 3% and 1% tax rates
+                    const tax1Amount = grossAmount * 0.03; // 3% without VAT
+                    const tax2Amount = grossAmount * 0.01; // 1% without VAT
+                    
+                    // Update tax percentage displays
+                    tax1PercentageInput.value = "3";
+                    tax2PercentageInput.value = "1";
+
+                    // Net amount is gross amount minus the sum of taxes
+                    const totalTaxes = tax1Amount + tax2Amount;
+                    const netAmount = grossAmount - totalTaxes;
+
+                    // Update form fields
+                    vatAmountInput.value = "0.00";
+                    taxBaseInput.value = grossAmount.toFixed(2);
+                    tax1Input.value = tax1Amount.toFixed(2);
+                    tax2Input.value = tax2Amount.toFixed(2);
+                    netAmountInput.value = netAmount.toFixed(2);
+
+                    // Hide VAT fields but show tax fields
+                    document.getElementById('tax_fields_container').style.display = 'none';
                 }
-            }
+            };
 
-            // Event listeners to update calculations dynamically
+            // Event listeners
             amountInput.addEventListener("input", calculate);
-            applyTaxesCheckbox.addEventListener("change", function () {
-                tax1PercentageInput.dataset.userEdited = ""; // Reset user edit flag
-                tax2PercentageInput.dataset.userEdited = "";
-                calculate();
-            });
-            vatPercentageInput.addEventListener("input", calculate);
-            tax1PercentageInput.addEventListener("input", calculate);
-            tax2PercentageInput.addEventListener("input", calculate);
+            applyTaxesCheckbox.addEventListener("change", calculate);
 
-            // Run calculations when the page loads
-            initializeCalculation();
+            // Initial calculation - trigger calculation as soon as the page loads
+            calculate();
         });
     </script>
 

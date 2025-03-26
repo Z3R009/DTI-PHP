@@ -15,7 +15,7 @@ $select = mysqli_query(
      FROM obligation_history 
      LEFT JOIN ors ON obligation_history.ors_id = ors.ors_id 
      LEFT JOIN payee ON ors.payee_id = payee.payee_id
-     WHERE oopap_id = 1
+     WHERE oopap_id = 9
      "
 );
 
@@ -24,7 +24,7 @@ $select = mysqli_query(
 
 <?php
 // Fetch total allotment
-$total_allotment_query = "SELECT SUM(allotment) AS total_allotment FROM project WHERE oopap_id = 1";
+$total_allotment_query = "SELECT SUM(allotment) AS total_allotment FROM project WHERE oopap_id = 9";
 $total_allotment_result = mysqli_query($connection, $total_allotment_query);
 $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'];
 ?>
@@ -62,13 +62,6 @@ $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'
     <!-- Template Main CSS File -->
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
 
-    <!-- =======================================================
-  * Template Name: NiceAdmin
-  * Template URL: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/
-  * Updated: Apr 20 2024 with Bootstrap v5.3.3
-  * Author: BootstrapMade.com
-  * License: https://bootstrapmade.com/license/
-  ======================================================== -->
 </head>
 
 <body>
@@ -79,7 +72,7 @@ $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'
     <main id="main" class="main">
 
         <div class="pagetitle">
-            <h1>GAS</h1>
+            <h1>OO4.1.2</h1>
         </div><!-- End Page Title -->
 
         <section class="section dashboard">
