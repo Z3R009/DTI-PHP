@@ -5,7 +5,7 @@ if (isset($_GET['id'])) {
   $orsId = $_GET['id'];
   $query = " SELECT 
   ors.*, 
-  financial_object_code.object_name, 
+  account_title.account_title, 
   approver.approver_name,
   CONCAT(fund_cluster.uacs_code, '-', fund_cluster.fund_cluster_name) AS fund_cluster,
   responsibility_center.code,
@@ -14,7 +14,7 @@ if (isset($_GET['id'])) {
         payee.tin_no,
         payee.address
 FROM ors
-LEFT JOIN financial_object_code ON ors.object_code_id = financial_object_code.object_code_id
+LEFT JOIN account_title ON ors.account_id = account_title.account_id
 LEFT JOIN approver ON ors.approver_id = approver.approver_id
 LEFT JOIN fund_cluster ON ors.fund_cluster_id = fund_cluster.fund_cluster_id
 LEFT JOIN responsibility_center ON ors.rc_id = responsibility_center.rc_id

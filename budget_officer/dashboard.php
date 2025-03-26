@@ -1,3 +1,18 @@
+<?php
+
+include '../DBConnection.php';
+
+// Fetch OOPAP categories
+$query = "SELECT * FROM oopap";
+$result = $connection->query($query);
+
+$totalQuery = "SELECT SUM(allotment) AS total_allotment FROM project";
+$totalResult = $connection->query($totalQuery);
+$totalRow = $totalResult->fetch_assoc();
+$totalAllotment = $totalRow['total_allotment'] ?? 0;
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -52,7 +67,51 @@
         </div><!-- End Page Title -->
 
         <section class="section dashboard">
+            <div class="row">
 
+
+                <!-- Total Allotment -->
+                <div class="col-xxl-4 col-md-6">
+                    <div class="card info-card sales-card">
+
+                        <div class="filter">
+                            <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                                <li class="dropdown-header text-start">
+                                    <h6>Filter</h6>
+                                </li>
+                                <!-- Show All Option -->
+                                <li>
+                                    <a class="dropdown-item oopap-filter" href="#" data-id="">All Categories</a>
+                                </li>
+                                <?php while ($row = $result->fetch_assoc()): ?>
+                                    <li>
+                                        <a class="dropdown-item oopap-filter" href="#" data-id="<?= $row['oopap_id'] ?>">
+                                            <?= $row['oopap_name'] ?>
+                                        </a>
+                                    </li>
+                                <?php endwhile; ?>
+                            </ul>
+                        </div>
+
+                        <div class="card-body">
+                            <h5 class="card-title">Total Allotment <span id="selected-oopap">| All Categories</span>
+                            </h5>
+
+                            <div class="d-flex align-items-center">
+                                <div class="ps-3">
+                                    <h6 id="total-allotment"><?php echo "₱" . number_format($totalAllotment, 2); ?></h6>
+                                </div>
+                            </div>
+
+
+                        </div>
+
+
+                    </div>
+                </div><!-- End Sales Card -->
+
+            </div>
         </section>
 
     </main><!-- End #main -->
@@ -73,6 +132,32 @@
 
     <!-- Template Main JS File -->
     <script src="../NiceAdmin/assets/js/main.js"></script>
+
+
+    <!-- allotment -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".oopap-filter").forEach(item => {
+                item.addEventListener("click", function (e) {
+                    e.preventDefault();
+
+                    let oopapId = this.getAttribute("data-id");
+                    let oopapName = this.innerText;
+
+                    fetch("fetch_allotment.php?oopap_id=" + oopapId)
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log("Fetched Data:", data); // Debugging line
+                            document.getElementById("total-allotment").innerText = "₱" + data.total_allotment;
+                            document.getElementById("selected-oopap").innerText = "| " + oopapName;
+                        })
+                        .catch(error => console.error("Error fetching allotment:", error));
+                });
+            });
+        });
+
+
+    </script>
 
 </body>
 

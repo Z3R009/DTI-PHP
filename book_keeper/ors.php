@@ -17,16 +17,17 @@ if (isset($_POST['submit'])) {
     $date = $_POST['date'];
     $ors_no = $_POST['ors_no'];
     $payee_id = $_POST['payee_id'];
+    $purpose = $_POST['purpose'];
     $notes = $_POST['notes'];
     $rc_id = $_POST['rc_id'];
-    $object_code_id = $_POST['object_code_id'];
+    $account_id = $_POST['account_id'];
     $oopap_id = $_POST['oopap_id'];
     $amount = $_POST['amount'];
     $approver_id = $_POST['approver_id'];
     $budget_officer = $_POST['budget_officer'];
 
-    $sql = "INSERT INTO ors (fund_cluster_id, date, ors_no, payee_id,  notes, rc_id, object_code_id, oopap_id, amount, approver_id, budget_officer) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO ors (fund_cluster_id, date, ors_no, payee_id, purpose, notes, rc_id, account_id, oopap_id, amount, approver_id, budget_officer) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     $stmt = $connection->prepare($sql);
     if (!$stmt) {
@@ -34,14 +35,15 @@ if (isset($_POST['submit'])) {
     }
 
     $stmt->bind_param(
-        "isssssiidis",
+        "issssssiidis",
         $fund_cluster_id,
         $date,
         $ors_no,
         $payee_id,
+        $purpose,
         $notes,
         $rc_id,
-        $object_code_id,
+        $account_id,
         $oopap_id,
         $amount,
         $approver_id,
@@ -64,8 +66,12 @@ if (isset($_POST['submit'])) {
 
 
 // Query to fetch account titles and their corresponding UACS codes
-$sql_object_code = "SELECT object_code_id, object_name FROM financial_object_code";
-$result_object_code = $connection->query($sql_object_code);
+$sql_account = "SELECT account_id, account_title, account_code 
+                FROM account_title 
+                WHERE account_code LIKE '5%'";
+
+$result_account = $connection->query($sql_account);
+
 
 // retrieve payee
 
@@ -74,7 +80,7 @@ $result_payee = $connection->query($sql_payee);
 
 // retrieve responsibility
 
-$sql_responsibility_center = "SELECT rc_id, code FROM responsibility_center";
+$sql_responsibility_center = "SELECT rc_id, code, description FROM responsibility_center";
 $result_responsibility_center = $connection->query($sql_responsibility_center);
 
 // retrieve fund_cluster
@@ -117,8 +123,6 @@ while ($row = $result_approvers->fetch_assoc()) {
     ];
 }
 
-$sql_object_code = "SELECT object_code_id, object_name, uacs_code FROM financial_object_code";
-$result_object_code = $connection->query($sql_object_code);
 
 
 ?>
@@ -156,7 +160,6 @@ $result_object_code = $connection->query($sql_object_code);
 
     <!-- Template Main CSS File -->
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
-    <!-- <link rel="stylesheet" href="ors.css"> -->
     <style>
         .form-container {
             max-width: 1200px;
@@ -402,173 +405,9 @@ $result_object_code = $connection->query($sql_object_code);
 
 <body>
 
-    <!-- ======= Header ======= -->
-    <header id="header" class="header fixed-top d-flex align-items-center">
+    <?php include "Includes/header.php"; ?>
 
-        <div class="d-flex align-items-center justify-content-between">
-            <a href="index.html" class="logo d-flex align-items-center">
-                <img src="../img/DTI_short.png" alt="">
-                <span class="d-none d-lg-block">Region 12</span>
-            </a>
-            <i class="bi bi-list toggle-sidebar-btn"></i>
-        </div><!-- End Logo -->
-
-
-        <nav class="header-nav ms-auto">
-            <ul class="d-flex align-items-center">
-
-
-
-                <li class="nav-item dropdown pe-3">
-
-                    <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-                        <i class="ri-account-circle-fill fs-2"></i>
-                        <span class="d-none d-md-block dropdown-toggle ps-2"></span>
-                    </a>
-
-                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
-                        <li class="dropdown-header">
-                            <h6>Kevin Anderson</h6>
-                            <span>Web Designer</span>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center" href="users-profile.html">
-                                <i class="bi bi-person"></i>
-                                <span>My Profile</span>
-                            </a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center" href="users-profile.html">
-                                <i class="bi bi-gear"></i>
-                                <span>Account Settings</span>
-                            </a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center" href="pages-faq.html">
-                                <i class="bi bi-question-circle"></i>
-                                <span>Need Help?</span>
-                            </a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center" href="../logout.php">
-                                <i class="bi bi-box-arrow-right"></i>
-                                <span>Sign Out</span>
-                            </a>
-                        </li>
-
-                    </ul><!-- End Profile Dropdown Items -->
-                </li><!-- End Profile Nav -->
-
-            </ul>
-        </nav><!-- End Icons Navigation -->
-
-    </header><!-- End Header -->
-
-    <!-- ======= Sidebar ======= -->
-    <aside id="sidebar" class="sidebar">
-
-        <ul class="sidebar-nav" id="sidebar-nav">
-
-            <li class="nav-item">
-                <a class="navbar-brand ps-3" href="">
-                    <img src="../img/DTI_w12.png" alt="Logo" style="height: 100px; width: auto; max-width: 100%; ">
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link " href="dashboard.php">
-                    <i class="bi bi-grid"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link collapsed" data-bs-target="#charts-nav" data-bs-toggle="collapse" href="#">
-                    <i class="bi bi-bar-chart"></i><span>Forms</span><i class="bi bi-chevron-down ms-auto"></i>
-                </a>
-                <ul id="charts-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-                    <li>
-                        <a href="ors.php">
-                            <i class="bi bi-circle"></i><span>Obligation Request and Status</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="dv.php">
-                            <i class="bi bi-circle"></i><span>Disbursement Voucher</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="jev.php">
-                            <i class="bi bi-circle"></i><span>JEV</span>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link collapsed" data-bs-target="#components-nav" data-bs-toggle="collapse" href="#">
-                    <i class="bi bi-menu-button-wide"></i><span>UACS</span><i class="bi bi-chevron-down ms-auto"></i>
-                </a>
-                <ul id="components-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-                    <li>
-                        <a href="account_title.php">
-                            <i class="bi bi-circle"></i><span>Account Title</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="fund_cluster.php">
-                            <i class="bi bi-circle"></i><span>Fund Cluster</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="responsibility.php">
-                            <i class="bi bi-circle"></i><span>Responsibility Center</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="payee.php">
-                            <i class="bi bi-circle"></i><span>Payee</span>
-                        </a>
-                    </li>
-
-                    <li>
-                        <a href="approver.php">
-                            <i class="bi bi-circle"></i><span>Approver</span>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="reports_copy.php">
-                    <i class="bi bi-journal-text"></i>
-                    <span>Reports</span>
-                </a>
-            </li>
-
-
-
-        </ul>
-
-
-    </aside><!-- End Sidebar-->
-
-
+    <?php include "Includes/sidebar.php"; ?>
 
     <main id="main" class="main">
 
@@ -583,18 +422,7 @@ $result_object_code = $connection->query($sql_object_code);
 
                     <!-- General Information Section -->
 
-                    <!-- ORS Type Selection -->
-                    <div class="form-group">
-                        <label class="form-label">Select ORS Type</label>
-                        <select class="form-control" id="ors_type">
-                            <option value="" selected disabled>Select ORS Type</option>
-                            <option value="cash_advance">Cash Advance</option>
-                            <option value="transfer_fund">Transfer of Fund</option>
-                        </select>
-                    </div>
-
-
-                    <div id="ors_form" style="display: none;">
+                    <div id="ors_form">
                         <form method="post">
                             <div class="form-section">
                                 <h3>General Information</h3>
@@ -660,20 +488,31 @@ $result_object_code = $connection->query($sql_object_code);
                             <!-- Payment Details Section -->
                             <div class="form-section">
                                 <h3></h3>
+
+
+                                <label class="form-label">Purpose</label>
+                                <div class="form-row">
+                                    <select class="form-control" name="purpose">
+                                        <option value="To Payment of">To Payment of</option>
+                                        <option value="To Disburse">To Disburse</option>
+                                    </select>
+                                </div>
                                 <div class="form-row">
                                     <div class="form-group full-width">
-                                        <label class="form-label">Particulars</label>
-                                        <textarea class="form-control" name="notes"></textarea autocomplete="off">
+
+                                        <textarea class="form-control" name="notes" placeholder="Enter Purpose"></textarea autocomplete="off">
                                     </div>
                                 </div>
                                 <div class="form-row">
-                                    <div class="form-group">
+                                <div class="form-group">
                                         <label class="form-label">Responsibility Center</label>
                                         <select class="form-control" name="rc_id">
                                             <option selected disabled>Select Responsibility Center</option>
                                             <?php
                                             while ($row = $result_responsibility_center->fetch_assoc()) {
-                                                echo "<option value='" . htmlspecialchars($row['rc_id']) . "'>" . htmlspecialchars($row['code']) . "</option>";
+                                                echo "<option value='" . htmlspecialchars($row['rc_id']) . "'>"
+                                                    . htmlspecialchars($row['code']) . " - " . htmlspecialchars($row['description']) .
+                                                    "</option>";
                                             }
                                             ?>
                                         </select>
@@ -684,7 +523,7 @@ $result_object_code = $connection->query($sql_object_code);
 
                             <!-- Accounting Entry Section -->
                             <div class="form-section">
-                                <h3>Accounting Entry</h3>
+                                <h3>Particulars</h3>
                                 <div class="table-responsive">
                                     <table class="accounting-entry-table">
                                         <thead>
@@ -698,17 +537,17 @@ $result_object_code = $connection->query($sql_object_code);
                                             <!-- First row -->
                                             <tr class="entry-row">
                                             <td>
-                                        <select class="form-control" name="object_code_id" id="account_title">
-                                            <option selected disabled>Select Account</option>
-                                            <?php
-                                            while ($row = $result_object_code->fetch_assoc()) {
-                                                echo "<option value='" . htmlspecialchars($row['object_code_id']) . "' 
-                                                    data-uacs='" . htmlspecialchars($row['uacs_code']) . "'>"
-                                                    . htmlspecialchars($row['object_name']) .
-                                                    "</option>";
-                                            }
-                                            ?>
-                                        </select>
+                                            <select class="form-control" name="account_id" id="account_title">
+                                                    <option selected disabled>Select Account</option>
+                                                    <?php
+                                                    while ($row = $result_account->fetch_assoc()) {
+                                                        echo "<option value='" . htmlspecialchars($row['account_id']) . "' 
+                                                            data-account_code='" . htmlspecialchars($row['account_code']) . "'>"
+                                                            . htmlspecialchars($row['account_title']) . " - " . htmlspecialchars($row['account_code']) .
+                                                            "</option>";
+                                                    }
+                                                    ?>
+                                                </select>
                                             </td>
 
                                                 <td>
@@ -901,8 +740,8 @@ $result_object_code = $connection->query($sql_object_code);
             const tableBody = document.querySelector("#accounting-table-body");
             const addRowContainer = document.querySelector("#add-row-container");
 
-            // Fetch the options for object_code_id and oopap_id from the first row
-            const objectCodeOptions = Array.from(tableBody.querySelector(".entry-row select[name='object_code_id']").options)
+            // Fetch the options for account_id and oopap_id from the first row
+            const objectCodeOptions = Array.from(tableBody.querySelector(".entry-row select[name='account_id']").options)
                 .map(option => ({ value: option.value, text: option.text }));
             const oopapOptions = Array.from(tableBody.querySelector(".entry-row select[name='oopap_id']").options)
                 .map(option => ({ value: option.value, text: option.text }));
@@ -915,7 +754,7 @@ $result_object_code = $connection->query($sql_object_code);
                 // Create the Account Title dropdown
                 const objectCodeSelect = document.createElement("select");
                 objectCodeSelect.className = "form-control";
-                objectCodeSelect.name = "object_code_id";
+                objectCodeSelect.name = "account_id";
                 objectCodeSelect.innerHTML = '<option selected disabled>Select Account</option>';
                 objectCodeOptions.forEach(option => {
                     const optionElement = document.createElement("option");
@@ -1025,46 +864,6 @@ $result_object_code = $connection->query($sql_object_code);
 
             $('#tin_no').val(tinNo);
             $('#address').val(address);
-        });
-    });
-</script>
-
-<!-- account_title -->
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const orsTypeSelect = document.getElementById("ors_type");
-        const accountTitleSelect = document.getElementById("account_title");
-
-        orsTypeSelect.addEventListener("change", function () {
-            const selectedType = this.value;
-
-            Array.from(accountTitleSelect.options).forEach(option => {
-                const uacsCode = option.getAttribute("data-uacs");
-                if (!uacsCode) return; // Skip the "Select Account" option
-
-                if ((selectedType === "cash_advance" && uacsCode.startsWith("50")) ||
-                    (selectedType === "transfer_fund" && uacsCode.startsWith("10"))) {
-                    option.hidden = false;
-                } else {
-                    option.hidden = true;
-                }
-            });
-
-            accountTitleSelect.value = ""; // Reset selection
-        });
-    });
-</script>
-
-<!-- show form after selecting ors type  -->
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const orsTypeSelect = document.getElementById("ors_type");
-        const orsForm = document.getElementById("ors_form");
-
-        orsTypeSelect.addEventListener("change", function () {
-            if (this.value) {
-                orsForm.style.display = "block";  // Show the form
-            }
         });
     });
 </script>

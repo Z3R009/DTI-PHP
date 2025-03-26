@@ -8,8 +8,8 @@ if (isset($_GET['ors_no'])) {
     $query = "
     SELECT 
         ors.*, 
-        financial_object_code.object_name,
-        financial_object_code.uacs_code,
+        account_title.account_title,
+        account_title.account_code,
         approver.approver_name,
         approver.designation,
         CONCAT(fund_cluster.uacs_code, '-', fund_cluster.fund_cluster_name) AS fund_cluster,
@@ -18,7 +18,7 @@ if (isset($_GET['ors_no'])) {
         payee.payee_name,
         payee.address
     FROM ors
-    LEFT JOIN financial_object_code ON ors.object_code_id = financial_object_code.object_code_id
+    LEFT JOIN account_title ON ors.account_id = account_title.account_id
     LEFT JOIN approver ON ors.approver_id = approver.approver_id
     LEFT JOIN fund_cluster ON ors.fund_cluster_id = fund_cluster.fund_cluster_id
     LEFT JOIN responsibility_center ON ors.rc_id = responsibility_center.rc_id
@@ -166,7 +166,7 @@ if (isset($_GET['ors_no'])) {
                 </th>
                 <td colspan="3">
                     <p>ORS No..: <b><?php echo $ors_form['ors_no']; ?></b></p>
-                    <p>Date: <b><?php echo date('m-d-Y'); ?></b></p>
+                    <p>Date: <b><?php echo date('F d, Y'); ?></b></p>
                     <p>Fund Cluster: <b><?php echo $ors_form['fund_cluster']; ?></b></p>
                 </td>
             </tr>
@@ -201,18 +201,18 @@ if (isset($_GET['ors_no'])) {
                 </td>
 
                 <td colspan="3" style="border: none;">
-                    <p>To Payment of:</p>
-                    <p><strong><?php echo $ors_form['object_name']; ?></strong></p>
+                    <p><?php echo $ors_form['purpose']; ?></p>
+                    <p><strong><?php echo $ors_form['account_title']; ?></strong></p>
 
                 </td>
                 <td rowspan="2" style="vertical-align: top;"><br><br>
                     <p><?php echo $ors_form['oopap_name']; ?></p>
                 </td>
                 <td rowspan="2" style="vertical-align: top;"><br><br>
-                    <p><?php echo $ors_form['uacs_code']; ?></p>
+                    <p><?php echo $ors_form['account_code']; ?></p>
                 </td>
                 <td rowspan="2" style="vertical-align: top;"><br><br>
-                    <p><?php echo $ors_form['amount']; ?></p>
+                    <p>₱<?php echo number_format((float) $ors_form['amount'], 2, '.', ','); ?></p>
                 </td>
             </tr>
 
@@ -228,7 +228,7 @@ if (isset($_GET['ors_no'])) {
                 <td></td>
                 <td></td>
                 <td>
-                    <p><?php echo $ors_form['amount']; ?></p>
+                    <p>₱<?php echo number_format((float) $ors_form['amount'], 2, '.', ','); ?></p>
                 </td>
             </tr>
 
@@ -297,18 +297,19 @@ if (isset($_GET['ors_no'])) {
             </tr>
             <tr>
                 <td>
-                    <p><?php echo $ors_form['date']; ?></p>
+                    <p>Date: <br> <b><?php echo date('F d, Y'); ?></b></p>
+
                 </td>
                 <td>Representation Expenses</td>
                 <td>ADMIN&POLICY-25-02-008</td>
                 <td>
-                    <p><?php echo $ors_form['amount']; ?></p>
+                    <p>₱<?php echo number_format((float) $ors_form['amount'], 2, '.', ','); ?></p>
                 </td>
                 <td>
-                    <p><?php echo $ors_form['amount']; ?></p>
+                    <p>₱<?php echo number_format((float) $ors_form['amount'], 2, '.', ','); ?></p>
                 </td>
                 <td>
-                    <p><?php echo $ors_form['amount']; ?></p>
+                    <p>₱<?php echo number_format((float) $ors_form['amount'], 2, '.', ','); ?></p>
                 </td>
                 <td></td>
                 <td></td>

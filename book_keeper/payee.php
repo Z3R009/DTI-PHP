@@ -6,11 +6,12 @@ include '../DBConnection.php';
 if (isset($_POST['submit'])) {
     $payee_name = $_POST['payee_name'];
     $tin_no = $_POST['tin_no'];
+    $bank_acc_no = $_POST['bank_acc_no'];
     $address = $_POST['address'];
 
-    $sql = "INSERT INTO payee (payee_name, tin_no, address) VALUES (?, ?, ?)";
+    $sql = "INSERT INTO payee (payee_name, tin_no, bank_acc_no, address) VALUES (?, ?, ?, ?)";
     $stmt = $connection->prepare($sql);
-    $stmt->bind_param("sss", $payee_name, $tin_no, $address);
+    $stmt->bind_param("ssis", $payee_name, $tin_no, $bank_acc_no, $address);
 
     if ($stmt->execute()) {
         header('Location: payee.php');
@@ -69,8 +70,8 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
 
 <body>
 
-    <?php include "Includes/header.php";?>
-    <?php include "Includes/sidebar.php";?>
+    <?php include "Includes/header.php"; ?>
+    <?php include "Includes/sidebar.php"; ?>
 
     <main id="main" class="main">
 
@@ -110,8 +111,13 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                                         </div>
                                         <div class="mb-3">
                                             <label for="tin_no" class="form-label">TIN/Employee No.</label>
-                                            <input type="text" class="form-control" id="tin_no"
-                                                name="tin_no" placeholder="Enter TIN/Employee No." required
+                                            <input type="text" class="form-control" id="tin_no" name="tin_no"
+                                                placeholder="Enter TIN/Employee No." required autocomplete="off">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="bank_acc_no" class="form-label">Bank Account No.</label>
+                                            <input type="number" class="form-control" id="bank_acc_no"
+                                                name="bank_acc_no" placeholder="Enter Bank Account No." required
                                                 autocomplete="off">
                                         </div>
                                         <div class="mb-3">
@@ -140,6 +146,7 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                             <tr>
                                 <th>Payee Name</th>
                                 <th>TIN/Employee No.</th>
+                                <th>Bank Account No.</th>
                                 <th>Address</th>
                                 <th></th>
                             </tr>
@@ -149,17 +156,18 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                                 <tr>
                                     <td><?php echo htmlspecialchars($row['payee_name']); ?></td>
                                     <td><?php echo htmlspecialchars($row['tin_no']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['bank_acc_no']); ?></td>
                                     <td><?php echo htmlspecialchars($row['address']); ?></td>
                                     <td>
-                                    <button type="button" class="btn btn-primary edit-btn"
-    data-bs-toggle="modal" 
-    data-bs-target="#editUserModal"
-    data-id="<?php echo $row['payee_id']; ?>"
-    data-payee_name="<?= htmlspecialchars($row['payee_name']); ?>"
-    data-tin_no="<?= htmlspecialchars($row['tin_no']); ?>"
-    data-address="<?= htmlspecialchars($row['address']); ?>">
-    <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"></i>
-</button>
+                                        <button type="button" class="btn btn-primary edit-btn" data-bs-toggle="modal"
+                                            data-bs-target="#editUserModal" data-id="<?php echo $row['payee_id']; ?>"
+                                            data-payee_name="<?= htmlspecialchars($row['payee_name']); ?>"
+                                            data-tin_no="<?= htmlspecialchars($row['tin_no']); ?>"
+                                            data-bank_acc_no="<?= htmlspecialchars($row['bank_acc_no']); ?>"
+                                            data-address="<?= htmlspecialchars($row['address']); ?>">
+                                            <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top"
+                                                title="Edit"></i>
+                                        </button>
 
 
                                         <button type="button" class="btn btn-danger"
@@ -182,36 +190,40 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
     <!-- update modal -->
 
     <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editUserModalLabel">Edit Payee</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form method="post" id="editUserForm" action="update_payee.php" >
-                    <input type="hidden" id="edit_payee_id" name="payee_id">
-                    <div class="mb-3">
-                        <label for="edit_payee_name" class="form-label">Payee Name</label>
-                        <input type="text" class="form-control" id="edit_payee_name" name="payee_name" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="edit_tin_no" class="form-label">TIN/Employee No.</label>
-                        <input type="text" class="form-control" id="edit_tin_no" name="tin_no" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="edit_address" class="form-label">Address</label>
-                        <input type="text" class="form-control" id="edit_address" name="address" required>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" id="update" name="update" class="btn btn-primary">Update</button>
-                    </div>
-                </form>
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editUserModalLabel">Edit Payee</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" id="editUserForm" action="update_payee.php">
+                        <input type="hidden" id="edit_payee_id" name="payee_id">
+                        <div class="mb-3">
+                            <label for="edit_payee_name" class="form-label">Payee Name</label>
+                            <input type="text" class="form-control" id="edit_payee_name" name="payee_name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_tin_no" class="form-label">TIN/Employee No.</label>
+                            <input type="text" class="form-control" id="edit_tin_no" name="tin_no" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_bank_acc_no" class="form-label">Bank Account No.</label>
+                            <input type="number" class="form-control" id="edit_bank_acc_no" name="bank_acc_no" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_address" class="form-label">Address</label>
+                            <input type="text" class="form-control" id="edit_address" name="address" required>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" id="update" name="update" class="btn btn-primary">Update</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
 
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
@@ -231,27 +243,29 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
     <script src="../NiceAdmin/assets/js/main.js"></script>
 
     <script>
-document.addEventListener("DOMContentLoaded", function() {
-    const editButtons = document.querySelectorAll(".edit-btn");
+        document.addEventListener("DOMContentLoaded", function () {
+            const editButtons = document.querySelectorAll(".edit-btn");
 
-    editButtons.forEach(button => {
-        button.addEventListener("click", function() {
-            const id = this.getAttribute("data-id");
-            const payee_name = this.getAttribute("data-payee_name");
-            const tin_no = this.getAttribute("data-tin_no");
-            const address = this.getAttribute("data-address");
+            editButtons.forEach(button => {
+                button.addEventListener("click", function () {
+                    const id = this.getAttribute("data-id");
+                    const payee_name = this.getAttribute("data-payee_name");
+                    const tin_no = this.getAttribute("data-tin_no");
+                    const bank_acc_no = this.getAttribute("data-bank_acc_no");
+                    const address = this.getAttribute("data-address");
 
-            document.getElementById("edit_payee_id").value = id;
-            document.getElementById("edit_payee_name").value = payee_name;
-            document.getElementById("edit_tin_no").value = tin_no;
-            document.getElementById("edit_address").value = address;
+                    document.getElementById("edit_payee_id").value = id;
+                    document.getElementById("edit_payee_name").value = payee_name;
+                    document.getElementById("edit_tin_no").value = tin_no;
+                    document.getElementById("edit_bank_acc_no").value = bank_acc_no;
+                    document.getElementById("edit_address").value = address;
+                });
+            });
         });
-    });
-});
-</script>
+    </script>
 
- <!-- delete -->
- <script>
+    <!-- delete -->
+    <script>
         function deleteUser(userID) {
             if (confirm("Are you sure you want to delete this user?")) {
                 window.location.href = 'delete_payee.php?payee_id=' + userID + '&confirm=yes';
