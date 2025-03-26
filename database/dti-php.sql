@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 22, 2025 at 02:19 PM
+-- Generation Time: Mar 26, 2025 at 10:05 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,6 +20,26 @@ SET time_zone = "+00:00";
 --
 -- Database: `dti-php`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `account_title`
+--
+
+CREATE TABLE `account_title` (
+  `account_id` int(11) NOT NULL,
+  `account_title` varchar(255) NOT NULL,
+  `account_code` varchar(15) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `account_title`
+--
+
+INSERT INTO `account_title` (`account_id`, `account_title`, `account_code`) VALUES
+(1, 'Water Expenses', '5020401000'),
+(3, 'Cash - Collecting Officer', '1010101000');
 
 -- --------------------------------------------------------
 
@@ -258,7 +278,8 @@ INSERT INTO `financial_object_code` (`object_code_id`, `object_name`, `submodule
 (149, ' Finished Goods Inventory', 67, 10403030, 'Active'),
 (150, 'Allowance for Impairment - Finished Goods Inventory ', 67, 10403032, 'Active'),
 (152, 'Representation Expenses', 97, 50299030, 'Active'),
-(153, 'Advances for Payroll', 92, 19901020, 'Active');
+(153, 'Advances for Payroll', 92, 19901020, 'Active'),
+(154, ' Water Expenses', 98, 50204010, 'Active');
 
 -- --------------------------------------------------------
 
@@ -286,7 +307,8 @@ INSERT INTO `financial_subcategories` (`subcategory_id`, `subcategory_name`, `ca
 (12, 'Biological Assets', 1),
 (13, 'Intangible Assets', 1),
 (14, 'Other Assets', 1),
-(17, 'Personnel Services', 5);
+(17, 'Personnel Services', 5),
+(18, 'Maintenance and Other Operating Expenses', 5);
 
 -- --------------------------------------------------------
 
@@ -353,7 +375,8 @@ INSERT INTO `financial_submodules` (`submodule_id`, `submodule_name`, `subcatego
 (94, 'Deposits', 14),
 (95, 'Deferred Charges', 14),
 (96, 'Cash in Bank - Local Currency', 1),
-(97, 'Other Maintenance and Operating Expenses', 17);
+(97, 'Other Maintenance and Operating Expenses', 17),
+(98, 'Utility Expenses', 18);
 
 -- --------------------------------------------------------
 
@@ -384,28 +407,6 @@ INSERT INTO `fund_cluster` (`fund_cluster_id`, `fund_cluster_name`, `uacs_code`,
 -- --------------------------------------------------------
 
 --
--- Table structure for table `gas_allotment`
---
-
-CREATE TABLE `gas_allotment` (
-  `gas_id` int(11) NOT NULL,
-  `project` varchar(255) NOT NULL,
-  `uacs_code` varchar(255) NOT NULL,
-  `allotment` double(40,2) NOT NULL,
-  `balances` double(40,2) NOT NULL DEFAULT 0.00
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `gas_allotment`
---
-
-INSERT INTO `gas_allotment` (`gas_id`, `project`, `uacs_code`, `allotment`, `balances`) VALUES
-(1, 'Travelling Expense - LOCAL ', '50201010-00', 1562000.00, 0.00),
-(4, 'Training Expenses', '50202010-00', 800000.00, 0.00);
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `jev`
 --
 
@@ -423,114 +424,23 @@ CREATE TABLE `jev` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `oo1_allotment`
+-- Table structure for table `obligation_history`
 --
 
-CREATE TABLE `oo1_allotment` (
-  `oo1_id` int(11) NOT NULL,
-  `project` varchar(255) NOT NULL,
-  `uacs_code` varchar(255) NOT NULL,
-  `allotment` double(40,2) NOT NULL,
-  `balances` double(40,2) NOT NULL
+CREATE TABLE `obligation_history` (
+  `id` int(11) NOT NULL,
+  `ors_id` int(255) NOT NULL,
+  `project_id` int(255) NOT NULL,
+  `net` double(40,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- --------------------------------------------------------
-
 --
--- Table structure for table `oo2_allotment`
+-- Dumping data for table `obligation_history`
 --
 
-CREATE TABLE `oo2_allotment` (
-  `oo2_id` int(11) NOT NULL,
-  `project` varchar(255) NOT NULL,
-  `uacs_code` varchar(255) NOT NULL,
-  `allotment` double(40,2) NOT NULL,
-  `balances` double(40,2) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `oo3_1_allotment`
---
-
-CREATE TABLE `oo3_1_allotment` (
-  `oo3_1_id` int(11) NOT NULL,
-  `project` varchar(255) NOT NULL,
-  `uacs_code` varchar(255) NOT NULL,
-  `allotment` double(40,2) NOT NULL,
-  `balances` double(40,2) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `oo3_2_allotment`
---
-
-CREATE TABLE `oo3_2_allotment` (
-  `oo3_2_id` int(11) NOT NULL,
-  `project` varchar(255) NOT NULL,
-  `uacs_code` varchar(255) NOT NULL,
-  `allotment` double(40,2) NOT NULL,
-  `balances` double(40,2) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `oo3_3_allotment`
---
-
-CREATE TABLE `oo3_3_allotment` (
-  `oo3_3_id` int(11) NOT NULL,
-  `project` varchar(255) NOT NULL,
-  `uacs_code` varchar(255) NOT NULL,
-  `allotment` double(40,2) NOT NULL,
-  `balances` double(40,2) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `oo3_allotment`
---
-
-CREATE TABLE `oo3_allotment` (
-  `oo3_id` int(11) NOT NULL,
-  `project` varchar(255) NOT NULL,
-  `uacs_code` varchar(255) NOT NULL,
-  `allotment` double(40,2) NOT NULL,
-  `balances` double(40,2) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `oo4_1_1_allotment`
---
-
-CREATE TABLE `oo4_1_1_allotment` (
-  `oo4_1_1_id` int(11) NOT NULL,
-  `project` varchar(255) NOT NULL,
-  `uacs_code` varchar(255) NOT NULL,
-  `allotment` double(40,2) NOT NULL,
-  `balances` double(40,2) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `oo4_1_2_allotment`
---
-
-CREATE TABLE `oo4_1_2_allotment` (
-  `oo4_1_2_id` int(11) NOT NULL,
-  `project` varchar(255) NOT NULL,
-  `uacs_code` varchar(255) NOT NULL,
-  `allotment` double(40,2) NOT NULL,
-  `balances` double(40,2) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+INSERT INTO `obligation_history` (`id`, `ors_id`, `project_id`, `net`) VALUES
+(2, 41, 29, 1.00),
+(3, 42, 29, 1.00);
 
 -- --------------------------------------------------------
 
@@ -572,10 +482,11 @@ CREATE TABLE `ors` (
   `ors_no` varchar(255) NOT NULL,
   `payee_id` int(255) NOT NULL,
   `notes` varchar(255) NOT NULL,
+  `purpose` varchar(255) NOT NULL,
   `rc_id` int(255) NOT NULL,
-  `object_code_id` int(255) NOT NULL,
+  `account_id` int(255) NOT NULL,
   `oopap_id` int(255) NOT NULL,
-  `amount` double(40,2) NOT NULL,
+  `total_amount` double(40,2) NOT NULL,
   `approver_id` int(255) NOT NULL,
   `budget_officer` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -584,10 +495,12 @@ CREATE TABLE `ors` (
 -- Dumping data for table `ors`
 --
 
-INSERT INTO `ors` (`ors_id`, `fund_cluster_id`, `date`, `ors_no`, `payee_id`, `notes`, `rc_id`, `object_code_id`, `oopap_id`, `amount`, `approver_id`, `budget_officer`) VALUES
-(24, 4, '2025-03-19', '123-456', 5, 'payment', 11, 43, 4, 1000.00, 4, 'CONNIE M. BARNACHEA'),
-(25, 8, '2025-03-13', '9909-99', 5, 'Transfer', 4, 59, 4, 1650.00, 4, 'CONNIE M. BARNACHEA'),
-(26, 3, '2025-03-06', '12334342', 5, 'acs casedca', 3, 7, 3, 123.00, 2, 'CONNIE M. BARNACHEA');
+INSERT INTO `ors` (`ors_id`, `fund_cluster_id`, `date`, `ors_no`, `payee_id`, `notes`, `purpose`, `rc_id`, `account_id`, `oopap_id`, `total_amount`, `approver_id`, `budget_officer`) VALUES
+(32, 3, '2025-03-12', 'RM-25-03-009', 6, 'Payment of water expense', 'To Payment of', 1, 1, 1, 10000.00, 5, 'CONNIE M. BARNACHEA'),
+(38, 3, '2025-03-26', '123', 6, 's', 'To Payment of', 3, 1, 1, 111.00, 5, 'CONNIE M. BARNACHEA'),
+(39, 3, '2025-03-26', '88888', 6, '888', 'To Payment of', 10, 1, 1, 88.00, 4, 'CONNIE M. BARNACHEA'),
+(41, 3, '2025-03-06', '4444', 6, '44', 'To Payment of', 11, 1, 1, 1.00, 1, 'CONNIE M. BARNACHEA'),
+(42, 3, '2025-03-19', '111', 6, '111', 'To Payment of', 5, 1, 1, 1.00, 3, 'CONNIE M. BARNACHEA');
 
 -- --------------------------------------------------------
 
@@ -599,6 +512,7 @@ CREATE TABLE `payee` (
   `payee_id` int(11) NOT NULL,
   `payee_name` varchar(255) NOT NULL,
   `tin_no` varchar(255) NOT NULL,
+  `bank_acc_no` int(30) NOT NULL,
   `address` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -606,8 +520,33 @@ CREATE TABLE `payee` (
 -- Dumping data for table `payee`
 --
 
-INSERT INTO `payee` (`payee_id`, `payee_name`, `tin_no`, `address`) VALUES
-(5, 'CINCO NIÑAS RESTO', '123-456', 'CITY OF KORONADAL');
+INSERT INTO `payee` (`payee_id`, `payee_name`, `tin_no`, `bank_acc_no`, `address`) VALUES
+(5, 'CINCO NIÑAS RESTO', '123-456', 123456789, 'CITY OF KORONADAL'),
+(6, 'CITY OF KORONADAL WATER DISTRICT', '234-678', 34509684, 'CITY OF KORONADAL');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `project`
+--
+
+CREATE TABLE `project` (
+  `project_id` int(11) NOT NULL,
+  `oopap_id` int(11) NOT NULL,
+  `account_id` int(15) NOT NULL,
+  `allotment` double(40,2) NOT NULL,
+  `balances` double(40,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `project`
+--
+
+INSERT INTO `project` (`project_id`, `oopap_id`, `account_id`, `allotment`, `balances`) VALUES
+(29, 1, 1, 12000.00, 11998.00),
+(34, 2, 1, 123.00, 123.00),
+(48, 1, 3, 1000.00, 1000.00),
+(49, 3, 3, 111.00, 111.00);
 
 -- --------------------------------------------------------
 
@@ -666,7 +605,7 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`user_id`, `fullname`, `username`, `password`, `role`, `created_at`, `updated_at`) VALUES
 (175710936, 'f', '', '$2y$10$A/PawVthwn7iKveGnxdNoOCuWZU4ZVUSD.8NNKPjc6rD0dsOA0NEy', '', NULL, NULL),
 (194886581, '', '', '$2y$10$mfLfGhypXKIWT3EFzlYiaOBFVnMLQkJNYcGyEDLI8aCJM9rTCTzde', '', NULL, NULL),
-(251897568, 'test', 'test', '$2y$10$GQCP8D/nSPG/Xl8CqaaTXuHI53eSmhxRXMVv6NDFFsP65jerOma6S', 'Admin', NULL, NULL),
+(355348792, 'admin', 'admin', '$2y$10$9leHAHoC6pYrDImgzPc19uJJqHmYHfVE5OMLSjYmQDo9Jrg6ViOem', 'Admin', NULL, NULL),
 (401635458, 'CA', 'CA', '$2y$10$skFllfT75nxiPhKzbP1B1OK1GXmSnv1EaZWN1HlYSJDqqKF2OuwUO', 'Chief Accountant', NULL, NULL),
 (443457611, '', '', '$2y$10$XMMYeo9x57ObW5bJsr1i1.jdmOfEGfQM7.KpFST8vaK/jJ6841etq', '', NULL, NULL),
 (484343948, '', '', '$2y$10$OCCPISPjKmpRVnPtZOTsiu.J1gBMPogfhGolD1gFwP3.rAwSsphXm', '', NULL, NULL),
@@ -681,6 +620,12 @@ INSERT INTO `users` (`user_id`, `fullname`, `username`, `password`, `role`, `cre
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `account_title`
+--
+ALTER TABLE `account_title`
+  ADD PRIMARY KEY (`account_id`);
 
 --
 -- Indexes for table `approver`
@@ -730,12 +675,6 @@ ALTER TABLE `fund_cluster`
   ADD PRIMARY KEY (`fund_cluster_id`);
 
 --
--- Indexes for table `gas_allotment`
---
-ALTER TABLE `gas_allotment`
-  ADD PRIMARY KEY (`gas_id`);
-
---
 -- Indexes for table `jev`
 --
 ALTER TABLE `jev`
@@ -743,52 +682,11 @@ ALTER TABLE `jev`
   ADD KEY `dv_id` (`dv_id`);
 
 --
--- Indexes for table `oo1_allotment`
+-- Indexes for table `obligation_history`
 --
-ALTER TABLE `oo1_allotment`
-  ADD PRIMARY KEY (`oo1_id`);
-
---
--- Indexes for table `oo2_allotment`
---
-ALTER TABLE `oo2_allotment`
-  ADD PRIMARY KEY (`oo2_id`);
-
---
--- Indexes for table `oo3_1_allotment`
---
-ALTER TABLE `oo3_1_allotment`
-  ADD PRIMARY KEY (`oo3_1_id`);
-
---
--- Indexes for table `oo3_2_allotment`
---
-ALTER TABLE `oo3_2_allotment`
-  ADD PRIMARY KEY (`oo3_2_id`);
-
---
--- Indexes for table `oo3_3_allotment`
---
-ALTER TABLE `oo3_3_allotment`
-  ADD PRIMARY KEY (`oo3_3_id`);
-
---
--- Indexes for table `oo3_allotment`
---
-ALTER TABLE `oo3_allotment`
-  ADD PRIMARY KEY (`oo3_id`);
-
---
--- Indexes for table `oo4_1_1_allotment`
---
-ALTER TABLE `oo4_1_1_allotment`
-  ADD PRIMARY KEY (`oo4_1_1_id`);
-
---
--- Indexes for table `oo4_1_2_allotment`
---
-ALTER TABLE `oo4_1_2_allotment`
-  ADD PRIMARY KEY (`oo4_1_2_id`);
+ALTER TABLE `obligation_history`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `ors_id` (`ors_id`);
 
 --
 -- Indexes for table `oopap`
@@ -803,7 +701,7 @@ ALTER TABLE `ors`
   ADD PRIMARY KEY (`ors_id`),
   ADD KEY `fund_cluster_id` (`fund_cluster_id`),
   ADD KEY `rs_id` (`rc_id`),
-  ADD KEY `object_code_id` (`object_code_id`),
+  ADD KEY `object_code_id` (`account_id`),
   ADD KEY `approver_id` (`approver_id`),
   ADD KEY `oopap_id` (`oopap_id`),
   ADD KEY `payee_id` (`payee_id`);
@@ -813,6 +711,14 @@ ALTER TABLE `ors`
 --
 ALTER TABLE `payee`
   ADD PRIMARY KEY (`payee_id`);
+
+--
+-- Indexes for table `project`
+--
+ALTER TABLE `project`
+  ADD PRIMARY KEY (`project_id`),
+  ADD KEY `oopap_id` (`oopap_id`),
+  ADD KEY `account_id` (`account_id`);
 
 --
 -- Indexes for table `responsibility_center`
@@ -829,6 +735,12 @@ ALTER TABLE `users`
 --
 -- AUTO_INCREMENT for dumped tables
 --
+
+--
+-- AUTO_INCREMENT for table `account_title`
+--
+ALTER TABLE `account_title`
+  MODIFY `account_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `approver`
@@ -852,19 +764,19 @@ ALTER TABLE `financial_categories`
 -- AUTO_INCREMENT for table `financial_object_code`
 --
 ALTER TABLE `financial_object_code`
-  MODIFY `object_code_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=154;
+  MODIFY `object_code_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=156;
 
 --
 -- AUTO_INCREMENT for table `financial_subcategories`
 --
 ALTER TABLE `financial_subcategories`
-  MODIFY `subcategory_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `subcategory_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `financial_submodules`
 --
 ALTER TABLE `financial_submodules`
-  MODIFY `submodule_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=98;
+  MODIFY `submodule_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=99;
 
 --
 -- AUTO_INCREMENT for table `fund_cluster`
@@ -873,64 +785,16 @@ ALTER TABLE `fund_cluster`
   MODIFY `fund_cluster_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
--- AUTO_INCREMENT for table `gas_allotment`
---
-ALTER TABLE `gas_allotment`
-  MODIFY `gas_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
-
---
 -- AUTO_INCREMENT for table `jev`
 --
 ALTER TABLE `jev`
   MODIFY `jev_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
--- AUTO_INCREMENT for table `oo1_allotment`
+-- AUTO_INCREMENT for table `obligation_history`
 --
-ALTER TABLE `oo1_allotment`
-  MODIFY `oo1_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT for table `oo2_allotment`
---
-ALTER TABLE `oo2_allotment`
-  MODIFY `oo2_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `oo3_1_allotment`
---
-ALTER TABLE `oo3_1_allotment`
-  MODIFY `oo3_1_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `oo3_2_allotment`
---
-ALTER TABLE `oo3_2_allotment`
-  MODIFY `oo3_2_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `oo3_3_allotment`
---
-ALTER TABLE `oo3_3_allotment`
-  MODIFY `oo3_3_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `oo3_allotment`
---
-ALTER TABLE `oo3_allotment`
-  MODIFY `oo3_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `oo4_1_1_allotment`
---
-ALTER TABLE `oo4_1_1_allotment`
-  MODIFY `oo4_1_1_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT for table `oo4_1_2_allotment`
---
-ALTER TABLE `oo4_1_2_allotment`
-  MODIFY `oo4_1_2_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+ALTER TABLE `obligation_history`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `oopap`
@@ -942,13 +806,19 @@ ALTER TABLE `oopap`
 -- AUTO_INCREMENT for table `ors`
 --
 ALTER TABLE `ors`
-  MODIFY `ors_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `ors_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
 
 --
 -- AUTO_INCREMENT for table `payee`
 --
 ALTER TABLE `payee`
-  MODIFY `payee_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `payee_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT for table `project`
+--
+ALTER TABLE `project`
+  MODIFY `project_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
 
 --
 -- AUTO_INCREMENT for table `responsibility_center`
@@ -998,6 +868,12 @@ ALTER TABLE `jev`
   ADD CONSTRAINT `jev_ibfk_1` FOREIGN KEY (`dv_id`) REFERENCES `dv` (`dv_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
+-- Constraints for table `obligation_history`
+--
+ALTER TABLE `obligation_history`
+  ADD CONSTRAINT `obligation_history_ibfk_1` FOREIGN KEY (`ors_id`) REFERENCES `ors` (`ors_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
 -- Constraints for table `ors`
 --
 ALTER TABLE `ors`
@@ -1005,8 +881,15 @@ ALTER TABLE `ors`
   ADD CONSTRAINT `ors_ibfk_2` FOREIGN KEY (`rc_id`) REFERENCES `responsibility_center` (`rc_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `ors_ibfk_4` FOREIGN KEY (`approver_id`) REFERENCES `approver` (`approver_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `ors_ibfk_5` FOREIGN KEY (`oopap_id`) REFERENCES `oopap` (`oopap_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `ors_ibfk_6` FOREIGN KEY (`object_code_id`) REFERENCES `financial_object_code` (`object_code_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `ors_ibfk_7` FOREIGN KEY (`payee_id`) REFERENCES `payee` (`payee_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `ors_ibfk_7` FOREIGN KEY (`payee_id`) REFERENCES `payee` (`payee_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `ors_ibfk_8` FOREIGN KEY (`account_id`) REFERENCES `account_title` (`account_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `project`
+--
+ALTER TABLE `project`
+  ADD CONSTRAINT `project_ibfk_1` FOREIGN KEY (`oopap_id`) REFERENCES `oopap` (`oopap_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `project_ibfk_2` FOREIGN KEY (`account_id`) REFERENCES `account_title` (`account_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
