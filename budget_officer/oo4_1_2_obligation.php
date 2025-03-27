@@ -11,12 +11,13 @@ $select = mysqli_query(
             ors.ors_no, 
             ors.payee_id, 
             ors.notes, 
+            ors.total_amount,
             payee.payee_name 
      FROM obligation_history 
      LEFT JOIN ors ON obligation_history.ors_id = ors.ors_id 
      LEFT JOIN payee ON ors.payee_id = payee.payee_id
-     WHERE oopap_id = 9
-     "
+     WHERE oopap_id = 9" .
+    (isset($_GET['month']) ? " AND MONTH(ors.date) = " . intval($_GET['month']) : "")
 );
 
 
@@ -27,6 +28,11 @@ $select = mysqli_query(
 $total_allotment_query = "SELECT SUM(allotment) AS total_allotment FROM project WHERE oopap_id = 9";
 $total_allotment_result = mysqli_query($connection, $total_allotment_query);
 $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'];
+
+// Fetch total balances
+$total_balances_query = "SELECT SUM(balances) AS total_balances FROM project WHERE oopap_id = 9";
+$total_balances_result = mysqli_query($connection, $total_balances_query);
+$total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
 ?>
 
 <!DOCTYPE html>
@@ -76,14 +82,50 @@ $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'
         </div><!-- End Page Title -->
 
         <section class="section dashboard">
-
-            <!-- Total Allotment Card -->
-            <div class="card bg-white text-dark mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Total Allotment</h5>
-                    <h3 class="card-text">₱<?php echo number_format($total_allotment, 2); ?></h3>
+            <!-- Month Selection -->
+            <div class="row mb-3">
+                <div class="col-12 d-flex justify-content-end">
+                    <div style="width: 200px;">
+                        <select class="form-select" id="monthSelect" onchange="filterByMonth(this.value)">
+                            <option value="">All Months</option>
+                            <option value="1" <?php echo (isset($_GET['month']) && $_GET['month'] == '1') ? 'selected' : ''; ?>>January</option>
+                            <option value="2" <?php echo (isset($_GET['month']) && $_GET['month'] == '2') ? 'selected' : ''; ?>>February</option>
+                            <option value="3" <?php echo (isset($_GET['month']) && $_GET['month'] == '3') ? 'selected' : ''; ?>>March</option>
+                            <option value="4" <?php echo (isset($_GET['month']) && $_GET['month'] == '4') ? 'selected' : ''; ?>>April</option>
+                            <option value="5" <?php echo (isset($_GET['month']) && $_GET['month'] == '5') ? 'selected' : ''; ?>>May</option>
+                            <option value="6" <?php echo (isset($_GET['month']) && $_GET['month'] == '6') ? 'selected' : ''; ?>>June</option>
+                            <option value="7" <?php echo (isset($_GET['month']) && $_GET['month'] == '7') ? 'selected' : ''; ?>>July</option>
+                            <option value="8" <?php echo (isset($_GET['month']) && $_GET['month'] == '8') ? 'selected' : ''; ?>>August</option>
+                            <option value="9" <?php echo (isset($_GET['month']) && $_GET['month'] == '9') ? 'selected' : ''; ?>>September</option>
+                            <option value="10" <?php echo (isset($_GET['month']) && $_GET['month'] == '10') ? 'selected' : ''; ?>>October</option>
+                            <option value="11" <?php echo (isset($_GET['month']) && $_GET['month'] == '11') ? 'selected' : ''; ?>>November</option>
+                            <option value="12" <?php echo (isset($_GET['month']) && $_GET['month'] == '12') ? 'selected' : ''; ?>>December</option>
+                        </select>
+                    </div>
                 </div>
             </div>
+
+            <div class="row">
+                <!-- Total Allotment Card -->
+                <div class="col-md-6">
+                    <div class="card bg-white text-dark mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Allotment</h5>
+                            <h3 class="card-text">₱<?php echo number_format($total_allotment, 2); ?></h3>
+                        </div>
+                    </div>
+                </div>
+                <!-- Total Balances Card -->
+                <div class="col-md-6">
+                    <div class="card bg-white text-dark mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Balances</h5>
+                            <h3 class="card-text">₱<?php echo number_format($total_balances, 2); ?></h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="card">
                 <div class="card-body">
 
@@ -174,6 +216,16 @@ $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'
 
     <!-- Template Main JS File -->
     <script src="../NiceAdmin/assets/js/main.js"></script>
+
+    <script>
+        function filterByMonth(month) {
+            if (month) {
+                window.location.href = 'oo4_1_2_obligation.php?month=' + month;
+            } else {
+                window.location.href = 'oo4_1_2_obligation.php';
+            }
+        }
+    </script>
 
 </body>
 

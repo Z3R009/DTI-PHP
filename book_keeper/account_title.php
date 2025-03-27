@@ -8,21 +8,30 @@ if (isset($_POST['submit'])) {
     $account_title = $_POST['account_title'];
     $account_code = $_POST['account_code'];
 
-
-    $sql = "INSERT INTO account_title (account_title, account_code) VALUES (?, ?)";
-    $stmt = $connection->prepare($sql);
-    $stmt->bind_param("si", $account_title, $account_code);
-
-    if ($stmt->execute()) {
-        header('Location: account_title.php');
+    // Check for duplicates
+    $check_duplicate = mysqli_query($connection, "SELECT * FROM account_title WHERE account_title = '$account_title' OR account_code = '$account_code'");
+    
+    if (mysqli_num_rows($check_duplicate) > 0) {
+        echo "<script>
+            alert('Error: Account Title or Account Code already exists!');
+            window.location.href='account_title.php';
+        </script>";
     } else {
-        echo "Error: " . $stmt->error;
+        $sql = "INSERT INTO account_title (account_title, account_code) VALUES (?, ?)";
+        $stmt = $connection->prepare($sql);
+        $stmt->bind_param("si", $account_title, $account_code);
+
+        if ($stmt->execute()) {
+            header('Location: account_title.php');
+        } else {
+            echo "Error: " . $stmt->error;
+        }
     }
 }
 
 
 // retrieve 
-$select = mysqli_query($connection, "SELECT * FROM account_title ");
+$select = mysqli_query($connection, "SELECT * FROM account_title ORDER BY CAST(account_code AS UNSIGNED)");
 ?>
 
 

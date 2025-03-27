@@ -774,9 +774,9 @@ $select = mysqli_query($connection, "
             </div>
             <!-- ORS Type Selection -->
             <div class="form-group">
-                <label class="form-label">Select ORS Type</label>
+                <label class="form-label">Select DV Type</label>
                 <select class="form-control" id="ors_type">
-                    <option value="" selected disabled>Select ORS Type</option>
+                    <option value="" selected disabled>Select DV Type</option>
                     <option value="cash_advance">Cash Advance</option>
                     <option value="transfer_fund">Transfer of Fund</option>
                 </select>
@@ -961,35 +961,23 @@ $select = mysqli_query($connection, "
                                         <tbody id="accountingTableBody">
                                             <tr>
                                                 <td>
-                                                    <select class="form-control">
-                                                        <option>Select Account</option>
-                                                        <option>Supplies Expense</option>
-                                                        <option>Traveling Expenses - Local</option>
-                                                        <option>Representation Expenses</option>
-                                                        <option>Accounts Payable</option>
+                                                    <select class="form-control account-select" name="account_titles[]">
+                                                        <option value="">Select Account</option>
+                                                        <?php
+                                                        $account_query = "SELECT * FROM account_title";
+                                                        $account_result = $connection->query($account_query);
+                                                        while ($account = $account_result->fetch_assoc()) {
+                                                            echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "'>" . $account['account_title'] . " - " . $account['account_code'] . "</option>";
+                                                        }
+                                                        ?>
                                                     </select>
                                                 </td>
-                                                <td><input type="text" class="form-control"></td>
-                                                <td><input type="number" class="form-control debit-amount" step="0.01"
-                                                        onchange="calculateTotals()"></td>
-                                                <td><input type="number" class="form-control credit-amount" step="0.01"
-                                                        onchange="calculateTotals()"></td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    <select class="form-control">
-                                                        <option>Select Account</option>
-                                                        <option>Supplies Expense</option>
-                                                        <option>Traveling Expenses - Local</option>
-                                                        <option>Representation Expenses</option>
-                                                        <option>Accounts Payable</option>
-                                                    </select>
-                                                </td>
-                                                <td><input type="text" class="form-control"></td>
-                                                <td><input type="number" class="form-control debit-amount" step="0.01"
-                                                        onchange="calculateTotals()"></td>
-                                                <td><input type="number" class="form-control credit-amount" step="0.01"
-                                                        onchange="calculateTotals()"></td>
+                                                <td><input type="text" class="form-control uacs-code"
+                                                        name="uacs_codes[]" readonly></td>
+                                                <td><input type="number" class="form-control debit-amount"
+                                                        name="debit_amounts[]" step="0.01"></td>
+                                                <td><input type="number" class="form-control credit-amount"
+                                                        name="credit_amounts[]" step="0.01"></td>
                                             </tr>
                                         </tbody>
                                         <tfoot>
@@ -1090,7 +1078,7 @@ $select = mysqli_query($connection, "
                             // Trigger calculations after populating data
                             calculate(); // Add this line to trigger calculation
                             generateDVNumber();
-                            
+
                             modal.style.display = 'block';
                         })
                         .catch(error => console.error('Error fetching ORS details:', error));
@@ -1156,7 +1144,7 @@ $select = mysqli_query($connection, "
             const tax2Input = document.getElementById("tax_2");
             const netAmountInput = document.getElementById("net_amount");
 
-            calculate = function() { // Assign calculate function to the wider scope variable
+            calculate = function () { // Assign calculate function to the wider scope variable
                 const grossAmount = parseFloat(amountInput.value) || 0;
 
                 if (applyTaxesCheckbox.checked) {
@@ -1164,18 +1152,18 @@ $select = mysqli_query($connection, "
                     // VAT calculation (12% of gross)
                     const vatPercentage = 12;
                     const vatAmount = (grossAmount * vatPercentage) / (100 + vatPercentage);
-                    
+
                     // Tax base is gross minus VAT
                     const taxBase = grossAmount - vatAmount;
-                    
+
                     // Calculate 5% and 2% from tax base
                     const tax1Amount = taxBase * 0.05; // 5% with VAT
                     const tax2Amount = taxBase * 0.02; // 2% with VAT
-                    
+
                     // Update tax percentage displays
                     tax1PercentageInput.value = "5";
                     tax2PercentageInput.value = "2";
-                    
+
                     // Net amount is gross amount minus the sum of taxes
                     const totalTaxes = tax1Amount + tax2Amount;
                     const netAmount = grossAmount - totalTaxes;
@@ -1193,7 +1181,7 @@ $select = mysqli_query($connection, "
                     // Without VAT - use 3% and 1% tax rates
                     const tax1Amount = grossAmount * 0.03; // 3% without VAT
                     const tax2Amount = grossAmount * 0.01; // 1% without VAT
-                    
+
                     // Update tax percentage displays
                     tax1PercentageInput.value = "3";
                     tax2PercentageInput.value = "1";
@@ -1301,50 +1289,132 @@ $select = mysqli_query($connection, "
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const orsTypeSelect = document.getElementById("ors_type");
-            const accountTitleSelect = document.getElementById("account_title");
-
-            orsTypeSelect.addEventListener("change", function () {
-                const selectedType = this.value;
-
-                Array.from(accountTitleSelect.options).forEach(option => {
-                    const uacsCode = option.getAttribute("data-uacs");
-                    if (!uacsCode) return; // Skip the "Select Account" option
-
-                    if ((selectedType === "cash_advance" && uacsCode.startsWith("50")) ||
-                        (selectedType === "transfer_fund" && uacsCode.startsWith("10"))) {
-                        option.hidden = false;
-                    } else {
-                        option.hidden = true;
-                    }
+            
+            function filterAccountTitles() {
+                const selectedType = orsTypeSelect.value;
+                const accountSelects = document.querySelectorAll('.account-select');
+                
+                accountSelects.forEach(select => {
+                    Array.from(select.options).forEach(option => {
+                        if (option.value === "") return; // Skip the "Select Account" option
+                        
+                        const accountTitle = option.text.toLowerCase();
+                        if (selectedType === "cash_advance") {
+                            // Show only accounts with "advance" in the title
+                            option.hidden = !accountTitle.includes('advance');
+                        } else if (selectedType === "transfer_fund") {
+                            // Show only accounts with "cash" in the title
+                            option.hidden = !accountTitle.includes('cash');
+                        } else {
+                            option.hidden = false;
+                        }
+                    });
+                    
+                    // Reset selection
+                    select.value = "";
                 });
+            }
 
-                accountTitleSelect.value = ""; // Reset selection
+            // Filter on initial load and when DV type changes
+            orsTypeSelect.addEventListener("change", filterAccountTitles);
+            
+            // Also filter when new rows are added
+            document.getElementById('addAccountRow').addEventListener('click', function() {
+                // Wait for the new row to be added
+                setTimeout(filterAccountTitles, 0);
             });
         });
     </script>
 
-    <!-- add row  -->
+    <!-- add row and calculate totals -->
     <script>
-        document.getElementById('addAccountRow').addEventListener('click', function () {
+        document.addEventListener('DOMContentLoaded', function () {
             const tableBody = document.getElementById('accountingTableBody');
-            const newRow = document.createElement('tr');
 
-            newRow.innerHTML = `
-                <td>
-                    <select class="form-control">
-                        <option>Select Account</option>
-                        <option>Supplies Expense</option>
-                        <option>Traveling Expenses - Local</option>
-                        <option>Representation Expenses</option>
-                        <option>Accounts Payable</option>
-                    </select>
-                </td>
-                <td><input type="text" class="form-control"></td>
-                <td><input type="number" class="form-control debit-amount" step="0.01" onchange="calculateTotals()"></td>
-                <td><input type="number" class="form-control credit-amount" step="0.01" onchange="calculateTotals()"></td>
-            `;
+            // Function to update UACS code when account is selected
+            function setupAccountSelect(row) {
+                const accountSelect = row.querySelector('.account-select');
+                const uacsInput = row.querySelector('.uacs-code');
 
-            tableBody.appendChild(newRow);
+                accountSelect.addEventListener('change', function () {
+                    const selectedOption = this.options[this.selectedIndex];
+                    uacsInput.value = selectedOption.getAttribute('data-uacs') || '';
+                });
+            }
+
+            // Function to calculate totals
+            function calculateTotals() {
+                let totalDebit = 0;
+                let totalCredit = 0;
+
+                // Get all debit and credit inputs
+                const debitInputs = document.querySelectorAll('.debit-amount');
+                const creditInputs = document.querySelectorAll('.credit-amount');
+
+                // Sum up debit amounts
+                debitInputs.forEach(input => {
+                    totalDebit += parseFloat(input.value || 0);
+                });
+
+                // Sum up credit amounts
+                creditInputs.forEach(input => {
+                    totalCredit += parseFloat(input.value || 0);
+                });
+
+                // Update total fields
+                document.getElementById('total-debit').value = totalDebit.toFixed(2);
+                document.getElementById('total-credit').value = totalCredit.toFixed(2);
+            }
+
+            // Add event listener for the "Add Row" button
+            document.getElementById('addAccountRow').addEventListener('click', function () {
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td>
+                        <select class="form-control account-select" name="account_titles[]">
+                            <option value="">Select Account</option>
+                            <?php
+                            $account_result->data_seek(0);
+                            while ($account = $account_result->fetch_assoc()) {
+                                echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "'>" . $account['account_title'] . " - " . $account['account_code'] . "</option>";
+                            }
+                            ?>
+                        </select>
+                    </td>
+                    <td><input type="text" class="form-control uacs-code" name="uacs_codes[]" readonly></td>
+                    <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
+                    <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01"></td>
+                `;
+
+                tableBody.appendChild(newRow);
+                setupAccountSelect(newRow);
+                setupCalculationListeners(newRow);
+            });
+
+            // Function to setup calculation listeners for a row
+            function setupCalculationListeners(row) {
+                const debitInput = row.querySelector('.debit-amount');
+                const creditInput = row.querySelector('.credit-amount');
+
+                debitInput.addEventListener('input', function () {
+                    if (this.value && parseFloat(this.value) > 0) {
+                        creditInput.value = ''; // Clear credit when debit has value
+                    }
+                    calculateTotals();
+                });
+
+                creditInput.addEventListener('input', function () {
+                    if (this.value && parseFloat(this.value) > 0) {
+                        debitInput.value = ''; // Clear debit when credit has value
+                    }
+                    calculateTotals();
+                });
+            }
+
+            // Setup initial row
+            const initialRow = tableBody.querySelector('tr');
+            setupAccountSelect(initialRow);
+            setupCalculationListeners(initialRow);
         });
     </script>
 

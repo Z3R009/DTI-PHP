@@ -11,6 +11,12 @@ $totalResult = $connection->query($totalQuery);
 $totalRow = $totalResult->fetch_assoc();
 $totalAllotment = $totalRow['total_allotment'] ?? 0;
 
+// Add query for total remaining balance
+$balanceQuery = "SELECT SUM(balances) AS total_balance FROM project";
+$balanceResult = $connection->query($balanceQuery);
+$balanceRow = $balanceResult->fetch_assoc();
+$totalBalance = $balanceRow['total_balance'] ?? 0;
+
 ?>
 
 <!DOCTYPE html>
@@ -111,6 +117,45 @@ $totalAllotment = $totalRow['total_allotment'] ?? 0;
                     </div>
                 </div><!-- End Sales Card -->
 
+                <!-- Total Remaining Balance -->
+                <div class="col-xxl-4 col-md-6">
+                    <div class="card info-card sales-card">
+                        <div class="filter">
+                            <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                                <li class="dropdown-header text-start">
+                                    <h6>Filter</h6>
+                                </li>
+                                <!-- Show All Option -->
+                                <li>
+                                    <a class="dropdown-item balance-filter" href="#" data-id="">All Categories</a>
+                                </li>
+                                <?php 
+                                // Reset the result pointer for reuse
+                                $result->data_seek(0);
+                                while ($row = $result->fetch_assoc()): 
+                                ?>
+                                    <li>
+                                        <a class="dropdown-item balance-filter" href="#" data-id="<?= $row['oopap_id'] ?>">
+                                            <?= $row['oopap_name'] ?>
+                                        </a>
+                                    </li>
+                                <?php endwhile; ?>
+                            </ul>
+                        </div>
+
+                        <div class="card-body">
+                            <h5 class="card-title">Total Remaining Balance <span id="selected-balance-oopap">| All Categories</span></h5>
+
+                            <div class="d-flex align-items-center">
+                                <div class="ps-3">
+                                    <h6 id="total-balance"><?php echo "₱" . number_format($totalBalance, 2); ?></h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div><!-- End Balance Card -->
+
             </div>
         </section>
 
@@ -147,16 +192,33 @@ $totalAllotment = $totalRow['total_allotment'] ?? 0;
                     fetch("fetch_allotment.php?oopap_id=" + oopapId)
                         .then(response => response.json())
                         .then(data => {
-                            console.log("Fetched Data:", data); // Debugging line
+                            console.log("Fetched Data:", data);
                             document.getElementById("total-allotment").innerText = "₱" + data.total_allotment;
                             document.getElementById("selected-oopap").innerText = "| " + oopapName;
                         })
                         .catch(error => console.error("Error fetching allotment:", error));
                 });
             });
+
+            // Add balance filter code
+            document.querySelectorAll(".balance-filter").forEach(item => {
+                item.addEventListener("click", function (e) {
+                    e.preventDefault();
+
+                    let oopapId = this.getAttribute("data-id");
+                    let oopapName = this.innerText;
+
+                    fetch("fetch_balance.php?oopap_id=" + oopapId)
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log("Fetched Balance Data:", data);
+                            document.getElementById("total-balance").innerText = "₱" + data.total_balance;
+                            document.getElementById("selected-balance-oopap").innerText = "| " + oopapName;
+                        })
+                        .catch(error => console.error("Error fetching balance:", error));
+                });
+            });
         });
-
-
     </script>
 
 </body>
