@@ -9,29 +9,36 @@ if (isset($_POST['submit'])) {
     $account_code = $_POST['account_code'];
 
     // Check for duplicates
-    $check_duplicate = mysqli_query($connection, "SELECT * FROM account_title WHERE account_title = '$account_title' OR account_code = '$account_code'");
-    
-    if (mysqli_num_rows($check_duplicate) > 0) {
-        echo "<script>
-            alert('Error: Account Title or Account Code already exists!');
-            window.location.href='account_title.php';
-        </script>";
-    } else {
-        $sql = "INSERT INTO account_title (account_title, account_code) VALUES (?, ?)";
-        $stmt = $connection->prepare($sql);
-        $stmt->bind_param("si", $account_title, $account_code);
+    // $check_duplicate = mysqli_query($connection, "SELECT * FROM account_title WHERE account_title = '$account_title' OR account_code = '$account_code'");
 
-        if ($stmt->execute()) {
-            header('Location: account_title.php');
-        } else {
-            echo "Error: " . $stmt->error;
-        }
+    // if (mysqli_num_rows($check_duplicate) > 0) {
+    //     echo "<script>
+    //         alert('Error: Account Title or Account Code already exists!');
+    //         window.location.href='account_title.php';
+    //     </script>";
+    // } else {
+    $sql = "INSERT INTO account_title (account_title, account_code) VALUES (?, ?)";
+    $stmt = $connection->prepare($sql);
+    $stmt->bind_param("si", $account_title, $account_code);
+
+    if ($stmt->execute()) {
+        header('Location: account_title.php');
+    } else {
+        echo "Error: " . $stmt->error;
     }
+
 }
 
 
 // retrieve 
-$select = mysqli_query($connection, "SELECT * FROM account_title ORDER BY CAST(account_code AS UNSIGNED)");
+$search = isset($_GET['search']) ? $_GET['search'] : '';
+$where = '';
+if (!empty($search)) {
+    $search = mysqli_real_escape_string($connection, $search);
+    $where = "WHERE account_title LIKE '%$search%' OR account_code LIKE '%$search%'";
+}
+
+$select = mysqli_query($connection, "SELECT * FROM account_title $where ORDER BY CAST(account_code AS UNSIGNED)");
 ?>
 
 
@@ -68,6 +75,9 @@ $select = mysqli_query($connection, "SELECT * FROM account_title ORDER BY CAST(a
     <!-- Template Main CSS File -->
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
 
+    <!-- SimpleDatatables CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet"
+        type="text/css">
 </head>
 
 <body>
@@ -116,8 +126,6 @@ $select = mysqli_query($connection, "SELECT * FROM account_title ORDER BY CAST(a
                                                 autocomplete="off">
                                         </div>
                                         <div class="modal-footer">
-                                            <!-- <button type="button" class="btn btn-secondary"
-                                        data-bs-dismiss="modal">Close</button> -->
                                             <button type="button" class="btn btn-secondary"
                                                 onclick="clearForm()">Clear</button>
                                             <button type="submit" id="submit" name="submit"
@@ -125,7 +133,6 @@ $select = mysqli_query($connection, "SELECT * FROM account_title ORDER BY CAST(a
                                         </div>
                                     </form>
                                 </div>
-
                             </div>
                         </div>
                     </div>
@@ -226,6 +233,43 @@ $select = mysqli_query($connection, "SELECT * FROM account_title ORDER BY CAST(a
 
     <!-- Template Main JS File -->
     <script src="../NiceAdmin/assets/js/main.js"></script>
+
+    <!-- Initialize SimpleDatatables -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            try {
+                const datatable = new simpleDatatables.DataTable(".datatable", {
+                    searchable: true,
+                    fixedHeight: true,
+                    perPage: 10,
+                    sortable: true,
+                    search: {
+                        return: true,
+                        smart: true
+                    },
+                    labels: {
+                        placeholder: "Search...",
+                        perPage: "{select} entries per page",
+                        noRows: "No entries found",
+                        info: "Showing {start} to {end} of {rows} entries",
+                    }
+                });
+
+                // Debug: Log when datatable is initialized
+                console.log("Datatable initialized successfully");
+
+                // Debug: Add event listener for search
+                const searchInput = document.querySelector('.datatable-search');
+                if (searchInput) {
+                    searchInput.addEventListener('input', function (e) {
+                        console.log("Search input:", e.target.value);
+                    });
+                }
+            } catch (error) {
+                console.error("Error initializing datatable:", error);
+            }
+        });
+    </script>
 
     <!-- clear -->
     <script>

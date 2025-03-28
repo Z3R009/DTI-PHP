@@ -137,9 +137,8 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                                 <th>Obligation Number</th>
                                 <th>Payee</th>
                                 <th>Particulars</th>
-                                <th>Obligation</th>
-                                <th>Allotment</th>
-                                <th>NET</th>
+                                <th>Obligations</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -149,9 +148,13 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                                     <td><?php echo htmlspecialchars($row['ors_no']); ?></td>
                                     <td><?php echo htmlspecialchars($row['payee_name']); ?></td>
                                     <td><?php echo htmlspecialchars($row['notes']); ?></td>
-                                    <td><?php echo htmlspecialchars(number_format($row['obligation'], 2)); ?></td>
-                                    <td><?php echo htmlspecialchars(number_format($row['allotment'], 2)); ?></td>
-                                    <td><?php echo htmlspecialchars(number_format($row['net'], 2)); ?></td>
+                                    <td><?php echo htmlspecialchars(number_format($row['total_amount'], 2)); ?></td>
+                                    <td><button type="button" class="btn btn-primary view-details"
+                                            onclick="window.location.href='ors_form.php?ors_no=<?php echo $row['ors_no']; ?>'">
+                                            <i class="bi bi-eye" data-bs-toggle="tooltip" data-bs-placement="top"
+                                                title="View Details"></i>
+                                        </button></td>
+
                                 </tr>
                             <?php } ?>
                         </tbody>

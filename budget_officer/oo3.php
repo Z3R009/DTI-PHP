@@ -113,6 +113,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
 
         <section class="section dashboard">
 
+
             <div class="row">
                 <!-- Total Allotment Card -->
                 <div class="col-md-6">

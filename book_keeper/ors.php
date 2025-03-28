@@ -549,7 +549,8 @@ while ($row = $result_approvers->fetch_assoc()) {
                                 <div class="form-row">
                                     <select class="form-control" name="purpose">
                                         <option value="To Payment of">To Payment of</option>
-                                        <option value="To Disburse">To Disburse</option>
+                                        <option value="To Disburse">To Reimburse</option>
+                                        <option value="To Cash Advance">To Cash Advance</option>
                                     </select>
                                 </div>
                                 <div class="form-row">

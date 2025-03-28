@@ -144,8 +144,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                                 <th>Payee</th>
                                 <th>Particulars</th>
                                 <th>Obligations</th>
-                                <th>Unobligated Allotments</th>
-                                <th>NET</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -156,8 +155,12 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                                     <td><?php echo htmlspecialchars($row['payee_name']); ?></td>
                                     <td><?php echo htmlspecialchars($row['notes']); ?></td>
                                     <td><?php echo htmlspecialchars(number_format($row['total_amount'], 2)); ?></td>
-                                    <td><?php echo htmlspecialchars(number_format($row['allotment'], 2)); ?></td>
-                                    <td><?php echo htmlspecialchars(number_format($row['net'], 2)); ?></td>
+                                    <td><button type="button" class="btn btn-primary view-details"
+                                            onclick="window.location.href='ors_form.php?ors_no=<?php echo $row['ors_no']; ?>'">
+                                            <i class="bi bi-eye" data-bs-toggle="tooltip" data-bs-placement="top"
+                                                title="View Details"></i>
+                                        </button></td>
+
                                 </tr>
                             <?php } ?>
                         </tbody>
@@ -169,42 +172,6 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
         </section>
 
     </main><!-- End #main -->
-
-    <!-- update modal -->
-
-    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editModalLabel">Edit Project/Program/Activities</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form method="post" id="editUserForm" action="update_gas.php">
-                        <input type="hidden" id="edit_project_id" name="project_id">
-                        <input type="hidden" id="edit_account_id" name="edit_account_id">
-
-                        <div class="mb-3">
-                            <label for="edit_account_id" class="form-label">Project/Program/Activities</label>
-                            <input type="text" class="form-control" id="edit_account_title" name="account_id" required
-                                autocomplete="off" readonly>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="edit_allotment" class="form-label">Allotment</label>
-                            <input type="number" class="form-control" id="edit_allotment" name="allotment" step="0.01"
-                                required autocomplete="off">
-                        </div>
-
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" id="update" name="update" class="btn btn-primary">Update</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
 
 
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i

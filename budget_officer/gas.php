@@ -205,6 +205,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                                 <th>Project/Activities/Program</th>
                                 <th>Allotment</th>
                                 <th>Balances</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>

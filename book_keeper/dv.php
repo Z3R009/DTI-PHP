@@ -967,7 +967,7 @@ $select = mysqli_query($connection, "
                                                         $account_query = "SELECT * FROM account_title";
                                                         $account_result = $connection->query($account_query);
                                                         while ($account = $account_result->fetch_assoc()) {
-                                                            echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "'>" . $account['account_title'] . " - " . $account['account_code'] . "</option>";
+                                                            echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
                                                         }
                                                         ?>
                                                     </select>
@@ -1295,23 +1295,26 @@ $select = mysqli_query($connection, "
                 const accountSelects = document.querySelectorAll('.account-select');
                 
                 accountSelects.forEach(select => {
+                    const currentValue = select.value;
+                    const currentTitle = select.options[select.selectedIndex]?.getAttribute('data-title') || '';
+                    
                     Array.from(select.options).forEach(option => {
-                        if (option.value === "") return; // Skip the "Select Account" option
+                        if (option.value === "") return;
                         
-                        const accountTitle = option.text.toLowerCase();
+                        const accountTitle = option.getAttribute('data-title')?.toLowerCase() || '';
                         if (selectedType === "cash_advance") {
-                            // Show only accounts with "advance" in the title
                             option.hidden = !accountTitle.includes('advance');
                         } else if (selectedType === "transfer_fund") {
-                            // Show only accounts with "cash" in the title
                             option.hidden = !accountTitle.includes('cash');
                         } else {
                             option.hidden = false;
                         }
                     });
                     
-                    // Reset selection
-                    select.value = "";
+                    // Restore selection if it's still valid
+                    if (currentValue && select.querySelector(`option[value="${currentValue}"]`)) {
+                        select.value = currentValue;
+                    }
                 });
             }
 
@@ -1320,7 +1323,6 @@ $select = mysqli_query($connection, "
             
             // Also filter when new rows are added
             document.getElementById('addAccountRow').addEventListener('click', function() {
-                // Wait for the new row to be added
                 setTimeout(filterAccountTitles, 0);
             });
         });
@@ -1366,6 +1368,28 @@ $select = mysqli_query($connection, "
                 document.getElementById('total-credit').value = totalCredit.toFixed(2);
             }
 
+            // Function to filter account titles
+            function filterAccountTitles(select, selectedType) {
+                const currentValue = select.value;
+                Array.from(select.options).forEach(option => {
+                    if (option.value === "") return; // Skip the "Select Account" option
+                    
+                    const accountTitle = option.getAttribute('data-title')?.toLowerCase() || '';
+                    if (selectedType === "cash_advance") {
+                        option.hidden = !accountTitle.includes('advance');
+                    } else if (selectedType === "transfer_fund") {
+                        option.hidden = !accountTitle.includes('cash');
+                    } else {
+                        option.hidden = false;
+                    }
+                });
+
+                // Restore selection if it's still valid
+                if (currentValue && select.querySelector(`option[value="${currentValue}"]`)) {
+                    select.value = currentValue;
+                }
+            }
+
             // Add event listener for the "Add Row" button
             document.getElementById('addAccountRow').addEventListener('click', function () {
                 const newRow = document.createElement('tr');
@@ -1376,7 +1400,7 @@ $select = mysqli_query($connection, "
                             <?php
                             $account_result->data_seek(0);
                             while ($account = $account_result->fetch_assoc()) {
-                                echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "'>" . $account['account_title'] . " - " . $account['account_code'] . "</option>";
+                                echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
                             }
                             ?>
                         </select>
@@ -1389,6 +1413,11 @@ $select = mysqli_query($connection, "
                 tableBody.appendChild(newRow);
                 setupAccountSelect(newRow);
                 setupCalculationListeners(newRow);
+
+                // Filter account titles for the new row
+                const orsTypeSelect = document.getElementById("ors_type");
+                const accountSelect = newRow.querySelector('.account-select');
+                filterAccountTitles(accountSelect, orsTypeSelect.value);
             });
 
             // Function to setup calculation listeners for a row
@@ -1415,6 +1444,15 @@ $select = mysqli_query($connection, "
             const initialRow = tableBody.querySelector('tr');
             setupAccountSelect(initialRow);
             setupCalculationListeners(initialRow);
+
+            // Add event listener for DV type changes
+            document.getElementById('ors_type').addEventListener('change', function() {
+                const selectedType = this.value;
+                const accountSelects = document.querySelectorAll('.account-select');
+                accountSelects.forEach(select => {
+                    filterAccountTitles(select, selectedType);
+                });
+            });
         });
     </script>
 
