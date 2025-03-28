@@ -466,110 +466,104 @@ while ($row = $result_approvers->fetch_assoc()) {
             <h1>Obligation Request and Status</h1>
         </div><!-- End Page Title -->
 
-        <section class="section dashboard">
-            <div class="content-wrapper">
-                <div class="form-container">
-                    <h2 class="form-title">Obligation Request And Status</h2>
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link active" data-bs-toggle="tab" href="#orsForm">ORS Form</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#orsList">ORS List</a>
+            </li>
+        </ul>
 
-                    <!-- General Information Section -->
 
-                    <div id="ors_form">
-                        <form method="post">
-                            <div class="form-section">
-                                <h3>General Information</h3>
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label class="form-label">Fund Cluster</label>
-                                        <select class="form-control" name="fund_cluster_id">
-                                            <option selected disabled>Select Fund Cluster</option>
-                                            <?php
-                                            while ($row = $result_fund_cluster->fetch_assoc()) {
-                                                echo "<option value='" . htmlspecialchars($row['fund_cluster_id']) . "'>" . htmlspecialchars($row['fund_cluster_name']) . "</option>";
-                                            }
-                                            ?>
-                                        </select>
+
+        <div class="content-wrapper">
+            <div class="form-container">
+                <h2 class="form-title">Obligation Request And Status</h2>
+
+                <!-- General Information Section -->
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="orsForm">
+                        <div id="ors_form">
+                            <form method="post">
+                                <div class="form-section">
+                                    <h3>General Information</h3>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label">Fund Cluster</label>
+                                            <select class="form-control" name="fund_cluster_id">
+                                                <option selected disabled>Select Fund Cluster</option>
+                                                <?php
+                                                while ($row = $result_fund_cluster->fetch_assoc()) {
+                                                    echo "<option value='" . htmlspecialchars($row['fund_cluster_id']) . "'>" . htmlspecialchars($row['fund_cluster_name']) . "</option>";
+                                                }
+                                                ?>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Date</label>
+                                            <input type="date" class="form-control" id="dvDate" name="date">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Obligation Request No.</label>
+                                            <input type="text" class="form-control" name="ors_no" required
+                                                autocomplete="off">
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <!-- Payee Details Section -->
+                                <div class="form-section">
+                                    <h3> Payee Details</h3>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label">Payee Name</label>
+                                            <select class="form-control" name="payee_id" id="payee_id">
+                                                <option selected disabled>Select Payee</option>
+                                                <?php
+                                                while ($row = $result_payee->fetch_assoc()) {
+                                                    echo "<option value='" . htmlspecialchars($row['payee_id']) . "' 
+                                                                        data-tin='" . htmlspecialchars($row['tin_no']) . "' 
+                                                                        data-address='" . htmlspecialchars($row['address']) . "'>"
+                                                        . htmlspecialchars($row['payee_name']) .
+                                                        "</option>";
+                                                }
+                                                ?>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">TIN/Employee No.</label>
+                                            <input type="text" class="form-control" name="tin_no" id="tin_no" required
+                                                autocomplete="off">
+
+                                        </div>
                                     </div>
                                     <div class="form-group">
-                                        <label class="form-label">Date</label>
-                                        <input type="date" class="form-control" id="dvDate" name="date">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Obligation Request No.</label>
-                                        <input type="text" class="form-control" name="ors_no" required
+                                        <label class="form-label">Address</label>
+                                        <input type="text" class="form-control" name="address" id="address" required
                                             autocomplete="off">
+
                                     </div>
                                 </div>
-                            </div>
+
+                                <!-- Payment Details Section -->
+                                <div class="form-section">
+                                    <h3></h3>
 
 
-                            <!-- Payee Details Section -->
-                            <div class="form-section">
-                                <h3> Payee Details</h3>
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label class="form-label">Payee Name</label>
-                                        <select class="form-control" name="payee_id" id="payee_id">
-                                            <option selected disabled>Select Payee</option>
-                                            <?php
-                                            while ($row = $result_payee->fetch_assoc()) {
-                                                echo "<option value='" . htmlspecialchars($row['payee_id']) . "' 
-                                                            data-tin='" . htmlspecialchars($row['tin_no']) . "' 
-                                                            data-address='" . htmlspecialchars($row['address']) . "'>"
-                                                    . htmlspecialchars($row['payee_name']) .
-                                                    "</option>";
-                                            }
-                                            ?>
+                                    <label class="form-label">Purpose</label>
+                                    <div class="form-row">
+                                        <select class="form-control" name="purpose">
+                                            <option value="To Payment of">To Payment of</option>
+                                            <option value="To Disburse">To Reimburse</option>
+                                            <option value="To Cash Advance">To Cash Advance</option>
                                         </select>
                                     </div>
-                                    <div class="form-group">
-                                        <label class="form-label">TIN/Employee No.</label>
-                                        <input type="text" class="form-control" name="tin_no" id="tin_no" required
-                                            autocomplete="off">
+                                    <div class="form-row">
+                                        <div class="form-group full-width">
 
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Address</label>
-                                    <input type="text" class="form-control" name="address" id="address" required
-                                        autocomplete="off">
-
-                                </div>
-                            </div>
-
-                            <!-- Payment Details Section -->
-                            <div class="form-section">
-                                <h3></h3>
-
-
-                                <label class="form-label">Purpose</label>
-                                <div class="form-row">
-                                    <select class="form-control" name="purpose">
-                                        <option value="To Payment of">To Payment of</option>
-                                        <option value="To Disburse">To Reimburse</option>
-                                        <option value="To Cash Advance">To Cash Advance</option>
-                                    </select>
-                                </div>
-                                <div class="form-row">
-                                    <div class="form-group full-width">
-
-                                        <textarea class="form-control" name="notes" placeholder="Enter Purpose"></textarea autocomplete="off">
-                                    </div>
-                                </div>
-                                <div class="form-row">
-                                <div class="form-group">
-                                        <label class="form-label">Responsibility Center</label>
-                                        <select class="form-control" name="rc_id">
-                                            <option selected disabled>Select Responsibility Center</option>
-                                            <?php
-                                            while ($row = $result_responsibility_center->fetch_assoc()) {
-                                                echo "<option value='" . htmlspecialchars($row['rc_id']) . "'>"
-                                                    . htmlspecialchars($row['code']) . " - " . htmlspecialchars($row['description']) .
-                                                    "</option>";
-                                            }
-                                            ?>
-                                        </select>
-                                    </div>
-
+<<<<<<< HEAD
                                 </div>
                             </div>
 
@@ -605,80 +599,181 @@ while ($row = $result_approvers->fetch_assoc()) {
                                                 <td>
                                                     <select class="form-control" name="oopap_id">
                                                         <option selected disabled>Select OO/PAP</option>
+=======
+                                            <textarea class="form-control" name="notes" placeholder="Enter Purpose"></textarea autocomplete="off">
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                            <div class="form-group">
+                                                    <label class="form-label">Responsibility Center</label>
+                                                    <select class="form-control" name="rc_id">
+                                                        <option selected disabled>Select Responsibility Center</option>
+>>>>>>> fb613ac9cfaeb5f373349a135af7dfd132caf56e
                                                         <?php
-                                                        while ($row = $result_oopap->fetch_assoc()) {
-                                                            echo "<option value='" . htmlspecialchars($row['oopap_id']) . "'>" . htmlspecialchars($row['oopap_name']) . "</option>";
+                                                        while ($row = $result_responsibility_center->fetch_assoc()) {
+                                                            echo "<option value='" . htmlspecialchars($row['rc_id']) . "'>"
+                                                                . htmlspecialchars($row['code']) . " - " . htmlspecialchars($row['description']) .
+                                                                "</option>";
                                                         }
                                                         ?>
                                                     </select>
-                                                </td>
-                                                <td>
-                                                    <input type="number" class="form-control amount-input" name="amount" step="0.01" autocomplete="off">
-                                                </td>
-                                            </tr>
+                                                </div>
 
-                                            <!-- Add Row button row (this will stay at the bottom) -->
-                                            <tr id="add-row-container">
-                                                <td colspan="4" class="text-left">
-                                                    <button type="button" name="submit" id="addAccountRow"
-                                                        class="btn btn-secondary">
-                                                        <ion-icon name="add-outline"></ion-icon> Add Row
-                                                    </button>
-                                                </td>
-                                            </tr>
+                                            </div>
+                                        </div>
 
-                                            <!-- Total Amount Row -->
+                                        <!-- Accounting Entry Section -->
+                                        <div class="form-section">
+                                            <h3>Particulars</h3>
+                                            <div class="table-responsive">
+                                                <table class="accounting-entry-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Account Title</th>
+                                                            <th>OO/PAP</th>
+                                                            <th>Amount</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="accounting-table-body">
+                                                        <!-- First row -->
+                                                        <tr class="entry-row">
+                                                        <td>
+                                                        <select class="form-control" name="account_id" id="account_title">
+                                                                <option selected disabled>Select Account</option>
+                                                                <?php
+                                                                while ($row = $result_account->fetch_assoc()) {
+                                                                    echo "<option value='" . htmlspecialchars($row['account_id']) . "' 
+                                                                        data-account_code='" . htmlspecialchars($row['account_code']) . "'>"
+                                                                        . htmlspecialchars($row['account_title']) . " - " . htmlspecialchars($row['account_code']) .
+                                                                        "</option>";
+                                                                }
+                                                                ?>
+                                                            </select>
+                                                        </td>
+
+                                                            <td>
+                                                                <select class="form-control" name="oopap_id">
+                                                                    <option selected disabled>Select OO/PAP</option>
+                                                                    <?php
+                                                                    while ($row = $result_oopap->fetch_assoc()) {
+                                                                        echo "<option value='" . htmlspecialchars($row['oopap_id']) . "'>" . htmlspecialchars($row['oopap_name']) . "</option>";
+                                                                    }
+                                                                    ?>
+                                                                </select>
+                                                            </td>
+                                                            <td>
+                                                                <input type="number" class="form-control amount-input" name="amount" step="0.01" autocomplete="off">
+                                                            </td>
+                                                        </tr>
+
+                                                        <!-- Add Row button row (this will stay at the bottom) -->
+                                                        <tr id="add-row-container">
+                                                            <td colspan="4" class="text-left">
+                                                                <button type="button" name="submit" id="addAccountRow"
+                                                                    class="btn btn-secondary">
+                                                                    <ion-icon name="add-outline"></ion-icon> Add Row
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+
+                                                        <!-- Total Amount Row -->
+                                                        <tr>
+                                                            <td colspan="2" class="text-right font-weight-bold">Total Amount:</td>
+                                                            <td><input type="text" id="total_amount" class="form-control" name="total_amount" readonly></td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+
+                                        <input type="hidden" class="form-control" id="project_id" name="project_id" readonly placeholder="Project ID">
+
+
+                                        <!-- Receipt Section -->
+                                        <div class="form-section">
+                                            <div class="form-row">
+                                                <div class="form-group">
+                                                    <label class="form-label" id="designationLabel">Designation</label>
+                                                    <select class="form-control" id="approverSelect" name="approver_id">
+                                                        <option value="">Select Approver</option>
+                                                        <?php
+                                                        foreach ($approverData as $approver_id => $data) {
+                                                            echo "<option value='" . htmlspecialchars($approver_id) . "' data-designation='" . htmlspecialchars($data['designation']) . "'>" . htmlspecialchars($data['name']) . "</option>";
+                                                        }
+                                                        ?>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="form-label">Budget Officer</label>
+                                                    <select class="form-control" name="budget_officer">
+                                                        <option>CONNIE M. BARNACHEA</option>
+
+                                                    </select>
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                        <!-- Form Buttons -->
+                                        <div class="btn-container">
+                                            <button type="button" class="btn btn-secondary">Clear Form</button>
+                                            <button type="submit" class="btn btn-primary" name="submit">Submit Voucher</button>
+                                        </div>
+
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+        
+
+                        <div class="tab-pane fade" id="orsList">
+                            <div class="container">
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
                                             <tr>
-                                                <td colspan="2" class="text-right font-weight-bold">Total Amount:</td>
-                                                <td><input type="text" id="total_amount" class="form-control" name="total_amount" readonly></td>
+                                                <th>ORS No.</th>
+                                                <th>Date</th>
+                                                <th>Payee</th>
+                                                <th>Amount</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
                                             </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php
+                                            // Fetch ORS records from database
+                                            $ors_query = "SELECT * FROM ors ORDER BY date DESC";
+                                            $ors_result = $connection->query($ors_query);
+
+                                            while ($ors = $ors_result->fetch_assoc()) {
+                                                echo "<tr>";
+                                                echo "<td>" . htmlspecialchars($ors['ors_no']) . "</td>";
+                                                echo "<td>" . htmlspecialchars($ors['date']) . "</td>";
+
+                                                // Fetch payee name
+                                                $payee_query = "SELECT payee_name FROM payee WHERE payee_id = " . $ors['payee_id'];
+                                                $payee_result = $connection->query($payee_query);
+                                                $payee = $payee_result->fetch_assoc();
+
+                                                echo "<td>" . htmlspecialchars($payee['payee_name']) . "</td>";
+                                                echo "<td>" . number_format($ors['total_amount'], 2) . "</td>";
+                                                echo "<td>Processed</td>"; // You can add dynamic status logic
+                                                echo "<td>
+                                                    <a href='ors_form.php?ors_no=" . $ors['ors_no'] . "' class='btn btn-info btn-sm'>View</a>
+                                                </td>";
+                                                echo "</tr>";
+                                            }
+                                            ?>
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
-
-                            <input type="hidden" class="form-control" id="project_id" name="project_id" readonly placeholder="Project ID">
-
-
-                            <!-- Receipt Section -->
-                            <div class="form-section">
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label class="form-label" id="designationLabel">Designation</label>
-                                        <select class="form-control" id="approverSelect" name="approver_id">
-                                            <option value="">Select Approver</option>
-                                            <?php
-                                            foreach ($approverData as $approver_id => $data) {
-                                                echo "<option value='" . htmlspecialchars($approver_id) . "' data-designation='" . htmlspecialchars($data['designation']) . "'>" . htmlspecialchars($data['name']) . "</option>";
-                                            }
-                                            ?>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Budget Officer</label>
-                                        <select class="form-control" name="budget_officer">
-                                            <option>CONNIE M. BARNACHEA</option>
-
-                                        </select>
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                            <!-- Form Buttons -->
-                            <div class="btn-container">
-                                <button type="button" class="btn btn-secondary">Clear Form</button>
-                                <button type="submit" class="btn btn-primary" name="submit">Submit Voucher</button>
-                            </div>
-
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </section>
-
+</div>
     </main><!-- End #main -->
+
 
 
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
@@ -1003,6 +1098,8 @@ while ($row = $result_approvers->fetch_assoc()) {
         amountInput.addEventListener('input', checkAllotment);
     });
 </script>
+
+
 
 </body>
 
