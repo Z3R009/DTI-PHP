@@ -964,7 +964,7 @@ $select = mysqli_query($connection, "
                                                     <select class="form-control account-select" name="account_titles[]">
                                                         <option value="">Select Account</option>
                                                         <?php
-                                                        $account_query = "SELECT * FROM account_title";
+                                                        $account_query = "SELECT * FROM account_title ORDER BY account_title ASC";
                                                         $account_result = $connection->query($account_query);
                                                         while ($account = $account_result->fetch_assoc()) {
                                                             echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";

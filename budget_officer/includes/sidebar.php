@@ -21,6 +21,13 @@
             </a>
             <ul id="charts-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
                 <li>
+                    <a href="year.php">
+                        <i class="bi bi-circle"></i><span>Year</span>
+                    </a>
+                </li>
+
+
+                <li>
                     <a href="gas.php">
                         <i class="bi bi-circle"></i><span>GAS</span>
                     </a>

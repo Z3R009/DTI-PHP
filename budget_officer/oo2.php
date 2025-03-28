@@ -33,14 +33,14 @@ $select = mysqli_query(
             account_title.account_title,
             account_title.account_code 
             FROM project
-
             LEFT JOIN account_title ON project.account_id = account_title.account_id
-            WHERE oopap_id = 3"
+            WHERE oopap_id = 3
+            ORDER BY account_title.account_title ASC"
 );
 
 // account name
 
-$query_account = "SELECT account_id, account_title, account_code FROM account_title";
+$query_account = "SELECT account_id, account_title, account_code FROM account_title ORDER BY account_title ASC";
 $result_account = $connection->query($query_account);
 
 

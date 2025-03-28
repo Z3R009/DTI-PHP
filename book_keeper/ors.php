@@ -123,11 +123,7 @@ if (isset($_POST['submit'])) {
 
 
 // Query to fetch account titles and their corresponding UACS codes
-$sql_account = "SELECT account_id, account_title, account_code 
-                FROM account_title 
-                WHERE account_code LIKE '5%'";
-
-$result_account = $connection->query($sql_account);
+$result_account = mysqli_query($connection, "SELECT * FROM account_title ORDER BY account_title ASC");
 
 
 // retrieve payee
@@ -596,7 +592,7 @@ while ($row = $result_approvers->fetch_assoc()) {
                                             <select class="form-control" name="account_id" id="account_title">
                                                     <option selected disabled>Select Account</option>
                                                     <?php
-                                                    while ($row = $result_account->fetch_assoc()) {
+                                                    while ($row = mysqli_fetch_assoc($result_account)) {
                                                         echo "<option value='" . htmlspecialchars($row['account_id']) . "' 
                                                             data-account_code='" . htmlspecialchars($row['account_code']) . "'>"
                                                             . htmlspecialchars($row['account_title']) . " - " . htmlspecialchars($row['account_code']) .
