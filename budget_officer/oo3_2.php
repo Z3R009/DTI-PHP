@@ -40,7 +40,7 @@ $select = mysqli_query(
 
 // account name
 
-$query_account = "SELECT account_id, account_title, account_code FROM account_title";
+$query_account = "SELECT account_id, account_title, account_code FROM account_title ORDER BY account_title ASC";
 $result_account = $connection->query($query_account);
 
 
