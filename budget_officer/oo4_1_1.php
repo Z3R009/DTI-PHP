@@ -10,10 +10,11 @@ if (isset($_POST['submit'])) {
     $account_id = $_POST['account_id'];
     $allotment = $_POST['allotment'];
     $balances = $_POST['balances'];
+    $year = $_POST['year'];
 
-    $sql = "INSERT INTO project (project_id, oopap_id, account_id, allotment, balances) VALUES (?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO project (project_id, oopap_id, account_id, allotment, balances, year) VALUES (?, ?, ?, ?, ?, ?)";
     $stmt = $connection->prepare($sql);
-    $stmt->bind_param("iiiss", $project_id, $oopap_id, $account_id, $allotment, $balances);
+    $stmt->bind_param("iiissi", $project_id, $oopap_id, $account_id, $allotment, $balances, $year);
 
     if ($stmt->execute()) {
         header('Location: oo4_1_1.php');
@@ -182,6 +183,10 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                                         <div class="mb-3">
                                             <input type="hidden" class="form-control" id="balances" name="balances"
                                                 placeholder="Balances" readonly>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="year">Year:</label>
+                                            <input type="number" class="form-control" id="year" name="year" required min="2000" max="2100" value="<?php echo date('Y'); ?>">
                                         </div>
                                         <div class="modal-footer">
                                             <!-- <button type="button" class="btn btn-secondary"
