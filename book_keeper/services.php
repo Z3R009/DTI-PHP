@@ -4,17 +4,16 @@ include '../DBConnection.php';
 
 
 if (isset($_POST['submit'])) {
-    $fund_cluster_name = $_POST['fund_cluster_name'];
-    $uacs_code = $_POST['uacs_code'];
-    $status = $_POST['status'];
+    $services_name = $_POST['services_name'];
+    $code = $_POST['code'];
 
 
-    $sql = "INSERT INTO fund_cluster (fund_cluster_name, uacs_code, status) VALUES (?, ?, ?)";
+    $sql = "INSERT INTO services (services_name, code) VALUES (?, ?)";
     $stmt = $connection->prepare($sql);
-    $stmt->bind_param("sss", $fund_cluster_name, $uacs_code, $status);
+    $stmt->bind_param("ss", $services_name, $code);
 
     if ($stmt->execute()) {
-        header('Location: fund_cluster.php');
+        header('Location: services.php');
     } else {
         echo "Error: " . $stmt->error;
     }
@@ -22,7 +21,7 @@ if (isset($_POST['submit'])) {
 
 // retrieve cluster
 
-$select = mysqli_query($connection, "SELECT * FROM fund_cluster ");
+$select = mysqli_query($connection, "SELECT * FROM services ");
 
 ?>
 
@@ -77,7 +76,7 @@ $select = mysqli_query($connection, "SELECT * FROM fund_cluster ");
     <main id="main" class="main">
 
         <div class="pagetitle">
-            <h1>Fund Cluster</h1>
+            <h1>Service</h1>
         </div><!-- End Page Title -->
 
         <section class="section dashboard">
@@ -85,7 +84,7 @@ $select = mysqli_query($connection, "SELECT * FROM fund_cluster ");
                 <div class="card-body">
                     <h5 class="card-title">
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                            data-bs-target="#addUserModal">Add Fund Clusters</button>
+                            data-bs-target="#addUserModal">Add Services</button>
                     </h5>
                     <p></p>
 
@@ -95,7 +94,7 @@ $select = mysqli_query($connection, "SELECT * FROM fund_cluster ");
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="addUserModalLabel">Add Fund Cluster
+                                    <h5 class="modal-title" id="addUserModalLabel">Add Service
                                     </h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
@@ -104,24 +103,16 @@ $select = mysqli_query($connection, "SELECT * FROM fund_cluster ");
                                     <form method="post" id="addCluster">
 
                                         <div class="mb-3">
-                                            <label for="fund_cluster_name" class="form-label">Fund Cluster
+                                            <label for="services_name" class="form-label">Service
                                                 Name</label>
-                                            <input type="text" class="form-control" id="fund_cluster_name"
-                                                name="fund_cluster_name" placeholder="Enter Fund Cluster Name" required
+                                            <input type="text" class="form-control" id="services_name"
+                                                name="services_name" placeholder="Enter Service Name" required
                                                 autocomplete="off">
                                         </div>
                                         <div class="mb-3">
-                                            <label for="uacs_code" class="form-label">UACS Code</label>
-                                            <input type="uacs_code" class="form-control" id="uacs_code" name="uacs_code"
-                                                placeholder="Enter UACS Code" required autocomplete="off">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="status" class="form-label">Status</label>
-                                            <select class="form-select" id="status" name="status">
-                                                <option selected disabled>Select Status</option>
-                                                <option value="Active">Active</option>
-                                                <option value="Inactive">Inactive</option>
-                                            </select>
+                                            <label for="code" class="form-label">Code</label>
+                                            <input type="code" class="form-control" id="code" name="code"
+                                                placeholder="Enter Code" required autocomplete="off">
                                         </div>
                                         <div class="modal-footer">
                                             <!-- <button type="button" class="btn btn-secondary"
@@ -142,31 +133,28 @@ $select = mysqli_query($connection, "SELECT * FROM fund_cluster ");
                     <table class="table datatable">
                         <thead>
                             <tr>
-                                <th>Fund Cluster Name</th>
-                                <th>UACS Code</th>
-                                <th>Status</th>
+                                <th>Service Name</th>
+                                <th>Code</th>
                                 <th></th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php while ($row = mysqli_fetch_assoc($select)) { ?>
                                 <tr>
-                                    <td><?php echo htmlspecialchars($row['fund_cluster_name']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['uacs_code']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['status']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['services_name']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['code']); ?></td>
                                     <td>
                                         <button type="button" class="btn btn-primary edit-btn" data-bs-toggle="modal"
-                                            data-bs-target="#editModal" data-id="<?php echo $row['fund_cluster_id']; ?>"
-                                            data-name="<?php echo htmlspecialchars($row['fund_cluster_name']); ?>"
-                                            data-uacs="<?php echo htmlspecialchars($row['uacs_code']); ?>"
-                                            data-status="<?php echo htmlspecialchars($row['status']); ?>">
-                                            <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top"
+                                            data-bs-target="#editModal" data-id="<?php echo $row['services_id']; ?>"
+                                            data-name="<?php echo htmlspecialchars($row['services_name']); ?>"
+                                            data-code="<?php echo htmlspecialchars($row['code']); ?>"><i
+                                                class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top"
                                                 title="Edit"></i>
                                         </button>
 
                                         <button type="button" class="btn btn-danger"
-                                            onclick="deleteUser(<?php echo $row['fund_cluster_id']; ?>)"><i
-                                                class="bi bi-trash" data-bs-toggle="tooltip" data-bs-placement="top"
+                                            onclick="deleteUser(<?php echo $row['services_id']; ?>)"><i class="bi bi-trash"
+                                                data-bs-toggle="tooltip" data-bs-placement="top"
                                                 title="Delete"></i></i></button>
                                     </td>
                                 </tr>
@@ -187,28 +175,21 @@ $select = mysqli_query($connection, "SELECT * FROM fund_cluster ");
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editModalLabel">Edit Fund Cluster</h5>
+                    <h5 class="modal-title" id="editModalLabel">Edit Service</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form method="post" id="editUserForm" action="update_fund_cluster.php">
-                        <input type="hidden" id="edit_fund_cluster_id" name="fund_cluster_id">
+                    <form method="post" id="editUserForm" action="update_services.php">
+                        <input type="hidden" id="edit_services_id" name="services_id">
                         <div class="mb-3">
-                            <label for="edit_fund_cluster_name" class="form-label">Fund Cluster Name</label>
-                            <input type="text" class="form-control" id="edit_fund_cluster_name" name="fund_cluster_name"
-                                required>
+                            <label for="edit_services_name" class="form-label">Service Name</label>
+                            <input type="text" class="form-control" id="edit_services_name" name="services_name"
+                                autocomplete="off" required>
                         </div>
                         <div class="mb-3">
-                            <label for="edit_uacs_code" class="form-label">UACS Code</label>
-                            <input type="text" class="form-control" id="edit_uacs_code" name="uacs_code" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="edit_status" class="form-label">Status</label>
-                            <select class="form-select" id="edit_status" name="status">
-                                <option selected disabled>Select Status</option>
-                                <option value="Active">Active</option>
-                                <option value="Inactive">Inactive</option>
-                            </select>
+                            <label for="edit_code" class="form-label">Code</label>
+                            <input type="text" class="form-control" id="edit_code" name="code" required
+                                autocomplete="off">
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -254,13 +235,11 @@ $select = mysqli_query($connection, "SELECT * FROM fund_cluster ");
                 button.addEventListener("click", function () {
                     const id = this.getAttribute("data-id");
                     const name = this.getAttribute("data-name");
-                    const uacs = this.getAttribute("data-uacs");
-                    const status = this.getAttribute("data-status");
+                    const code = this.getAttribute("data-code");
 
-                    document.getElementById("edit_fund_cluster_id").value = id;
-                    document.getElementById("edit_fund_cluster_name").value = name;
-                    document.getElementById("edit_uacs_code").value = uacs;
-                    document.getElementById("edit_status").value = status;
+                    document.getElementById("edit_services_id").value = id;
+                    document.getElementById("edit_services_name").value = name;
+                    document.getElementById("edit_code").value = code;
                 });
             });
         });
@@ -269,8 +248,8 @@ $select = mysqli_query($connection, "SELECT * FROM fund_cluster ");
     <!-- delete -->
     <script>
         function deleteUser(fundClusterID) {
-            if (confirm("Are you sure you want to delete this Fund Cluster?")) {
-                window.location.href = 'delete_fund_cluster.php?fund_cluster_id=' + fundClusterID + '&confirm=yes';
+            if (confirm("Are you sure you want to delete this Service?")) {
+                window.location.href = 'delete_services.php?services_id=' + fundClusterID + '&confirm=yes';
             }
         }
     </script>

@@ -149,6 +149,10 @@ $result_fund_cluster = $connection->query($sql_fund_cluster);
 $sql_oopap = "SELECT oopap_id, oopap_name FROM oopap";
 $result_oopap = $connection->query($sql_oopap);
 
+// retrieve services
+$sql_services = "SELECT services_id, services_name, code FROM services";
+$result_services = $connection->query($sql_services);
+
 
 // Fetch Last Disbursement Voucher No.
 $sql_last_dv = "SELECT ors_no FROM ors ORDER BY ors_id DESC LIMIT 1";
@@ -520,8 +524,8 @@ while ($row = $result_approvers->fetch_assoc()) {
                                             <select class="form-control" name="services">
                                                 <option selected disabled>Select Services</option>
                                                 <?php
-                                                while ($row = $result_oopap->fetch_assoc()) {
-                                                    echo "<option value='" . htmlspecialchars($row['oopap_id']) . "'>" . htmlspecialchars($row['oopap_name']) . "</option>";
+                                                while ($row = $result_services->fetch_assoc()) {
+                                                    echo "<option value='" . htmlspecialchars($row['services_id']) . "'>" . htmlspecialchars($row['services_name']) . "</option>";
                                                 }
                                                 ?>
                                             </select>
