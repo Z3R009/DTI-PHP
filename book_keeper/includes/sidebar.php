@@ -66,6 +66,12 @@
                 </li>
 
                 <li>
+                    <a href="services.php">
+                        <i class="bi bi-circle"></i><span>Services</span>
+                    </a>
+                </li>
+
+                <li>
                     <a href="payee.php">
                         <i class="bi bi-circle"></i><span>Payee</span>
                     </a>

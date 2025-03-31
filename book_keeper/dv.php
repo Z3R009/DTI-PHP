@@ -773,19 +773,20 @@ $select = mysqli_query($connection, "
                 <span class="close-modal" id="closeDvModal">&times;</span>
             </div>
             <!-- ORS Type Selection -->
-            <div class="form-group">
+            <!-- <div class="form-group">
                 <label class="form-label">Select DV Type</label>
                 <select class="form-control" id="ors_type">
                     <option value="" selected disabled>Select DV Type</option>
                     <option value="cash_advance">Cash Advance</option>
                     <option value="transfer_fund">Transfer of Fund</option>
+                    <option value="regular">Regular</option>
                 </select>
-            </div>
+            </div> -->
 
 
             <div class="modal-body">
 
-                <div id="dv_form" style="display: none;">
+                <div id="dv_form">
                     <form action="" method="post">
                         <div class="form-container">
                             <div class="form-section">
@@ -962,7 +963,7 @@ $select = mysqli_query($connection, "
                                             <tr>
                                                 <td>
                                                     <select class="form-control account-select" name="account_titles[]">
-                                                        <option value="">Select Account</option>
+                                                        <option selected disabled>Select Account</option>
                                                         <?php
                                                         $account_query = "SELECT * FROM account_title ORDER BY account_title ASC";
                                                         $account_result = $connection->query($account_query);
@@ -1272,7 +1273,7 @@ $select = mysqli_query($connection, "
     </script>
 
     <!-- show form after selecting ors type  -->
-    <script>
+    <!-- <script>
         document.addEventListener("DOMContentLoaded", function () {
             const orsTypeSelect = document.getElementById("ors_type");
             const orsForm = document.getElementById("dv_form");
@@ -1283,34 +1284,35 @@ $select = mysqli_query($connection, "
                 }
             });
         });
-    </script>
+    </script> -->
 
     <!-- account_title -->
-    <script>
+    <!-- <script>
         document.addEventListener("DOMContentLoaded", function () {
             const orsTypeSelect = document.getElementById("ors_type");
-            
+
             function filterAccountTitles() {
                 const selectedType = orsTypeSelect.value;
                 const accountSelects = document.querySelectorAll('.account-select');
-                
+
                 accountSelects.forEach(select => {
                     const currentValue = select.value;
                     const currentTitle = select.options[select.selectedIndex]?.getAttribute('data-title') || '';
-                    
+
                     Array.from(select.options).forEach(option => {
                         if (option.value === "") return;
-                        
+
                         const accountTitle = option.getAttribute('data-title')?.toLowerCase() || '';
+                        const accountCode = option.getAttribute('data-uacs') || '';
                         if (selectedType === "cash_advance") {
                             option.hidden = !accountTitle.includes('advance');
                         } else if (selectedType === "transfer_fund") {
-                            option.hidden = !accountTitle.includes('cash');
+                            option.hidden = !(accountTitle.includes('cash') && accountCode.startsWith('10'));
                         } else {
                             option.hidden = false;
                         }
                     });
-                    
+
                     // Restore selection if it's still valid
                     if (currentValue && select.querySelector(`option[value="${currentValue}"]`)) {
                         select.value = currentValue;
@@ -1320,13 +1322,13 @@ $select = mysqli_query($connection, "
 
             // Filter on initial load and when DV type changes
             orsTypeSelect.addEventListener("change", filterAccountTitles);
-            
+
             // Also filter when new rows are added
-            document.getElementById('addAccountRow').addEventListener('click', function() {
+            document.getElementById('addAccountRow').addEventListener('click', function () {
                 setTimeout(filterAccountTitles, 0);
             });
         });
-    </script>
+    </script> -->
 
     <!-- add row and calculate totals -->
     <script>
@@ -1373,12 +1375,13 @@ $select = mysqli_query($connection, "
                 const currentValue = select.value;
                 Array.from(select.options).forEach(option => {
                     if (option.value === "") return; // Skip the "Select Account" option
-                    
+
                     const accountTitle = option.getAttribute('data-title')?.toLowerCase() || '';
+                    const accountCode = option.getAttribute('data-uacs') || '';
                     if (selectedType === "cash_advance") {
                         option.hidden = !accountTitle.includes('advance');
                     } else if (selectedType === "transfer_fund") {
-                        option.hidden = !accountTitle.includes('cash');
+                        option.hidden = !(accountTitle.includes('cash') && accountCode.startsWith('10'));
                     } else {
                         option.hidden = false;
                     }
@@ -1446,7 +1449,7 @@ $select = mysqli_query($connection, "
             setupCalculationListeners(initialRow);
 
             // Add event listener for DV type changes
-            document.getElementById('ors_type').addEventListener('change', function() {
+            document.getElementById('ors_type').addEventListener('change', function () {
                 const selectedType = this.value;
                 const accountSelects = document.querySelectorAll('.account-select');
                 accountSelects.forEach(select => {

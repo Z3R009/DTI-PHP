@@ -319,9 +319,10 @@ if (isset($_GET['ors_no'])) {
 
         <div class="modal-footer no-print text-center">
             <button type="button" class="btn btn-primary" onclick="window.print()">Print ORS</button>
-            <button type="button" class="btn btn-secondary" onclick="window.location.href='gas_obligation.php';">
+            <button type="button" class="btn btn-secondary" onclick="window.history.back();">
                 Back
             </button>
+
         </div>
 
     </div>

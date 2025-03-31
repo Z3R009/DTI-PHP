@@ -505,6 +505,28 @@ while ($row = $result_approvers->fetch_assoc()) {
                                             </select>
                                         </div>
                                         <div class="form-group">
+                                            <label class="form-label">OO/PAP</label>
+                                            <select class="form-control" name="oopap_id">
+                                                <option selected disabled>Select OO/PAP</option>
+                                                <?php
+                                                while ($row = $result_oopap->fetch_assoc()) {
+                                                    echo "<option value='" . htmlspecialchars($row['oopap_id']) . "'>" . htmlspecialchars($row['oopap_name']) . "</option>";
+                                                }
+                                                ?>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Services</label>
+                                            <select class="form-control" name="services">
+                                                <option selected disabled>Select Services</option>
+                                                <?php
+                                                while ($row = $result_oopap->fetch_assoc()) {
+                                                    echo "<option value='" . htmlspecialchars($row['oopap_id']) . "'>" . htmlspecialchars($row['oopap_name']) . "</option>";
+                                                }
+                                                ?>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
                                             <label class="form-label">Date</label>
                                             <input type="date" class="form-control" id="dvDate" name="date">
                                         </div>
@@ -595,15 +617,14 @@ while ($row = $result_approvers->fetch_assoc()) {
                                                 <table class="accounting-entry-table">
                                                     <thead>
                                                         <tr>
-                                                            <th>Account Title</th>
-                                                            <th>OO/PAP</th>
+                                                            <th colspan="3">Account Title</th>
                                                             <th>Amount</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody id="accounting-table-body">
                                                         <!-- First row -->
                                                         <tr class="entry-row">
-                                                        <td>
+                                                        <td colspan="3">
                                                         <select class="form-control" name="account_id" id="account_title">
                                                                 <option selected disabled>Select Account</option>
                                                                 <?php
@@ -617,16 +638,6 @@ while ($row = $result_approvers->fetch_assoc()) {
                                                             </select>
                                                         </td>
 
-                                                            <td>
-                                                                <select class="form-control" name="oopap_id">
-                                                                    <option selected disabled>Select OO/PAP</option>
-                                                                    <?php
-                                                                    while ($row = $result_oopap->fetch_assoc()) {
-                                                                        echo "<option value='" . htmlspecialchars($row['oopap_id']) . "'>" . htmlspecialchars($row['oopap_name']) . "</option>";
-                                                                    }
-                                                                    ?>
-                                                                </select>
-                                                            </td>
                                                             <td>
                                                                 <input type="number" class="form-control amount-input" name="amount" step="0.01" autocomplete="off">
                                                             </td>
@@ -855,8 +866,7 @@ while ($row = $result_approvers->fetch_assoc()) {
 
     </script>
 
-
-    <!-- add row  -->
+    <!-- add row and total amount calculation -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const tableBody = document.querySelector("#accounting-table-body");
@@ -865,8 +875,15 @@ while ($row = $result_approvers->fetch_assoc()) {
             // Fetch the options for account_id and oopap_id from the first row
             const objectCodeOptions = Array.from(tableBody.querySelector(".entry-row select[name='account_id']").options)
                 .map(option => ({ value: option.value, text: option.text }));
-            const oopapOptions = Array.from(tableBody.querySelector(".entry-row select[name='oopap_id']").options)
-                .map(option => ({ value: option.value, text: option.text }));
+
+
+            function updateTotal() {
+                let total = 0;
+                document.querySelectorAll(".amount-input").forEach(function (input) {
+                    total += parseFloat(input.value) || 0;
+                });
+                document.getElementById("total_amount").value = total.toFixed(2);
+            }
 
             // Add new row functionality
             document.querySelector("#addAccountRow").addEventListener("click", function () {
@@ -885,21 +902,21 @@ while ($row = $result_approvers->fetch_assoc()) {
                 });
 
                 // Create the OO/PAP dropdown
-                const oopapSelect = document.createElement("select");
-                oopapSelect.className = "form-control";
-                oopapSelect.name = "oopap_id";
-                oopapSelect.innerHTML = '<option selected disabled>Select OO/PAP</option>';
-                oopapOptions.forEach(option => {
-                    const optionElement = document.createElement("option");
-                    optionElement.value = option.value;
-                    optionElement.textContent = option.text;
-                    oopapSelect.appendChild(optionElement);
-                });
+                // const oopapSelect = document.createElement("select");
+                // oopapSelect.className = "form-control";
+                // oopapSelect.name = "oopap_id";
+                // oopapSelect.innerHTML = '<option selected disabled>Select OO/PAP</option>';
+                // oopapOptions.forEach(option => {
+                //     const optionElement = document.createElement("option");
+                //     optionElement.value = option.value;
+                //     optionElement.textContent = option.text;
+                //     oopapSelect.appendChild(optionElement);
+                // });
 
                 // Create the Amount input
                 const amountInput = document.createElement("input");
                 amountInput.type = "number";
-                amountInput.className = "form-control";
+                amountInput.className = "form-control amount-input";
                 amountInput.name = "amount";
                 amountInput.step = "0.01";
 
@@ -917,6 +934,16 @@ while ($row = $result_approvers->fetch_assoc()) {
 
                 // Insert the new row before the "Add Row" button row
                 tableBody.insertBefore(newRow, addRowContainer);
+
+                // Update total amount
+                updateTotal();
+            });
+
+            // Listen for input changes
+            document.getElementById("accounting-table-body").addEventListener("input", function (event) {
+                if (event.target.classList.contains("amount-input")) {
+                    updateTotal();
+                }
             });
         });
     </script>
