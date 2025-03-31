@@ -123,7 +123,11 @@ if (isset($_POST['submit'])) {
 
 
 // Query to fetch account titles and their corresponding UACS codes
-$result_account = mysqli_query($connection, "SELECT * FROM account_title ORDER BY account_title ASC");
+$sql_account = "SELECT account_id, account_title, account_code 
+                FROM account_title 
+                WHERE account_code LIKE '5%'";
+
+$result_account = $connection->query($sql_account);
 
 
 // retrieve payee
@@ -563,43 +567,6 @@ while ($row = $result_approvers->fetch_assoc()) {
                                     <div class="form-row">
                                         <div class="form-group full-width">
 
-<<<<<<< HEAD
-                                </div>
-                            </div>
-
-                            <!-- Accounting Entry Section -->
-                            <div class="form-section">
-                                <h3>Particulars</h3>
-                                <div class="table-responsive">
-                                    <table class="accounting-entry-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Account Title</th>
-                                                <th>OO/PAP</th>
-                                                <th>Amount</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="accounting-table-body">
-                                            <!-- First row -->
-                                            <tr class="entry-row">
-                                            <td>
-                                            <select class="form-control" name="account_id" id="account_title">
-                                                    <option selected disabled>Select Account</option>
-                                                    <?php
-                                                    while ($row = mysqli_fetch_assoc($result_account)) {
-                                                        echo "<option value='" . htmlspecialchars($row['account_id']) . "' 
-                                                            data-account_code='" . htmlspecialchars($row['account_code']) . "'>"
-                                                            . htmlspecialchars($row['account_title']) . " - " . htmlspecialchars($row['account_code']) .
-                                                            "</option>";
-                                                    }
-                                                    ?>
-                                                </select>
-                                            </td>
-
-                                                <td>
-                                                    <select class="form-control" name="oopap_id">
-                                                        <option selected disabled>Select OO/PAP</option>
-=======
                                             <textarea class="form-control" name="notes" placeholder="Enter Purpose"></textarea autocomplete="off">
                                                 </div>
                                             </div>
@@ -608,7 +575,6 @@ while ($row = $result_approvers->fetch_assoc()) {
                                                     <label class="form-label">Responsibility Center</label>
                                                     <select class="form-control" name="rc_id">
                                                         <option selected disabled>Select Responsibility Center</option>
->>>>>>> fb613ac9cfaeb5f373349a135af7dfd132caf56e
                                                         <?php
                                                         while ($row = $result_responsibility_center->fetch_assoc()) {
                                                             echo "<option value='" . htmlspecialchars($row['rc_id']) . "'>"

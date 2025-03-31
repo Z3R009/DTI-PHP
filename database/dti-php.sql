@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 28, 2025 at 02:44 AM
+-- Generation Time: Mar 31, 2025 at 03:05 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -317,6 +317,13 @@ CREATE TABLE `ors` (
   `budget_officer` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `ors`
+--
+
+INSERT INTO `ors` (`ors_id`, `fund_cluster_id`, `date`, `ors_no`, `payee_id`, `notes`, `purpose`, `rc_id`, `account_id`, `oopap_id`, `total_amount`, `approver_id`, `budget_officer`) VALUES
+(50, 8, '2025-03-05', '1234', 5, '11', '11', 2, 245, 1, 1111.00, 4, '11');
+
 -- --------------------------------------------------------
 
 --
@@ -606,7 +613,7 @@ ALTER TABLE `oopap`
 -- AUTO_INCREMENT for table `ors`
 --
 ALTER TABLE `ors`
-  MODIFY `ors_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
+  MODIFY `ors_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
 
 --
 -- AUTO_INCREMENT for table `payee`
