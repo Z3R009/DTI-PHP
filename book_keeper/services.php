@@ -6,11 +6,12 @@ include '../DBConnection.php';
 if (isset($_POST['submit'])) {
     $services_name = $_POST['services_name'];
     $code = $_POST['code'];
+    $oopap_id = $_POST['oopap_id'];
 
 
-    $sql = "INSERT INTO services (services_name, code) VALUES (?, ?)";
+    $sql = "INSERT INTO services (services_name, code, oopap_id) VALUES (?, ?, ?)";
     $stmt = $connection->prepare($sql);
-    $stmt->bind_param("ss", $services_name, $code);
+    $stmt->bind_param("ssi", $services_name, $code, $oopap_id);
 
     if ($stmt->execute()) {
         header('Location: services.php');
@@ -21,7 +22,21 @@ if (isset($_POST['submit'])) {
 
 // retrieve cluster
 
-$select = mysqli_query($connection, "SELECT * FROM services ");
+$select = mysqli_query(
+    $connection,
+
+    "SELECT *,
+oopap.oopap_name
+
+ FROM services 
+ LEFT JOIN oopap ON oopap.oopap_id = oopap.oopap_id
+ 
+ "
+);
+
+// retrieve oo/pap
+$sql_oopap = "SELECT oopap_id, oopap_name FROM oopap";
+$result_oopap = $connection->query($sql_oopap);
 
 ?>
 
@@ -114,6 +129,17 @@ $select = mysqli_query($connection, "SELECT * FROM services ");
                                             <input type="code" class="form-control" id="code" name="code"
                                                 placeholder="Enter Code" required autocomplete="off">
                                         </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">OO/PAP</label>
+                                            <select class="form-control" name="oopap_id">
+                                                <option selected disabled>Select OO/PAP</option>
+                                                <?php
+                                                while ($row = $result_oopap->fetch_assoc()) {
+                                                    echo "<option value='" . htmlspecialchars($row['oopap_id']) . "'>" . htmlspecialchars($row['oopap_name']) . "</option>";
+                                                }
+                                                ?>
+                                            </select>
+                                        </div>
                                         <div class="modal-footer">
                                             <!-- <button type="button" class="btn btn-secondary"
                                         data-bs-dismiss="modal">Close</button> -->
@@ -135,6 +161,7 @@ $select = mysqli_query($connection, "SELECT * FROM services ");
                             <tr>
                                 <th>Service Name</th>
                                 <th>Code</th>
+                                <th>OO/PAP</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -143,11 +170,13 @@ $select = mysqli_query($connection, "SELECT * FROM services ");
                                 <tr>
                                     <td><?php echo htmlspecialchars($row['services_name']); ?></td>
                                     <td><?php echo htmlspecialchars($row['code']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['oopap_name']); ?></td>
                                     <td>
                                         <button type="button" class="btn btn-primary edit-btn" data-bs-toggle="modal"
                                             data-bs-target="#editModal" data-id="<?php echo $row['services_id']; ?>"
                                             data-name="<?php echo htmlspecialchars($row['services_name']); ?>"
-                                            data-code="<?php echo htmlspecialchars($row['code']); ?>"><i
+                                            data-code="<?php echo htmlspecialchars($row['code']); ?>"
+                                            data-oopap_id="<?php echo htmlspecialchars($row['oopap_id']); ?>"><i
                                                 class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top"
                                                 title="Edit"></i>
                                         </button>
@@ -190,6 +219,17 @@ $select = mysqli_query($connection, "SELECT * FROM services ");
                             <label for="edit_code" class="form-label">Code</label>
                             <input type="text" class="form-control" id="edit_code" name="code" required
                                 autocomplete="off">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">OO/PAP</label>
+                            <select class="form-control" name="oopap_id" id="edit_oopap_id">
+                                <option selected disabled>Select OO/PAP</option>
+                                <?php
+                                while ($row = $result_oopap->fetch_assoc()) {
+                                    echo "<option value='" . htmlspecialchars($row['oopap_id']) . "'>" . htmlspecialchars($row['oopap_name']) . "</option>";
+                                }
+                                ?>
+                            </select>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -236,10 +276,12 @@ $select = mysqli_query($connection, "SELECT * FROM services ");
                     const id = this.getAttribute("data-id");
                     const name = this.getAttribute("data-name");
                     const code = this.getAttribute("data-code");
+                    const oopap_id = this.getAttribute("data-oopap_id");
 
                     document.getElementById("edit_services_id").value = id;
                     document.getElementById("edit_services_name").value = name;
                     document.getElementById("edit_code").value = code;
+                    document.getElementById("edit_oopap_id").value = oopap_id
                 });
             });
         });

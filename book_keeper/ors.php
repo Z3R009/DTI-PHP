@@ -16,6 +16,7 @@ if (isset($_POST['submit'])) {
     $fund_cluster_id = $_POST['fund_cluster_id'];
     $date = $_POST['date'];
     $ors_no = $_POST['ors_no'];
+    $services_id = $_POST['services_id'];
     $payee_id = $_POST['payee_id'];
     $purpose = $_POST['purpose'];
     $notes = $_POST['notes'];
@@ -53,8 +54,8 @@ if (isset($_POST['submit'])) {
         $update_stmt->execute();
 
         // Insert ORS record
-        $sql = "INSERT INTO ors (fund_cluster_id, date, ors_no, payee_id, purpose, notes, rc_id, account_id, oopap_id, total_amount, approver_id, budget_officer) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO ors (fund_cluster_id, date, services_id, ors_no, payee_id, purpose, notes, rc_id, account_id, oopap_id, total_amount, approver_id, budget_officer) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         $stmt = $connection->prepare($sql);
         if (!$stmt) {
@@ -62,9 +63,10 @@ if (isset($_POST['submit'])) {
         }
 
         $stmt->bind_param(
-            "issssssiidis",
+            "isssssssiidis",
             $fund_cluster_id,
             $date,
+            $services_id,
             $ors_no,
             $payee_id,
             $purpose,
@@ -521,11 +523,13 @@ while ($row = $result_approvers->fetch_assoc()) {
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label">Services</label>
-                                            <select class="form-control" name="services">
+                                            <select class="form-control" name="services_id" id="services">
                                                 <option selected disabled>Select Services</option>
                                                 <?php
                                                 while ($row = $result_services->fetch_assoc()) {
-                                                    echo "<option value='" . htmlspecialchars($row['services_id']) . "'>" . htmlspecialchars($row['services_name']) . "</option>";
+                                                    echo "<option value='" . htmlspecialchars($row['services_id']) . "' 
+                                                    data-code='" . htmlspecialchars($row['code']) . "'>"
+                                                        . htmlspecialchars($row['services_name']) . "</option>";
                                                 }
                                                 ?>
                                             </select>
@@ -536,8 +540,8 @@ while ($row = $result_approvers->fetch_assoc()) {
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label">Obligation Request No.</label>
-                                            <input type="text" class="form-control" name="ors_no" required
-                                                autocomplete="off">
+                                            <input type="text" class="form-control" name="ors_no" id="ors_no" required
+                                                readonly>
                                         </div>
                                     </div>
                                 </div>
@@ -659,7 +663,7 @@ while ($row = $result_approvers->fetch_assoc()) {
 
                                                         <!-- Total Amount Row -->
                                                         <tr>
-                                                            <td colspan="2" class="text-right font-weight-bold">Total Amount:</td>
+                                                            <td colspan="3" class="text-right font-weight-bold">Total Amount:</td>
                                                             <td><input type="text" id="total_amount" class="form-control" name="total_amount" readonly></td>
                                                         </tr>
                                                     </tbody>
@@ -1096,7 +1100,48 @@ while ($row = $result_approvers->fetch_assoc()) {
     });
 </script>
 
+<!-- Add this before the closing </body> tag -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const servicesSelect = document.getElementById('services');
+        const dateInput = document.getElementById('dvDate');
+        const orsNoInput = document.getElementById('ors_no');
 
+        function generateORSNumber() {
+            const selectedService = servicesSelect.options[servicesSelect.selectedIndex];
+            const selectedDate = dateInput.value;
+
+            if (!selectedService || selectedService.disabled || !selectedDate) {
+                return;
+            }
+
+            const serviceCode = selectedService.getAttribute('data-code');
+            const date = new Date(selectedDate);
+            const year = date.getFullYear().toString().substr(-2); // Get last 2 digits of year
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // Get month with leading zero
+
+            // Make an AJAX call to get the next sequence number
+            fetch('get_next_ors_sequence.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `service_code=${serviceCode}&year=${year}&month=${month}`
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const sequence = String(data.next_sequence).padStart(3, '0');
+                    orsNoInput.value = `${serviceCode}-${year}-${month}-${sequence}`;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        servicesSelect.addEventListener('change', generateORSNumber);
+        dateInput.addEventListener('change', generateORSNumber);
+    });
+</script>
 
 </body>
 
