@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 31, 2025 at 07:21 AM
+-- Generation Time: Apr 02, 2025 at 03:23 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -167,7 +167,8 @@ INSERT INTO `account_title` (`account_id`, `account_title`, `account_code`) VALU
 (373, 'Repair and Maintenance - BUILDINGS', '5021308001'),
 (374, 'Printing and Publication Expenses', '5021202000'),
 (375, 'Rents - Motor Vehicles', '5029990002'),
-(376, 'Other Subscription Expenses', '5029907000');
+(376, 'Other Subscription Expenses', '5029907000'),
+(379, 'test', '50000');
 
 -- --------------------------------------------------------
 
@@ -644,7 +645,8 @@ INSERT INTO `project` (`project_id`, `oopap_id`, `account_id`, `allotment`, `bal
 (373, 9, 363, 50000.00, 50000.00, '2025-03-31'),
 (374, 9, 364, 0.00, 0.00, '2025-03-31'),
 (375, 9, 314, 50000.00, 50000.00, '2025-03-31'),
-(376, 9, 346, 50000.00, 50000.00, '2025-03-31');
+(376, 9, 346, 50000.00, 50000.00, '2025-03-31'),
+(378, 1, 379, 100000.00, 100000.00, '2025-04-02');
 
 -- --------------------------------------------------------
 
@@ -679,6 +681,44 @@ INSERT INTO `responsibility_center` (`rc_id`, `code`, `parent_code`, `type`, `ac
 (11, '22-001-03-00012-15', '22-001-03-00012', 'Non Office ', 'RAPID-GoP', 'RAPID Growth Project -GoP Counterpart'),
 (12, '22-001-03-00012-16', '22-001-03-00012', 'Local Projects', 'OTOP NEXT GEN', 'OTOP Next Generation'),
 (13, '22-001-03-00012-17', '22-001-03-00012', 'Non Office', 'SAA', 'Sub-allotment');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `services`
+--
+
+CREATE TABLE `services` (
+  `services_id` int(11) NOT NULL,
+  `services_name` varchar(255) NOT NULL,
+  `code` varchar(255) NOT NULL,
+  `oopap_id` int(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `services`
+--
+
+INSERT INTO `services` (`services_id`, `services_name`, `code`, `oopap_id`) VALUES
+(2, 'REGULAR MANDATORY', 'RM', 1),
+(3, 'ONE TIME EXPENSES', 'ONETIME', 1),
+(4, 'OUTSOURCED SERVICES', 'OS', 1),
+(5, 'SECURITY SERVICES', 'SECURITY', 1),
+(6, 'LEARNING AND DEVELOPMENT', 'LD', 1),
+(7, 'REWARDS AND RECOGNITION', 'RR', 1),
+(8, 'PERFORMANCE MANAGEMENT SYSTEM', 'PMS', 1),
+(9, 'RECRUITMENT, SELECTION AND PLACEMENT', 'RSP', 1),
+(10, 'SUPPLY & PROPERTY MANAGEMENT', 'SUPPLY', 1),
+(11, 'ADMINISTRATION & POLICY', 'ADMIN&POLICY', 1),
+(12, 'SAFETY AND HEALTH', 'OSH', 1),
+(13, 'RBAC MEETING', 'RBAC', 1),
+(14, 'GADGET COST', 'GADGET', 1),
+(15, 'MSSD ORD', 'MSSD', 1),
+(16, 'MSSD ISO', 'MSSD-ISO', 1),
+(17, 'MSSD PLANNING', 'MSSD-PLAN', 1),
+(18, 'MSSD-RECORDS', 'MSSD-RECORDS', 1),
+(19, 'MSSD-KM', 'MSSD-KM', 1),
+(20, 'PROVINCIAL OPERATING FUND (POF) - MANDATORY', 'POF', 1);
 
 -- --------------------------------------------------------
 
@@ -799,6 +839,13 @@ ALTER TABLE `responsibility_center`
   ADD PRIMARY KEY (`rc_id`);
 
 --
+-- Indexes for table `services`
+--
+ALTER TABLE `services`
+  ADD PRIMARY KEY (`services_id`),
+  ADD KEY `oopap_id` (`oopap_id`);
+
+--
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
@@ -812,7 +859,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `account_title`
 --
 ALTER TABLE `account_title`
-  MODIFY `account_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=378;
+  MODIFY `account_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=380;
 
 --
 -- AUTO_INCREMENT for table `approver`
@@ -866,13 +913,19 @@ ALTER TABLE `payee`
 -- AUTO_INCREMENT for table `project`
 --
 ALTER TABLE `project`
-  MODIFY `project_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=377;
+  MODIFY `project_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=379;
 
 --
 -- AUTO_INCREMENT for table `responsibility_center`
 --
 ALTER TABLE `responsibility_center`
   MODIFY `rc_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+
+--
+-- AUTO_INCREMENT for table `services`
+--
+ALTER TABLE `services`
+  MODIFY `services_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -921,6 +974,12 @@ ALTER TABLE `ors`
 ALTER TABLE `project`
   ADD CONSTRAINT `project_ibfk_1` FOREIGN KEY (`oopap_id`) REFERENCES `oopap` (`oopap_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `project_ibfk_2` FOREIGN KEY (`account_id`) REFERENCES `account_title` (`account_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `services`
+--
+ALTER TABLE `services`
+  ADD CONSTRAINT `services_ibfk_1` FOREIGN KEY (`oopap_id`) REFERENCES `oopap` (`oopap_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

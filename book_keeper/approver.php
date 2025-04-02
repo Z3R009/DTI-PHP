@@ -7,12 +7,13 @@ include '../DBConnection.php';
 if (isset($_POST['submit'])) {
     $approver_name = $_POST['approver_name'];
     $designation = $_POST['designation'];
+    $sub_title = $_POST['sub_title'];
 
 
 
-    $sql = "INSERT INTO approver (approver_name, designation) VALUES (?, ?)";
+    $sql = "INSERT INTO approver (approver_name, designation, sub_title) VALUES (?, ?, ?)";
     $stmt = $connection->prepare($sql);
-    $stmt->bind_param("ss", $approver_name, $designation);
+    $stmt->bind_param("sss", $approver_name, $designation, $sub_title);
 
     if ($stmt->execute()) {
         header('Location: approver.php');
@@ -72,8 +73,8 @@ $select = mysqli_query($connection, "SELECT * FROM approver");
 
 <body>
 
-        <?php include "Includes/header.php";?>
-        <?php include "Includes/sidebar.php";?>
+    <?php include "Includes/header.php"; ?>
+    <?php include "Includes/sidebar.php"; ?>
 
     <main id="main" class="main">
 
@@ -114,6 +115,11 @@ $select = mysqli_query($connection, "SELECT * FROM approver");
                                             <input type="text" class="form-control" id="designation" name="designation"
                                                 placeholder="Enter Designation" required autocomplete="off">
                                         </div>
+                                        <div class="mb-3">
+                                            <label for="sub_title" class="form-label">Designation2</label>
+                                            <input type="text" class="form-control" id="sub_title" name="sub_title"
+                                                placeholder="Enter Designation2" required autocomplete="off">
+                                        </div>
                                         <div class="modal-footer">
                                             <!-- <button type="button" class="btn btn-secondary"
                                         data-bs-dismiss="modal">Close</button> -->
@@ -144,14 +150,14 @@ $select = mysqli_query($connection, "SELECT * FROM approver");
                                     <td><?php echo htmlspecialchars($row['approver_name']); ?></td>
                                     <td><?php echo htmlspecialchars($row['designation']); ?></td>
                                     <td>
-                                    <button type="button" class="btn btn-primary edit-btn"
-    data-bs-toggle="modal" 
-    data-bs-target="#editUserModal"
-    data-id="<?php echo $row['approver_id']; ?>"
-    data-name="<?php echo htmlspecialchars($row['approver_name']); ?>"
-    data-designation="<?php echo htmlspecialchars($row['designation']); ?>">
-    <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"></i>
-</button>
+                                        <button type="button" class="btn btn-primary edit-btn" data-bs-toggle="modal"
+                                            data-bs-target="#editUserModal" data-id="<?php echo $row['approver_id']; ?>"
+                                            data-name="<?php echo htmlspecialchars($row['approver_name']); ?>"
+                                            data-designation="<?php echo htmlspecialchars($row['designation']); ?>"
+                                            data-sub_title="<?php echo htmlspecialchars($row['sub_title']); ?>">
+                                            <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top"
+                                                title="Edit"></i>
+                                        </button>
 
 
                                         <button type="button" class="btn btn-danger"
@@ -174,32 +180,37 @@ $select = mysqli_query($connection, "SELECT * FROM approver");
 
     <!-- update modal -->
     <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editUserModalLabel">Edit Approver</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form method="post" id="editUserForm" action="update_approver.php" >
-                    <input type="hidden" id="edit_approver_id" name="approver_id">
-                    <div class="mb-3">
-                        <label for="edit_approver_name" class="form-label">Approver Name</label>
-                        <input type="text" class="form-control" id="edit_approver_name" name="approver_name" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="edit_designation" class="form-label">Designation</label>
-                        <input type="text" class="form-control" id="edit_designation" name="designation" required>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" id="update" name="update" class="btn btn-primary">Update</button>
-                    </div>
-                </form>
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editUserModalLabel">Edit Approver</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" id="editUserForm" action="update_approver.php">
+                        <input type="hidden" id="edit_approver_id" name="approver_id">
+                        <div class="mb-3">
+                            <label for="edit_approver_name" class="form-label">Approver Name</label>
+                            <input type="text" class="form-control" id="edit_approver_name" name="approver_name"
+                                required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_designation" class="form-label">Designation</label>
+                            <input type="text" class="form-control" id="edit_designation" name="designation" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_sub_title" class="form-label">Designation</label>
+                            <input type="text" class="form-control" id="edit_sub_title" name="sub_title" required>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" id="update" name="update" class="btn btn-primary">Update</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
 
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
@@ -219,25 +230,27 @@ $select = mysqli_query($connection, "SELECT * FROM approver");
     <script src="../NiceAdmin/assets/js/main.js"></script>
 
     <script>
-document.addEventListener("DOMContentLoaded", function() {
-    const editButtons = document.querySelectorAll(".edit-btn");
+        document.addEventListener("DOMContentLoaded", function () {
+            const editButtons = document.querySelectorAll(".edit-btn");
 
-    editButtons.forEach(button => {
-        button.addEventListener("click", function() {
-            const id = this.getAttribute("data-id");
-            const name = this.getAttribute("data-name");
-            const designation = this.getAttribute("data-designation");
+            editButtons.forEach(button => {
+                button.addEventListener("click", function () {
+                    const id = this.getAttribute("data-id");
+                    const name = this.getAttribute("data-name");
+                    const designation = this.getAttribute("data-designation");
+                    const sub_title = this.getAttribute("data-sub_title");
 
-            document.getElementById("edit_approver_id").value = id;
-            document.getElementById("edit_approver_name").value = name;
-            document.getElementById("edit_designation").value = designation;
+                    document.getElementById("edit_approver_id").value = id;
+                    document.getElementById("edit_approver_name").value = name;
+                    document.getElementById("edit_designation").value = designation;
+                    document.getElementById("edit_sub_title").value = sub_title;
+                });
+            });
         });
-    });
-});
-</script>
+    </script>
 
- <!-- delete -->
- <script>
+    <!-- delete -->
+    <script>
         function deleteUser(userID) {
             if (confirm("Are you sure you want to delete this user?")) {
                 window.location.href = 'delete_approver.php?approver_id=' + userID + '&confirm=yes';
@@ -245,7 +258,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     </script>
 
-    
+
 </body>
 
 </html>

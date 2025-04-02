@@ -25,11 +25,11 @@ if (isset($_POST['submit'])) {
 $select = mysqli_query(
     $connection,
 
-    "SELECT *,
+    "SELECT services.*,
 oopap.oopap_name
 
  FROM services 
- LEFT JOIN oopap ON oopap.oopap_id = oopap.oopap_id
+ LEFT JOIN oopap ON services.oopap_id = oopap.oopap_id
  
  "
 );
