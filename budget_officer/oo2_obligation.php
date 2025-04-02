@@ -3,6 +3,7 @@ include '../DBConnection.php';
 
 
 // retrieve 
+$current_year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
 
 $select = mysqli_query(
     $connection,
@@ -17,7 +18,8 @@ $select = mysqli_query(
      LEFT JOIN ors ON obligation_history.ors_id = ors.ors_id 
      LEFT JOIN payee ON ors.payee_id = payee.payee_id
      WHERE oopap_id = 3" .
-    (isset($_GET['month']) ? " AND MONTH(ors.date) = " . intval($_GET['month']) : "")
+    (isset($_GET['month']) ? " AND MONTH(ors.date) = " . intval($_GET['month']) : "") .
+    " AND YEAR(ors.date) = " . $current_year
 );
 
 
@@ -78,15 +80,15 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     <main id="main" class="main">
 
         <div class="pagetitle">
-            <h1>OO2</h1>
+            <h1>OO2(<?php echo date('Y'); ?>)</h1>
         </div><!-- End Page Title -->
 
         <section class="section dashboard">
-            <!-- Month Selection -->
+            <!-- Month and Year Selection -->
             <div class="row mb-3">
-                <div class="col-12 d-flex justify-content-end">
-                    <div style="width: 200px;">
-                        <select class="form-select" id="monthSelect" onchange="filterByMonth(this.value)">
+                <div class="col-12 d-flex justify-content-end gap-2">
+                    <div style="width: 150px;">
+                        <select class="form-select" id="monthSelect" onchange="filterData()">
                             <option value="">All Months</option>
                             <option value="1" <?php echo (isset($_GET['month']) && $_GET['month'] == '1') ? 'selected' : ''; ?>>January</option>
                             <option value="2" <?php echo (isset($_GET['month']) && $_GET['month'] == '2') ? 'selected' : ''; ?>>February</option>
@@ -100,6 +102,18 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                             <option value="10" <?php echo (isset($_GET['month']) && $_GET['month'] == '10') ? 'selected' : ''; ?>>October</option>
                             <option value="11" <?php echo (isset($_GET['month']) && $_GET['month'] == '11') ? 'selected' : ''; ?>>November</option>
                             <option value="12" <?php echo (isset($_GET['month']) && $_GET['month'] == '12') ? 'selected' : ''; ?>>December</option>
+                        </select>
+                    </div>
+                    
+                    <div style="width: 120px;">
+                        <select class="form-select" id="yearSelect" onchange="filterData()">
+                            <?php 
+                            $current_year = date('Y');
+                            for($year = $current_year; $year >= $current_year - 5; $year--) {
+                                $selected = (isset($_GET['year']) && $_GET['year'] == $year) ? 'selected' : '';
+                                echo "<option value='$year' $selected>$year</option>";
+                            }
+                            ?>
                         </select>
                     </div>
                 </div>
@@ -220,12 +234,14 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     <script src="../NiceAdmin/assets/js/main.js"></script>
 
     <script>
-        function filterByMonth(month) {
+        function filterData() {
+            const month = document.getElementById('monthSelect').value;
+            const year = document.getElementById('yearSelect').value;
+            let url = 'oo2_obligation.php?year=' + year;
             if (month) {
-                window.location.href = 'oo2_obligation.php?month=' + month;
-            } else {
-                window.location.href = 'oo2_obligation.php';
+                url += '&month=' + month;
             }
+            window.location.href = url;
         }
     </script>
 

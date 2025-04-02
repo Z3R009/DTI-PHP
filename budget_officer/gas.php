@@ -5,42 +5,49 @@ include '../DBConnection.php';
 //Add users
 
 if (isset($_POST['submit'])) {
-    $project_id = $_POST['project_id'];
+    // Generate a new project_id
+    $project_id_query = "SELECT MAX(project_id) as max_id FROM project";
+    $project_id_result = mysqli_query($connection, $project_id_query);
+    $project_id_row = mysqli_fetch_assoc($project_id_result);
+    $project_id = ($project_id_row['max_id'] ?? 0) + 1;  
     $oopap_id = $_POST['oopap_id'];
     $account_id = $_POST['account_id'];
     $allotment = $_POST['allotment'];
     $balances = $_POST['balances'];
+    $created_at = date('Y-m-d H:i:s');
 
-    $sql = "INSERT INTO project (project_id, oopap_id, account_id, allotment, balances) VALUES (?, ?, ?, ?, ?)";
-    $stmt = $connection->prepare($sql);
-    $stmt->bind_param("iiiss", $project_id, $oopap_id, $account_id, $allotment, $balances);
-
-    if ($stmt->execute()) {
-        header('Location: gas.php');
+    // Validate required fields
+    if (empty($account_id) || empty($allotment)) {
+        $error_message = "Please fill in all required fields";
     } else {
-        echo "Error: " . $stmt->error;
+        $sql = "INSERT INTO project (project_id, oopap_id, account_id, allotment, balances, created_at) VALUES (?, ?, ?, ?, ?, ?)";
+        $stmt = $connection->prepare($sql);
+        $stmt->bind_param("iiisss", $project_id, $oopap_id, $account_id, $allotment, $balances, $created_at);
+
+        if ($stmt->execute()) {
+            header('Location: gas.php');
+            exit();
+        } else {
+            $error_message = "Error saving data: " . $stmt->error;
+        }
     }
 }
 
-
 // retrieve 
-
 $select = mysqli_query(
     $connection,
-
-
     "SELECT project.*,
             account_title.account_title,
             account_title.account_code 
             FROM project
-
             LEFT JOIN account_title ON project.account_id = account_title.account_id
-            WHERE oopap_id = 1"
+            WHERE oopap_id = 1 
+            ORDER BY account_title.account_title ASC"
 );
 
 // account name
 
-$query_account = "SELECT account_id, account_title, account_code FROM account_title";
+$query_account = "SELECT account_id, account_title, account_code FROM account_title ORDER BY account_title ASC";
 $result_account = $connection->query($query_account);
 
 
@@ -90,14 +97,6 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
 
     <!-- Template Main CSS File -->
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
-
-    <!-- =======================================================
-  * Template Name: NiceAdmin
-  * Template URL: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/
-  * Updated: Apr 20 2024 with Bootstrap v5.3.3
-  * Author: BootstrapMade.com
-  * License: https://bootstrapmade.com/license/
-  ======================================================== -->
 </head>
 
 <body>
@@ -108,7 +107,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     <main id="main" class="main">
 
         <div class="pagetitle">
-            <h1>GAS</h1>
+            <h1>GAS(<?php echo date('Y'); ?>)</h1>
         </div><!-- End Page Title -->
 
         <section class="section dashboard">
@@ -136,6 +135,12 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
 
             <div class="card">
                 <div class="card-body">
+                    <?php if (isset($error_message)): ?>
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <?php echo $error_message; ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    <?php endif; ?>
                     <h5 class="card-title">
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                             data-bs-target="#addUserModal">Add Project/Program/Activities</button>
@@ -160,9 +165,9 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                                                 value="1" readonly required autocomplete="off">
                                         </div>
                                         <div class="mb-3">
-                                            <label for="account_id" class="form-label">Account Title</label>
-                                            <select class="form-control" name="account_id" id="account_id">
-                                                <option selected disabled>Select Account</option>
+                                            <label for="account_id" class="form-label">Account Title <span class="text-danger">*</span></label>
+                                            <select class="form-control" name="account_id" id="account_id" required>
+                                                <option value="">Select Account</option>
                                                 <?php
                                                 while ($row = $result_account->fetch_assoc()) {
                                                     echo "<option value='" . htmlspecialchars($row['account_id']) . "' 
@@ -182,6 +187,11 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                                         <div class="mb-3">
                                             <input type="hidden" class="form-control" id="balances" name="balances"
                                                 placeholder="Balances" readonly>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="year">Date and Year:</label>
+                                            <input type="date" class="form-control" id="year" name="year" required value="<?php echo date('Y-m-d'); ?>">
                                         </div>
                                         <div class="modal-footer">
                                             <!-- <button type="button" class="btn btn-secondary"
@@ -203,8 +213,10 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                         <thead>
                             <tr>
                                 <th>Project/Activities/Program</th>
+                                <th>Code</th>
                                 <th>Allotment</th>
                                 <th>Balances</th>
+                                <th>Date</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -212,8 +224,10 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                             <?php while ($row = mysqli_fetch_assoc($select)) { ?>
                                 <tr>
                                     <td><?php echo htmlspecialchars($row['account_title']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['account_code']); ?></td>
                                     <td><?php echo htmlspecialchars(number_format($row['allotment'], 2)); ?></td>
                                     <td><?php echo htmlspecialchars(number_format($row['balances'], 2)); ?></td>
+                                    <td><?php echo date('Y-m-d', strtotime($row['created_at'])); ?></td>
                                     <td>
                                         <button type="button" class="btn btn-primary edit-btn" data-bs-toggle="modal"
                                             data-bs-target="#editModal" data-id="<?php echo $row['project_id']; ?>"

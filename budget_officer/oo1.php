@@ -10,11 +10,13 @@ if (isset($_POST['submit'])) {
     $account_id = $_POST['account_id'];
     $allotment = $_POST['allotment'];
     $balances = $_POST['balances'];
-    $year = $_POST['year'];
+    $created_at = date('Y-m-d H:i:s');
 
-    $sql = "INSERT INTO project (project_id, oopap_id, account_id, allotment, balances, year) VALUES (?, ?, ?, ?, ?, ?)";
+
+
+    $sql = "INSERT INTO project (project_id, oopap_id, account_id, allotment, balances, created_at) VALUES (?, ?, ?, ?, ?, ?)";
     $stmt = $connection->prepare($sql);
-    $stmt->bind_param("iiissi", $project_id, $oopap_id, $account_id, $allotment, $balances, $year);
+    $stmt->bind_param("iiisss", $project_id, $oopap_id, $account_id, $allotment, $balances, $created_at);
 
     if ($stmt->execute()) {
         header('Location: oo1.php');
@@ -25,7 +27,6 @@ if (isset($_POST['submit'])) {
 
 
 // retrieve 
-
 $select = mysqli_query(
     $connection,
     "SELECT project.*,
@@ -89,14 +90,6 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
 
     <!-- Template Main CSS File -->
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
-
-    <!-- =======================================================
-  * Template Name: NiceAdmin
-  * Template URL: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/
-  * Updated: Apr 20 2024 with Bootstrap v5.3.3
-  * Author: BootstrapMade.com
-  * License: https://bootstrapmade.com/license/
-  ======================================================== -->
 </head>
 
 <body>
@@ -107,7 +100,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     <main id="main" class="main">
 
         <div class="pagetitle">
-            <h1>OO1</h1>
+            <h1>OO1(<?php echo date('Y'); ?>)</h1>
         </div><!-- End Page Title -->
 
         <section class="section dashboard">
@@ -155,6 +148,10 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                                 <div class="modal-body">
                                     <form method="post" id="addUserForm">
                                         <div class="mb-3">
+                                            <input type="hidden" class="form-control" id="project_id" name="project_id"
+                                                value="<?php echo time(); ?>" readonly required>
+                                        </div>
+                                        <div class="mb-3">
                                             <input type="hidden" class="form-control" id="oopap_id" name="oopap_id"
                                                 value="2" readonly required autocomplete="off">
                                         </div>
@@ -182,13 +179,12 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                                             <input type="hidden" class="form-control" id="balances" name="balances"
                                                 placeholder="Balances" readonly>
                                         </div>
+
                                         <div class="form-group">
-                                            <label for="year">Year:</label>
-                                            <input type="number" class="form-control" id="year" name="year" required min="2000" max="2100" value="<?php echo date('Y'); ?>">
+                                            <label for="year">Date and Year:</label>
+                                            <input type="date" class="form-control" id="year" name="year" required value="<?php echo date('Y-m-d'); ?>">
                                         </div>
                                         <div class="modal-footer">
-                                            <!-- <button type="button" class="btn btn-secondary"
-                                        data-bs-dismiss="modal">Close</button> -->
                                             <button type="button" class="btn btn-secondary"
                                                 onclick="clearForm()">Clear</button>
                                             <button type="submit" id="submit" name="submit"
@@ -206,16 +202,20 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                         <thead>
                             <tr>
                                 <th>Project/Activities/Program</th>
+                                <th>Code</th>
                                 <th>Allotment</th>
                                 <th>Balances</th>
+                                <th>Date</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php while ($row = mysqli_fetch_assoc($select)) { ?>
                                 <tr>
                                     <td><?php echo htmlspecialchars($row['account_title']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['account_code']); ?></td>
                                     <td><?php echo htmlspecialchars(number_format($row['allotment'], 2)); ?></td>
                                     <td><?php echo htmlspecialchars(number_format($row['balances'], 2)); ?></td>
+                                    <td><?php echo date('Y-m-d', strtotime($row['created_at'])); ?></td>
                                     <td>
                                         <button type="button" class="btn btn-primary edit-btn" data-bs-toggle="modal"
                                             data-bs-target="#editModal" data-id="<?php echo $row['project_id']; ?>"

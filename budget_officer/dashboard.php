@@ -1,22 +1,62 @@
 <?php
-
 include '../DBConnection.php';
 
-// Fetch OOPAP categories
-$query = "SELECT * FROM oopap";
-$result = $connection->query($query);
+// Get current year and month
+$current_year = date('Y');
+$current_month = date('m');
 
-$totalQuery = "SELECT SUM(allotment) AS total_allotment FROM project";
-$totalResult = $connection->query($totalQuery);
-$totalRow = $totalResult->fetch_assoc();
-$totalAllotment = $totalRow['total_allotment'] ?? 0;
+// Get selected year and month from POST or use current values
+$selected_year = isset($_POST['year']) ? $_POST['year'] : $current_year;
+$selected_month = isset($_POST['month']) ? $_POST['month'] : $current_month;
 
-// Add query for total remaining balance
-$balanceQuery = "SELECT SUM(balances) AS total_balance FROM project";
-$balanceResult = $connection->query($balanceQuery);
-$balanceRow = $balanceResult->fetch_assoc();
-$totalBalance = $balanceRow['total_balance'] ?? 0;
+// Get years for dropdown (last 5 years)
+$years = range($current_year - 4, $current_year);
 
+// Months array for dropdown
+$months = array(
+    '01' => 'January',
+    '02' => 'February',
+    '03' => 'March',
+    '04' => 'April',
+    '05' => 'May',
+    '06' => 'June',
+    '07' => 'July',
+    '08' => 'August',
+    '09' => 'September',
+    '10' => 'October',
+    '11' => 'November',
+    '12' => 'December'
+);
+
+// Function to get total allotment and balances for a specific oopap_id
+function getTotals($connection, $oopap_id, $year, $month) {
+    $query = "SELECT SUM(allotment) AS total_allotment, SUM(balances) AS total_balances 
+              FROM project 
+              WHERE oopap_id = ? 
+              AND YEAR(created_at) = ?
+              AND MONTH(created_at) = ?";
+    
+    $stmt = $connection->prepare($query);
+    $stmt->bind_param("iii", $oopap_id, $year, $month);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    
+    return [
+        'allotment' => $row['total_allotment'] ?? 0,
+        'balances' => $row['total_balances'] ?? 0
+    ];
+}
+
+// Get totals for different sections
+$gas_totals = getTotals($connection, 1, $selected_year, $selected_month);
+$oo1_totals = getTotals($connection, 2, $selected_year, $selected_month);
+$oo2_totals = getTotals($connection, 3, $selected_year, $selected_month);
+$oo3_totals = getTotals($connection, 4, $selected_year, $selected_month);
+$oo3_1_totals = getTotals($connection, 5, $selected_year, $selected_month);
+$oo3_2_totals = getTotals($connection, 6, $selected_year, $selected_month);
+$oo4_1_1_totals = getTotals($connection, 8, $selected_year, $selected_month);
+$oo4_1_2_totals = getTotals($connection, 9, $selected_year, $selected_month);
 ?>
 
 <!DOCTYPE html>
@@ -26,7 +66,7 @@ $totalBalance = $balanceRow['total_balance'] ?? 0;
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Dashboard - NiceAdmin Bootstrap Template</title>
+    <title>Yearly Overview - NiceAdmin Bootstrap Template</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
@@ -36,9 +76,7 @@ $totalBalance = $balanceRow['total_balance'] ?? 0;
 
     <!-- Google Fonts -->
     <link href="https://fonts.gstatic.com" rel="preconnect">
-    <link
-        href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
 
     <!-- Vendor CSS Files -->
     <link href="../NiceAdmin/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -51,119 +89,197 @@ $totalBalance = $balanceRow['total_balance'] ?? 0;
 
     <!-- Template Main CSS File -->
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
-
-    <!-- =======================================================
-  * Template Name: NiceAdmin
-  * Template URL: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/
-  * Updated: Apr 20 2024 with Bootstrap v5.3.3
-  * Author: BootstrapMade.com
-  * License: https://bootstrapmade.com/license/
-  ======================================================== -->
 </head>
 
 <body>
-
     <?php include "Includes/header.php"; ?>
     <?php include "Includes/sidebar.php"; ?>
 
     <main id="main" class="main">
-
         <div class="pagetitle">
-            <h1>Dashboard</h1>
-        </div><!-- End Page Title -->
+            <h1>Yearly Overview</h1>
+        </div>
 
         <section class="section dashboard">
             <div class="row">
-
-
-                <!-- Total Allotment -->
-                <div class="col-xxl-4 col-md-6">
-                    <div class="card info-card sales-card">
-
-                        <div class="filter">
-                            <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                                <li class="dropdown-header text-start">
-                                    <h6>Filter</h6>
-                                </li>
-                                <!-- Show All Option -->
-                                <li>
-                                    <a class="dropdown-item oopap-filter" href="#" data-id="">All Categories</a>
-                                </li>
-                                <?php while ($row = $result->fetch_assoc()): ?>
-                                    <li>
-                                        <a class="dropdown-item oopap-filter" href="#" data-id="<?= $row['oopap_id'] ?>">
-                                            <?= $row['oopap_name'] ?>
-                                        </a>
-                                    </li>
-                                <?php endwhile; ?>
-                            </ul>
-                        </div>
-
+                <div class="col-12">
+                    <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">Total Allotment <span id="selected-oopap">| All Categories</span>
-                            </h5>
-
-                            <div class="d-flex align-items-center">
-                                <div class="ps-3">
-                                    <h6 id="total-allotment"><?php echo "₱" . number_format($totalAllotment, 2); ?></h6>
+                            <h5 class="card-title">Select Year and Month</h5>
+                            <form method="post" class="row g-3">
+                                <div class="col-md-4">
+                                    <label for="year" class="form-label">Year</label>
+                                    <select class="form-select" id="year" name="year" required>
+                                        <?php foreach ($years as $year): ?>
+                                            <option value="<?php echo $year; ?>" <?php echo $selected_year == $year ? 'selected' : ''; ?>>
+                                                <?php echo $year; ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
                                 </div>
-                            </div>
-
-
+                                <div class="col-md-4">
+                                    <label for="month" class="form-label">Month</label>
+                                    <select class="form-select" id="month" name="month" required>
+                                        <?php foreach ($months as $value => $label): ?>
+                                            <option value="<?php echo $value; ?>" <?php echo $selected_month == $value ? 'selected' : ''; ?>>
+                                                <?php echo $label; ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">&nbsp;</label>
+                                    <button type="submit" class="btn btn-primary d-block">Filter</button>
+                                </div>
+                            </form>
                         </div>
-
-
                     </div>
-                </div><!-- End Sales Card -->
+                </div>
+            </div>
 
-                <!-- Total Remaining Balance -->
-                <div class="col-xxl-4 col-md-6">
-                    <div class="card info-card sales-card">
-                        <div class="filter">
-                            <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                                <li class="dropdown-header text-start">
-                                    <h6>Filter</h6>
-                                </li>
-                                <!-- Show All Option -->
-                                <li>
-                                    <a class="dropdown-item balance-filter" href="#" data-id="">All Categories</a>
-                                </li>
-                                <?php 
-                                // Reset the result pointer for reuse
-                                $result->data_seek(0);
-                                while ($row = $result->fetch_assoc()): 
-                                ?>
-                                    <li>
-                                        <a class="dropdown-item balance-filter" href="#" data-id="<?= $row['oopap_id'] ?>">
-                                            <?= $row['oopap_name'] ?>
-                                        </a>
-                                    </li>
-                                <?php endwhile; ?>
-                            </ul>
-                        </div>
-
+            <div class="row">
+                <!-- GAS Card -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="card bg-white text-dark mb-3">
                         <div class="card-body">
-                            <h5 class="card-title">Total Remaining Balance <span id="selected-balance-oopap">| All Categories</span></h5>
-
-                            <div class="d-flex align-items-center">
-                                <div class="ps-3">
-                                    <h6 id="total-balance"><?php echo "₱" . number_format($totalBalance, 2); ?></h6>
-                                </div>
+                            <h5 class="card-title">GAS</h5>
+                            <div class="mb-3">
+                                <h6 class="card-subtitle mb-2 text-muted">Total Allotment</h6>
+                                <h3 class="card-text">₱<?php echo number_format($gas_totals['allotment'], 2); ?></h3>
+                            </div>
+                            <div>
+                                <h6 class="card-subtitle mb-2 text-muted">Total Balances</h6>
+                                <h3 class="card-text">₱<?php echo number_format($gas_totals['balances'], 2); ?></h3>
                             </div>
                         </div>
                     </div>
-                </div><!-- End Balance Card -->
+                </div>
 
+                <!-- OO1 Card -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="card bg-white text-dark mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">OO1</h5>
+                            <div class="mb-3">
+                                <h6 class="card-subtitle mb-2 text-muted">Total Allotment</h6>
+                                <h3 class="card-text">₱<?php echo number_format($oo1_totals['allotment'], 2); ?></h3>
+                            </div>
+                            <div>
+                                <h6 class="card-subtitle mb-2 text-muted">Total Balances</h6>
+                                <h3 class="card-text">₱<?php echo number_format($oo1_totals['balances'], 2); ?></h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- OO2 Card -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="card bg-white text-dark mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">OO2</h5>
+                            <div class="mb-3">
+                                <h6 class="card-subtitle mb-2 text-muted">Total Allotment</h6>
+                                <h3 class="card-text">₱<?php echo number_format($oo2_totals['allotment'], 2); ?></h3>
+                            </div>
+                            <div>
+                                <h6 class="card-subtitle mb-2 text-muted">Total Balances</h6>
+                                <h3 class="card-text">₱<?php echo number_format($oo2_totals['balances'], 2); ?></h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- OO3 Card -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="card bg-white text-dark mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">OO3</h5>
+                            <div class="mb-3">
+                                <h6 class="card-subtitle mb-2 text-muted">Total Allotment</h6>
+                                <h3 class="card-text">₱<?php echo number_format($oo3_totals['allotment'], 2); ?></h3>
+                            </div>
+                            <div>
+                                <h6 class="card-subtitle mb-2 text-muted">Total Balances</h6>
+                                <h3 class="card-text">₱<?php echo number_format($oo3_totals['balances'], 2); ?></h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- OO3.1 Card -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="card bg-white text-dark mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">OO3.1</h5>
+                            <div class="mb-3">
+                                <h6 class="card-subtitle mb-2 text-muted">Total Allotment</h6>
+                                <h3 class="card-text">₱<?php echo number_format($oo3_1_totals['allotment'], 2); ?></h3>
+                            </div>
+                            <div>
+                                <h6 class="card-subtitle mb-2 text-muted">Total Balances</h6>
+                                <h3 class="card-text">₱<?php echo number_format($oo3_1_totals['balances'], 2); ?></h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- OO3.2 Card -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="card bg-white text-dark mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">OO3.2</h5>
+                            <div class="mb-3">
+                                <h6 class="card-subtitle mb-2 text-muted">Total Allotment</h6>
+                                <h3 class="card-text">₱<?php echo number_format($oo3_2_totals['allotment'], 2); ?></h3>
+                            </div>
+                            <div>
+                                <h6 class="card-subtitle mb-2 text-muted">Total Balances</h6>
+                                <h3 class="card-text">₱<?php echo number_format($oo3_2_totals['balances'], 2); ?></h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- OO4.1.1 Card -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="card bg-white text-dark mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">OO4.1.1</h5>
+                            <div class="mb-3">
+                                <h6 class="card-subtitle mb-2 text-muted">Total Allotment</h6>
+                                <h3 class="card-text">₱<?php echo number_format($oo4_1_1_totals['allotment'], 2); ?></h3>
+                            </div>
+                            <div>
+                                <h6 class="card-subtitle mb-2 text-muted">Total Balances</h6>
+                                <h3 class="card-text">₱<?php echo number_format($oo4_1_1_totals['balances'], 2); ?></h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- OO4.1.2 Card -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="card bg-white text-dark mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">OO4.1.2</h5>
+                            <div class="mb-3">
+                                <h6 class="card-subtitle mb-2 text-muted">Total Allotment</h6>
+                                <h3 class="card-text">₱<?php echo number_format($oo4_1_2_totals['allotment'], 2); ?></h3>
+                            </div>
+                            <div>
+                                <h6 class="card-subtitle mb-2 text-muted">Total Balances</h6>
+                                <h3 class="card-text">₱<?php echo number_format($oo4_1_2_totals['balances'], 2); ?></h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
+    </main>
 
-    </main><!-- End #main -->
-
-
-    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
-            class="bi bi-arrow-up-short"></i></a>
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center">
+        <i class="bi bi-arrow-up-short"></i>
+    </a>
 
     <!-- Vendor JS Files -->
     <script src="../NiceAdmin/assets/vendor/apexcharts/apexcharts.min.js"></script>
@@ -177,50 +293,6 @@ $totalBalance = $balanceRow['total_balance'] ?? 0;
 
     <!-- Template Main JS File -->
     <script src="../NiceAdmin/assets/js/main.js"></script>
-
-
-    <!-- allotment -->
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            document.querySelectorAll(".oopap-filter").forEach(item => {
-                item.addEventListener("click", function (e) {
-                    e.preventDefault();
-
-                    let oopapId = this.getAttribute("data-id");
-                    let oopapName = this.innerText;
-
-                    fetch("fetch_allotment.php?oopap_id=" + oopapId)
-                        .then(response => response.json())
-                        .then(data => {
-                            console.log("Fetched Data:", data);
-                            document.getElementById("total-allotment").innerText = "₱" + data.total_allotment;
-                            document.getElementById("selected-oopap").innerText = "| " + oopapName;
-                        })
-                        .catch(error => console.error("Error fetching allotment:", error));
-                });
-            });
-
-            // Add balance filter code
-            document.querySelectorAll(".balance-filter").forEach(item => {
-                item.addEventListener("click", function (e) {
-                    e.preventDefault();
-
-                    let oopapId = this.getAttribute("data-id");
-                    let oopapName = this.innerText;
-
-                    fetch("fetch_balance.php?oopap_id=" + oopapId)
-                        .then(response => response.json())
-                        .then(data => {
-                            console.log("Fetched Balance Data:", data);
-                            document.getElementById("total-balance").innerText = "₱" + data.total_balance;
-                            document.getElementById("selected-balance-oopap").innerText = "| " + oopapName;
-                        })
-                        .catch(error => console.error("Error fetching balance:", error));
-                });
-            });
-        });
-    </script>
-
 </body>
 
 </html>
