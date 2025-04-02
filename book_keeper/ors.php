@@ -16,11 +16,13 @@ if (isset($_POST['submit'])) {
     $fund_cluster_id = $_POST['fund_cluster_id'];
     $date = $_POST['date'];
     $ors_no = $_POST['ors_no'];
+    $services_id = $_POST['services_id'];
     $payee_id = $_POST['payee_id'];
     $purpose = $_POST['purpose'];
     $notes = $_POST['notes'];
     $rc_id = $_POST['rc_id'];
-    $account_id = $_POST['account_id'];
+    $account_ids = $_POST['account_id']; // Array of account IDs
+    $amounts = $_POST['amount']; // Array of amounts
     $oopap_id = $_POST['oopap_id'];
     $total_amount = $_POST['total_amount'];
     $approver_id = $_POST['approver_id'];
@@ -30,47 +32,27 @@ if (isset($_POST['submit'])) {
     $connection->begin_transaction();
 
     try {
-        // Check if sufficient allotment exists
-        $check_sql = "SELECT project_id, balances FROM project 
-                     WHERE account_id = ? AND oopap_id = ? AND balances >= ?";
-        $check_stmt = $connection->prepare($check_sql);
-        $check_stmt->bind_param("iid", $account_id, $oopap_id, $total_amount);
-        $check_stmt->execute();
-        $result = $check_stmt->get_result();
-
-        if ($result->num_rows === 0) {
-            throw new Exception("Insufficient allotment for the selected account and OO/PAP combination.");
-        }
-
-        $project = $result->fetch_assoc();
-        $project_id = $project['project_id'];
-        $new_balance = $project['balances'] - $total_amount;
-
-        // Update project allotment
-        $update_sql = "UPDATE project SET balances = ? WHERE project_id = ?";
-        $update_stmt = $connection->prepare($update_sql);
-        $update_stmt->bind_param("di", $new_balance, $project_id);
-        $update_stmt->execute();
-
         // Insert ORS record
-        $sql = "INSERT INTO ors (fund_cluster_id, date, ors_no, payee_id, purpose, notes, rc_id, account_id, oopap_id, total_amount, approver_id, budget_officer) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO ors (fund_cluster_id, date, services_id, ors_no, payee_id, purpose, notes, rc_id, account_id, oopap_id, total_amount, approver_id, budget_officer) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         $stmt = $connection->prepare($sql);
         if (!$stmt) {
             throw new Exception('Prepare failed: ' . $connection->error);
         }
 
+        // Use the first account_id for the main ORS record
         $stmt->bind_param(
-            "issssssiidis",
+            "isssssssiidis",
             $fund_cluster_id,
             $date,
+            $services_id,
             $ors_no,
             $payee_id,
             $purpose,
             $notes,
             $rc_id,
-            $account_id,
+            $account_ids[0], // Use first account_id
             $oopap_id,
             $total_amount,
             $approver_id,
@@ -84,16 +66,44 @@ if (isset($_POST['submit'])) {
         // Get the inserted ORS ID
         $ors_id = $connection->insert_id;
 
-        // Insert into obligation_history
+        // Insert obligation history for each account entry
         $history_sql = "INSERT INTO obligation_history (ors_id, project_id, net) VALUES (?, ?, ?)";
         $history_stmt = $connection->prepare($history_sql);
         if (!$history_stmt) {
             throw new Exception('Prepare failed for obligation_history: ' . $connection->error);
         }
 
-        $history_stmt->bind_param("iid", $ors_id, $project_id, $total_amount);
-        if (!$history_stmt->execute()) {
-            throw new Exception("Error inserting obligation history: " . $history_stmt->error);
+        // Process each account entry
+        foreach ($account_ids as $index => $account_id) {
+            $amount = $amounts[$index];
+            
+            // Check if sufficient allotment exists for this account
+            $check_sql = "SELECT project_id, balances FROM project 
+                         WHERE account_id = ? AND oopap_id = ? AND balances >= ?";
+            $check_stmt = $connection->prepare($check_sql);
+            $check_stmt->bind_param("iid", $account_id, $oopap_id, $amount);
+            $check_stmt->execute();
+            $result = $check_stmt->get_result();
+
+            if ($result->num_rows === 0) {
+                throw new Exception("Insufficient allotment for account ID: " . $account_id);
+            }
+
+            $project = $result->fetch_assoc();
+            $project_id = $project['project_id'];
+            $new_balance = $project['balances'] - $amount;
+
+            // Update project allotment
+            $update_sql = "UPDATE project SET balances = ? WHERE project_id = ?";
+            $update_stmt = $connection->prepare($update_sql);
+            $update_stmt->bind_param("di", $new_balance, $project_id);
+            $update_stmt->execute();
+
+            // Insert obligation history record
+            $history_stmt->bind_param("iid", $ors_id, $project_id, $amount);
+            if (!$history_stmt->execute()) {
+                throw new Exception("Error inserting obligation history: " . $history_stmt->error);
+            }
         }
 
         $connection->commit();
@@ -103,17 +113,12 @@ if (isset($_POST['submit'])) {
     } catch (Exception $e) {
         $connection->rollback();
         echo "Error: " . $e->getMessage();
-        exit(); // Add exit here to prevent further execution
+        exit();
     } finally {
-        // Close statements in finally block to ensure they are always closed
-        if (isset($check_stmt))
-            $check_stmt->close();
-        if (isset($update_stmt))
-            $update_stmt->close();
-        if (isset($stmt))
-            $stmt->close();
-        if (isset($history_stmt))
-            $history_stmt->close();
+        if (isset($check_stmt)) $check_stmt->close();
+        if (isset($update_stmt)) $update_stmt->close();
+        if (isset($stmt)) $stmt->close();
+        if (isset($history_stmt)) $history_stmt->close();
         $connection->close();
     }
 }
@@ -521,13 +526,8 @@ while ($row = $result_approvers->fetch_assoc()) {
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label">Services</label>
-                                            <select class="form-control" name="services">
+                                            <select class="form-control" name="services_id" id="services">
                                                 <option selected disabled>Select Services</option>
-                                                <?php
-                                                while ($row = $result_services->fetch_assoc()) {
-                                                    echo "<option value='" . htmlspecialchars($row['services_id']) . "'>" . htmlspecialchars($row['services_name']) . "</option>";
-                                                }
-                                                ?>
                                             </select>
                                         </div>
                                         <div class="form-group">
@@ -536,8 +536,8 @@ while ($row = $result_approvers->fetch_assoc()) {
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label">Obligation Request No.</label>
-                                            <input type="text" class="form-control" name="ors_no" required
-                                                autocomplete="off">
+                                            <input type="text" class="form-control" name="ors_no" id="ors_no" required
+                                                readonly>
                                         </div>
                                     </div>
                                 </div>
@@ -628,38 +628,34 @@ while ($row = $result_approvers->fetch_assoc()) {
                                                     <tbody id="accounting-table-body">
                                                         <!-- First row -->
                                                         <tr class="entry-row">
-                                                        <td colspan="3">
-                                                        <select class="form-control" name="account_id" id="account_title">
-                                                                <option selected disabled>Select Account</option>
-                                                                <?php
-                                                                while ($row = $result_account->fetch_assoc()) {
-                                                                    echo "<option value='" . htmlspecialchars($row['account_id']) . "' 
-                                                                        data-account_code='" . htmlspecialchars($row['account_code']) . "'>"
-                                                                        . htmlspecialchars($row['account_title']) . " - " . htmlspecialchars($row['account_code']) .
-                                                                        "</option>";
-                                                                }
-                                                                ?>
-                                                            </select>
-                                                        </td>
-
+                                                            <td colspan="3">
+                                                                <select class="form-control" name="account_id[]" required>
+                                                                    <option selected disabled>Select Account</option>
+                                                                    <?php
+                                                                    while ($row = $result_account->fetch_assoc()) {
+                                                                        echo "<option value='" . htmlspecialchars($row['account_id']) . "' 
+                                                                            data-account_code='" . htmlspecialchars($row['account_code']) . "'>"
+                                                                            . htmlspecialchars($row['account_title']) . " - " . htmlspecialchars($row['account_code']) .
+                                                                            "</option>";
+                                                                    }
+                                                                    ?>
+                                                                </select>
+                                                            </td>
                                                             <td>
-                                                                <input type="number" class="form-control amount-input" name="amount" step="0.01" autocomplete="off">
+                                                                <input type="number" class="form-control amount-input" name="amount[]" step="0.01" required>
                                                             </td>
                                                         </tr>
-
-                                                        <!-- Add Row button row (this will stay at the bottom) -->
+                                                        <!-- Add Row button row -->
                                                         <tr id="add-row-container">
                                                             <td colspan="4" class="text-left">
-                                                                <button type="button" name="submit" id="addAccountRow"
-                                                                    class="btn btn-secondary">
+                                                                <button type="button" id="addAccountRow" class="btn btn-secondary">
                                                                     <ion-icon name="add-outline"></ion-icon> Add Row
                                                                 </button>
                                                             </td>
                                                         </tr>
-
                                                         <!-- Total Amount Row -->
                                                         <tr>
-                                                            <td colspan="2" class="text-right font-weight-bold">Total Amount:</td>
+                                                            <td colspan="3" class="text-right font-weight-bold">Total Amount:</td>
                                                             <td><input type="text" id="total_amount" class="form-control" name="total_amount" readonly></td>
                                                         </tr>
                                                     </tbody>
@@ -876,11 +872,7 @@ while ($row = $result_approvers->fetch_assoc()) {
             const tableBody = document.querySelector("#accounting-table-body");
             const addRowContainer = document.querySelector("#add-row-container");
 
-            // Fetch the options for account_id and oopap_id from the first row
-            const objectCodeOptions = Array.from(tableBody.querySelector(".entry-row select[name='account_id']").options)
-                .map(option => ({ value: option.value, text: option.text }));
-
-
+            // Function to update total
             function updateTotal() {
                 let total = 0;
                 document.querySelectorAll(".amount-input").forEach(function (input) {
@@ -890,64 +882,45 @@ while ($row = $result_approvers->fetch_assoc()) {
             }
 
             // Add new row functionality
-            document.querySelector("#addAccountRow").addEventListener("click", function () {
-                let newRow = document.createElement("tr");
+            document.getElementById("addAccountRow").addEventListener("click", function () {
+                const newRow = document.createElement("tr");
                 newRow.classList.add("entry-row");
-
-                // Create the Account Title dropdown
-                const objectCodeSelect = document.createElement("select");
-                objectCodeSelect.className = "form-control";
-                objectCodeSelect.name = "account_id";
-                objectCodeOptions.forEach(option => {
-                    const optionElement = document.createElement("option");
-                    optionElement.value = option.value;
-                    optionElement.textContent = option.text;
-                    objectCodeSelect.appendChild(optionElement);
-                });
-
-                // Create the OO/PAP dropdown
-                // const oopapSelect = document.createElement("select");
-                // oopapSelect.className = "form-control";
-                // oopapSelect.name = "oopap_id";
-                // oopapSelect.innerHTML = '<option selected disabled>Select OO/PAP</option>';
-                // oopapOptions.forEach(option => {
-                //     const optionElement = document.createElement("option");
-                //     optionElement.value = option.value;
-                //     optionElement.textContent = option.text;
-                //     oopapSelect.appendChild(optionElement);
-                // });
-
-                // Create the Amount input
+                
+                // Clone the account select options
+                const accountSelect = document.querySelector('select[name="account_id[]"]').cloneNode(true);
+                accountSelect.name = "account_id[]";
+                accountSelect.value = ""; // Reset selection
+                
+                // Create amount input
                 const amountInput = document.createElement("input");
                 amountInput.type = "number";
                 amountInput.className = "form-control amount-input";
-                amountInput.name = "amount";
+                amountInput.name = "amount[]";
                 amountInput.step = "0.01";
+                amountInput.required = true;
 
-                // Append the elements to the new row
-                const accountTitleCell = document.createElement("td");
-                accountTitleCell.appendChild(objectCodeSelect);
-                const oopapCell = document.createElement("td");
-                oopapCell.appendChild(oopapSelect);
+                // Create cells
+                const accountCell = document.createElement("td");
+                accountCell.colSpan = 3;
+                accountCell.appendChild(accountSelect);
+                
                 const amountCell = document.createElement("td");
                 amountCell.appendChild(amountInput);
 
-                newRow.appendChild(accountTitleCell);
-                newRow.appendChild(oopapCell);
+                // Add cells to row
+                newRow.appendChild(accountCell);
                 newRow.appendChild(amountCell);
 
-                // Insert the new row before the "Add Row" button row
+                // Insert before the add row container
                 tableBody.insertBefore(newRow, addRowContainer);
 
-                // Update total amount
-                updateTotal();
+                // Add event listener for amount changes
+                amountInput.addEventListener("input", updateTotal);
             });
 
-            // Listen for input changes
-            document.getElementById("accounting-table-body").addEventListener("input", function (event) {
-                if (event.target.classList.contains("amount-input")) {
-                    updateTotal();
-                }
+            // Listen for input changes on all amount inputs
+            document.querySelectorAll(".amount-input").forEach(input => {
+                input.addEventListener("input", updateTotal);
             });
         });
     </script>
@@ -1038,19 +1011,12 @@ while ($row = $result_approvers->fetch_assoc()) {
                 updateTotal();
             }
         });
-
-        // Add new row functionality
-        document.getElementById("addAccountRow").addEventListener("click", function () {
-            let newRow = document.querySelector(".entry-row").cloneNode(true);
-            newRow.querySelector(".amount-input").value = "";
-            document.getElementById("add-row-container").before(newRow);
-        });
     });
 </script>
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        const accountSelect = document.querySelector('select[name="account_id"]');
+        const accountSelect = document.querySelector('select[name="account_id[]"]');
         const oopapSelect = document.querySelector('select[name="oopap_id"]');
         const amountInput = document.querySelector('.amount-input');
         const projectIdInput = document.getElementById('project_id');
@@ -1096,7 +1062,84 @@ while ($row = $result_approvers->fetch_assoc()) {
     });
 </script>
 
+<!-- Add this before the closing </body> tag -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const oopapSelect = document.querySelector('select[name="oopap_id"]');
+        const servicesSelect = document.getElementById('services');
+        const dateInput = document.getElementById('dvDate');
+        const orsNoInput = document.getElementById('ors_no');
 
+        // Function to update services dropdown
+        function updateServices(oopapId) {
+            if (!oopapId) {
+                servicesSelect.innerHTML = '<option selected disabled>Select Services</option>';
+                return;
+            }
+
+            fetch('get_filtered_services.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `oopap_id=${oopapId}`
+            })
+            .then(response => response.json())
+            .then(services => {
+                servicesSelect.innerHTML = '<option selected disabled>Select Services</option>';
+                services.forEach(service => {
+                    const option = document.createElement('option');
+                    option.value = service.services_id;
+                    option.textContent = service.services_name;
+                    option.setAttribute('data-code', service.code);
+                    servicesSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                servicesSelect.innerHTML = '<option selected disabled>Error loading services</option>';
+            });
+        }
+
+        // Listen for OO/PAP selection changes
+        oopapSelect.addEventListener('change', function() {
+            updateServices(this.value);
+        });
+
+        function generateORSNumber() {
+            const selectedService = servicesSelect.options[servicesSelect.selectedIndex];
+            const selectedDate = dateInput.value;
+
+            if (!selectedService || selectedService.disabled || !selectedDate) {
+                return;
+            }
+
+            const serviceCode = selectedService.getAttribute('data-code');
+            const date = new Date(selectedDate);
+            const year = date.getFullYear().toString().substr(-2);
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+
+            fetch('get_next_ors_sequence.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `service_code=${serviceCode}&year=${year}&month=${month}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                const sequence = String(data.next_sequence).padStart(3, '0');
+                orsNoInput.value = `${serviceCode}-${year}-${month}-${sequence}`;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        servicesSelect.addEventListener('change', generateORSNumber);
+        dateInput.addEventListener('change', generateORSNumber);
+    });
+</script>
 
 </body>
 

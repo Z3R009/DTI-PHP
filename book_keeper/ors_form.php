@@ -12,11 +12,13 @@ if (isset($_GET['ors_no'])) {
         account_title.account_code,
         approver.approver_name,
         approver.designation,
+        approver.sub_title,
         CONCAT(fund_cluster.uacs_code, '-', fund_cluster.fund_cluster_name) AS fund_cluster,
         responsibility_center.code AS parent_code,
         oopap.oopap_name, 
         payee.payee_name,
-        payee.address
+        payee.address,
+        services.services_name
     FROM ors
     LEFT JOIN account_title ON ors.account_id = account_title.account_id
     LEFT JOIN approver ON ors.approver_id = approver.approver_id
@@ -24,6 +26,7 @@ if (isset($_GET['ors_no'])) {
     LEFT JOIN responsibility_center ON ors.rc_id = responsibility_center.rc_id
     LEFT JOIN oopap ON ors.oopap_id = oopap.oopap_id
     LEFT JOIN payee ON ors.payee_id = payee.payee_id
+    LEFT JOIN services ON ors.services_id = services.services_id
     WHERE ors.ors_no = ?
     ";
 
@@ -36,6 +39,27 @@ if (isset($_GET['ors_no'])) {
     if (!$ors_form) {
         echo "ORS No. not found.";
         exit();
+    }
+
+    // Get obligation history entries
+    $history_query = "
+    SELECT 
+        obligation_history.net,
+        account_title.account_title,
+        account_title.account_code
+    FROM obligation_history
+    LEFT JOIN project ON obligation_history.project_id = project.project_id
+    LEFT JOIN account_title ON project.account_id = account_title.account_id
+    WHERE obligation_history.ors_id = ?
+    ";
+
+    $history_stmt = mysqli_prepare($connection, $history_query);
+    mysqli_stmt_bind_param($history_stmt, "i", $ors_form['ors_id']);
+    mysqli_stmt_execute($history_stmt);
+    $history_result = mysqli_stmt_get_result($history_stmt);
+    $obligation_entries = [];
+    while ($row = mysqli_fetch_assoc($history_result)) {
+        $obligation_entries[] = $row;
     }
 } else {
     echo "ORS No. not found.";
@@ -193,7 +217,7 @@ if (isset($_GET['ors_no'])) {
                 <td colspan="3">Particulars</td>
                 <td>OO/PAP</td>
                 <td>UACS Code</td>
-                <td>total_amount</td>
+                <td>Amount</td>
             </tr>
             <tr>
                 <td rowspan="3" colspan="2" style="vertical-align: top;"><br><br>
@@ -202,40 +226,47 @@ if (isset($_GET['ors_no'])) {
 
                 <td colspan="3" style="border: none;">
                     <p><?php echo $ors_form['purpose']; ?>:</p>
-                    <p><strong><?php echo $ors_form['account_title']; ?></strong></p>
-
+                    <?php foreach ($obligation_entries as $entry): ?>
+                        <p style="padding-left: 50px;">
+                            <strong><?php echo $entry['account_title']; ?></strong>
+                        </p>
+                    <?php endforeach; ?>
                 </td>
                 <td rowspan="2" style="vertical-align: top;"><br><br>
-                    <p><?php echo $ors_form['oopap_name']; ?></p>
+                    <p style="text-align: center;"><?php echo $ors_form['oopap_name']; ?></p>
                 </td>
                 <td rowspan="2" style="vertical-align: top;"><br><br>
-                    <p><?php echo $ors_form['account_code']; ?></p>
+                    <?php foreach ($obligation_entries as $entry): ?>
+                        <p style="text-align: center;">
+                            <?php echo $entry['account_code']; ?>
+                        </p>
+                    <?php endforeach; ?>
                 </td>
                 <td rowspan="2" style="vertical-align: top;"><br><br>
-                    <p>₱<?php echo number_format((float) $ors_form['total_amount'], 2, '.', ','); ?></p>
+                    <?php foreach ($obligation_entries as $entry): ?>
+                        <p style="text-align: right;">
+                            <?php echo number_format((float) $entry['net'], 2, '.', ','); ?>
+                        </p>
+                    <?php endforeach; ?>
                 </td>
             </tr>
-
             <tr>
                 <td colspan="4" style="border: none;">
-                    <p>Purpose:</p>
-                    <p></p><?php echo $ors_form['notes']; ?></p>
+                    <p style="padding-left: 35px;"><b><?php echo $ors_form['notes']; ?></b></p>
                 </td>
             </tr>
 
             <tr>
-                <td colspan="3">Total</td>
+                <td colspan="3" style="text-align: right;">Total</td>
                 <td></td>
                 <td></td>
                 <td>
-                    <p>₱<?php echo number_format((float) $ors_form['total_amount'], 2, '.', ','); ?></p>
+                    <p style="text-align: right;">
+                        <b>₱<?php echo number_format((float) $ors_form['total_amount'], 2, '.', ','); ?></b>
+                    </p>
                 </td>
             </tr>
 
-            <tr>
-                <td colspan="4">Certified by:</td>
-                <td colspan="4">Certified by:</td>
-            </tr>
             <tr>
                 <td colspan="4">
                     <p style="height: 200px;"><b>A. Certified:</b> Charges to appropriation/allotment are necessary,
@@ -246,7 +277,8 @@ if (isset($_GET['ors_no'])) {
                     <hr style="width: 500px; border: 1px solid black; margin: 5px 0 0 20;">
 
                     <p style="text-align: center;"><strong><?php echo $ors_form['approver_name']; ?></strong></p>
-                    <p style="text-align: center;"><?php echo $ors_form['designation']; ?></p>
+                    <p style="text-align: center; font-size: 15px;"><?php echo $ors_form['designation']; ?></p>
+                    <p style="text-align: center; font-size: 15px;"><?php echo $ors_form['sub_title']; ?></p>
                 </td>
                 <td colspan="4">
                     <p style="height: 200px;"><b>B. Certified:</b> Allotment available and obligated for the
@@ -254,16 +286,21 @@ if (isset($_GET['ors_no'])) {
                     <p>Signature:</p>
                     <hr style="width: 500px; border: 1px solid black; margin: 5px 0 0 20;">
                     <p style="text-align: center;"><strong><?php echo $ors_form['budget_officer']; ?></strong></p>
-                    <p style="text-align: center;">Budget Officer</p>
+                    <p style="text-align: center; font-size: 15px;">Budget Officer</p>
+                    <p style="text-align: center; font-size: 15px;">Head, Budget Division/Unit/Authorized Representative
+                    </p>
                 </td>
             </tr>
-
             <tr>
-                <td colspan="8" class="header">C.STATUS OF OBLIGATION</td>
+                <td colspan="8"></td>
             </tr>
             <tr>
-                <th colspan="3">Reference</th>
-                <th colspan="5">total_amount</th>
+                <td><b>C.</b></td>
+                <td colspan="7" class="header" style="text-align: center;"><b>STATUS OF OBLIGATION</b></td>
+            </tr>
+            <tr>
+                <th colspan="3" style="text-align: center;"><b>Reference</b></th>
+                <th colspan="5" style="text-align: center;"><b>Amount</b></th>
             </tr>
             <tr>
                 <th rowspan="3">Date</th>
@@ -272,7 +309,7 @@ if (isset($_GET['ors_no'])) {
                 <th rowspan="2">Obligation (a)</th>
                 <th rowspan="2">Payable (b)</th>
                 <th rowspan="2">Payment (c)</th>
-                <th colspan="2">Balance</th>
+                <th colspan="2" style="text-align: center;">Balance</th>
 
             </tr>
 
@@ -301,7 +338,7 @@ if (isset($_GET['ors_no'])) {
 
                 </td>
                 <td><?php echo $ors_form['account_title']; ?></td>
-                <td>ADMIN&POLICY-25-02-008</td>
+                <td><?php echo $ors_form['services_name']; ?></td>
                 <td>
                     <p>₱<?php echo number_format((float) $ors_form['total_amount'], 2, '.', ','); ?></p>
                 </td>
