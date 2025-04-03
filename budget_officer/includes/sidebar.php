@@ -20,12 +20,6 @@
                 <i class="bi bi-bar-chart"></i><span>Status of Fund</span><i class="bi bi-chevron-down ms-auto"></i>
             </a>
             <ul id="charts-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-                <li>
-                    <a href="year.php">
-                        <i class="bi bi-circle"></i><span>Year</span>
-                    </a>
-                </li>
-
 
                 <li>
                     <a href="gas.php">

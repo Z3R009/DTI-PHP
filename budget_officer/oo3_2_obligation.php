@@ -3,6 +3,7 @@ include '../DBConnection.php';
 
 
 // retrieve 
+$current_year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
 
 $select = mysqli_query(
     $connection,
@@ -17,7 +18,8 @@ $select = mysqli_query(
      LEFT JOIN ors ON obligation_history.ors_id = ors.ors_id 
      LEFT JOIN payee ON ors.payee_id = payee.payee_id
      WHERE oopap_id = 6" .
-    (isset($_GET['month']) ? " AND MONTH(ors.date) = " . intval($_GET['month']) : "")
+    (isset($_GET['month']) ? " AND MONTH(ors.date) = " . intval($_GET['month']) : "") .
+    " AND YEAR(ors.date) = " . $current_year
 );
 
 
@@ -84,8 +86,8 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
         <section class="section dashboard">
             <!-- Month Selection -->
             <div class="row mb-3">
-                <div class="col-12 d-flex justify-content-end">
-                    <div style="width: 200px;">
+                <div class="col-12 d-flex justify-content-end gap-2">
+                    <div style="width: 150px;">
                         <select class="form-select" id="monthSelect" onchange="filterByMonth(this.value)">
                             <option value="">All Months</option>
                             <option value="1" <?php echo (isset($_GET['month']) && $_GET['month'] == '1') ? 'selected' : ''; ?>>January</option>
@@ -100,6 +102,18 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                             <option value="10" <?php echo (isset($_GET['month']) && $_GET['month'] == '10') ? 'selected' : ''; ?>>October</option>
                             <option value="11" <?php echo (isset($_GET['month']) && $_GET['month'] == '11') ? 'selected' : ''; ?>>November</option>
                             <option value="12" <?php echo (isset($_GET['month']) && $_GET['month'] == '12') ? 'selected' : ''; ?>>December</option>
+                        </select>
+                    </div>
+                    
+                    <div style="width: 120px;">
+                        <select class="form-select" id="yearSelect" onchange="filterData()">
+                            <?php 
+                            $current_year = date('Y');
+                            for($year = $current_year; $year >= $current_year - 5; $year--) {
+                                $selected = (isset($_GET['year']) && $_GET['year'] == $year) ? 'selected' : '';
+                                echo "<option value='$year' $selected>$year</option>";
+                            }
+                            ?>
                         </select>
                     </div>
                 </div>
@@ -143,7 +157,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                         <tbody>
                             <?php while ($row = mysqli_fetch_assoc($select)) { ?>
                                 <tr>
-                                    <td><?php echo htmlspecialchars($row['date']); ?></td>
+                                    <td><?php echo date("F-d-Y", strtotime($row['date'])); ?></td>
                                     <td><?php echo htmlspecialchars($row['ors_no']); ?></td>
                                     <td><?php echo htmlspecialchars($row['payee_name']); ?></td>
                                     <td><?php echo htmlspecialchars($row['notes']); ?></td>

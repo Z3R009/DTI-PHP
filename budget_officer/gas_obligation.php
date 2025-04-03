@@ -3,6 +3,7 @@ include '../DBConnection.php';
 
 
 // retrieve 
+$current_year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
 
 $select = mysqli_query(
     $connection,
@@ -17,7 +18,8 @@ $select = mysqli_query(
      LEFT JOIN ors ON obligation_history.ors_id = ors.ors_id 
      LEFT JOIN payee ON ors.payee_id = payee.payee_id
      WHERE oopap_id = 1" .
-    (isset($_GET['month']) ? " AND MONTH(ors.date) = " . intval($_GET['month']) : "")
+    (isset($_GET['month']) ? " AND MONTH(ors.date) = " . intval($_GET['month']) : "") .
+    " AND YEAR(ors.date) = " . $current_year
 );
 
 
@@ -67,14 +69,6 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
 
     <!-- Template Main CSS File -->
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
-
-    <!-- =======================================================
-  * Template Name: NiceAdmin
-  * Template URL: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/
-  * Updated: Apr 20 2024 with Bootstrap v5.3.3
-  * Author: BootstrapMade.com
-  * License: https://bootstrapmade.com/license/
-  ======================================================== -->
 </head>
 
 <body>
@@ -85,33 +79,10 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     <main id="main" class="main">
 
         <div class="pagetitle">
-            <h1>GAS</h1>
+            <h1>GAS(<?php echo date('Y'); ?>)</h1>
         </div><!-- End Page Title -->
 
         <section class="section dashboard">
-            <!-- Month Selection -->
-            <div class="row mb-3">
-                <div class="col-12 d-flex justify-content-end">
-                    <div style="width: 200px;">
-                        <select class="form-select" id="monthSelect" onchange="filterByMonth(this.value)">
-                            <option value="">All Months</option>
-                            <option value="1" <?php echo (isset($_GET['month']) && $_GET['month'] == '1') ? 'selected' : ''; ?>>January</option>
-                            <option value="2" <?php echo (isset($_GET['month']) && $_GET['month'] == '2') ? 'selected' : ''; ?>>February</option>
-                            <option value="3" <?php echo (isset($_GET['month']) && $_GET['month'] == '3') ? 'selected' : ''; ?>>March</option>
-                            <option value="4" <?php echo (isset($_GET['month']) && $_GET['month'] == '4') ? 'selected' : ''; ?>>April</option>
-                            <option value="5" <?php echo (isset($_GET['month']) && $_GET['month'] == '5') ? 'selected' : ''; ?>>May</option>
-                            <option value="6" <?php echo (isset($_GET['month']) && $_GET['month'] == '6') ? 'selected' : ''; ?>>June</option>
-                            <option value="7" <?php echo (isset($_GET['month']) && $_GET['month'] == '7') ? 'selected' : ''; ?>>July</option>
-                            <option value="8" <?php echo (isset($_GET['month']) && $_GET['month'] == '8') ? 'selected' : ''; ?>>August</option>
-                            <option value="9" <?php echo (isset($_GET['month']) && $_GET['month'] == '9') ? 'selected' : ''; ?>>September</option>
-                            <option value="10" <?php echo (isset($_GET['month']) && $_GET['month'] == '10') ? 'selected' : ''; ?>>October</option>
-                            <option value="11" <?php echo (isset($_GET['month']) && $_GET['month'] == '11') ? 'selected' : ''; ?>>November</option>
-                            <option value="12" <?php echo (isset($_GET['month']) && $_GET['month'] == '12') ? 'selected' : ''; ?>>December</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
             <div class="row">
                 <!-- Total Allotment Card -->
                 <div class="col-md-6">
@@ -132,9 +103,46 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                     </div>
                 </div>
             </div>
+
+            <!-- Date Filter Section -->
+            <div class="row mb-3">
+                <div class="col-4">
+                    <div class="card" style="margin-left: 1050px;">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center gap-2">
+                                <label class="form-label mb-0">Date:</label>
+                                <select class="form-select" id="monthSelect" onchange="filterData()" style="width: 150px;">
+                                    <option value="">All Months</option>
+                                    <option value="1" <?php echo (isset($_GET['month']) && $_GET['month'] == '1') ? 'selected' : ''; ?>>January</option>
+                                    <option value="2" <?php echo (isset($_GET['month']) && $_GET['month'] == '2') ? 'selected' : ''; ?>>February</option>
+                                    <option value="3" <?php echo (isset($_GET['month']) && $_GET['month'] == '3') ? 'selected' : ''; ?>>March</option>
+                                    <option value="4" <?php echo (isset($_GET['month']) && $_GET['month'] == '4') ? 'selected' : ''; ?>>April</option>
+                                    <option value="5" <?php echo (isset($_GET['month']) && $_GET['month'] == '5') ? 'selected' : ''; ?>>May</option>
+                                    <option value="6" <?php echo (isset($_GET['month']) && $_GET['month'] == '6') ? 'selected' : ''; ?>>June</option>
+                                    <option value="7" <?php echo (isset($_GET['month']) && $_GET['month'] == '7') ? 'selected' : ''; ?>>July</option>
+                                    <option value="8" <?php echo (isset($_GET['month']) && $_GET['month'] == '8') ? 'selected' : ''; ?>>August</option>
+                                    <option value="9" <?php echo (isset($_GET['month']) && $_GET['month'] == '9') ? 'selected' : ''; ?>>September</option>
+                                    <option value="10" <?php echo (isset($_GET['month']) && $_GET['month'] == '10') ? 'selected' : ''; ?>>October</option>
+                                    <option value="11" <?php echo (isset($_GET['month']) && $_GET['month'] == '11') ? 'selected' : ''; ?>>November</option>
+                                    <option value="12" <?php echo (isset($_GET['month']) && $_GET['month'] == '12') ? 'selected' : ''; ?>>December</option>
+                                </select>
+                                <select class="form-select" id="yearSelect" onchange="filterData()" style="width: 120px;">
+                                    <?php 
+                                    $current_year = date('Y');
+                                    for($year = $current_year; $year >= $current_year - 5; $year--) {
+                                        $selected = (isset($_GET['year']) && $_GET['year'] == $year) ? 'selected' : '';
+                                        echo "<option value='$year' $selected>$year</option>";
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="card">
                 <div class="card-body">
-
                     <!-- Table with stripped rows -->
                     <table class="table datatable">
                         <thead>
@@ -150,7 +158,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                         <tbody>
                             <?php while ($row = mysqli_fetch_assoc($select)) { ?>
                                 <tr>
-                                    <td><?php echo htmlspecialchars($row['date']); ?></td>
+                                <td><?php echo date("F-d-Y", strtotime($row['date'])); ?></td>
                                     <td><?php echo htmlspecialchars($row['ors_no']); ?></td>
                                     <td><?php echo htmlspecialchars($row['payee_name']); ?></td>
                                     <td><?php echo htmlspecialchars($row['notes']); ?></td>
@@ -191,12 +199,14 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     <script src="../NiceAdmin/assets/js/main.js"></script>
 
     <script>
-        function filterByMonth(month) {
+        function filterData() {
+            const month = document.getElementById('monthSelect').value;
+            const year = document.getElementById('yearSelect').value;
+            let url = 'gas_obligation.php?year=' + year;
             if (month) {
-                window.location.href = 'gas_obligation.php?month=' + month;
-            } else {
-                window.location.href = 'gas_obligation.php';
+                url += '&month=' + month;
             }
+            window.location.href = url;
         }
     </script>
 
