@@ -1182,11 +1182,14 @@ $select = mysqli_query($connection, "
                                 document.getElementById('oopap_name').value = data.oopap_name;
                                 document.getElementById('total_amount').value = data.total_amount;
 
-                                // Trigger calculations after populating data
-                                calculate(); // Add this line to trigger calculation
-                                generateDVNumber();
-
+                                // Show modal first
                                 modal.style.display = 'block';
+
+                                // Then trigger calculations and add BIR rows
+                                setTimeout(() => {
+                                    calculate(); // Trigger calculation
+                                    generateDVNumber();
+                                }, 100);
                             })
                             .catch(error => console.error('Error fetching ORS details:', error));
                     });
@@ -1195,12 +1198,28 @@ $select = mysqli_query($connection, "
                 // Close modal
                 closeModalBtn.addEventListener('click', function () {
                     modal.style.display = 'none';
+                    // Clear BIR rows when closing modal
+                    const tableBody = document.getElementById('accountingTableBody');
+                    const existingRows = tableBody.querySelectorAll('tr');
+                    existingRows.forEach(row => {
+                        if (row.querySelector('.account-select')?.value === 'BIR') {
+                            row.remove();
+                        }
+                    });
                 });
 
                 // Close modal when clicking outside
                 window.addEventListener('click', function (event) {
                     if (event.target === modal) {
                         modal.style.display = 'none';
+                        // Clear BIR rows when closing modal
+                        const tableBody = document.getElementById('accountingTableBody');
+                        const existingRows = tableBody.querySelectorAll('tr');
+                        existingRows.forEach(row => {
+                            if (row.querySelector('.account-select')?.value === 'BIR') {
+                                row.remove();
+                            }
+                        });
                     }
                 });
             });
@@ -1284,6 +1303,9 @@ $select = mysqli_query($connection, "
 
                         // Show tax fields
                         document.getElementById('tax_fields_container').style.display = 'block';
+
+                        // Add BIR-related rows
+                        addBIRRows(tax1Amount, tax2Amount);
                     } else {
                         // Without VAT - use 3% and 1% tax rates
                         const tax1Amount = grossAmount * 0.03; // 3% without VAT
@@ -1306,8 +1328,57 @@ $select = mysqli_query($connection, "
 
                         // Hide VAT fields but show tax fields
                         document.getElementById('tax_fields_container').style.display = 'none';
+
+                        // Add BIR-related rows
+                        addBIRRows(tax1Amount, tax2Amount);
                     }
                 };
+
+                // Function to add BIR-related rows
+                function addBIRRows(tax1Amount, tax2Amount) {
+                    const tableBody = document.getElementById('accountingTableBody');
+                    
+                    // Clear existing BIR rows
+                    const existingRows = tableBody.querySelectorAll('tr');
+                    existingRows.forEach(row => {
+                        if (row.querySelector('.account-select')?.value === 'BIR') {
+                            row.remove();
+                        }
+                    });
+
+                    // Add rows only if there are tax amounts
+                    if (tax1Amount > 0 || tax2Amount > 0) {
+                        // Add first BIR row
+                        const row1 = document.createElement('tr');
+                        row1.innerHTML = `
+                            <td colspan="2">
+                                <select class="form-control account-select" name="account_titles[]">
+                                    <option value="BIR" selected>Due to BIR - 2020101000</option>
+                                </select>
+                            </td>
+                            <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
+                            <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01" value="${tax1Amount.toFixed(2)}" readonly></td>
+                        `;
+                        tableBody.appendChild(row1);
+
+                        // Add second BIR row
+                        const row2 = document.createElement('tr');
+                        row2.innerHTML = `
+                            <td colspan="2">
+                                <select class="form-control account-select" name="account_titles[]">
+                                    <option value="BIR" selected>Due to BIR - 2020101000</option>
+                                </select>
+                            </td>
+                            <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
+                            <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01" value="${tax2Amount.toFixed(2)}" readonly></td>
+                        `;
+                        tableBody.appendChild(row2);
+
+                        // Setup calculation listeners for new rows
+                        setupCalculationListeners(row1);
+                        setupCalculationListeners(row2);
+                    }
+                }
 
                 // Event listeners
                 amountInput.addEventListener("input", calculate);
@@ -1332,10 +1403,20 @@ $select = mysqli_query($connection, "
                 } else {
                     console.error("Fund cluster input field not found!");
                 }
+                
+                // Re-fetch DV number when date input changes
+                let dateInput = document.getElementById("date");
+                if (dateInput) {
+                    dateInput.addEventListener("change", generateDVNumber);
+                } else {
+                    console.error("Date input field not found!");
+                }
             });
 
             function generateDVNumber() {
                 let fundClusterInput = document.getElementById("fund_cluster");
+                let dateInput = document.getElementById("date");
+                
                 if (!fundClusterInput) {
                     console.error("Fund cluster input field not found!");
                     return;
@@ -1351,6 +1432,11 @@ $select = mysqli_query($connection, "
 
                 let formData = new FormData();
                 formData.append("fund_cluster_id", fundClusterNumber[0]); // Send only the number
+                
+                // Add date parameter if available
+                if (dateInput && dateInput.value) {
+                    formData.append("date", dateInput.value);
+                }
 
                 fetch("fetch_dv_number.php", {
                     method: "POST",

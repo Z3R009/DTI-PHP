@@ -8,8 +8,15 @@ if (!isset($_POST['fund_cluster_id']) || empty($_POST['fund_cluster_id'])) {
 
 $fund_cluster = $_POST['fund_cluster_id']; // Directly use input as fund cluster
 
-$year = date("y"); // Get last two digits of the year
-$month = date("m"); // Get two-digit month
+// Check if date is provided, otherwise use current date
+if (isset($_POST['date']) && !empty($_POST['date'])) {
+    $date = $_POST['date'];
+    $year = date("y", strtotime($date)); // Get last two digits of the year from the selected date
+    $month = date("m", strtotime($date)); // Get two-digit month from the selected date
+} else {
+    $year = date("y"); // Get last two digits of the year
+    $month = date("m"); // Get two-digit month
+}
 
 // Check latest DV number for the selected fund cluster
 $query = "SELECT dv_no FROM dv WHERE dv_no LIKE ? ORDER BY dv_no DESC LIMIT 1";
