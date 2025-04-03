@@ -804,7 +804,7 @@ $select = mysqli_query($connection, "
 
         <ul class="nav nav-tabs" role="tablist">
             <li class="nav-item" role="presentation">
-                <a class="nav-link active" data-bs-toggle="tab" href="#dvList" role="tab" aria-selected="true">DV
+                <a class="nav-link active" data-bs-toggle="tab" href="#dvList" role="tab" aria-selected="true">ORS
                     List</a>
             </li>
             <li class="nav-item" role="presentation">
@@ -1335,50 +1335,50 @@ $select = mysqli_query($connection, "
                 };
 
                 // Function to add BIR-related rows
-                function addBIRRows(tax1Amount, tax2Amount) {
-                    const tableBody = document.getElementById('accountingTableBody');
-                    
-                    // Clear existing BIR rows
-                    const existingRows = tableBody.querySelectorAll('tr');
-                    existingRows.forEach(row => {
-                        if (row.querySelector('.account-select')?.value === 'BIR') {
-                            row.remove();
-                        }
-                    });
+                // function addBIRRows(tax1Amount, tax2Amount) {
+                //     const tableBody = document.getElementById('accountingTableBody');
 
-                    // Add rows only if there are tax amounts
-                    if (tax1Amount > 0 || tax2Amount > 0) {
-                        // Add first BIR row
-                        const row1 = document.createElement('tr');
-                        row1.innerHTML = `
-                            <td colspan="2">
-                                <select class="form-control account-select" name="account_titles[]">
-                                    <option value="BIR" selected>Due to BIR - 2020101000</option>
-                                </select>
-                            </td>
-                            <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
-                            <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01" value="${tax1Amount.toFixed(2)}" readonly></td>
-                        `;
-                        tableBody.appendChild(row1);
+                //     // Clear existing BIR rows
+                //     const existingRows = tableBody.querySelectorAll('tr');
+                //     existingRows.forEach(row => {
+                //         if (row.querySelector('.account-select')?.value === 'BIR') {
+                //             row.remove();
+                //         }
+                //     });
 
-                        // Add second BIR row
-                        const row2 = document.createElement('tr');
-                        row2.innerHTML = `
-                            <td colspan="2">
-                                <select class="form-control account-select" name="account_titles[]">
-                                    <option value="BIR" selected>Due to BIR - 2020101000</option>
-                                </select>
-                            </td>
-                            <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
-                            <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01" value="${tax2Amount.toFixed(2)}" readonly></td>
-                        `;
-                        tableBody.appendChild(row2);
+                //     // Add rows only if there are tax amounts
+                //     if (tax1Amount > 0 || tax2Amount > 0) {
+                //         // Add first BIR row
+                //         const row1 = document.createElement('tr');
+                //         row1.innerHTML = `
+                //             <td colspan="2">
+                //                 <select class="form-control account-select" name="account_titles[]">
+                //                     <option value="BIR" selected>Due to BIR - 2020101000</option>
+                //                 </select>
+                //             </td>
+                //             <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
+                //             <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01" value="${tax1Amount.toFixed(2)}" readonly></td>
+                //         `;
+                //         tableBody.appendChild(row1);
 
-                        // Setup calculation listeners for new rows
-                        setupCalculationListeners(row1);
-                        setupCalculationListeners(row2);
-                    }
-                }
+                //         // Add second BIR row
+                //         const row2 = document.createElement('tr');
+                //         row2.innerHTML = `
+                //             <td colspan="2">
+                //                 <select class="form-control account-select" name="account_titles[]">
+                //                     <option value="BIR" selected>Due to BIR - 2020101000</option>
+                //                 </select>
+                //             </td>
+                //             <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
+                //             <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01" value="${tax2Amount.toFixed(2)}" readonly></td>
+                //         `;
+                //         tableBody.appendChild(row2);
+
+                //         // Setup calculation listeners for new rows
+                //         setupCalculationListeners(row1);
+                //         setupCalculationListeners(row2);
+                //     }
+                // }
 
                 // Event listeners
                 amountInput.addEventListener("input", calculate);
@@ -1403,7 +1403,7 @@ $select = mysqli_query($connection, "
                 } else {
                     console.error("Fund cluster input field not found!");
                 }
-                
+
                 // Re-fetch DV number when date input changes
                 let dateInput = document.getElementById("date");
                 if (dateInput) {
@@ -1416,7 +1416,7 @@ $select = mysqli_query($connection, "
             function generateDVNumber() {
                 let fundClusterInput = document.getElementById("fund_cluster");
                 let dateInput = document.getElementById("date");
-                
+
                 if (!fundClusterInput) {
                     console.error("Fund cluster input field not found!");
                     return;
@@ -1432,7 +1432,7 @@ $select = mysqli_query($connection, "
 
                 let formData = new FormData();
                 formData.append("fund_cluster_id", fundClusterNumber[0]); // Send only the number
-                
+
                 // Add date parameter if available
                 if (dateInput && dateInput.value) {
                     formData.append("date", dateInput.value);

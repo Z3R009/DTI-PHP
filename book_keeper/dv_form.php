@@ -526,7 +526,7 @@ function numberToWords($number)
                     <h3>DISBURSEMENT VOUCHER</h3>
                 </th>
                 <td class="header-cell">
-                    <p>ORS No..: <b><?php echo $ors_form['fund_cluster']; ?></b></p>
+                    <p>Fund Cluster: <b><?php echo $ors_form['fund_cluster']; ?></b></p>
                     <p>Date: <b><?php echo $dv_form['date']; ?></b></p>
                     <p>DV No.: <b><?php echo $dv_form['dv_no']; ?></b></p>
                 </td>
@@ -547,7 +547,7 @@ function numberToWords($number)
                     <p>Tin Employee No.: <?php echo $ors_form['tin_no']; ?></p>
                 </td>
                 <td colspan="2">
-                    <p>ORS/BURS No.: <?php echo $ors_form['ors_no']; ?></p>
+                    <p>ORS/URS No.: <?php echo $ors_form['ors_no']; ?></p>
                 </td>
             </tr>
 
