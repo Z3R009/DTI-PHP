@@ -13,7 +13,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             WHERE ors_no LIKE ? 
             ORDER BY ors_id DESC LIMIT 1";
     
-    $pattern = $service_code . "-" . $year . "-" . $month . "-%";
+    // Handle special case for ADMIN&POLICY
+    if ($service_code === 'ADMIN&POLICY') {
+        $pattern = 'ADMIN&POLICY-' . $year . '-' . $month . '-%';
+    } else {
+        $pattern = $service_code . "-" . $year . "-" . $month . "-%";
+    }
     
     $stmt = $connection->prepare($sql);
     $stmt->bind_param("s", $pattern);

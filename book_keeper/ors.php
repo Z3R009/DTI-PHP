@@ -76,24 +76,24 @@ if (isset($_POST['submit'])) {
         // Process each account entry
         foreach ($account_ids as $index => $account_id) {
             $amount = $amounts[$index];
-            
-            // Check if sufficient allotment exists for this account
+
+            // Get project information without balance check
             $check_sql = "SELECT project_id, balances FROM project 
-                         WHERE account_id = ? AND oopap_id = ? AND balances >= ?";
+                         WHERE account_id = ? AND oopap_id = ?";
             $check_stmt = $connection->prepare($check_sql);
-            $check_stmt->bind_param("iid", $account_id, $oopap_id, $amount);
+            $check_stmt->bind_param("ii", $account_id, $oopap_id);
             $check_stmt->execute();
             $result = $check_stmt->get_result();
 
             if ($result->num_rows === 0) {
-                throw new Exception("Insufficient allotment for account ID: " . $account_id);
+                throw new Exception("No project found for account ID: " . $account_id);
             }
 
             $project = $result->fetch_assoc();
             $project_id = $project['project_id'];
             $new_balance = $project['balances'] - $amount;
 
-            // Update project allotment
+            // Update project allotment (now allowing negative values)
             $update_sql = "UPDATE project SET balances = ? WHERE project_id = ?";
             $update_stmt = $connection->prepare($update_sql);
             $update_stmt->bind_param("di", $new_balance, $project_id);
@@ -115,10 +115,14 @@ if (isset($_POST['submit'])) {
         echo "Error: " . $e->getMessage();
         exit();
     } finally {
-        if (isset($check_stmt)) $check_stmt->close();
-        if (isset($update_stmt)) $update_stmt->close();
-        if (isset($stmt)) $stmt->close();
-        if (isset($history_stmt)) $history_stmt->close();
+        if (isset($check_stmt))
+            $check_stmt->close();
+        if (isset($update_stmt))
+            $update_stmt->close();
+        if (isset($stmt))
+            $stmt->close();
+        if (isset($history_stmt))
+            $history_stmt->close();
         $connection->close();
     }
 }
@@ -127,13 +131,20 @@ if (isset($_POST['submit'])) {
 
 
 
-// Query to fetch account titles and their corresponding UACS codes
-$sql_account = "SELECT account_id, account_title, account_code 
-                FROM account_title 
-                WHERE account_code LIKE '5%'";
+// Query to fetch account titles and their corresponding UACS codes with OO/PAP
+$sql_account = "SELECT DISTINCT at.account_id, at.account_title, at.account_code, p.oopap_id, o.oopap_name
+                FROM account_title at
+                INNER JOIN project p ON at.account_id = p.account_id
+                INNER JOIN oopap o ON p.oopap_id = o.oopap_id
+                ORDER BY o.oopap_name, at.account_code";
 
 $result_account = $connection->query($sql_account);
 
+// Store account data for JavaScript
+$accountData = [];
+while ($row = $result_account->fetch_assoc()) {
+    $accountData[] = $row;
+}
 
 // retrieve payee
 
@@ -632,9 +643,12 @@ while ($row = $result_approvers->fetch_assoc()) {
                                                                 <select class="form-control" name="account_id[]" required>
                                                                     <option selected disabled>Select Account</option>
                                                                     <?php
+                                                                    // Reset the result pointer
+                                                                    $result_account->data_seek(0);
                                                                     while ($row = $result_account->fetch_assoc()) {
                                                                         echo "<option value='" . htmlspecialchars($row['account_id']) . "' 
-                                                                            data-account_code='" . htmlspecialchars($row['account_code']) . "'>"
+                                                                            data-account_code='" . htmlspecialchars($row['account_code']) . "'
+                                                                            data-oopap_id='" . htmlspecialchars($row['oopap_id']) . "'>"
                                                                             . htmlspecialchars($row['account_title']) . " - " . htmlspecialchars($row['account_code']) .
                                                                             "</option>";
                                                                     }
@@ -885,12 +899,12 @@ while ($row = $result_approvers->fetch_assoc()) {
             document.getElementById("addAccountRow").addEventListener("click", function () {
                 const newRow = document.createElement("tr");
                 newRow.classList.add("entry-row");
-                
+
                 // Clone the account select options
                 const accountSelect = document.querySelector('select[name="account_id[]"]').cloneNode(true);
                 accountSelect.name = "account_id[]";
                 accountSelect.value = ""; // Reset selection
-                
+
                 // Create amount input
                 const amountInput = document.createElement("input");
                 amountInput.type = "number";
@@ -903,7 +917,7 @@ while ($row = $result_approvers->fetch_assoc()) {
                 const accountCell = document.createElement("td");
                 accountCell.colSpan = 3;
                 accountCell.appendChild(accountSelect);
-                
+
                 const amountCell = document.createElement("td");
                 amountCell.appendChild(amountInput);
 
@@ -1046,13 +1060,15 @@ while ($row = $result_approvers->fetch_assoc()) {
                     projectIdInput.value = data.project_id;
                     projectIdInput.style.backgroundColor = '#e8f5e9';
                 } else {
-                    projectIdInput.value = '';
-                    projectIdInput.style.backgroundColor = '#ffebee';
-                    alert('Insufficient allotment for this combination!');
+                    projectIdInput.value = data.project_id;
+                    projectIdInput.style.backgroundColor = '#fff3e0';
+                    // Show warning instead of error
+                    alert('Warning: This will result in a negative balance!');
                 }
             } catch (error) {
                 console.error('Error checking allotment:', error);
-                alert('Error checking allotment availability');
+                projectIdInput.value = '';
+                projectIdInput.style.backgroundColor = '#ffebee';
             }
         }
 
@@ -1084,25 +1100,25 @@ while ($row = $result_approvers->fetch_assoc()) {
                 },
                 body: `oopap_id=${oopapId}`
             })
-            .then(response => response.json())
-            .then(services => {
-                servicesSelect.innerHTML = '<option selected disabled>Select Services</option>';
-                services.forEach(service => {
-                    const option = document.createElement('option');
-                    option.value = service.services_id;
-                    option.textContent = service.services_name;
-                    option.setAttribute('data-code', service.code);
-                    servicesSelect.appendChild(option);
+                .then(response => response.json())
+                .then(services => {
+                    servicesSelect.innerHTML = '<option selected disabled>Select Services</option>';
+                    services.forEach(service => {
+                        const option = document.createElement('option');
+                        option.value = service.services_id;
+                        option.textContent = service.services_name;
+                        option.setAttribute('data-code', service.code);
+                        servicesSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    servicesSelect.innerHTML = '<option selected disabled>Error loading services</option>';
                 });
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                servicesSelect.innerHTML = '<option selected disabled>Error loading services</option>';
-            });
         }
 
         // Listen for OO/PAP selection changes
-        oopapSelect.addEventListener('change', function() {
+        oopapSelect.addEventListener('change', function () {
             updateServices(this.value);
         });
 
@@ -1119,25 +1135,85 @@ while ($row = $result_approvers->fetch_assoc()) {
             const year = date.getFullYear().toString().substr(-2);
             const month = String(date.getMonth() + 1).padStart(2, '0');
 
-            fetch('get_next_ors_sequence.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `service_code=${serviceCode}&year=${year}&month=${month}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                const sequence = String(data.next_sequence).padStart(3, '0');
-                orsNoInput.value = `${serviceCode}-${year}-${month}-${sequence}`;
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+            // Check if the service code is ADMIN&POLICY
+            if (serviceCode === 'ADMIN&POLICY') {
+                fetch('get_next_ors_sequence.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `service_code=ADMIN&POLICY&year=${year}&month=${month}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const sequence = String(data.next_sequence).padStart(3, '0');
+                    orsNoInput.value = `ADMIN&POLICY-${year}-${month}-${sequence}`;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            } else {
+                fetch('get_next_ors_sequence.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `service_code=${serviceCode}&year=${year}&month=${month}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const sequence = String(data.next_sequence).padStart(3, '0');
+                    orsNoInput.value = `${serviceCode}-${year}-${month}-${sequence}`;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
         }
 
         servicesSelect.addEventListener('change', generateORSNumber);
         dateInput.addEventListener('change', generateORSNumber);
+    });
+</script>
+
+<!-- Add this JavaScript before the closing </body> tag -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const oopapSelect = document.querySelector('select[name="oopap_id"]');
+        const accountSelects = document.querySelectorAll('select[name="account_id[]"]');
+
+        function updateAccountOptions() {
+            const selectedOopapId = oopapSelect.value;
+
+            accountSelects.forEach(select => {
+                const currentValue = select.value;
+                const options = select.options;
+
+                // Show/hide options based on selected OO/PAP
+                for (let i = 0; i < options.length; i++) {
+                    const option = options[i];
+                    if (option.value === "") continue; // Skip the default "Select Account" option
+
+                    const optionOopapId = option.getAttribute('data-oopap_id');
+                    if (optionOopapId === selectedOopapId) {
+                        option.style.display = '';
+                    } else {
+                        option.style.display = 'none';
+                    }
+                }
+
+                // Reset selection if current value is not in selected OO/PAP
+                if (currentValue && options[select.selectedIndex].style.display === 'none') {
+                    select.value = "";
+                }
+            });
+        }
+
+        // Update account options when OO/PAP changes
+        oopapSelect.addEventListener('change', updateAccountOptions);
+
+        // Initial update
+        updateAccountOptions();
     });
 </script>
 

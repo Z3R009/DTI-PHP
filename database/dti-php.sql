@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 02, 2025 at 03:05 AM
+-- Generation Time: Apr 02, 2025 at 10:09 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -168,7 +168,10 @@ INSERT INTO `account_title` (`account_id`, `account_title`, `account_code`) VALU
 (374, 'Printing and Publication Expenses', '5021202000'),
 (375, 'Rents - Motor Vehicles', '5029990002'),
 (376, 'Other Subscription Expenses', '5029907000'),
-(379, 'test', '50000');
+(379, 'test', '50000'),
+(380, 'test2', '5001'),
+(381, 'test3', '5000000000'),
+(382, 'Cash -  Modified Disbursement System (MDS), Regular', '1010404000');
 
 -- --------------------------------------------------------
 
@@ -179,19 +182,20 @@ INSERT INTO `account_title` (`account_id`, `account_title`, `account_code`) VALU
 CREATE TABLE `approver` (
   `approver_id` int(11) NOT NULL,
   `approver_name` varchar(255) NOT NULL,
-  `designation` varchar(255) NOT NULL
+  `designation` varchar(255) NOT NULL,
+  `sub_title` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `approver`
 --
 
-INSERT INTO `approver` (`approver_id`, `approver_name`, `designation`) VALUES
-(1, 'HAZEL E. HAUTEA', 'Chief Administrative Officer'),
-(2, 'EPIFANIA L. EALDAMA', 'OIC Division Chief, MSSD'),
-(3, 'ROBERT A. ORFRECIO', 'Division Chief, SDD'),
-(4, 'ELBERT G. CAPECIO', 'Division Chief, IDD'),
-(5, 'MA. THERESA T. CHUA', 'Division Chief, CPD');
+INSERT INTO `approver` (`approver_id`, `approver_name`, `designation`, `sub_title`) VALUES
+(1, 'HAZEL E. HAUTEA', 'Chief Administrative Officer', 'Head, Requesting Office/Authorized Representative'),
+(2, 'EPIFANIA L. EALDAMA', 'OIC Division Chief, MSSD', ''),
+(3, 'ROBERT A. ORFRECIO', 'Division Chief, SDD', ''),
+(4, 'ELBERT G. CAPECIO', 'Division Chief, IDD', ''),
+(5, 'MA. THERESA T. CHUA', 'Division Chief, CPD', '');
 
 -- --------------------------------------------------------
 
@@ -214,8 +218,9 @@ CREATE TABLE `dv` (
   `tax_2_amount` double(40,2) NOT NULL,
   `net_amount` double(40,2) DEFAULT NULL,
   `account_id` int(255) NOT NULL,
-  `debit` double(40,2) NOT NULL,
-  `credit` double(40,2) NOT NULL,
+  `type` enum('debit','credit') NOT NULL,
+  `amount` double(40,2) NOT NULL,
+  `total_amount` double(40,2) NOT NULL,
   `chief_accountant` varchar(255) DEFAULT NULL,
   `regional_director` varchar(255) DEFAULT NULL,
   `check_no` varchar(50) DEFAULT NULL,
@@ -278,6 +283,17 @@ CREATE TABLE `obligation_history` (
   `net` double(40,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `obligation_history`
+--
+
+INSERT INTO `obligation_history` (`id`, `ors_id`, `project_id`, `net`) VALUES
+(11, 50, 378, 1000.00),
+(12, 50, 379, 1500.00),
+(13, 50, 378, 500.00),
+(14, 51, 380, 1.00),
+(15, 52, 378, 1650.00);
+
 -- --------------------------------------------------------
 
 --
@@ -314,6 +330,7 @@ INSERT INTO `oopap` (`oopap_id`, `oopap_name`, `description`) VALUES
 CREATE TABLE `ors` (
   `ors_id` int(11) NOT NULL,
   `fund_cluster_id` int(255) NOT NULL,
+  `services_id` int(255) NOT NULL,
   `date` date NOT NULL,
   `ors_no` varchar(255) NOT NULL,
   `payee_id` int(255) NOT NULL,
@@ -326,6 +343,15 @@ CREATE TABLE `ors` (
   `approver_id` int(255) NOT NULL,
   `budget_officer` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `ors`
+--
+
+INSERT INTO `ors` (`ors_id`, `fund_cluster_id`, `services_id`, `date`, `ors_no`, `payee_id`, `notes`, `purpose`, `rc_id`, `account_id`, `oopap_id`, `total_amount`, `approver_id`, `budget_officer`) VALUES
+(50, 4, 5, '2025-04-02', 'SECURITY-25-04-001', 6, 'Payment for Expense', 'To Payment of', 9, 379, 1, 3000.00, 1, 'CONNIE M. BARNACHEA'),
+(51, 4, 11, '2025-04-02', 'ADMINPOLICY-25-04-001', 5, 'payment', 'To Payment of', 5, 381, 1, 1.00, 1, 'CONNIE M. BARNACHEA'),
+(52, 3, 10, '2025-04-02', 'SUPPLY-25-04-001', 6, 'payment of water expense', 'To Payment of', 2, 379, 1, 1650.00, 1, 'CONNIE M. BARNACHEA');
 
 -- --------------------------------------------------------
 
@@ -646,7 +672,9 @@ INSERT INTO `project` (`project_id`, `oopap_id`, `account_id`, `allotment`, `bal
 (374, 9, 364, 0.00, 0.00, '2025-03-31'),
 (375, 9, 314, 50000.00, 50000.00, '2025-03-31'),
 (376, 9, 346, 50000.00, 50000.00, '2025-03-31'),
-(378, 1, 379, 100000.00, 100000.00, '2025-04-02');
+(378, 1, 379, 100000.00, 96850.00, '2025-04-02'),
+(379, 1, 380, 100000.00, 98500.00, '2025-04-02'),
+(380, 1, 381, 0.00, -1.00, '2025-04-02');
 
 -- --------------------------------------------------------
 
@@ -709,7 +737,7 @@ INSERT INTO `services` (`services_id`, `services_name`, `code`, `oopap_id`) VALU
 (8, 'PERFORMANCE MANAGEMENT SYSTEM', 'PMS', 1),
 (9, 'RECRUITMENT, SELECTION AND PLACEMENT', 'RSP', 1),
 (10, 'SUPPLY & PROPERTY MANAGEMENT', 'SUPPLY', 1),
-(11, 'ADMINISTRATION & POLICY', 'ADMIN&POLICY', 1),
+(11, 'ADMINISTRATION & POLICY', 'ADMINPOLICY', 1),
 (12, 'SAFETY AND HEALTH', 'OSH', 1),
 (13, 'RBAC MEETING', 'RBAC', 1),
 (14, 'GADGET COST', 'GADGET', 1),
@@ -816,7 +844,8 @@ ALTER TABLE `ors`
   ADD KEY `object_code_id` (`account_id`),
   ADD KEY `approver_id` (`approver_id`),
   ADD KEY `oopap_id` (`oopap_id`),
-  ADD KEY `payee_id` (`payee_id`);
+  ADD KEY `payee_id` (`payee_id`),
+  ADD KEY `services_id` (`services_id`);
 
 --
 -- Indexes for table `payee`
@@ -859,7 +888,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `account_title`
 --
 ALTER TABLE `account_title`
-  MODIFY `account_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=380;
+  MODIFY `account_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=383;
 
 --
 -- AUTO_INCREMENT for table `approver`
@@ -889,7 +918,7 @@ ALTER TABLE `jev`
 -- AUTO_INCREMENT for table `obligation_history`
 --
 ALTER TABLE `obligation_history`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `oopap`
@@ -901,7 +930,7 @@ ALTER TABLE `oopap`
 -- AUTO_INCREMENT for table `ors`
 --
 ALTER TABLE `ors`
-  MODIFY `ors_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
+  MODIFY `ors_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
 
 --
 -- AUTO_INCREMENT for table `payee`
@@ -913,7 +942,7 @@ ALTER TABLE `payee`
 -- AUTO_INCREMENT for table `project`
 --
 ALTER TABLE `project`
-  MODIFY `project_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=379;
+  MODIFY `project_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=381;
 
 --
 -- AUTO_INCREMENT for table `responsibility_center`
@@ -966,7 +995,8 @@ ALTER TABLE `ors`
   ADD CONSTRAINT `ors_ibfk_4` FOREIGN KEY (`approver_id`) REFERENCES `approver` (`approver_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `ors_ibfk_5` FOREIGN KEY (`oopap_id`) REFERENCES `oopap` (`oopap_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `ors_ibfk_7` FOREIGN KEY (`payee_id`) REFERENCES `payee` (`payee_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `ors_ibfk_8` FOREIGN KEY (`account_id`) REFERENCES `account_title` (`account_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `ors_ibfk_8` FOREIGN KEY (`account_id`) REFERENCES `account_title` (`account_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `ors_ibfk_9` FOREIGN KEY (`services_id`) REFERENCES `services` (`services_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `project`

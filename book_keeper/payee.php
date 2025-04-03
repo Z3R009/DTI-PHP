@@ -8,10 +8,12 @@ if (isset($_POST['submit'])) {
     $tin_no = $_POST['tin_no'];
     $bank_acc_no = $_POST['bank_acc_no'];
     $address = $_POST['address'];
+    $nature = $_POST['nature'];
+    $contact_no = $_POST['contact_no'];
 
-    $sql = "INSERT INTO payee (payee_name, tin_no, bank_acc_no, address) VALUES (?, ?, ?, ?)";
+    $sql = "INSERT INTO payee (payee_name, tin_no, bank_acc_no, address, nature, contact_no) VALUES (?, ?, ?, ?, ?, ?)";
     $stmt = $connection->prepare($sql);
-    $stmt->bind_param("ssis", $payee_name, $tin_no, $bank_acc_no, $address);
+    $stmt->bind_param("ssisss", $payee_name, $tin_no, $bank_acc_no, $address, $nature, $contact_no);
 
     if ($stmt->execute()) {
         header('Location: payee.php');
@@ -125,6 +127,20 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                                             <input type="text" class="form-control" id="address" name="address"
                                                 placeholder="Enter Address" required autocomplete="off">
                                         </div>
+                                        <div class="mb-3">
+                                            <label for="nature" class="form-label">Nature of Business</label>
+                                            <input type="text" class="form-control" id="nature" name="nature"
+                                                placeholder="Enter Nature of Business" required autocomplete="off">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="edit_contact_no" class="form-label">Contact Number</label>
+                                            <input type="text" class="form-control" id="edit_contact_no"
+                                                name="contact_no" required maxlength="13" autocomplete="off"
+                                                placeholder="Enter Contact Number">
+                                            <span id="errorMsg" style="color: red; display: none;">Please enter
+                                                numbers
+                                                only</span>
+                                        </div>
                                         <div class="modal-footer">
                                             <!-- <button type="button" class="btn btn-secondary"
                                         data-bs-dismiss="modal">Close</button> -->
@@ -164,7 +180,9 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                                             data-payee_name="<?= htmlspecialchars($row['payee_name']); ?>"
                                             data-tin_no="<?= htmlspecialchars($row['tin_no']); ?>"
                                             data-bank_acc_no="<?= htmlspecialchars($row['bank_acc_no']); ?>"
-                                            data-address="<?= htmlspecialchars($row['address']); ?>">
+                                            data-address="<?= htmlspecialchars($row['address']); ?>"
+                                            data-nature="<?= htmlspecialchars($row['nature']); ?>"
+                                            data-contact_no="<?= htmlspecialchars($row['contact_no']); ?>">
                                             <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top"
                                                 title="Edit"></i>
                                         </button>
@@ -215,6 +233,18 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                             <label for="edit_address" class="form-label">Address</label>
                             <input type="text" class="form-control" id="edit_address" name="address" required>
                         </div>
+                        <div class="mb-3">
+                            <label for="edit_nature" class="form-label">Nature of Business</label>
+                            <input type="text" class="form-control" id="edit_address" name="address" required>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="edit_contact_no" class="form-label">Contact Number</label>
+                            <input type="text" class="form-control" id="edit_contact_no" name="contact_no" required
+                                maxlength="13" autocomplete="off" placeholder="Enter Contact Number">
+                            <span id="errorMsg" style="color: red; display: none;">Please enter
+                                numbers
+                                only</span>
+                        </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                             <button type="submit" id="update" name="update" class="btn btn-primary">Update</button>
@@ -253,12 +283,16 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                     const tin_no = this.getAttribute("data-tin_no");
                     const bank_acc_no = this.getAttribute("data-bank_acc_no");
                     const address = this.getAttribute("data-address");
+                    const nature = this.getAttribute("data-nature");
+                    const contact_no = this.getAttribute("data-contact_no");
 
                     document.getElementById("edit_payee_id").value = id;
                     document.getElementById("edit_payee_name").value = payee_name;
                     document.getElementById("edit_tin_no").value = tin_no;
                     document.getElementById("edit_bank_acc_no").value = bank_acc_no;
                     document.getElementById("edit_address").value = address;
+                    document.getElementById("edit_nature").value = nature;
+                    document.getElementById("edit_contact_no").value = contact_no;
                 });
             });
         });
@@ -271,6 +305,27 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                 window.location.href = 'delete_payee.php?payee_id=' + userID + '&confirm=yes';
             }
         }
+    </script>
+
+    <!-- Contact Number -->
+    <script>
+        const contact_noInput = document.getElementById('contact_no');
+        const errorMessage = document.getElementById('errorMsg');
+
+        contact_noInput.addEventListener('input', function (e) {
+            let input = e.target.value;
+            let numericInput = input.replace(/\D/g, '');
+            if (numericInput.length > 11) {
+                numericInput = numericInput.slice(0, 11);
+            }
+            e.target.value = numericInput;
+
+            if (input !== numericInput) {
+                errorMessage.style.display = 'block';
+            } else {
+                errorMessage.style.display = 'none';
+            }
+        });
     </script>
 
 </body>

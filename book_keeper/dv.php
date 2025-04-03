@@ -13,7 +13,7 @@ if (isset($_POST['submit'])) {
 
     $date = $_POST['date'];
     $dv_no = $_POST['dv_no'];
-    $ors_id = $_POST['ors_id'];
+    $ors_no = $_POST['ors_id']; // This is actually the ORS number
     $payment_mode = $_POST['payment_mode'];
     $vat = $_POST['vat'];
     $vat_amount = $_POST['vat_amount'];
@@ -23,32 +23,100 @@ if (isset($_POST['submit'])) {
     $tax_2 = $_POST['tax_2'];
     $tax_2_amount = $_POST['tax_2_amount'];
     $net_amount = $_POST['net_amount'];
-    $account_id = $_POST['account_id'];
-    $debit = $_POST['debit'];
-    $credit = $_POST['credit'];
     $chief_accountant = $_POST['chief_accountant'];
     $regional_director = $_POST['regional_director'];
-    $check_no = $_POST['check_no'];
-    $bank_acc_no = $_POST['bank_acc_no'];
 
-    $sql = "INSERT INTO dv (date, dv_no, ors_id, payment_mode, vat, vat_amount, tax_base, tax_1, tax_1_amount, tax_2, tax_2_amount, net_amount, account_id, debit, credit, chief_accountant, regional_director, check_no, bank_acc_no) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    // Get the account titles and amounts arrays
+    $account_titles = $_POST['account_titles'];
+    $debit_amounts = $_POST['debit_amounts'];
+    $credit_amounts = $_POST['credit_amounts'];
 
+    // Start a transaction
+    $connection->begin_transaction();
 
-    $stmt = $connection->prepare($sql);
-    if ($stmt === false) {
-        die('Prepare failed: ' . htmlspecialchars($connection->error));
-    }
+    try {
+        // First, get the ors_id from the ors_no
+        $ors_query = "SELECT ors_id FROM ors WHERE ors_no = ?";
+        $ors_stmt = $connection->prepare($ors_query);
+        if ($ors_stmt === false) {
+            throw new Exception('Prepare failed: ' . htmlspecialchars($connection->error));
+        }
+        $ors_stmt->bind_param("s", $ors_no);
+        if (!$ors_stmt->execute()) {
+            throw new Exception("Error getting ORS ID: " . $ors_stmt->error);
+        }
+        $ors_result = $ors_stmt->get_result();
+        if ($ors_result->num_rows === 0) {
+            throw new Exception("ORS number not found: " . $ors_no);
+        }
+        $ors_row = $ors_result->fetch_assoc();
+        $ors_id = $ors_row['ors_id'];
+        $ors_stmt->close();
 
-    $stmt->bind_param("ssisiiiiiiiiiiissss", $date, $dv_no, $ors_id, $payment_mode, $vat, $vat_amount, $tax_base, $tax_1, $tax_1_amount, $tax_2, $tax_2_amount, $net_amount, $account_id, $debit, $credit, $chief_accountant, $regional_director, $check_no, $bank_acc_no);
-    if ($stmt->execute()) {
+        // Loop through each account and save it independently
+        for ($i = 0; $i < count($account_titles); $i++) {
+            if (empty($account_titles[$i])) continue; // Skip empty account selections
+            
+            $account_id = $account_titles[$i];
+            $debit = !empty($debit_amounts[$i]) ? $debit_amounts[$i] : 0;
+            $credit = !empty($credit_amounts[$i]) ? $credit_amounts[$i] : 0;
+            
+            // Determine the type (debit or credit)
+            $type = ($debit > 0) ? 'debit' : 'credit';
+            $amount = ($debit > 0) ? $debit : $credit;
+            
+            // Skip if amount is zero
+            if ($amount == 0) continue;
+            
+            $sql = "INSERT INTO dv (date, dv_no, ors_id, payment_mode, vat, vat_amount, tax_base, tax_1, tax_1_amount, tax_2, tax_2_amount, net_amount, account_id, type, amount, total_amount, chief_accountant, regional_director) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    
+            $stmt = $connection->prepare($sql);
+            if ($stmt === false) {
+                throw new Exception('Prepare failed: ' . htmlspecialchars($connection->error));
+            }
+    
+            $stmt->bind_param("ssisddddddddissdss", 
+                $date, 
+                $dv_no, 
+                $ors_id,  // Now using the numeric ors_id
+                $payment_mode, 
+                $vat, 
+                $vat_amount, 
+                $tax_base, 
+                $tax_1, 
+                $tax_1_amount, 
+                $tax_2, 
+                $tax_2_amount, 
+                $net_amount, 
+                $account_id, 
+                $type, 
+                $amount, 
+                $net_amount, 
+                $chief_accountant, 
+                $regional_director
+            );
+            
+            if (!$stmt->execute()) {
+                throw new Exception("Error: " . $stmt->error);
+            }
+            
+            $stmt->close();
+        }
+        
+        // Commit the transaction
+        $connection->commit();
+        
+        // Redirect after successful save
         header("Location: dv_form.php?dv_no=$dv_no");
         exit();
-    } else {
-        echo "Error: " . $stmt->error;
+        
+    } catch (Exception $e) {
+        // Rollback the transaction on error
+        $connection->rollback();
+        echo "Error: " . $e->getMessage();
     }
-
-    $stmt->close();
+    
     $connection->close();
 }
 
@@ -953,15 +1021,14 @@ $select = mysqli_query($connection, "
                                     <table class="accounting-entry-table">
                                         <thead>
                                             <tr>
-                                                <th>Account Title</th>
-                                                <th>UACS Code</th>
+                                                <th colspan="2">Account Title</th>
                                                 <th>Debit Amount</th>
                                                 <th>Credit Amount</th>
                                             </tr>
                                         </thead>
                                         <tbody id="accountingTableBody">
                                             <tr>
-                                                <td>
+                                                <td colspan="2">
                                                     <select class="form-control account-select" name="account_titles[]">
                                                         <option selected disabled>Select Account</option>
                                                         <?php
@@ -973,8 +1040,6 @@ $select = mysqli_query($connection, "
                                                         ?>
                                                     </select>
                                                 </td>
-                                                <td><input type="text" class="form-control uacs-code"
-                                                        name="uacs_codes[]" readonly></td>
                                                 <td><input type="number" class="form-control debit-amount"
                                                         name="debit_amounts[]" step="0.01"></td>
                                                 <td><input type="number" class="form-control credit-amount"
@@ -983,11 +1048,22 @@ $select = mysqli_query($connection, "
                                         </tbody>
                                         <tfoot>
                                             <tr>
-                                                <td colspan="2" style="text-align: right;"><strong>Totals:</strong></td>
-                                                <td><input type="number" id="total-debit"
-                                                        class="form-control calculation-field" readonly></td>
-                                                <td><input type="number" id="total-credit"
-                                                        class="form-control calculation-field" readonly></td>
+                                                <td colspan="2">
+                                                    <select class="form-control account-select" name="account_titles[]">
+                                                        <option selected disabled>Select Account</option>
+                                                        <?php
+                                                        $account_query = "SELECT * FROM account_title ORDER BY account_title ASC";
+                                                        $account_result = $connection->query($account_query);
+                                                        while ($account = $account_result->fetch_assoc()) {
+                                                            echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
+                                                        }
+                                                        ?>
+                                                    </select>
+                                                </td>
+                                                <td><input type="number" class="form-control debit-amount"
+                                                        name="debit_amounts[]" step="0.01"></td>
+                                                <td><input type="number" class="form-control credit-amount"
+                                                        name="credit_amounts[]" step="0.01"></td>
                                             </tr>
                                             <tr>
                                                 <td>
@@ -1351,9 +1427,9 @@ $select = mysqli_query($connection, "
                 let totalDebit = 0;
                 let totalCredit = 0;
 
-                // Get all debit and credit inputs
-                const debitInputs = document.querySelectorAll('.debit-amount');
-                const creditInputs = document.querySelectorAll('.credit-amount');
+                // Get all debit and credit inputs except the footer row
+                const debitInputs = document.querySelectorAll('tbody .debit-amount');
+                const creditInputs = document.querySelectorAll('tbody .credit-amount');
 
                 // Sum up debit amounts
                 debitInputs.forEach(input => {
@@ -1365,9 +1441,14 @@ $select = mysqli_query($connection, "
                     totalCredit += parseFloat(input.value || 0);
                 });
 
-                // Update total fields
-                document.getElementById('total-debit').value = totalDebit.toFixed(2);
-                document.getElementById('total-credit').value = totalCredit.toFixed(2);
+                // Calculate the difference (total debit - total credit)
+                const difference = totalDebit - totalCredit;
+
+                // Update the footer row's credit field with the difference
+                const footerCreditInput = document.querySelector('tfoot .credit-amount');
+                if (footerCreditInput) {
+                    footerCreditInput.value = difference.toFixed(2);
+                }
             }
 
             // Function to filter account titles
@@ -1397,9 +1478,9 @@ $select = mysqli_query($connection, "
             document.getElementById('addAccountRow').addEventListener('click', function () {
                 const newRow = document.createElement('tr');
                 newRow.innerHTML = `
-                    <td>
+                    <td colspan="2">
                         <select class="form-control account-select" name="account_titles[]">
-                            <option value="">Select Account</option>
+                            <option selected disabled>Select Account</option>
                             <?php
                             $account_result->data_seek(0);
                             while ($account = $account_result->fetch_assoc()) {
@@ -1408,7 +1489,6 @@ $select = mysqli_query($connection, "
                             ?>
                         </select>
                     </td>
-                    <td><input type="text" class="form-control uacs-code" name="uacs_codes[]" readonly></td>
                     <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
                     <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01"></td>
                 `;

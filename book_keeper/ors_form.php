@@ -37,8 +37,45 @@ if (isset($_GET['ors_no'])) {
     $ors_form = mysqli_fetch_assoc($result);
 
     if (!$ors_form) {
-        echo "ORS No. not found.";
-        exit();
+        // Try to find the ORS with ADMIN&POLICY prefix if not found
+        if (strpos($ors_no, 'ADMIN&POLICY') === 0) {
+            $query = "
+            SELECT 
+                ors.*, 
+                account_title.account_title,
+                account_title.account_code,
+                approver.approver_name,
+                approver.designation,
+                approver.sub_title,
+                CONCAT(fund_cluster.uacs_code, '-', fund_cluster.fund_cluster_name) AS fund_cluster,
+                responsibility_center.code AS parent_code,
+                oopap.oopap_name, 
+                payee.payee_name,
+                payee.address,
+                services.services_name
+            FROM ors
+            LEFT JOIN account_title ON ors.account_id = account_title.account_id
+            LEFT JOIN approver ON ors.approver_id = approver.approver_id
+            LEFT JOIN fund_cluster ON ors.fund_cluster_id = fund_cluster.fund_cluster_id
+            LEFT JOIN responsibility_center ON ors.rc_id = responsibility_center.rc_id
+            LEFT JOIN oopap ON ors.oopap_id = oopap.oopap_id
+            LEFT JOIN payee ON ors.payee_id = payee.payee_id
+            LEFT JOIN services ON ors.services_id = services.services_id
+            WHERE ors.ors_no LIKE ?
+            ";
+
+            $stmt = mysqli_prepare($connection, $query);
+            $pattern = $ors_no . '%';
+            mysqli_stmt_bind_param($stmt, "s", $pattern);
+            mysqli_stmt_execute($stmt);
+            $result = mysqli_stmt_get_result($stmt);
+            $ors_form = mysqli_fetch_assoc($result);
+        }
+
+        if (!$ors_form) {
+            echo "ORS No. not found.";
+            exit();
+        }
     }
 
     // Get obligation history entries
@@ -77,84 +114,148 @@ if (isset($_GET['ors_no'])) {
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            background: #f5f5f5;
         }
 
         .container {
-            width: 80%;
-            margin: auto;
-            padding: 20px;
-        }
-
-        .header-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .header {
-            text-align: left;
-        }
-
-        .section {
-            margin-top: 15px;
+            width: 700px;
+            margin: 0 auto;
+            padding: 30px;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
+            border: 1.5px solid black;
+            background: white;
+            margin-bottom: 20px;
         }
 
         th,
         td {
             border: 1px solid black;
-            padding: 5px;
+            padding: 4px 5px;
             text-align: left;
+            vertical-align: top;
+            font-size: 10px;
+            line-height: 1.3;
         }
 
-        .no-border {
-            border: none !important;
+        .centered {
+            text-align: center;
+            vertical-align: middle;
         }
 
-        .centered h3,
-        .centered h5 {
-            margin: 5px 0;
+        .centered h3 {
+            font-size: 12px;
+            margin: 1px 0;
+            font-weight: bold;
+            text-transform: uppercase;
             text-align: center;
             display: block;
+            line-height: 1.2;
         }
 
-        .res {
-            vertical-align: text-top;
-            text-align: left;
+        .centered h5 {
+            font-size: 11px;
+            margin: 1px 0;
+            font-weight: normal;
+            text-align: center;
+            display: block;
+            line-height: 1.2;
         }
 
-        /* Hide buttons when printing */
+        .header-cell {
+            padding: 2px 4px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .signature-line {
+            border-top: 1px solid black;
+            width: 80%;
+            margin: 20px auto 5px;
+        }
+
+        .signature-container {
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        .signature-name {
+            font-weight: bold;
+            margin: 3px 0;
+            font-size: 11px;
+        }
+
+        .signature-title {
+            font-size: 10px;
+            margin: 1px 0;
+        }
+
         @media print {
+            body {
+                margin: 0;
+                padding: 0;
+                background: white;
+                min-height: auto;
+            }
+
+            .container {
+                width: 650px !important;
+                margin: 0 auto;
+                padding: 10px 30px;
+                box-shadow: none;
+                border-radius: 0;
+            }
+
+            table {
+                margin-bottom: 0;
+            }
+
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            @page {
+                size: letter portrait;
+                margin: 0.5cm;
+            }
+
             .no-print {
                 display: none !important;
             }
         }
 
-        /* Center the button group */
         .modal-footer {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            background: white;
             display: flex;
             justify-content: center;
             gap: 10px;
-            margin-top: 20px;
         }
 
-        /* Button styles */
         .btn {
-            padding: 10px 20px;
-            font-size: 16px;
-            font-weight: bold;
+            padding: 8px 16px;
+            font-size: 14px;
             border: none;
-            border-radius: 8px;
-            transition: all 0.3s ease-in-out;
+            border-radius: 4px;
             cursor: pointer;
+            transition: all 0.3s ease;
         }
 
-        /* Primary Button */
         .btn-primary {
             background-color: #007bff;
             color: white;
@@ -164,7 +265,6 @@ if (isset($_GET['ors_no'])) {
             background-color: #0056b3;
         }
 
-        /* Secondary Button */
         .btn-secondary {
             background-color: #6c757d;
             color: white;
@@ -174,21 +274,58 @@ if (isset($_GET['ors_no'])) {
         .btn-secondary:hover {
             background-color: #5a6268;
         }
+
+        .amount-cell {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .print-preview-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .print-preview-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            height: 80%;
+            overflow: auto;
+        }
+
+        .print-preview-close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .print-preview-actions {
+            text-align: center;
+            margin-top: 20px;
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <!-- Show Form -->
-
         <table>
             <tr>
-                <th colspan="5" class="centered">
+                <th colspan="5" class="centered header-cell">
                     <h3>OBLIGATION REQUEST AND STATUS</h3>
                     <h3>DEPARTMENT OF TRADE AND INDUSTRY 12</h3>
                     <h5>Entity Name</h5>
                 </th>
-                <td colspan="3">
+                <td colspan="3" class="header-cell">
                     <p>ORS No..: <b><?php echo $ors_form['ors_no']; ?></b></p>
                     <p>Date: <b><?php echo date('F d, Y'); ?></b></p>
                     <p>Fund Cluster: <b><?php echo $ors_form['fund_cluster']; ?></b></p>
@@ -196,136 +333,110 @@ if (isset($_GET['ors_no'])) {
             </tr>
 
             <tr>
-                <td>Payee</td>
-                <td colspan="7">
-                    <p><?php echo $ors_form['payee_name']; ?></p>
-                </td>
+                <td><strong>Payee</strong></td>
+                <td colspan="7"><strong><?php echo $ors_form['payee_name']; ?></strong></td>
             </tr>
             <tr>
-                <td>Office</td>
+                <td><strong>Office</strong></td>
                 <td colspan="7">DTI-XII</td>
             </tr>
             <tr>
-                <td>Address</td>
-                <td colspan="7">
-                    <p><?php echo $ors_form['address']; ?></p>
-                </td>
+                <td><strong>Address</strong></td>
+                <td colspan="7"><strong><?php echo $ors_form['address']; ?></strong></td>
             </tr>
 
             <tr>
-                <td colspan="2">Responsibility Center</td>
-                <td colspan="3">Particulars</td>
-                <td>OO/PAP</td>
-                <td>UACS Code</td>
-                <td>Amount</td>
+                <th colspan="2">Responsibility Center</th>
+                <th colspan="3">Particulars</th>
+                <th>OO/PAP</th>
+                <th>UACS Code</th>
+                <th>Amount</th>
             </tr>
             <tr>
-                <td rowspan="3" colspan="2" style="vertical-align: top;"><br><br>
+                <td rowspan="3" colspan="2" class="res">
                     <p><?php echo $ors_form['parent_code']; ?></p>
                 </td>
-
-                <td colspan="3" style="border: none;">
-                    <p><?php echo $ors_form['purpose']; ?>:</p>
+                <td colspan="3">
+                    <p style="margin-bottom: 15px;"><?php echo $ors_form['purpose']; ?>:</p>
                     <?php foreach ($obligation_entries as $entry): ?>
-                        <p style="padding-left: 50px;">
+                        <p style="padding-left: 50px; margin: 8px 0 ;">
                             <strong><?php echo $entry['account_title']; ?></strong>
                         </p>
                     <?php endforeach; ?>
                 </td>
-                <td rowspan="2" style="vertical-align: top;"><br><br>
-                    <p style="text-align: center;"><?php echo $ors_form['oopap_name']; ?></p>
+                <td rowspan="2" class="centered">
+                    <p><?php echo $ors_form['oopap_name']; ?></p>
                 </td>
-                <td rowspan="2" style="vertical-align: top;"><br><br>
+                <td rowspan="2" class="centered">
                     <?php foreach ($obligation_entries as $entry): ?>
-                        <p style="text-align: center;">
-                            <?php echo $entry['account_code']; ?>
-                        </p>
+                        <p><?php echo $entry['account_code']; ?></p>
                     <?php endforeach; ?>
                 </td>
-                <td rowspan="2" style="vertical-align: top;"><br><br>
+                <td rowspan="2" class="centered">
                     <?php foreach ($obligation_entries as $entry): ?>
-                        <p style="text-align: right;">
-                            <?php echo number_format((float) $entry['net'], 2, '.', ','); ?>
-                        </p>
+                        <p><?php echo number_format((float) $entry['net'], 2, '.', ','); ?></p>
                     <?php endforeach; ?>
                 </td>
             </tr>
             <tr>
-                <td colspan="4" style="border: none;">
+                <td colspan="3">
                     <p style="padding-left: 35px;"><b><?php echo $ors_form['notes']; ?></b></p>
                 </td>
             </tr>
-
             <tr>
-                <td colspan="3" style="text-align: right;">Total</td>
+                <td colspan="3" style="text-align: right;"><strong>Total</strong></td>
                 <td></td>
                 <td></td>
-                <td>
-                    <p style="text-align: right;">
-                        <b>₱<?php echo number_format((float) $ors_form['total_amount'], 2, '.', ','); ?></b>
-                    </p>
+                <td class="amount-cell">
+                    <strong>₱<?php echo number_format((float) $ors_form['total_amount'], 2, '.', ','); ?></strong>
                 </td>
             </tr>
 
             <tr>
                 <td colspan="4">
-                    <p style="height: 200px;"><b>A. Certified:</b> Charges to appropriation/allotment are necessary,
-                        lawful, and under my
-                        direct supervision.</p>
-
-                    <p>Signature:</p>
-                    <hr style="width: 500px; border: 1px solid black; margin: 5px 0 0 20;">
-
-                    <p style="text-align: center;"><strong><?php echo $ors_form['approver_name']; ?></strong></p>
-                    <p style="text-align: center; font-size: 15px;"><?php echo $ors_form['designation']; ?></p>
-                    <p style="text-align: center; font-size: 15px;"><?php echo $ors_form['sub_title']; ?></p>
+                    <p style="height: 150px;"><strong>A. Certified:</strong> Charges to appropriation/allotment are
+                        necessary, lawful, and under
+                        my direct supervision.</p>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <p style="margin-bottom: 0;"><?php echo $ors_form['approver_name']; ?></p>
+                        <div style="width: 250px; border-top: 1px solid black; margin: 0 auto;"></div>
+                        <p style="margin-top: 3px;"><?php echo $ors_form['designation']; ?></p>
+                        <p style="margin-top: 3px;"><?php echo $ors_form['sub_title']; ?></p>
+                    </div>
                 </td>
                 <td colspan="4">
-                    <p style="height: 200px;"><b>B. Certified:</b> Allotment available and obligated for the
-                        purpose/adjustment necessary as indicated above.</p>
-                    <p>Signature:</p>
-                    <hr style="width: 500px; border: 1px solid black; margin: 5px 0 0 20;">
-                    <p style="text-align: center;"><strong><?php echo $ors_form['budget_officer']; ?></strong></p>
-                    <p style="text-align: center; font-size: 15px;">Budget Officer</p>
-                    <p style="text-align: center; font-size: 15px;">Head, Budget Division/Unit/Authorized Representative
-                    </p>
+                    <p style="height: 150px;"><strong>B. Certified:</strong> Allotment available and obligated for the
+                        purpose/adjustment
+                        necessary as indicated above.</p>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <p style="margin-bottom: 0;"><?php echo $ors_form['budget_officer']; ?></p>
+                        <div style="width: 250px; border-top: 1px solid black; margin: 0 auto;"></div>
+                        <p style="margin-top: 3px;">Budget Officer</p>
+                        <p style="margin-top: 3px;">Head, Budget Division/Unit/Authorized Representative</p>
+                    </div>
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="8" class="centered header-cell">
+                    <h3>STATUS OF OBLIGATION</h3>
                 </td>
             </tr>
             <tr>
-                <td colspan="8"></td>
+                <th colspan="3" class="centered"><strong>Reference</strong></th>
+                <th colspan="5" class="centered"><strong>Amount</strong></th>
             </tr>
             <tr>
-                <td><b>C.</b></td>
-                <td colspan="7" class="header" style="text-align: center;"><b>STATUS OF OBLIGATION</b></td>
-            </tr>
-            <tr>
-                <th colspan="3" style="text-align: center;"><b>Reference</b></th>
-                <th colspan="5" style="text-align: center;"><b>Amount</b></th>
-            </tr>
-            <tr>
-                <th rowspan="3">Date</th>
-                <th rowspan="3">Particulars</th>
-                <th rowspan="3">ORS/JEV/Check/ ADA/TRA No.</th>
-                <th rowspan="2">Obligation (a)</th>
-                <th rowspan="2">Payable (b)</th>
-                <th rowspan="2">Payment (c)</th>
-                <th colspan="2" style="text-align: center;">Balance</th>
-
-            </tr>
-
-            <tr>
-
+                <th rowspan="2">Date</th>
+                <th rowspan="2">Particulars</th>
+                <th rowspan="2">ORS/JEV/Check/ADA/TRA No.</th>
+                <th>Obligation (a)</th>
+                <th>Payable (b)</th>
+                <th>Payment (c)</th>
                 <th>Not Yet Due (a-b)</th>
                 <th>Due and Demandable (b-c)</th>
             </tr>
-            <tr></tr>
-            <tr></tr>
-            <tr></tr>
-            <tr></tr>
             <tr>
-                <th></th>
-                <th></th>
-                <th></th>
                 <th>(a)</th>
                 <th>(b)</th>
                 <th>(c)</th>
@@ -333,32 +444,53 @@ if (isset($_GET['ors_no'])) {
                 <th>(b-c)</th>
             </tr>
             <tr>
-                <td>
-                    <p><b><?php echo date('F d, Y'); ?></b></p>
-
-                </td>
+                <td><strong><?php echo date('F d, Y'); ?></strong></td>
                 <td><?php echo $ors_form['account_title']; ?></td>
                 <td><?php echo $ors_form['services_name']; ?></td>
-                <td>
-                    <p>₱<?php echo number_format((float) $ors_form['total_amount'], 2, '.', ','); ?></p>
+                <td class="amount-cell">₱<?php echo number_format((float) $ors_form['total_amount'], 2, '.', ','); ?>
                 </td>
-                <td>
-                    <p>₱<?php echo number_format((float) $ors_form['total_amount'], 2, '.', ','); ?></p>
+                <td class="amount-cell">₱<?php echo number_format((float) $ors_form['total_amount'], 2, '.', ','); ?>
                 </td>
-                <td>
-                    <p>₱<?php echo number_format((float) $ors_form['total_amount'], 2, '.', ','); ?></p>
+                <td class="amount-cell">₱<?php echo number_format((float) $ors_form['total_amount'], 2, '.', ','); ?>
                 </td>
                 <td></td>
                 <td></td>
             </tr>
         </table>
 
-        <div class="modal-footer no-print text-center">
+        <div class="modal-footer no-print">
             <button type="button" class="btn btn-primary" onclick="window.print()">Print ORS</button>
             <a href="ors.php" class="btn btn-secondary">Submit Another</a>
         </div>
-
     </div>
+
+    <script>
+        function showPrintPreview() {
+            const content = document.querySelector('.container').cloneNode(true);
+            const noPrintElements = content.querySelectorAll('.no-print');
+            noPrintElements.forEach(element => {
+                element.remove();
+            });
+            document.getElementById('printPreviewContent').innerHTML = '';
+            document.getElementById('printPreviewContent').appendChild(content);
+            document.getElementById('printPreviewModal').style.display = 'block';
+        }
+
+        function closePrintPreview() {
+            document.getElementById('printPreviewModal').style.display = 'none';
+        }
+
+        function printDocument() {
+            const printWindow = window.open('', '_blank');
+            const contentToPrint = document.querySelector('.container').cloneNode(true);
+            const noPrintElements = contentToPrint.querySelectorAll('.no-print');
+            noPrintElements.forEach(element => {
+                element.remove();
+            });
+        }
+    </script>
 </body>
+
+</html>
 
 </html>
