@@ -575,14 +575,14 @@ while ($row = $result_approvers->fetch_assoc()) {
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label">TIN/Employee No.</label>
-                                            <input type="text" class="form-control" name="tin_no" id="tin_no" required
+                                            <input type="text" class="form-control" name="tin_no" id="tin_no"
                                                 autocomplete="off">
 
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label">Address</label>
-                                        <input type="text" class="form-control" name="address" id="address" required
+                                        <input type="text" class="form-control" name="address" id="address"
                                             autocomplete="off">
 
                                     </div>
@@ -1035,6 +1035,13 @@ while ($row = $result_approvers->fetch_assoc()) {
         const amountInput = document.querySelector('.amount-input');
         const projectIdInput = document.getElementById('project_id');
 
+        // Create warning message element
+        const warningMessage = document.createElement('div');
+        warningMessage.className = 'text-warning mt-1';
+        warningMessage.style.display = 'none';
+        warningMessage.innerHTML = '<small><i class="bi bi-exclamation-triangle"></i> Warning: This will result in a negative balance!</small>';
+        amountInput.parentNode.appendChild(warningMessage);
+
         async function checkAllotment() {
             const accountId = accountSelect.value;
             const oopapId = oopapSelect.value;
@@ -1042,6 +1049,7 @@ while ($row = $result_approvers->fetch_assoc()) {
 
             if (!accountId || !oopapId || amount === 0) {
                 projectIdInput.value = '';
+                warningMessage.style.display = 'none';
                 return;
             }
 
@@ -1059,16 +1067,17 @@ while ($row = $result_approvers->fetch_assoc()) {
                 if (data.success) {
                     projectIdInput.value = data.project_id;
                     projectIdInput.style.backgroundColor = '#e8f5e9';
+                    warningMessage.style.display = 'none';
                 } else {
                     projectIdInput.value = data.project_id;
                     projectIdInput.style.backgroundColor = '#fff3e0';
-                    // Show warning instead of error
-                    alert('Warning: This will result in a negative balance!');
+                    warningMessage.style.display = 'block';
                 }
             } catch (error) {
                 console.error('Error checking allotment:', error);
                 projectIdInput.value = '';
                 projectIdInput.style.backgroundColor = '#ffebee';
+                warningMessage.style.display = 'none';
             }
         }
 
@@ -1144,14 +1153,14 @@ while ($row = $result_approvers->fetch_assoc()) {
                     },
                     body: `service_code=ADMIN&POLICY&year=${year}&month=${month}`
                 })
-                .then(response => response.json())
-                .then(data => {
-                    const sequence = String(data.next_sequence).padStart(3, '0');
-                    orsNoInput.value = `ADMIN&POLICY-${year}-${month}-${sequence}`;
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
+                    .then(response => response.json())
+                    .then(data => {
+                        const sequence = String(data.next_sequence).padStart(3, '0');
+                        orsNoInput.value = `ADMIN&POLICY-${year}-${month}-${sequence}`;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
             } else {
                 fetch('get_next_ors_sequence.php', {
                     method: 'POST',
@@ -1160,14 +1169,14 @@ while ($row = $result_approvers->fetch_assoc()) {
                     },
                     body: `service_code=${serviceCode}&year=${year}&month=${month}`
                 })
-                .then(response => response.json())
-                .then(data => {
-                    const sequence = String(data.next_sequence).padStart(3, '0');
-                    orsNoInput.value = `${serviceCode}-${year}-${month}-${sequence}`;
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
+                    .then(response => response.json())
+                    .then(data => {
+                        const sequence = String(data.next_sequence).padStart(3, '0');
+                        orsNoInput.value = `${serviceCode}-${year}-${month}-${sequence}`;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
             }
         }
 

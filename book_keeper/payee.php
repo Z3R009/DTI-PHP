@@ -5,15 +5,15 @@ include '../DBConnection.php';
 
 if (isset($_POST['submit'])) {
     $payee_name = $_POST['payee_name'];
-    $tin_no = $_POST['tin_no'];
     $bank_acc_no = $_POST['bank_acc_no'];
+    $tin_no = $_POST['tin_no'];
     $address = $_POST['address'];
     $nature = $_POST['nature'];
     $contact_no = $_POST['contact_no'];
 
-    $sql = "INSERT INTO payee (payee_name, tin_no, bank_acc_no, address, nature, contact_no) VALUES (?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO payee (payee_name, bank_acc_no, tin_no, address, nature, contact_no) VALUES (?, ?, ?, ?, ?, ?)";
     $stmt = $connection->prepare($sql);
-    $stmt->bind_param("ssisss", $payee_name, $tin_no, $bank_acc_no, $address, $nature, $contact_no);
+    $stmt->bind_param("ssssss", $payee_name, $bank_acc_no, $tin_no, $address, $nature, $contact_no);
 
     if ($stmt->execute()) {
         header('Location: payee.php');
@@ -112,32 +112,30 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                                                 placeholder="Enter Payee Name" required autocomplete="off">
                                         </div>
                                         <div class="mb-3">
-                                            <label for="tin_no" class="form-label">TIN/Employee No.</label>
-                                            <input type="text" class="form-control" id="tin_no" name="tin_no"
-                                                placeholder="Enter TIN/Employee No." required autocomplete="off">
+                                            <label for="bank_acc_no" class="form-label">Bank Account No.</label>
+                                            <input type="text" class="form-control" id="bank_acc_no" name="bank_acc_no"
+                                                placeholder="Enter Bank Account No." autocomplete="off">
                                         </div>
                                         <div class="mb-3">
-                                            <label for="bank_acc_no" class="form-label">Bank Account No.</label>
-                                            <input type="number" class="form-control" id="bank_acc_no"
-                                                name="bank_acc_no" placeholder="Enter Bank Account No." required
-                                                autocomplete="off">
+                                            <label for="tin_no" class="form-label">TIN/Employee No.</label>
+                                            <input type="text" class="form-control" id="tin_no" name="tin_no"
+                                                placeholder="Enter TIN/Employee No." autocomplete="off">
                                         </div>
                                         <div class="mb-3">
                                             <label for="address" class="form-label">Address</label>
                                             <input type="text" class="form-control" id="address" name="address"
-                                                placeholder="Enter Address" required autocomplete="off">
+                                                placeholder="Enter Address" autocomplete="off">
                                         </div>
                                         <div class="mb-3">
                                             <label for="nature" class="form-label">Nature of Business</label>
                                             <input type="text" class="form-control" id="nature" name="nature"
-                                                placeholder="Enter Nature of Business" required autocomplete="off">
+                                                placeholder="Enter Nature of Business" autocomplete="off">
                                         </div>
                                         <div class="mb-3">
-                                            <label for="edit_contact_no" class="form-label">Contact Number</label>
-                                            <input type="text" class="form-control" id="edit_contact_no"
-                                                name="contact_no" required maxlength="13" autocomplete="off"
-                                                placeholder="Enter Contact Number">
-                                            <span id="errorMsg" style="color: red; display: none;">Please enter
+                                            <label for="contact_no" class="form-label">Contact Number</label>
+                                            <input type="text" class="form-control" id="contact_no" name="contact_no"
+                                                maxlength="13" autocomplete="off" placeholder="Enter Contact Number">
+                                            <span id="addErrorMsg" style="color: red; display: none;">Please enter
                                                 numbers
                                                 only</span>
                                         </div>
@@ -161,9 +159,11 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                         <thead>
                             <tr>
                                 <th>Payee Name</th>
-                                <th>TIN/Employee No.</th>
                                 <th>Bank Account No.</th>
+                                <th>TIN/Employee No.</th>
                                 <th>Address</th>
+                                <th>Nature of Business</th>
+                                <th>Contact Number</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -171,15 +171,17 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                             <?php while ($row = mysqli_fetch_assoc($select)) { ?>
                                 <tr>
                                     <td><?php echo htmlspecialchars($row['payee_name']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['tin_no']); ?></td>
                                     <td><?php echo htmlspecialchars($row['bank_acc_no']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['tin_no']); ?></td>
                                     <td><?php echo htmlspecialchars($row['address']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['nature']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['contact_no']); ?></td>
                                     <td>
                                         <button type="button" class="btn btn-primary edit-btn" data-bs-toggle="modal"
                                             data-bs-target="#editUserModal" data-id="<?php echo $row['payee_id']; ?>"
                                             data-payee_name="<?= htmlspecialchars($row['payee_name']); ?>"
-                                            data-tin_no="<?= htmlspecialchars($row['tin_no']); ?>"
                                             data-bank_acc_no="<?= htmlspecialchars($row['bank_acc_no']); ?>"
+                                            data-tin_no="<?= htmlspecialchars($row['tin_no']); ?>"
                                             data-address="<?= htmlspecialchars($row['address']); ?>"
                                             data-nature="<?= htmlspecialchars($row['nature']); ?>"
                                             data-contact_no="<?= htmlspecialchars($row['contact_no']); ?>">
@@ -221,13 +223,14 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                             <label for="edit_payee_name" class="form-label">Payee Name</label>
                             <input type="text" class="form-control" id="edit_payee_name" name="payee_name" required>
                         </div>
-                        <div class="mb-3">
-                            <label for="edit_tin_no" class="form-label">TIN/Employee No.</label>
-                            <input type="text" class="form-control" id="edit_tin_no" name="tin_no" required>
-                        </div>
+
                         <div class="mb-3">
                             <label for="edit_bank_acc_no" class="form-label">Bank Account No.</label>
                             <input type="number" class="form-control" id="edit_bank_acc_no" name="bank_acc_no" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_tin_no" class="form-label">TIN/Employee No.</label>
+                            <input type="text" class="form-control" id="edit_tin_no" name="tin_no" required>
                         </div>
                         <div class="mb-3">
                             <label for="edit_address" class="form-label">Address</label>
@@ -235,13 +238,13 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                         </div>
                         <div class="mb-3">
                             <label for="edit_nature" class="form-label">Nature of Business</label>
-                            <input type="text" class="form-control" id="edit_address" name="address" required>
+                            <input type="text" class="form-control" id="edit_nature" name="nature" required>
                         </div>
-                        <div class="col-md-3 mb-3">
+                        <div class="mb-3">
                             <label for="edit_contact_no" class="form-label">Contact Number</label>
                             <input type="text" class="form-control" id="edit_contact_no" name="contact_no" required
                                 maxlength="13" autocomplete="off" placeholder="Enter Contact Number">
-                            <span id="errorMsg" style="color: red; display: none;">Please enter
+                            <span id="editErrorMsg" style="color: red; display: none;">Please enter
                                 numbers
                                 only</span>
                         </div>
@@ -280,16 +283,16 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                 button.addEventListener("click", function () {
                     const id = this.getAttribute("data-id");
                     const payee_name = this.getAttribute("data-payee_name");
-                    const tin_no = this.getAttribute("data-tin_no");
                     const bank_acc_no = this.getAttribute("data-bank_acc_no");
+                    const tin_no = this.getAttribute("data-tin_no");
                     const address = this.getAttribute("data-address");
                     const nature = this.getAttribute("data-nature");
                     const contact_no = this.getAttribute("data-contact_no");
 
                     document.getElementById("edit_payee_id").value = id;
                     document.getElementById("edit_payee_name").value = payee_name;
-                    document.getElementById("edit_tin_no").value = tin_no;
                     document.getElementById("edit_bank_acc_no").value = bank_acc_no;
+                    document.getElementById("edit_tin_no").value = tin_no;
                     document.getElementById("edit_address").value = address;
                     document.getElementById("edit_nature").value = nature;
                     document.getElementById("edit_contact_no").value = contact_no;
@@ -309,8 +312,14 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
 
     <!-- Contact Number -->
     <script>
+        // Function to clear the form
+        function clearForm() {
+            document.getElementById('addCluster').reset();
+        }
+
+        // Contact number validation for Add Payee modal
         const contact_noInput = document.getElementById('contact_no');
-        const errorMessage = document.getElementById('errorMsg');
+        const addErrorMessage = document.getElementById('addErrorMsg');
 
         contact_noInput.addEventListener('input', function (e) {
             let input = e.target.value;
@@ -321,9 +330,28 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
             e.target.value = numericInput;
 
             if (input !== numericInput) {
-                errorMessage.style.display = 'block';
+                addErrorMessage.style.display = 'block';
             } else {
-                errorMessage.style.display = 'none';
+                addErrorMessage.style.display = 'none';
+            }
+        });
+
+        // Contact number validation for Edit Payee modal
+        const editContact_noInput = document.getElementById('edit_contact_no');
+        const editErrorMessage = document.getElementById('editErrorMsg');
+
+        editContact_noInput.addEventListener('input', function (e) {
+            let input = e.target.value;
+            let numericInput = input.replace(/\D/g, '');
+            if (numericInput.length > 11) {
+                numericInput = numericInput.slice(0, 11);
+            }
+            e.target.value = numericInput;
+
+            if (input !== numericInput) {
+                editErrorMessage.style.display = 'block';
+            } else {
+                editErrorMessage.style.display = 'none';
             }
         });
     </script>
