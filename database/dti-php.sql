@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 02, 2025 at 10:09 AM
+-- Generation Time: Apr 03, 2025 at 04:23 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -222,10 +222,18 @@ CREATE TABLE `dv` (
   `amount` double(40,2) NOT NULL,
   `total_amount` double(40,2) NOT NULL,
   `chief_accountant` varchar(255) DEFAULT NULL,
-  `regional_director` varchar(255) DEFAULT NULL,
-  `check_no` varchar(50) DEFAULT NULL,
-  `bank_acc_no` varchar(50) DEFAULT NULL
+  `regional_director` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `dv`
+--
+
+INSERT INTO `dv` (`dv_id`, `date`, `ors_id`, `dv_no`, `payment_mode`, `vat`, `vat_amount`, `tax_base`, `tax_1`, `tax_1_amount`, `tax_2`, `tax_2_amount`, `net_amount`, `account_id`, `type`, `amount`, `total_amount`, `chief_accountant`, `regional_director`) VALUES
+(25, '2025-04-02', 52, '1-25-04-001', 'ADA', 12.00, 0.00, 1650.00, 3.00, 49.50, 1.00, 16.50, 1584.00, 318, 'debit', 1650.00, 1584.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V'),
+(26, '2025-04-02', 52, '1-25-04-001', 'ADA', 12.00, 0.00, 1650.00, 3.00, 49.50, 1.00, 16.50, 1584.00, 278, 'credit', 49.50, 1584.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V'),
+(27, '2025-04-02', 52, '1-25-04-001', 'ADA', 12.00, 0.00, 1650.00, 3.00, 49.50, 1.00, 16.50, 1584.00, 278, 'credit', 16.50, 1584.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V'),
+(28, '2025-04-02', 52, '1-25-04-001', 'ADA', 12.00, 0.00, 1650.00, 3.00, 49.50, 1.00, 16.50, 1584.00, 382, 'credit', 1584.00, 1584.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V');
 
 -- --------------------------------------------------------
 
@@ -364,18 +372,21 @@ CREATE TABLE `payee` (
   `payee_name` varchar(255) NOT NULL,
   `tin_no` varchar(255) NOT NULL,
   `bank_acc_no` int(30) NOT NULL,
-  `address` varchar(255) NOT NULL
+  `address` varchar(255) NOT NULL,
+  `nature` varchar(255) NOT NULL,
+  `contact_no` varchar(15) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `payee`
 --
 
-INSERT INTO `payee` (`payee_id`, `payee_name`, `tin_no`, `bank_acc_no`, `address`) VALUES
-(5, 'CINCO NIÑAS RESTO', '123-456', 123456789, 'CITY OF KORONADAL'),
-(6, 'CITY OF KORONADAL WATER DISTRICT', '234-678', 34509684, 'CITY OF KORONADAL'),
-(8, 'MARBEL TELEPHONE SYSTEM, INC.', '11', 11, 'CITY OF KORONADAL'),
-(9, 'SMART COMMUNICATIONS, INC.', '22', 22, 'CITY OF KORONADAL');
+INSERT INTO `payee` (`payee_id`, `payee_name`, `tin_no`, `bank_acc_no`, `address`, `nature`, `contact_no`) VALUES
+(5, 'CINCO NIÑAS RESTO', '123-456', 123456789, 'CITY OF KORONADAL', '', '0'),
+(6, 'CITY OF KORONADAL WATER DISTRICT', '234-678', 34509684, 'CITY OF KORONADAL', '', '0'),
+(8, 'MARBEL TELEPHONE SYSTEM, INC.', '11', 11, 'CITY OF KORONADAL', '', '0'),
+(9, 'SMART COMMUNICATIONS, INC.', '22', 22, 'CITY OF KORONADAL', '', '0'),
+(10, 'test', '123', 123, 'kronadal', '12', '09277603828');
 
 -- --------------------------------------------------------
 
@@ -900,7 +911,7 @@ ALTER TABLE `approver`
 -- AUTO_INCREMENT for table `dv`
 --
 ALTER TABLE `dv`
-  MODIFY `dv_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `dv_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT for table `fund_cluster`
@@ -936,7 +947,7 @@ ALTER TABLE `ors`
 -- AUTO_INCREMENT for table `payee`
 --
 ALTER TABLE `payee`
-  MODIFY `payee_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `payee_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `project`
