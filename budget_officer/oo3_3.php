@@ -199,7 +199,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                             <tr>
                                 <th>Project/Activities/Program</th>
                                 <th>Code</th>
-                                <th></th>Allotment</th>
+                                <th>Allotment</th>
                                 <th>Balances</th>
                                 <th>Date</th>
                             </tr>
@@ -211,7 +211,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                                     <td><?php echo htmlspecialchars($row['account_code']); ?></td>
                                     <td><?php echo htmlspecialchars(number_format($row['allotment'], 2)); ?></td>
                                     <td><?php echo htmlspecialchars(number_format($row['balances'], 2)); ?></td>
-                                    <td><?php echo date('Y-m-d', strtotime($row['created_at'])); ?></td>
+                                    <td><?php echo date("F-d-Y", strtotime($row['created_at'])); ?></td>
                                     <td>
                                         <button type="button" class="btn btn-primary edit-btn" data-bs-toggle="modal"
                                             data-bs-target="#editModal" data-id="<?php echo $row['project_id']; ?>"

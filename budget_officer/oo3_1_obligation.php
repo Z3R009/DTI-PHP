@@ -161,7 +161,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                         <tbody>
                             <?php while ($row = mysqli_fetch_assoc($select)) { ?>
                                 <tr>
-                                    <td><?php echo htmlspecialchars($row['date']); ?></td>
+                                    <td><?php echo date("F-d-Y", strtotime($row['date'])); ?></td>
                                     <td><?php echo htmlspecialchars($row['ors_no']); ?></td>
                                     <td><?php echo htmlspecialchars($row['payee_name']); ?></td>
                                     <td><?php echo htmlspecialchars($row['notes']); ?></td>
