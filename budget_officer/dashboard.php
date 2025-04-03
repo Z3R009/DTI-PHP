@@ -30,21 +30,34 @@ $months = array(
 
 // Function to get total allotment and balances for a specific oopap_id
 function getTotals($connection, $oopap_id, $year, $month) {
-    $query = "SELECT SUM(allotment) AS total_allotment, SUM(balances) AS total_balances 
-              FROM project 
-              WHERE oopap_id = ? 
-              AND YEAR(created_at) = ?
-              AND MONTH(created_at) = ?";
+    // Get allotment based on year only
+    $allotment_query = "SELECT SUM(allotment) AS total_allotment 
+                       FROM project 
+                       WHERE oopap_id = ? 
+                       AND YEAR(created_at) = ?";
     
-    $stmt = $connection->prepare($query);
+    $stmt = $connection->prepare($allotment_query);
+    $stmt->bind_param("ii", $oopap_id, $year);
+    $stmt->execute();
+    $allotment_result = $stmt->get_result();
+    $allotment_row = $allotment_result->fetch_assoc();
+    
+    // Get balances based on both year and month
+    $balances_query = "SELECT SUM(balances) AS total_balances 
+                      FROM project 
+                      WHERE oopap_id = ? 
+                      AND YEAR(created_at) = ?
+                      AND MONTH(created_at) = ?";
+    
+    $stmt = $connection->prepare($balances_query);
     $stmt->bind_param("iii", $oopap_id, $year, $month);
     $stmt->execute();
-    $result = $stmt->get_result();
-    $row = $result->fetch_assoc();
+    $balances_result = $stmt->get_result();
+    $balances_row = $balances_result->fetch_assoc();
     
     return [
-        'allotment' => $row['total_allotment'] ?? 0,
-        'balances' => $row['total_balances'] ?? 0
+        'allotment' => $allotment_row['total_allotment'] ?? 0,
+        'balances' => $balances_row['total_balances'] ?? 0
     ];
 }
 

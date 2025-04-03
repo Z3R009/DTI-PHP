@@ -105,36 +105,38 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
             </div>
 
             <!-- Date Filter Section -->
-            <div class="row mb-3">
-                <div class="col-4">
-                    <div class="card" style="margin-left: 1050px;">
+            <div class="row mb-2">
+                <div class="col-12">
+                    <div class="card">
                         <div class="card-body">
-                            <div class="d-flex align-items-center gap-2">
+                            <div class="d-flex flex-column flex-md-row justify-content-md-end align-items-center gap-2">
                                 <label class="form-label mb-0">Date:</label>
-                                <select class="form-select" id="monthSelect" onchange="filterData()" style="width: 150px;">
-                                    <option value="">All Months</option>
-                                    <option value="1" <?php echo (isset($_GET['month']) && $_GET['month'] == '1') ? 'selected' : ''; ?>>January</option>
-                                    <option value="2" <?php echo (isset($_GET['month']) && $_GET['month'] == '2') ? 'selected' : ''; ?>>February</option>
-                                    <option value="3" <?php echo (isset($_GET['month']) && $_GET['month'] == '3') ? 'selected' : ''; ?>>March</option>
-                                    <option value="4" <?php echo (isset($_GET['month']) && $_GET['month'] == '4') ? 'selected' : ''; ?>>April</option>
-                                    <option value="5" <?php echo (isset($_GET['month']) && $_GET['month'] == '5') ? 'selected' : ''; ?>>May</option>
-                                    <option value="6" <?php echo (isset($_GET['month']) && $_GET['month'] == '6') ? 'selected' : ''; ?>>June</option>
-                                    <option value="7" <?php echo (isset($_GET['month']) && $_GET['month'] == '7') ? 'selected' : ''; ?>>July</option>
-                                    <option value="8" <?php echo (isset($_GET['month']) && $_GET['month'] == '8') ? 'selected' : ''; ?>>August</option>
-                                    <option value="9" <?php echo (isset($_GET['month']) && $_GET['month'] == '9') ? 'selected' : ''; ?>>September</option>
-                                    <option value="10" <?php echo (isset($_GET['month']) && $_GET['month'] == '10') ? 'selected' : ''; ?>>October</option>
-                                    <option value="11" <?php echo (isset($_GET['month']) && $_GET['month'] == '11') ? 'selected' : ''; ?>>November</option>
-                                    <option value="12" <?php echo (isset($_GET['month']) && $_GET['month'] == '12') ? 'selected' : ''; ?>>December</option>
-                                </select>
-                                <select class="form-select" id="yearSelect" onchange="filterData()" style="width: 120px;">
-                                    <?php 
-                                    $current_year = date('Y');
-                                    for($year = $current_year; $year >= $current_year - 5; $year--) {
-                                        $selected = (isset($_GET['year']) && $_GET['year'] == $year) ? 'selected' : '';
-                                        echo "<option value='$year' $selected>$year</option>";
-                                    }
-                                    ?>
-                                </select>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <select class="form-select" id="monthSelect" onchange="filterData()" style="width: auto; min-width: 100px;">
+                                        <option value="">All Months</option>
+                                        <option value="1" <?php echo (isset($_GET['month']) && $_GET['month'] == '1') ? 'selected' : ''; ?>>January</option>
+                                        <option value="2" <?php echo (isset($_GET['month']) && $_GET['month'] == '2') ? 'selected' : ''; ?>>February</option>
+                                        <option value="3" <?php echo (isset($_GET['month']) && $_GET['month'] == '3') ? 'selected' : ''; ?>>March</option>
+                                        <option value="4" <?php echo (isset($_GET['month']) && $_GET['month'] == '4') ? 'selected' : ''; ?>>April</option>
+                                        <option value="5" <?php echo (isset($_GET['month']) && $_GET['month'] == '5') ? 'selected' : ''; ?>>May</option>
+                                        <option value="6" <?php echo (isset($_GET['month']) && $_GET['month'] == '6') ? 'selected' : ''; ?>>June</option>
+                                        <option value="7" <?php echo (isset($_GET['month']) && $_GET['month'] == '7') ? 'selected' : ''; ?>>July</option>
+                                        <option value="8" <?php echo (isset($_GET['month']) && $_GET['month'] == '8') ? 'selected' : ''; ?>>August</option>
+                                        <option value="9" <?php echo (isset($_GET['month']) && $_GET['month'] == '9') ? 'selected' : ''; ?>>September</option>
+                                        <option value="10" <?php echo (isset($_GET['month']) && $_GET['month'] == '10') ? 'selected' : ''; ?>>October</option>
+                                        <option value="11" <?php echo (isset($_GET['month']) && $_GET['month'] == '11') ? 'selected' : ''; ?>>November</option>
+                                        <option value="12" <?php echo (isset($_GET['month']) && $_GET['month'] == '12') ? 'selected' : ''; ?>>December</option>
+                                    </select>
+                                    <select class="form-select" id="yearSelect" onchange="filterData()" style="width: auto; min-width: 120px;">
+                                        <?php 
+                                        $current_year = date('Y');
+                                        for($year = $current_year; $year >= $current_year - 5; $year--) {
+                                            $selected = (isset($_GET['year']) && $_GET['year'] == $year) ? 'selected' : '';
+                                            echo "<option value='$year' $selected>$year</option>";
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     </div>
