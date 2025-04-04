@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 03, 2025 at 04:23 AM
+-- Generation Time: Apr 04, 2025 at 10:20 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -230,10 +230,21 @@ CREATE TABLE `dv` (
 --
 
 INSERT INTO `dv` (`dv_id`, `date`, `ors_id`, `dv_no`, `payment_mode`, `vat`, `vat_amount`, `tax_base`, `tax_1`, `tax_1_amount`, `tax_2`, `tax_2_amount`, `net_amount`, `account_id`, `type`, `amount`, `total_amount`, `chief_accountant`, `regional_director`) VALUES
-(25, '2025-04-02', 52, '1-25-04-001', 'ADA', 12.00, 0.00, 1650.00, 3.00, 49.50, 1.00, 16.50, 1584.00, 318, 'debit', 1650.00, 1584.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V'),
-(26, '2025-04-02', 52, '1-25-04-001', 'ADA', 12.00, 0.00, 1650.00, 3.00, 49.50, 1.00, 16.50, 1584.00, 278, 'credit', 49.50, 1584.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V'),
-(27, '2025-04-02', 52, '1-25-04-001', 'ADA', 12.00, 0.00, 1650.00, 3.00, 49.50, 1.00, 16.50, 1584.00, 278, 'credit', 16.50, 1584.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V'),
-(28, '2025-04-02', 52, '1-25-04-001', 'ADA', 12.00, 0.00, 1650.00, 3.00, 49.50, 1.00, 16.50, 1584.00, 382, 'credit', 1584.00, 1584.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V');
+(41, '2025-04-03', 60, '1-25-04-001', 'MDS Check', 12.00, 0.00, 2000.00, 3.00, 60.00, 1.00, 20.00, 1920.00, 379, 'debit', 2000.00, 1920.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V'),
+(42, '2025-04-03', 60, '1-25-04-001', 'MDS Check', 12.00, 0.00, 2000.00, 3.00, 60.00, 1.00, 20.00, 1920.00, 278, 'credit', 60.00, 1920.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V'),
+(43, '2025-04-03', 60, '1-25-04-001', 'MDS Check', 12.00, 0.00, 2000.00, 3.00, 60.00, 1.00, 20.00, 1920.00, 278, 'credit', 20.00, 1920.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V'),
+(44, '2025-04-03', 60, '1-25-04-001', 'MDS Check', 12.00, 0.00, 2000.00, 3.00, 60.00, 1.00, 20.00, 1920.00, 382, 'credit', 1920.00, 1920.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `dv_history`
+--
+
+CREATE TABLE `dv_history` (
+  `dvhis_id` int(11) NOT NULL,
+  `dv_id` int(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -296,11 +307,8 @@ CREATE TABLE `obligation_history` (
 --
 
 INSERT INTO `obligation_history` (`id`, `ors_id`, `project_id`, `net`) VALUES
-(11, 50, 378, 1000.00),
-(12, 50, 379, 1500.00),
-(13, 50, 378, 500.00),
-(14, 51, 380, 1.00),
-(15, 52, 378, 1650.00);
+(24, 60, 378, 1000.00),
+(25, 60, 379, 1000.00);
 
 -- --------------------------------------------------------
 
@@ -357,9 +365,7 @@ CREATE TABLE `ors` (
 --
 
 INSERT INTO `ors` (`ors_id`, `fund_cluster_id`, `services_id`, `date`, `ors_no`, `payee_id`, `notes`, `purpose`, `rc_id`, `account_id`, `oopap_id`, `total_amount`, `approver_id`, `budget_officer`) VALUES
-(50, 4, 5, '2025-04-02', 'SECURITY-25-04-001', 6, 'Payment for Expense', 'To Payment of', 9, 379, 1, 3000.00, 1, 'CONNIE M. BARNACHEA'),
-(51, 4, 11, '2025-04-02', 'ADMINPOLICY-25-04-001', 5, 'payment', 'To Payment of', 5, 381, 1, 1.00, 1, 'CONNIE M. BARNACHEA'),
-(52, 3, 10, '2025-04-02', 'SUPPLY-25-04-001', 6, 'payment of water expense', 'To Payment of', 2, 379, 1, 1650.00, 1, 'CONNIE M. BARNACHEA');
+(60, 3, 2, '2025-04-04', 'RM-25-04-001', 23, 'Payment', 'To Payment of', 8, 379, 1, 2000.00, 5, 'CONNIE M. BARNACHEA');
 
 -- --------------------------------------------------------
 
@@ -370,11 +376,11 @@ INSERT INTO `ors` (`ors_id`, `fund_cluster_id`, `services_id`, `date`, `ors_no`,
 CREATE TABLE `payee` (
   `payee_id` int(11) NOT NULL,
   `payee_name` varchar(255) NOT NULL,
-  `tin_no` varchar(255) NOT NULL,
-  `bank_acc_no` int(30) NOT NULL,
-  `address` varchar(255) NOT NULL,
-  `nature` varchar(255) NOT NULL,
-  `contact_no` varchar(15) NOT NULL
+  `tin_no` varchar(255) DEFAULT NULL,
+  `bank_acc_no` varchar(30) DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
+  `nature` varchar(255) DEFAULT NULL,
+  `contact_no` varchar(15) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -382,11 +388,15 @@ CREATE TABLE `payee` (
 --
 
 INSERT INTO `payee` (`payee_id`, `payee_name`, `tin_no`, `bank_acc_no`, `address`, `nature`, `contact_no`) VALUES
-(5, 'CINCO NIÑAS RESTO', '123-456', 123456789, 'CITY OF KORONADAL', '', '0'),
-(6, 'CITY OF KORONADAL WATER DISTRICT', '234-678', 34509684, 'CITY OF KORONADAL', '', '0'),
-(8, 'MARBEL TELEPHONE SYSTEM, INC.', '11', 11, 'CITY OF KORONADAL', '', '0'),
-(9, 'SMART COMMUNICATIONS, INC.', '22', 22, 'CITY OF KORONADAL', '', '0'),
-(10, 'test', '123', 123, 'kronadal', '12', '09277603828');
+(16, '3G Gensan Hotel', '', '', '', '', ''),
+(17, '3D Advertising', '712-786-936-0000', '', '', '', ''),
+(18, '8 OZ Prints', '', 'LBP - 0751-2051-55', '', '', ''),
+(19, 'ACE CENTERPOINT', '', 'LBP - CA 0752-1040-93', '', '', ''),
+(20, 'ACE HARDWARE PHIL. INC.', '200-035-311-0000', 'LBP - CA 0752-1040-93', '', '', ''),
+(21, 'ADC AUTOMOTIVE SHOP BY ANNIE LIZA R CERALVO', '', 'LBP - SA 0751-1741-01', '', '', ''),
+(22, 'ADWERKZ PRINTING SOLUTIONS/PAUL RYAN C. BARCELONA', '', 'LBP - SA 3416-0029-23', '', '', ''),
+(23, 'AFL 168 CORPORATION', '', 'LBP - SA 0751-1769-37', '', '', ''),
+(24, 'AHR WOODCRAFT CENTER BY ALLAN B. HIMALLA ', '', 'LBP - SA 0751-1759-90', '', '', '');
 
 -- --------------------------------------------------------
 
@@ -683,9 +693,9 @@ INSERT INTO `project` (`project_id`, `oopap_id`, `account_id`, `allotment`, `bal
 (374, 9, 364, 0.00, 0.00, '2025-03-31'),
 (375, 9, 314, 50000.00, 50000.00, '2025-03-31'),
 (376, 9, 346, 50000.00, 50000.00, '2025-03-31'),
-(378, 1, 379, 100000.00, 96850.00, '2025-04-02'),
-(379, 1, 380, 100000.00, 98500.00, '2025-04-02'),
-(380, 1, 381, 0.00, -1.00, '2025-04-02');
+(378, 1, 379, 100000.00, 93850.00, '2025-04-02'),
+(379, 1, 380, 100000.00, 82500.00, '2025-04-02'),
+(380, 1, 381, 0.00, -3101.00, '2025-04-02');
 
 -- --------------------------------------------------------
 
@@ -819,6 +829,13 @@ ALTER TABLE `dv`
   ADD KEY `object_code_id` (`account_id`);
 
 --
+-- Indexes for table `dv_history`
+--
+ALTER TABLE `dv_history`
+  ADD PRIMARY KEY (`dvhis_id`),
+  ADD KEY `dv_id` (`dv_id`);
+
+--
 -- Indexes for table `fund_cluster`
 --
 ALTER TABLE `fund_cluster`
@@ -911,7 +928,13 @@ ALTER TABLE `approver`
 -- AUTO_INCREMENT for table `dv`
 --
 ALTER TABLE `dv`
-  MODIFY `dv_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `dv_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
+
+--
+-- AUTO_INCREMENT for table `dv_history`
+--
+ALTER TABLE `dv_history`
+  MODIFY `dvhis_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `fund_cluster`
@@ -929,7 +952,7 @@ ALTER TABLE `jev`
 -- AUTO_INCREMENT for table `obligation_history`
 --
 ALTER TABLE `obligation_history`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `oopap`
@@ -941,13 +964,13 @@ ALTER TABLE `oopap`
 -- AUTO_INCREMENT for table `ors`
 --
 ALTER TABLE `ors`
-  MODIFY `ors_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
+  MODIFY `ors_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=61;
 
 --
 -- AUTO_INCREMENT for table `payee`
 --
 ALTER TABLE `payee`
-  MODIFY `payee_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `payee_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `project`
@@ -983,6 +1006,12 @@ ALTER TABLE `users`
 ALTER TABLE `dv`
   ADD CONSTRAINT `dv_ibfk_1` FOREIGN KEY (`ors_id`) REFERENCES `ors` (`ors_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `dv_ibfk_2` FOREIGN KEY (`account_id`) REFERENCES `account_title` (`account_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `dv_history`
+--
+ALTER TABLE `dv_history`
+  ADD CONSTRAINT `dv_history_ibfk_1` FOREIGN KEY (`dv_id`) REFERENCES `dv` (`dv_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `jev`
