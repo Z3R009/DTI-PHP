@@ -42,21 +42,16 @@ if (isset($_POST['submit'])) {
 
 // retrieve
 $select = mysqli_query($connection, "
-    SELECT dv.*, ors.*, 
+    SELECT  ors.*, 
     CONCAT(fund_cluster.uacs_code, '-', fund_cluster.fund_cluster_name) AS fund_cluster,
     responsibility_center.code,
-    financial_object_code.object_code_id,
     oopap.oopap_id
-    FROM dv
-    INNER JOIN ors ON dv.ors_id = ors.ors_id
+    FROM ors
     LEFT JOIN fund_cluster ON ors.fund_cluster_id = fund_cluster.fund_cluster_id
-    LEFT JOIN financial_object_code ON ors.object_code_id = financial_object_code.object_code_id
     LEFT JOIN responsibility_center ON ors.rc_id = responsibility_center.rc_id
     LEFT JOIN oopap ON ors.oopap_id = oopap.oopap_id
 ");
 
-$sql_object_code = "SELECT object_code_id, object_name FROM financial_object_code";
-$result_object_code = $connection->query($sql_object_code);
 
 ?>
 
@@ -700,8 +695,8 @@ $result_object_code = $connection->query($sql_object_code);
 
 <body>
 
-<?php include "Includes/header.php";?>
-        <?php include "Includes/sidebar.php";?>
+    <?php include "Includes/header.php"; ?>
+    <?php include "Includes/sidebar.php"; ?>
 
     <main id="main" class="main">
         <div class="pagetitle">
@@ -723,11 +718,11 @@ $result_object_code = $connection->query($sql_object_code);
                         <tbody>
                             <?php while ($row = mysqli_fetch_assoc($select)) { ?>
                                 <tr>
-                                    <td><?php echo htmlspecialchars($row['dv_no']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['ors_id']); ?></td>
                                     <td><?php echo htmlspecialchars($row['date']); ?></td>
                                     <td>
                                         <button type="button" class="btn btn-primary view-details"
-                                            data-id="<?php echo $row['dv_id']; ?>">
+                                            data-id="<?php echo $row['ors_id']; ?>">
                                             <i class="bi bi-eye" data-bs-toggle="tooltip" data-bs-placement="top"
                                                 title="View Details"></i>
                                         </button>
@@ -787,7 +782,7 @@ $result_object_code = $connection->query($sql_object_code);
                             <input type="hidden" class="form-control" id="dv_id" name="dv_id">
 
                             <div class="form-row">
-                                    
+
                                 <div class="form-group">
                                     <label class="form-label">ORS No.</label>
                                     <input type="text" class="form-control" id="ors_no" name="ors_no">
