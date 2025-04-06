@@ -27,7 +27,12 @@ if (isset($_GET['project_id']) && $_GET['confirm'] == 'yes') {
 
 //Add users
 if (isset($_POST['submit'])) {
-    $project_id = $_POST['project_id'];
+    // Generate a new project_id
+    $project_id_query = "SELECT MAX(project_id) as max_id FROM project";
+    $project_id_result = mysqli_query($connection, $project_id_query);
+    $project_id_row = mysqli_fetch_assoc($project_id_result);
+    $project_id = ($project_id_row['max_id'] ?? 0) + 1;  
+    $oopap_id = $_POST['oopap_id'];
     $oopap_id = $_POST['oopap_id'];
     $account_id = $_POST['account_id'];
     $allotment = $_POST['allotment'];
@@ -181,7 +186,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                                         </div>
                                         <div class="mb-3">
                                             <label for="allotment" class="form-label">Allotment</label>
-                                            <input type="number" class="form-control" id="allotment" name="allotment"
+                                            <input type="number" step="0.01" class="form-control" id="allotment" name="allotment"
                                                 placeholder="Enter Allotment" required autocomplete="off"
                                                 oninput="updateBalances()">
                                         </div>

@@ -11,7 +11,7 @@
         <li class="nav-item">
             <a class="nav-link " href="dashboard.php">
                 <i class="bi bi-grid"></i>
-                <span>Dashboard</span>
+                <span>DASHBOARD</span>
             </a>
         </li>
 
@@ -28,7 +28,7 @@
                     </a>
                     <ul id="personal-nav" class="nav-content collapse" data-bs-parent="#status-nav">
                         <li>
-                            <a href="#">
+                            <a href="oo1_personalServices.php">
                                 <i class="bi bi-circle"></i><span>001-Personnel Services</span>
                             </a>
                         </li>

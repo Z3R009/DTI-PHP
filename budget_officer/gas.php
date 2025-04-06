@@ -197,7 +197,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                                         </div>
                                         <div class="mb-3">
                                             <label for="allotment" class="form-label">Allotment</label>
-                                            <input type="number" class="form-control" id="allotment" name="allotment"
+                                            <input type="number" step="0.01" class="form-control" id="allotment" name="allotment"
                                                 placeholder="Enter Allotment" required autocomplete="off"
                                                 oninput="updateBalances()">
                                         </div>
