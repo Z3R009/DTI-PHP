@@ -273,7 +273,6 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     </main><!-- End #main -->
 
     <!-- update modal -->
-
     <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -334,7 +333,6 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     </script>
 
     <!-- show update -->
-
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const editButtons = document.querySelectorAll(".edit-btn");
