@@ -14,7 +14,7 @@ if (isset($_GET['project_id']) && $_GET['confirm'] == 'yes') {
     // Execute both deletion queries
     if ($stmtUser->execute()) {
         // Redirect to the manage members page after successful deletion
-        header('Location: oo2_tida.php');
+        header('Location: oo3_carp.php');
         exit();
     } else {
         // Handle error if either query fails
@@ -47,7 +47,7 @@ if (isset($_POST['submit'])) {
         $stmt->bind_param("iiisss", $project_id, $oopap_id, $account_id, $allotment, $balances, $created_at);
 
         if ($stmt->execute()) {
-            header('Location: oo2_tida.php');
+            header('Location: oo3_carp.php');
             exit();
         } else {
             $error_message = "Error saving data: " . $stmt->error;
@@ -63,7 +63,7 @@ $select = mysqli_query(
             account_title.account_code 
             FROM project
             LEFT JOIN account_title ON project.account_id = account_title.account_id
-            WHERE oopap_id = 12 
+            WHERE oopap_id = 13 
             ORDER BY account_title.account_title ASC"
 );
 
@@ -72,12 +72,12 @@ $query_account = "SELECT account_id, account_title, account_code FROM account_ti
 $result_account = $connection->query($query_account);
 
 // Fetch total allotment
-$total_allotment_query = "SELECT SUM(allotment) AS total_allotment FROM project WHERE oopap_id = 12";
+$total_allotment_query = "SELECT SUM(allotment) AS total_allotment FROM project WHERE oopap_id = 13";
 $total_allotment_result = mysqli_query($connection, $total_allotment_query);
 $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'];
 
 // Fetch total balances
-$total_balances_query = "SELECT SUM(balances) AS total_balances FROM project WHERE oopap_id = 12";
+$total_balances_query = "SELECT SUM(balances) AS total_balances FROM project WHERE oopap_id = 13";
 $total_balances_result = mysqli_query($connection, $total_balances_query);
 $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
 ?>
@@ -124,7 +124,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     <main id="main" class="main">
 
         <div class="pagetitle">
-            <h1>OO2-TIDA(<?php echo date('Y'); ?>)</h1>
+            <h1>CARP(<?php echo date('Y'); ?>)</h1>
         </div><!-- End Page Title -->
 
         <section class="section dashboard">
@@ -179,7 +179,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                                     <form method="post" id="addUserForm">
                                         <div class="mb-3">
                                             <input type="hidden" class="form-control" id="oopap_id" name="oopap_id"
-                                                value="12" readonly required autocomplete="off">
+                                                value="13" readonly required autocomplete="off">
                                         </div>
                                         <div class="mb-3">
                                             <label for="account_id" class="form-label">Account Title <span class="text-danger">*</span></label>
@@ -281,7 +281,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form method="post" id="editUserForm" action="update_oo2_tida.php">
+                    <form method="post" id="editUserForm" action="update_gas.php">
                         <input type="hidden" id="edit_project_id" name="project_id">
                         <input type="hidden" id="edit_account_id" name="edit_account_id">
 
@@ -355,9 +355,9 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
 
     <!-- delete -->
     <script>
-        function deleteUser(tidaID) {
-            if (confirm("Are you sure you want to delete this OO2-TIDA?")) {
-                window.location.href = 'oo2_tida.php?project_id=' + tidaID + '&confirm=yes';
+        function deleteUser(carpID) {
+            if (confirm("Are you sure you want to delete this OO3-CARP?")) {
+                window.location.href = 'oo3_carp.php?project_id=' + carpID + '&confirm=yes';
             }
         }
     </script>
