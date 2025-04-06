@@ -1,9 +1,31 @@
 <?php
 include '../DBConnection.php';
 
+// delete
+if (isset($_GET['project_id']) && $_GET['confirm'] == 'yes') {
+    // Get the user ID from the query string
+    $project_id = intval($_GET['project_id']);
+
+    // Prepare and execute the deletion query for 'users' table
+    $deleteUserSql = "DELETE FROM project WHERE project_id = ?";
+    $stmtUser = $connection->prepare($deleteUserSql);
+    $stmtUser->bind_param("i", $project_id);
+
+    // Execute both deletion queries
+    if ($stmtUser->execute()) {
+        // Redirect to the manage members page after successful deletion
+        header('Location: gas.php');
+        exit();
+    } else {
+        // Handle error if either query fails
+        echo "Error deleting user: " . $connection->error;
+    }
+} else {
+    // Handle invalid request
+    echo "Invalid request.";
+}
 
 //Add users
-
 if (isset($_POST['submit'])) {
     // Generate a new project_id
     $project_id_query = "SELECT MAX(project_id) as max_id FROM project";
@@ -46,14 +68,9 @@ $select = mysqli_query(
 );
 
 // account name
-
 $query_account = "SELECT account_id, account_title, account_code FROM account_title ORDER BY account_title ASC";
 $result_account = $connection->query($query_account);
 
-
-?>
-
-<?php
 // Fetch total allotment
 $total_allotment_query = "SELECT SUM(allotment) AS total_allotment FROM project WHERE oopap_id = 1";
 $total_allotment_result = mysqli_query($connection, $total_allotment_query);
@@ -256,7 +273,6 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     </main><!-- End #main -->
 
     <!-- update modal -->
-
     <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -317,7 +333,6 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     </script>
 
     <!-- show update -->
-
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const editButtons = document.querySelectorAll(".edit-btn");
@@ -341,8 +356,8 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     <!-- delete -->
     <script>
         function deleteUser(gasID) {
-            if (confirm("Are you sure you want to delete this GAS?")) {
-                window.location.href = 'delete_gas.php?project_id=' + gasID + '&confirm=yes';
+            if (confirm("Are you sure you want to delete this OOA-GAS?")) {
+                window.location.href = 'gas.php?project_id=' + gasID + '&confirm=yes';
             }
         }
     </script>
