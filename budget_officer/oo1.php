@@ -1,6 +1,10 @@
 <?php
 include '../DBConnection.php';
 
+// Get filter parameters
+$selected_month = isset($_GET['month']) ? intval($_GET['month']) : date('n');
+$selected_year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
+
 // delete
 if (isset($_GET['project_id']) && $_GET['confirm'] == 'yes') {
     // Get the user ID from the query string
@@ -36,7 +40,7 @@ if (isset($_POST['submit'])) {
     $account_id = $_POST['account_id'];
     $allotment = $_POST['allotment'];
     $balances = $_POST['balances'];
-    $created_at = date('Y-m-d H:i:s');
+    $created_at = $_POST['year']; // Use the selected date from the form
 
     $sql = "INSERT INTO project (project_id, oopap_id, account_id, allotment, balances, created_at) VALUES (?, ?, ?, ?, ?, ?)";
     $stmt = $connection->prepare($sql);
@@ -50,7 +54,7 @@ if (isset($_POST['submit'])) {
 }
 
 
-// retrieve 
+/// retrieve - Filter by year only for display
 $select = mysqli_query(
     $connection,
     "SELECT project.*,
@@ -59,6 +63,7 @@ $select = mysqli_query(
             FROM project
             LEFT JOIN account_title ON project.account_id = account_title.account_id
             WHERE oopap_id = 2
+            AND YEAR(project.created_at) = $selected_year
             ORDER BY account_title.account_title ASC"
 );
 
@@ -67,13 +72,26 @@ $select = mysqli_query(
 $query_account = "SELECT account_id, account_title, account_code FROM account_title ORDER BY account_title ASC";
 $result_account = $connection->query($query_account);
 
-// Fetch total allotment
-$total_allotment_query = "SELECT SUM(allotment) AS total_allotment FROM project WHERE oopap_id = 2";
+// Fetch total allotment for the selected year
+$total_allotment_query = "SELECT SUM(allotment) AS total_allotment FROM project WHERE oopap_id = 2 AND YEAR(created_at) = $selected_year";
 $total_allotment_result = mysqli_query($connection, $total_allotment_query);
 $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'];
 
-// Fetch total balances
-$total_balances_query = "SELECT SUM(balances) AS total_balances FROM project WHERE oopap_id = 2";
+$update_balances_query = "UPDATE project p 
+                         SET p.balances = p.allotment - (
+                             SELECT COALESCE(SUM(ors.total_amount), 0) 
+                             FROM obligation_history oh 
+                             JOIN ors ON oh.ors_id = ors.ors_id 
+                             WHERE oh.project_id = p.project_id
+                             AND MONTH(ors.date) = $selected_month
+                             AND YEAR(ors.date) = $selected_year
+                            )
+                            WHERE p.oopap_id = 2 
+                            AND YEAR(p.created_at) = $selected_year";
+mysqli_query($connection, $update_balances_query);
+
+// Fetch total balances for the selected month and year
+$total_balances_query = "SELECT SUM(balances) AS total_balances FROM project WHERE oopap_id = 2 AND YEAR(created_at) = $selected_year";
 $total_balances_result = mysqli_query($connection, $total_balances_query);
 $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
 ?>
@@ -124,13 +142,54 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
         </div><!-- End Page Title -->
 
         <section class="section dashboard">
+            <!-- Filter Form -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Filter</h5>
+                    <form method="get" action="oo1.php" class="row g-3">
+                        <div class="col-md-4">
+                            <label for="year" class="form-label">Year (Total Allotment)</label>
+                            <select class="form-select" id="year" name="year">
+                                <?php
+                                $current_year = date('Y');
+                                for ($year = $current_year; $year >= $current_year - 5; $year--) {
+                                    $selected = ($year == $selected_year) ? 'selected' : '';
+                                    echo "<option value=\"$year\" $selected>$year</option>";
+                                }
+                                ?>
+                            </select>
+                            <small class="text-muted">Shows total allotment for the selected year</small>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="month" class="form-label">Month (Remaining Balances)</label>
+                            <select class="form-select" id="month" name="month">
+                                <?php
+                                $months = [
+                                    1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
+                                    5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
+                                    9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
+                                ];
+                                foreach ($months as $num => $name) {
+                                    $selected = ($num == $selected_month) ? 'selected' : '';
+                                    echo "<option value=\"$num\" $selected>$name</option>";
+                                }
+                                ?>
+                            </select>
+                            <small class="text-muted">Shows remaining balances for the selected month</small>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary">Apply Filter</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
 
             <div class="row">
                 <!-- Total Allotment Card -->
                 <div class="col-md-6">
                     <div class="card bg-white text-dark mb-3">
                         <div class="card-body">
-                            <h5 class="card-title">Total Allotment</h5>
+                            <h5 class="card-title">Total Allotment (Year <?php echo $selected_year; ?>)</h5>
                             <h3 class="card-text">₱<?php echo number_format($total_allotment, 2); ?></h3>
                         </div>
                     </div>
@@ -139,7 +198,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                 <div class="col-md-6">
                     <div class="card bg-white text-dark mb-3">
                         <div class="card-body">
-                            <h5 class="card-title">Total Balances</h5>
+                            <h5 class="card-title">Remaining Balances (<?php echo $months[$selected_month]; ?> <?php echo $selected_year; ?>)</h5>
                             <h3 class="card-text">₱<?php echo number_format($total_balances, 2); ?></h3>
                         </div>
                     </div>
@@ -226,6 +285,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                                 <th>Allotment</th>
                                 <th>Balances</th>
                                 <th>Date</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -264,7 +324,6 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     </main><!-- End #main -->
 
     <!-- update modal -->
-
     <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -325,7 +384,6 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     </script>
 
     <!-- show update -->
-
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const editButtons = document.querySelectorAll(".edit-btn");
@@ -354,7 +412,6 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
             }
         }
     </script>
-
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {

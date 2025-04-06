@@ -1,6 +1,10 @@
 <?php
 include '../DBConnection.php';
 
+// Get filter parameters
+$selected_month = isset($_GET['month']) ? intval($_GET['month']) : date('n');
+$selected_year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
+
 // delete
 if (isset($_GET['project_id']) && $_GET['confirm'] == 'yes') {
     // Get the user ID from the query string
@@ -36,7 +40,7 @@ if (isset($_POST['submit'])) {
     $account_id = $_POST['account_id'];
     $allotment = $_POST['allotment'];
     $balances = $_POST['balances'];
-    $created_at = date('Y-m-d H:i:s');
+    $created_at = $_POST['year'];
 
     // Validate required fields
     if (empty($account_id) || empty($allotment)) {
@@ -64,6 +68,7 @@ $select = mysqli_query(
             FROM project
             LEFT JOIN account_title ON project.account_id = account_title.account_id
             WHERE oopap_id = 15 
+             AND YEAR(project.created_at) = $selected_year
             ORDER BY account_title.account_title ASC"
 );
 
@@ -72,12 +77,26 @@ $query_account = "SELECT account_id, account_title, account_code FROM account_ti
 $result_account = $connection->query($query_account);
 
 // Fetch total allotment
-$total_allotment_query = "SELECT SUM(allotment) AS total_allotment FROM project WHERE oopap_id = 15";
+$total_allotment_query = "SELECT SUM(allotment) AS total_allotment FROM project WHERE oopap_id = 15 AND YEAR(created_at) = $selected_year";
 $total_allotment_result = mysqli_query($connection, $total_allotment_query);
 $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'];
 
-// Fetch total balances
-$total_balances_query = "SELECT SUM(balances) AS total_balances FROM project WHERE oopap_id = 15";
+// Calculate balances based on allotment and ORS total_amount for the selected month
+$update_balances_query = "UPDATE project p 
+                         SET p.balances = p.allotment - (
+                             SELECT COALESCE(SUM(ors.total_amount), 0) 
+                             FROM obligation_history oh 
+                             JOIN ors ON oh.ors_id = ors.ors_id 
+                             WHERE oh.project_id = p.project_id
+                             AND MONTH(ors.date) = $selected_month
+                             AND YEAR(ors.date) = $selected_year
+                         )
+                         WHERE p.oopap_id = 15 
+                         AND YEAR(p.created_at) = $selected_year";
+mysqli_query($connection, $update_balances_query);
+
+// Fetch total balances for the selected month and year
+$total_balances_query = "SELECT SUM(balances) AS total_balances FROM project WHERE oopap_id = 15 AND YEAR(created_at) = $selected_year";
 $total_balances_result = mysqli_query($connection, $total_balances_query);
 $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
 ?>
@@ -128,6 +147,47 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
         </div><!-- End Page Title -->
 
         <section class="section dashboard">
+            <!-- Filter Form -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Filter</h5>
+                    <form method="get" action="o2_rapid.php" class="row g-3">
+                        <div class="col-md-4">
+                            <label for="year" class="form-label">Year (Total Allotment)</label>
+                            <select class="form-select" id="year" name="year">
+                                <?php
+                                $current_year = date('Y');
+                                for ($year = $current_year; $year >= $current_year - 5; $year--) {
+                                    $selected = ($year == $selected_year) ? 'selected' : '';
+                                    echo "<option value=\"$year\" $selected>$year</option>";
+                                }
+                                ?>
+                            </select>
+                            <small class="text-muted">Shows total allotment for the selected year</small>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="month" class="form-label">Month (Remaining Balances)</label>
+                            <select class="form-select" id="month" name="month">
+                                <?php
+                                $months = [
+                                    1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
+                                    5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
+                                    9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
+                                ];
+                                foreach ($months as $num => $name) {
+                                    $selected = ($num == $selected_month) ? 'selected' : '';
+                                    echo "<option value=\"$num\" $selected>$name</option>";
+                                }
+                                ?>
+                            </select>
+                            <small class="text-muted">Shows remaining balances for the selected month</small>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary">Apply Filter</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
             <!-- Cards Row -->
             <div class="row">
                 <!-- Total Allotment Card -->
