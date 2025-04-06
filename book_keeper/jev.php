@@ -42,14 +42,15 @@ if (isset($_POST['submit'])) {
 
 // retrieve
 $select = mysqli_query($connection, "
-    SELECT  ors.*, 
+    SELECT dv.*, 
     CONCAT(fund_cluster.uacs_code, '-', fund_cluster.fund_cluster_name) AS fund_cluster,
     responsibility_center.code,
-    oopap.oopap_id
-    FROM ors
+    payee.payee_name
+    FROM dv
+    LEFT JOIN ors ON dv.ors_id = ors.ors_id
     LEFT JOIN fund_cluster ON ors.fund_cluster_id = fund_cluster.fund_cluster_id
     LEFT JOIN responsibility_center ON ors.rc_id = responsibility_center.rc_id
-    LEFT JOIN oopap ON ors.oopap_id = oopap.oopap_id
+    LEFT JOIN payee ON ors.payee_id = payee.payee_id
 ");
 
 
@@ -718,13 +719,12 @@ $select = mysqli_query($connection, "
                         <tbody>
                             <?php while ($row = mysqli_fetch_assoc($select)) { ?>
                                 <tr>
-                                    <td><?php echo htmlspecialchars($row['ors_id']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['dv_no']); ?></td>
                                     <td><?php echo htmlspecialchars($row['date']); ?></td>
                                     <td>
                                         <button type="button" class="btn btn-primary view-details"
-                                            data-id="<?php echo $row['ors_id']; ?>">
-                                            <i class="bi bi-eye" data-bs-toggle="tooltip" data-bs-placement="top"
-                                                title="View Details"></i>
+                                            data-dv-id="<?php echo $row['dv_id']; ?>">
+                                            <i class="bi bi-eye"></i> View
                                         </button>
                                     </td>
                                 </tr>
@@ -744,52 +744,48 @@ $select = mysqli_query($connection, "
                 <span class="close-modal" id="closeDvModal">&times;</span>
             </div>
             <div class="modal-body">
-
                 <form action="" method="post">
                     <div class="form-container">
                         <div class="form-section">
-
                             <div class="form-row">
                                 <div class="form-group">
                                     <label class="form-label">Entity Name</label>
                                     <input type="text" class="form-control" name="entity_name"
-                                        value="DEPARTMENT OF TRADE AND INDUSTRY">
+                                        value="DEPARTMENT OF TRADE AND INDUSTRY" readonly>
                                 </div>
                             </div>
 
                             <div class="form-row">
                                 <div class="form-group">
                                     <label class="form-label">Fund Cluster</label>
-                                    <input type="text" class="form-control" id="fund_cluster" name="fund_cluster_id">
+                                    <input type="text" class="form-control" id="fund_cluster" name="fund_cluster"
+                                        readonly>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Responsibility Center</label>
-                                    <input type="text" class="form-control" id="code" name="rc_id">
+                                    <input type="text" class="form-control" id="code" name="code" readonly>
                                 </div>
                             </div>
 
                             <div class="form-row">
                                 <div class="form-group">
                                     <label class="form-label">Payee Name</label>
-                                    <input type="text" class="form-control" id="payee_name" name="payee_name">
+                                    <input type="text" class="form-control" id="payee_name" name="payee_name" readonly>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Date</label>
-                                    <input type="date" class="form-control" name="date">
+                                    <input type="date" class="form-control" id="date" name="date" readonly>
                                 </div>
                             </div>
 
-                            <input type="hidden" class="form-control" id="dv_id" name="dv_id">
-
                             <div class="form-row">
-
                                 <div class="form-group">
                                     <label class="form-label">ORS No.</label>
-                                    <input type="text" class="form-control" id="ors_no" name="ors_no">
+                                    <input type="text" class="form-control" id="ors_no" name="ors_no" readonly>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">DV No.</label>
-                                    <input type="text" class="form-control" id="dv_no" name="dv_no">
+                                    <input type="text" class="form-control" id="dv_no" name="dv_no" readonly>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">JEV No.</label>
@@ -797,47 +793,39 @@ $select = mysqli_query($connection, "
                                 </div>
                             </div>
 
-                            <h3>Approver Details</h3>
+                            <div class="form-section">
+                                <h3>Accounting Entries</h3>
+                                <table class="table datatable">
+                                    <thead>
+                                        <tr>
+                                            <th>Account Title</th>
+                                            <th>UACS Code</th>
+                                            <th>Debit</th>
+                                            <th>Credit</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="accountingEntries">
+                                        <!-- Accounting entries will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+
                             <div class="form-row">
                                 <div class="form-group">
                                     <label class="form-label">Administrative Aide VI</label>
                                     <select class="form-control" name="administrative_aide">
                                         <option>JINNARD B. LUBATON</option>
-
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Accountant III</label>
                                     <select class="form-control" name="accountant">
                                         <option>NEIL ANTHONY T. MORALA</option>
-
                                     </select>
                                 </div>
                             </div>
-
                         </div>
 
-
-
-                        <!-- Approver Section -->
-                        <!-- <div class="form-section">
-                                <h3>Approver Details</h3>
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label class="form-label">Administrative Aide VI</label>
-                                        <select class="form-control" name="administrative_aide">
-                                            <option>JINNARD B. LUBATON</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Accountant III</label>
-                                        <select class="form-control" name="accountant_iii">
-                                            <option>NEIL ANTHONY T. MORALA</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div> -->
-                        <!-- Buttons -->
                         <div class="btn-container">
                             <button type="submit" class="btn btn-primary" name="submit">Print</button>
                         </div>
@@ -845,63 +833,96 @@ $select = mysqli_query($connection, "
                 </form>
             </div>
         </div>
+    </div>
 
-        <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
-                class="bi bi-arrow-up-short"></i></a>
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
+            class="bi bi-arrow-up-short"></i></a>
 
-        <!-- Vendor JS Files -->
-        <script src="../NiceAdmin/assets/vendor/apexcharts/apexcharts.min.js"></script>
-        <script src="../NiceAdmin/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-        <script src="../NiceAdmin/assets/vendor/chart.js/chart.umd.js"></script>
-        <script src="../NiceAdmin/assets/vendor/echarts/echarts.min.js"></script>
-        <script src="../NiceAdmin/assets/vendor/quill/quill.js"></script>
-        <script src="../NiceAdmin/assets/vendor/simple-datatables/simple-datatables.js"></script>
-        <script src="../NiceAdmin/assets/vendor/tinymce/tinymce.min.js"></script>
-        <script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
+    <!-- Vendor JS Files -->
+    <script src="../NiceAdmin/assets/vendor/apexcharts/apexcharts.min.js"></script>
+    <script src="../NiceAdmin/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../NiceAdmin/assets/vendor/chart.js/chart.umd.js"></script>
+    <script src="../NiceAdmin/assets/vendor/echarts/echarts.min.js"></script>
+    <script src="../NiceAdmin/assets/vendor/quill/quill.js"></script>
+    <script src="../NiceAdmin/assets/vendor/simple-datatables/simple-datatables.js"></script>
+    <script src="../NiceAdmin/assets/vendor/tinymce/tinymce.min.js"></script>
+    <script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
 
-        <!-- Template Main JS File -->
-        <script src="../NiceAdmin/assets/js/main.js"></script>
+    <!-- Template Main JS File -->
+    <script src="../NiceAdmin/assets/js/main.js"></script>
 
-        <!-- Custom Script for Modal -->
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const modal = document.getElementById('dvFormModal');
-                const closeModalBtn = document.getElementById('closeDvModal');
-                const viewDetailsButtons = document.querySelectorAll('.view-details');
+    <!-- Custom Script for Modal -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const modal = document.getElementById('dvFormModal');
+            const closeModalBtn = document.getElementById('closeDvModal');
+            const viewDetailsButtons = document.querySelectorAll('.view-details');
+            const accountingEntriesTable = document.getElementById('accountingEntries');
 
-                // Open modal and populate data
-                viewDetailsButtons.forEach(button => {
-                    button.addEventListener('click', function () {
-                        const orsId = this.getAttribute('data-id');
-                        fetch(`get_jev_details.php?id=${orsId}`)
-                            .then(response => response.json())
-                            .then(data => {
-                                document.getElementById('fund_cluster').value = data.fund_cluster;
-                                document.getElementById('payee_name').value = data.payee_name;
-                                document.getElementById('code').value = data.code;
-                                document.getElementById('dv_id').value = data.dv_id;
-                                document.getElementById('ors_no').value = data.ors_no;
-                                document.getElementById('dv_no').value = data.dv_no;
+            // Open modal and populate data
+            viewDetailsButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const dvId = this.getAttribute('data-dv-id');
+                    console.log('DV ID:', dvId); // Debug log
 
-                                modal.style.display = 'block';
-                            })
-                            .catch(error => console.error('Error fetching ORS details:', error));
-                    });
-                });
+                    // Fetch DV details
+                    fetch(`get_jev_details.php?id=${dvId}`)
+                        .then(response => {
+                            console.log('Response status:', response.status); // Debug log
+                            if (!response.ok) {
+                                return response.text().then(text => {
+                                    console.log('Error response:', text); // Debug log
+                                    throw new Error('Network response was not ok');
+                                });
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log('Received data:', data); // Debug log
+                            // Populate DV details
+                            document.getElementById('fund_cluster').value = data.fund_cluster || '';
+                            document.getElementById('payee_name').value = data.payee_name || '';
+                            document.getElementById('code').value = data.code || '';
+                            document.getElementById('dv_id').value = data.dv_id || '';
+                            document.getElementById('ors_no').value = data.ors_no || '';
+                            document.getElementById('dv_no').value = data.dv_no || '';
+                            document.getElementById('date').value = data.date || '';
 
-                // Close modal
-                closeModalBtn.addEventListener('click', function () {
-                    modal.style.display = 'none';
-                });
+                            // Clear existing entries
+                            accountingEntriesTable.innerHTML = '';
 
-                // Close modal when clicking outside
-                window.addEventListener('click', function (event) {
-                    if (event.target === modal) {
-                        modal.style.display = 'none';
-                    }
+                            // Populate accounting entries
+                            if (data.accounts && data.accounts.length > 0) {
+                                data.accounts.forEach(account => {
+                                    const row = document.createElement('tr');
+                                    row.innerHTML = `
+                                        <td>${account.account_title || ''}</td>
+                                        <td>${account.account_code || ''}</td>
+                                        <td>${account.type === 'debit' ? account.amount : ''}</td>
+                                        <td>${account.type === 'credit' ? account.amount : ''}</td>
+                                    `;
+                                    accountingEntriesTable.appendChild(row);
+                                });
+                            }
+
+                            modal.style.display = 'block';
+                        })
                 });
             });
-        </script>
+
+            // Close modal
+            closeModalBtn.addEventListener('click', function () {
+                modal.style.display = 'none';
+            });
+
+            // Close modal when clicking outside
+            window.addEventListener('click', function (event) {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+    </script>
 
 </body>
 

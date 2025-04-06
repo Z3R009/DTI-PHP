@@ -53,7 +53,41 @@ if (isset($_POST['submit'])) {
         $ors_id = $ors_row['ors_id'];
         $ors_stmt->close();
 
-        // Loop through each account and save it independently
+        // Insert the main DV record
+        $sql = "INSERT INTO dv (date, dv_no, ors_id, payment_mode, vat, vat_amount, tax_base, tax_1, tax_1_amount, tax_2, tax_2_amount, net_amount, chief_accountant, regional_director) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        
+        $stmt = $connection->prepare($sql);
+        if ($stmt === false) {
+            throw new Exception('Prepare failed: ' . htmlspecialchars($connection->error));
+        }
+
+        $stmt->bind_param(
+            "ssisddddddddss",
+            $date,
+            $dv_no,
+            $ors_id,
+            $payment_mode,
+            $vat,
+            $vat_amount,
+            $tax_base,
+            $tax_1,
+            $tax_1_amount,
+            $tax_2,
+            $tax_2_amount,
+            $net_amount,
+            $chief_accountant,
+            $regional_director
+        );
+
+        if (!$stmt->execute()) {
+            throw new Exception("Error: " . $stmt->error);
+        }
+
+        $dv_id = $connection->insert_id;
+        $stmt->close();
+
+        // Loop through each account and save it in dv_history
         for ($i = 0; $i < count($account_titles); $i++) {
             if (empty($account_titles[$i]))
                 continue; // Skip empty account selections
@@ -70,41 +104,20 @@ if (isset($_POST['submit'])) {
             if ($amount == 0)
                 continue;
 
-            $sql = "INSERT INTO dv (date, dv_no, ors_id, payment_mode, vat, vat_amount, tax_base, tax_1, tax_1_amount, tax_2, tax_2_amount, net_amount, account_id, type, amount, total_amount, chief_accountant, regional_director) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-            $stmt = $connection->prepare($sql);
-            if ($stmt === false) {
+            // Insert into dv_history
+            $history_sql = "INSERT INTO dv_history (dv_id, account_id, type, amount) VALUES (?, ?, ?, ?)";
+            $history_stmt = $connection->prepare($history_sql);
+            if ($history_stmt === false) {
                 throw new Exception('Prepare failed: ' . htmlspecialchars($connection->error));
             }
 
-            $stmt->bind_param(
-                "ssisddddddddissdss",
-                $date,
-                $dv_no,
-                $ors_id,  // Now using the numeric ors_id
-                $payment_mode,
-                $vat,
-                $vat_amount,
-                $tax_base,
-                $tax_1,
-                $tax_1_amount,
-                $tax_2,
-                $tax_2_amount,
-                $net_amount,
-                $account_id,
-                $type,
-                $amount,
-                $net_amount,
-                $chief_accountant,
-                $regional_director
-            );
+            $history_stmt->bind_param("iisd", $dv_id, $account_id, $type, $amount);
 
-            if (!$stmt->execute()) {
-                throw new Exception("Error: " . $stmt->error);
+            if (!$history_stmt->execute()) {
+                throw new Exception("Error: " . $history_stmt->error);
             }
 
-            $stmt->close();
+            $history_stmt->close();
         }
 
         // Commit the transaction

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 06, 2025 at 09:06 AM
+-- Generation Time: Apr 05, 2025 at 02:27 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -217,17 +217,13 @@ CREATE TABLE `dv` (
   `tax_2` double(40,2) DEFAULT NULL,
   `tax_2_amount` double(40,2) NOT NULL,
   `net_amount` double(40,2) DEFAULT NULL,
+  `account_id` int(255) NOT NULL,
+  `type` enum('debit','credit') NOT NULL,
+  `amount` double(40,2) NOT NULL,
   `total_amount` double(40,2) NOT NULL,
   `chief_accountant` varchar(255) DEFAULT NULL,
   `regional_director` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `dv`
---
-
-INSERT INTO `dv` (`dv_id`, `date`, `ors_id`, `dv_no`, `payment_mode`, `vat`, `vat_amount`, `tax_base`, `tax_1`, `tax_1_amount`, `tax_2`, `tax_2_amount`, `net_amount`, `total_amount`, `chief_accountant`, `regional_director`) VALUES
-(46, '2025-04-10', 61, '1-25-04-002', 'Commercial Check', 12.00, 0.00, 1000.00, 3.00, 30.00, 1.00, 10.00, 960.00, 0.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V');
 
 -- --------------------------------------------------------
 
@@ -237,21 +233,8 @@ INSERT INTO `dv` (`dv_id`, `date`, `ors_id`, `dv_no`, `payment_mode`, `vat`, `va
 
 CREATE TABLE `dv_history` (
   `dvhis_id` int(11) NOT NULL,
-  `dv_id` int(255) NOT NULL,
-  `account_id` int(255) NOT NULL,
-  `type` enum('debit','credit') NOT NULL,
-  `amount` double(40,2) NOT NULL
+  `dv_id` int(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `dv_history`
---
-
-INSERT INTO `dv_history` (`dvhis_id`, `dv_id`, `account_id`, `type`, `amount`) VALUES
-(4, 46, 318, 'debit', 1000.00),
-(5, 46, 278, 'credit', 30.00),
-(6, 46, 278, 'credit', 10.00),
-(7, 46, 382, 'credit', 960.00);
 
 -- --------------------------------------------------------
 
@@ -309,13 +292,6 @@ CREATE TABLE `obligation_history` (
   `net` double(40,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `obligation_history`
---
-
-INSERT INTO `obligation_history` (`id`, `ors_id`, `project_id`, `net`) VALUES
-(26, 61, 63, 1000.00);
-
 -- --------------------------------------------------------
 
 --
@@ -365,13 +341,6 @@ CREATE TABLE `ors` (
   `approver_id` int(255) NOT NULL,
   `budget_officer` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `ors`
---
-
-INSERT INTO `ors` (`ors_id`, `fund_cluster_id`, `services_id`, `date`, `ors_no`, `payee_id`, `notes`, `purpose`, `rc_id`, `account_id`, `oopap_id`, `total_amount`, `approver_id`, `budget_officer`) VALUES
-(61, 3, 7, '2025-04-04', 'RR-25-04-001', 17, 'Payment for water expense', 'To Payment of', 9, 318, 1, 1000.00, 1, 'CONNIE M. BARNACHEA');
 
 -- --------------------------------------------------------
 
@@ -430,7 +399,7 @@ INSERT INTO `project` (`project_id`, `oopap_id`, `account_id`, `allotment`, `bal
 (59, 1, 315, 21000.00, 21000.00, '2025-03-31'),
 (60, 1, 355, 130000.00, 130000.00, '2025-03-31'),
 (61, 1, 317, 140000.00, 140000.00, '2025-03-31'),
-(63, 1, 318, 200000.00, 199000.00, '2025-03-31'),
+(63, 1, 318, 200000.00, 200000.00, '2025-03-31'),
 (64, 1, 319, 200000.00, 200000.00, '2025-03-31'),
 (65, 1, 320, 50000.00, 50000.00, '2025-03-31'),
 (66, 1, 357, 125000.00, 125000.00, '2025-03-31'),
@@ -831,15 +800,15 @@ ALTER TABLE `approver`
 --
 ALTER TABLE `dv`
   ADD PRIMARY KEY (`dv_id`),
-  ADD KEY `ors_id` (`ors_id`);
+  ADD KEY `ors_id` (`ors_id`),
+  ADD KEY `object_code_id` (`account_id`);
 
 --
 -- Indexes for table `dv_history`
 --
 ALTER TABLE `dv_history`
   ADD PRIMARY KEY (`dvhis_id`),
-  ADD KEY `dv_id` (`dv_id`),
-  ADD KEY `account_id` (`account_id`);
+  ADD KEY `dv_id` (`dv_id`);
 
 --
 -- Indexes for table `fund_cluster`
@@ -940,7 +909,7 @@ ALTER TABLE `dv`
 -- AUTO_INCREMENT for table `dv_history`
 --
 ALTER TABLE `dv_history`
-  MODIFY `dvhis_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `dvhis_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `fund_cluster`
@@ -1010,14 +979,14 @@ ALTER TABLE `users`
 -- Constraints for table `dv`
 --
 ALTER TABLE `dv`
-  ADD CONSTRAINT `dv_ibfk_1` FOREIGN KEY (`ors_id`) REFERENCES `ors` (`ors_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `dv_ibfk_1` FOREIGN KEY (`ors_id`) REFERENCES `ors` (`ors_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `dv_ibfk_2` FOREIGN KEY (`account_id`) REFERENCES `account_title` (`account_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `dv_history`
 --
 ALTER TABLE `dv_history`
-  ADD CONSTRAINT `dv_history_ibfk_1` FOREIGN KEY (`dv_id`) REFERENCES `dv` (`dv_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `dv_history_ibfk_2` FOREIGN KEY (`account_id`) REFERENCES `account_title` (`account_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `dv_history_ibfk_1` FOREIGN KEY (`dv_id`) REFERENCES `dv` (`dv_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `jev`

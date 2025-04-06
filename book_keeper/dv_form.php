@@ -10,46 +10,54 @@ if (!isset($_GET['dv_no'])) {
 $dv_no = $_GET['dv_no'];
 
 // Prepare SQL query to fetch DV record
-$query1 = "SELECT dv.*, 
-           account_title.account_title,
-           account_title.account_code,
-           dv.type,
-           dv.amount
-           FROM dv 
-           LEFT JOIN account_title ON dv.account_id = account_title.account_id
-           WHERE dv.dv_no = ?";
-$stmt1 = $connection->prepare($query1);
-if (!$stmt1) {
+$query = "SELECT dv.*, 
+          ors.ors_no,
+          ors.payee_id,
+          payee.payee_name,
+          payee.tin_no,
+          payee.address,
+          dv_history.account_id,
+          dv_history.type,
+          dv_history.amount,
+          account_title.account_title,
+          account_title.account_code
+          FROM dv 
+          LEFT JOIN ors ON dv.ors_id = ors.ors_id
+          LEFT JOIN payee ON ors.payee_id = payee.payee_id
+          LEFT JOIN dv_history ON dv.dv_id = dv_history.dv_id
+          LEFT JOIN account_title ON dv_history.account_id = account_title.account_id
+          WHERE dv.dv_no = ?";
+
+$stmt = $connection->prepare($query);
+if (!$stmt) {
     die("Query preparation failed: " . $connection->error);
 }
-$stmt1->bind_param("s", $dv_no);
-$stmt1->execute();
-$result1 = $stmt1->get_result();
+$stmt->bind_param("s", $dv_no);
+$stmt->execute();
+$result = $stmt->get_result();
 
 // Fetch data from 'dv' table
-if ($result1->num_rows > 0) {
-    $dv_form = $result1->fetch_assoc();
+if ($result->num_rows > 0) {
+    $dv_form = $result->fetch_assoc();
     $ors_id = $dv_form['ors_id']; // Get the related ORS ID
 } else {
     die("No record found in 'dv' table for DV No.: " . htmlspecialchars($dv_no));
 }
-$stmt1->close();
+$stmt->close();
 
 // Fetch all accounts for this DV
-$accounts_query = "SELECT dv.*, 
+$accounts_query = "SELECT dv_history.*, 
                   account_title.account_title,
-                  account_title.account_code,
-                  dv.type,
-                  dv.amount
-                  FROM dv 
-                  LEFT JOIN account_title ON dv.account_id = account_title.account_id
-                  WHERE dv.dv_no = ?";
+                  account_title.account_code
+                  FROM dv_history 
+                  LEFT JOIN account_title ON dv_history.account_id = account_title.account_id
+                  WHERE dv_history.dv_id = ?";
 
 $accounts_stmt = $connection->prepare($accounts_query);
 if (!$accounts_stmt) {
     die("Query preparation failed: " . $connection->error);
 }
-$accounts_stmt->bind_param("s", $dv_no);
+$accounts_stmt->bind_param("i", $dv_form['dv_id']);
 $accounts_stmt->execute();
 $accounts_result = $accounts_stmt->get_result();
 
@@ -686,7 +694,10 @@ function numberToWords($number)
                 <td colspan="3">
                     <p><b>D. Approved for Payment</b></p>
                     <p style="text-align: center; margin-top: 20px;">
-                        <b><?php echo numberToWords($dv_form['total_amount']); ?></b>
+                        <b>***<?php 
+                            $last_account = end($dv_accounts);
+                            echo numberToWords($last_account ? $last_account['amount'] : 0);
+                        ?> PESOS ONLY***</b>
                     </p>
                 </td>
             </tr>
