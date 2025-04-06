@@ -1,9 +1,31 @@
 <?php
 include '../DBConnection.php';
 
+// delete
+if (isset($_GET['project_id']) && $_GET['confirm'] == 'yes') {
+    // Get the user ID from the query string
+    $project_id = intval($_GET['project_id']);
+
+    // Prepare and execute the deletion query for 'users' table
+    $deleteUserSql = "DELETE FROM project WHERE project_id = ?";
+    $stmtUser = $connection->prepare($deleteUserSql);
+    $stmtUser->bind_param("i", $project_id);
+
+    // Execute both deletion queries
+    if ($stmtUser->execute()) {
+        // Redirect to the manage members page after successful deletion
+        header('Location: oo3_2.php');
+        exit();
+    } else {
+        // Handle error if either query fails
+        echo "Error deleting user: " . $connection->error;
+    }
+} else {
+    // Handle invalid request
+    echo "Invalid request.";
+}
 
 //Add users
-
 if (isset($_POST['submit'])) {
     $project_id = $_POST['project_id'];
     $oopap_id = $_POST['oopap_id'];
@@ -43,10 +65,6 @@ $select = mysqli_query(
 $query_account = "SELECT account_id, account_title, account_code FROM account_title ORDER BY account_title ASC";
 $result_account = $connection->query($query_account);
 
-
-?>
-
-<?php
 // Fetch total allotment
 $total_allotment_query = "SELECT SUM(allotment) AS total_allotment FROM project WHERE oopap_id = 6";
 $total_allotment_result = mysqli_query($connection, $total_allotment_query);
@@ -324,8 +342,8 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     <!-- delete -->
     <script>
         function deleteUser(oo3_2ID) {
-            if (confirm("Are you sure you want to delete this oo3_2?")) {
-                window.location.href = 'delete_oo3_2.php?project_id=' + oo3_2ID + '&confirm=yes';
+            if (confirm("Are you sure you want to delete this OO3_2?")) {
+                window.location.href = 'oo3_2.php?project_id=' + oo3_2ID + '&confirm=yes';
             }
         }
     </script>

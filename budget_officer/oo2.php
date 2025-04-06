@@ -1,9 +1,31 @@
 <?php
 include '../DBConnection.php';
 
+// delete
+if (isset($_GET['project_id']) && $_GET['confirm'] == 'yes') {
+    // Get the user ID from the query string
+    $project_id = intval($_GET['project_id']);
+
+    // Prepare and execute the deletion query for 'users' table
+    $deleteUserSql = "DELETE FROM project WHERE project_id = ?";
+    $stmtUser = $connection->prepare($deleteUserSql);
+    $stmtUser->bind_param("i", $project_id);
+
+    // Execute both deletion queries
+    if ($stmtUser->execute()) {
+        // Redirect to the manage members page after successful deletion
+        header('Location: oo2.php');
+        exit();
+    } else {
+        // Handle error if either query fails
+        echo "Error deleting user: " . $connection->error;
+    }
+} else {
+    // Handle invalid request
+    echo "Invalid request.";
+}
 
 //Add users
-
 if (isset($_POST['submit'])) {
     $project_id = $_POST['project_id'];
     $oopap_id = $_POST['oopap_id'];
@@ -25,7 +47,6 @@ if (isset($_POST['submit'])) {
 
 
 // retrieve 
-
 $select = mysqli_query(
     $connection,
 
@@ -40,14 +61,9 @@ $select = mysqli_query(
 );
 
 // account name
-
 $query_account = "SELECT account_id, account_title, account_code FROM account_title ORDER BY account_title ASC";
 $result_account = $connection->query($query_account);
 
-
-?>
-
-<?php
 // Fetch total allotment
 $total_allotment_query = "SELECT SUM(allotment) AS total_allotment FROM project WHERE oopap_id = 3";
 $total_allotment_result = mysqli_query($connection, $total_allotment_query);
@@ -91,14 +107,6 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
 
     <!-- Template Main CSS File -->
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
-
-    <!-- =======================================================
-  * Template Name: NiceAdmin
-  * Template URL: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/
-  * Updated: Apr 20 2024 with Bootstrap v5.3.3
-  * Author: BootstrapMade.com
-  * License: https://bootstrapmade.com/license/
-  ======================================================== -->
 </head>
 
 <body>
@@ -339,8 +347,8 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     <!-- delete -->
     <script>
         function deleteUser(oo2ID) {
-            if (confirm("Are you sure you want to delete this oo2?")) {
-                window.location.href = 'delete_oo2.php?project_id=' + oo2ID + '&confirm=yes';
+            if (confirm("Are you sure you want to delete this OO2?")) {
+                window.location.href = 'oo2.php?project_id=' + oo2ID + '&confirm=yes';
             }
         }
     </script>
