@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 06, 2025 at 09:06 AM
+-- Generation Time: Apr 07, 2025 at 09:27 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -171,7 +171,20 @@ INSERT INTO `account_title` (`account_id`, `account_title`, `account_code`) VALU
 (379, 'test', '50000'),
 (380, 'test2', '5001'),
 (381, 'test3', '5000000000'),
-(382, 'Cash -  Modified Disbursement System (MDS), Regular', '1010404000');
+(382, 'Cash -  Modified Disbursement System (MDS), Regular', '1010404000'),
+(383, 'PERA', '5010201001'),
+(384, 'BONUS', '5010214001'),
+(385, 'MID - YEAR BONUS', '5010299036'),
+(386, 'Productivity Enhancement Incentive (PEI)', '5010299012'),
+(387, 'GSIS - ECIP', '5010304001'),
+(388, 'Lump-Sum for Step Increments - Length of Service', '5010499010'),
+(389, 'GSIS - RLIP', '5010301000'),
+(390, 'ICT Equipment', '1060503000'),
+(391, 'Office Expense', '5021103000'),
+(392, 'Postage & Deliveries Expenses', '5029905001'),
+(393, 'Other MOOE', '50299990'),
+(394, 'RM - Motor Vehicles', '5021306001'),
+(395, 'Other Supplies and Materials', '5020399000');
 
 -- --------------------------------------------------------
 
@@ -289,8 +302,7 @@ CREATE TABLE `jev` (
   `jev_id` int(11) NOT NULL,
   `date` date NOT NULL,
   `dv_id` int(11) NOT NULL,
-  `ors_no` varchar(255) NOT NULL,
-  `dv_no` varchar(255) NOT NULL,
+  `ors_id` int(255) NOT NULL,
   `jev_no` varchar(255) NOT NULL,
   `administrative_aide` varchar(255) NOT NULL,
   `accountant` varchar(255) NOT NULL
@@ -333,7 +345,7 @@ CREATE TABLE `oopap` (
 --
 
 INSERT INTO `oopap` (`oopap_id`, `oopap_name`, `description`) VALUES
-(1, 'GAS', 'General Administration and Support'),
+(1, 'MOOE-GAS', 'General Administration and Support'),
 (2, 'OO1', 'Exports and Investment Program'),
 (3, 'OO2', 'Industry Development Program'),
 (4, 'OO3', 'MSME Development Program'),
@@ -341,7 +353,12 @@ INSERT INTO `oopap` (`oopap_id`, `oopap_name`, `description`) VALUES
 (6, 'OO3.2', 'OTOP Next Gen'),
 (7, 'OO3.3', 'Shared Service Facilities'),
 (8, 'OO4.1.1', 'Monitoring and Enforcement'),
-(9, 'OO4.1.2', 'Accreditation and Issuance of BN');
+(9, 'OO4.1.2', 'Accreditation and Issuance of BN'),
+(11, 'OO1', 'Personnel Services'),
+(12, 'OO2', 'Tida Contractual'),
+(13, 'OO3', 'Carp'),
+(14, 'O1', 'Rapid LP 2024 Continuing RO 12'),
+(15, 'O2', 'Rapid LP 2024 Continuing ');
 
 -- --------------------------------------------------------
 
@@ -699,9 +716,67 @@ INSERT INTO `project` (`project_id`, `oopap_id`, `account_id`, `allotment`, `bal
 (374, 9, 364, 0.00, 0.00, '2025-03-31'),
 (375, 9, 314, 50000.00, 50000.00, '2025-03-31'),
 (376, 9, 346, 50000.00, 50000.00, '2025-03-31'),
-(378, 1, 379, 100000.00, 93850.00, '2025-04-02'),
-(379, 1, 380, 100000.00, 82500.00, '2025-04-02'),
-(380, 1, 381, 0.00, -3101.00, '2025-04-02');
+(378, 1, 379, 100000.00, 100000.00, '2025-04-02'),
+(379, 1, 380, 100000.00, 100000.00, '2025-04-02'),
+(380, 1, 381, 0.00, 0.00, '2025-04-02'),
+(381, 11, 295, 3817000.00, 3817000.00, '2025-04-06'),
+(382, 11, 383, 144000.00, 144000.00, '2025-04-06'),
+(383, 11, 298, 120000.00, 120000.00, '2025-04-06'),
+(384, 11, 299, 120000.00, 120000.00, '2025-04-06'),
+(385, 11, 300, 42000.00, 42000.00, '2025-04-06'),
+(386, 11, 384, 318000.00, 318000.00, '2025-04-06'),
+(387, 11, 304, 30000.00, 30000.00, '2025-04-06'),
+(388, 11, 385, 318000.00, 318000.00, '2025-04-06'),
+(389, 11, 386, 30000.00, 30000.00, '2025-04-06'),
+(390, 11, 306, 14000.00, 14000.00, '2025-04-06'),
+(391, 11, 307, 81000.00, 81000.00, '2025-04-06'),
+(392, 11, 387, 7000.00, 7000.00, '2025-04-06'),
+(393, 11, 388, 10000.00, 10000.00, '2025-04-06'),
+(394, 11, 389, 458000.00, 458000.00, '2025-04-06'),
+(395, 12, 296, 2569849.24, 2569849.24, '2025-04-06'),
+(396, 12, 383, 0.00, 0.00, '2025-04-06'),
+(397, 12, 300, 0.00, 0.00, '2025-04-06'),
+(398, 12, 384, 0.00, 0.00, '2025-04-06'),
+(399, 12, 385, 0.00, 0.00, '2025-04-06'),
+(400, 12, 306, 0.00, 0.00, '2025-04-06'),
+(401, 12, 307, 0.00, 0.00, '2025-04-06'),
+(402, 12, 387, 0.00, 0.00, '2025-04-06'),
+(403, 12, 389, 0.00, 0.00, '2025-04-06'),
+(404, 13, 296, 3884966.80, 3884966.80, '2025-04-06'),
+(405, 13, 383, 0.00, 0.00, '2025-04-06'),
+(406, 13, 300, 0.00, 0.00, '2025-04-06'),
+(407, 13, 384, 0.00, 0.00, '2025-04-06'),
+(408, 13, 385, 0.00, 0.00, '2025-04-06'),
+(409, 13, 304, 0.00, 0.00, '2025-04-06'),
+(410, 13, 386, 0.00, 0.00, '2025-04-06'),
+(411, 13, 306, 0.00, 0.00, '2025-04-06'),
+(412, 13, 307, 0.00, 0.00, '2025-04-06'),
+(413, 13, 387, 0.00, 0.00, '2025-04-06'),
+(414, 13, 389, 0.00, 0.00, '2025-04-06'),
+(415, 14, 311, 123354.84, 123354.84, '2025-04-06'),
+(416, 14, 313, 998767.19, 998767.19, '2025-04-06'),
+(417, 14, 327, 532198.00, 532198.00, '2025-04-06'),
+(418, 14, 374, 38921.51, 38921.51, '2025-04-06'),
+(419, 14, 362, 119686.79, 119686.79, '2025-04-06'),
+(420, 14, 328, 0.00, 0.00, '2025-04-06'),
+(421, 14, 355, 0.00, 0.00, '2025-04-06'),
+(422, 14, 333, 0.00, 0.00, '2025-04-06'),
+(423, 14, 390, 11850.00, 11850.00, '2025-04-06'),
+(424, 15, 311, 1082400.00, 1082400.00, '2025-04-06'),
+(425, 15, 313, 9020000.00, 9020000.00, '2025-04-06'),
+(426, 15, 391, 105600.00, 105600.00, '2025-04-06'),
+(427, 15, 355, 411840.00, 411840.00, '2025-04-06'),
+(428, 15, 392, 2200.00, 2200.00, '2025-04-06'),
+(429, 15, 357, 71280.00, 71280.00, '2025-04-06'),
+(430, 15, 327, 594000.00, 594000.00, '2025-04-06'),
+(431, 15, 328, 2264581.60, 2264581.60, '2025-04-06'),
+(432, 15, 342, 1795200.00, 1795200.00, '2025-04-06'),
+(433, 15, 362, 844800.00, 844800.00, '2025-04-06'),
+(434, 15, 393, 352000.00, 352000.00, '2025-04-06'),
+(435, 15, 394, 0.00, 0.00, '2025-04-06'),
+(436, 15, 325, 0.00, 0.00, '2025-04-06'),
+(437, 15, 395, 0.00, 0.00, '2025-04-06'),
+(438, 15, 337, 0.00, 0.00, '2025-04-06');
 
 -- --------------------------------------------------------
 
@@ -852,7 +927,8 @@ ALTER TABLE `fund_cluster`
 --
 ALTER TABLE `jev`
   ADD PRIMARY KEY (`jev_id`),
-  ADD KEY `dv_id` (`dv_id`);
+  ADD KEY `dv_id` (`dv_id`),
+  ADD KEY `ors_id` (`ors_id`);
 
 --
 -- Indexes for table `obligation_history`
@@ -922,7 +998,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `account_title`
 --
 ALTER TABLE `account_title`
-  MODIFY `account_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=383;
+  MODIFY `account_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=396;
 
 --
 -- AUTO_INCREMENT for table `approver`
@@ -964,7 +1040,7 @@ ALTER TABLE `obligation_history`
 -- AUTO_INCREMENT for table `oopap`
 --
 ALTER TABLE `oopap`
-  MODIFY `oopap_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `oopap_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `ors`
@@ -982,7 +1058,7 @@ ALTER TABLE `payee`
 -- AUTO_INCREMENT for table `project`
 --
 ALTER TABLE `project`
-  MODIFY `project_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=381;
+  MODIFY `project_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1743926826;
 
 --
 -- AUTO_INCREMENT for table `responsibility_center`
@@ -1023,7 +1099,8 @@ ALTER TABLE `dv_history`
 -- Constraints for table `jev`
 --
 ALTER TABLE `jev`
-  ADD CONSTRAINT `jev_ibfk_1` FOREIGN KEY (`dv_id`) REFERENCES `dv` (`dv_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `jev_ibfk_1` FOREIGN KEY (`dv_id`) REFERENCES `dv` (`dv_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `jev_ibfk_2` FOREIGN KEY (`ors_id`) REFERENCES `ors` (`ors_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `obligation_history`

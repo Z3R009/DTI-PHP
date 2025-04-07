@@ -200,6 +200,40 @@ while ($row = $result_approvers->fetch_assoc()) {
     ];
 }
 
+
+
+?>
+<?php
+// Fetch filter values from the URL, set the default year to current year if not provided
+$year = isset($_GET['year']) ? $_GET['year'] : date('Y'); // Default to current year
+$month = isset($_GET['month']) ? $_GET['month'] : '';
+$service = isset($_GET['service']) ? $_GET['service'] : '';
+
+// Build the WHERE clause based on filters
+$whereClauses = [];
+if ($year) {
+    $whereClauses[] = "YEAR(ors.date) = '$year'";
+}
+if ($month) {
+    $whereClauses[] = "MONTH(ors.date) = '$month'";
+}
+if ($service) {
+    $whereClauses[] = "services.services_name = '$service'";
+}
+
+// Combine all the where clauses
+$whereSql = '';
+if (count($whereClauses) > 0) {
+    $whereSql = " WHERE " . implode(' AND ', $whereClauses);
+}
+
+// Update your query with the filters
+$ors_query = "SELECT * FROM ors
+              LEFT JOIN services ON ors.services_id = services.services_id
+              $whereSql
+              ORDER BY ors.date DESC";
+
+$ors_result = $connection->query($ors_query);
 ?>
 
 
@@ -486,18 +520,13 @@ while ($row = $result_approvers->fetch_assoc()) {
 
     <main id="main" class="main">
 
-        <div class="pagetitle">
-            <h1>Obligation Request and Status</h1>
-        </div><!-- End Page Title -->
+        <div class="pagetitle d-flex justify-content-between align-items-center">
+            <h1 class="mb-0">Obligation Request and Status</h1>
+            <button class="btn btn-primary" onclick="window.location.href='processed_ors.php'">
+                View Processed ORS
+            </button>
 
-        <ul class="nav nav-tabs">
-            <li class="nav-item">
-                <a class="nav-link active" data-bs-toggle="tab" href="#orsForm">ORS Form</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="tab" href="#orsList">ORS List</a>
-            </li>
-        </ul>
+        </div><!-- End Page Title -->
 
 
 
@@ -505,9 +534,10 @@ while ($row = $result_approvers->fetch_assoc()) {
             <div class="form-container">
                 <h2 class="form-title">Obligation Request And Status</h2>
 
+
                 <!-- General Information Section -->
                 <div class="tab-content">
-                    <div class="tab-pane fade show active" id="orsForm">
+                    <div>
                         <div id="ors_form">
                             <form method="post">
                                 <div class="form-section">
@@ -716,95 +746,6 @@ while ($row = $result_approvers->fetch_assoc()) {
                                 </div>
                             </div>
                         </div>
-
-
-                        
-                        <!-- ors list -->
-                        <div class="tab-pane fade" id="orsList">
-
-                        <div class="form-group col-md-4">
-            <label for="yearFilter">Year</label>
-            <select class="form-control" id="yearFilter" name="yearFilter">
-                <option value="">Select Year</option>
-                <?php
-                // Generate year options dynamically (for example from 2010 to the current year)
-                for ($year = 2010; $year <= date('Y'); $year++) {
-                    echo "<option value='" . $year . "'>" . $year . "</option>";
-                }
-                ?>
-            </select>
-        </div>
-        <div class="form-group col-md-4">
-            <label for="monthFilter">Month</label>
-            <select class="form-control" id="monthFilter" name="monthFilter">
-                <option value="">Select Month</option>
-                <?php
-                $months = [
-                    "January",
-                    "February",
-                    "March",
-                    "April",
-                    "May",
-                    "June",
-                    "July",
-                    "August",
-                    "September",
-                    "October",
-                    "November",
-                    "December"
-                ];
-                foreach ($months as $index => $month) {
-                    $monthNumber = $index + 1;
-                    echo "<option value='" . $monthNumber . "'>" . $month . "</option>";
-                }
-                ?>
-            </select>
-        </div>
-
-                            <div class="container">
-                                <div class="table-responsive">
-                                    <table class="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>ORS No.</th>
-                                                <th>Date</th>
-                                                <th>Payee</th>
-                                                <th>Amount</th>
-                                                <th>Status</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php
-                                            // Fetch ORS records from database
-                                            $ors_query = "SELECT * FROM ors ORDER BY date DESC";
-                                            $ors_result = $connection->query($ors_query);
-
-                                            while ($ors = $ors_result->fetch_assoc()) {
-                                                echo "<tr>";
-                                                echo "<td>" . htmlspecialchars($ors['ors_no']) . "</td>";
-                                                $date = new DateTime($ors['date']);
-                                                echo "<td>" . htmlspecialchars($date->format('F j, Y')) . "</td>";
-
-                                                // Fetch payee name
-                                                $payee_query = "SELECT payee_name FROM payee WHERE payee_id = " . $ors['payee_id'];
-                                                $payee_result = $connection->query($payee_query);
-                                                $payee = $payee_result->fetch_assoc();
-
-                                                echo "<td>" . htmlspecialchars($payee['payee_name']) . "</td>";
-                                                echo "<td>" . number_format($ors['total_amount'], 2) . "</td>";
-                                                echo "<td>Processed</td>"; // You can add dynamic status logic
-                                                echo "<td>
-                                                    <a href='ors_form.php?ors_no=" . $ors['ors_no'] . "' class='btn btn-info btn-sm'>View</a>
-                                                </td>";
-                                                echo "</tr>";
-                                            }
-                                            ?>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-    </div>
     </main><!-- End #main -->
 
 
@@ -1036,236 +977,260 @@ while ($row = $result_approvers->fetch_assoc()) {
     <!-- payee -->
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    $(document).ready(function () {
-        $('#payee_id').on('change', function () {
-            var selectedOption = $(this).find('option:selected');
-            var tinNo = selectedOption.data('tin');
-            var address = selectedOption.data('address');
 
-            $('#tin_no').val(tinNo);
-            $('#address').val(address);
-        });
-    });
-</script>
 
-<!-- total_amount -->
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        function updateTotal() {
-            let total = 0;
-            document.querySelectorAll(".amount-input").forEach(function (input) {
-                total += parseFloat(input.value) || 0;
+    
+    <!-- total_amount -->
+    <script>
+        $(document).ready(function () {
+            $('#payee_id').on('change', function () {
+                var selectedOption = $(this).find('option:selected');
+                var tinNo = selectedOption.data('tin');
+                var address = selectedOption.data('address');
+
+                $('#tin_no').val(tinNo);
+                $('#address').val(address);
             });
-            document.getElementById("total_amount").value = total.toFixed(2);
-        }
-
-        // Listen for input changes
-        document.getElementById("accounting-table-body").addEventListener("input", function (event) {
-            if (event.target.classList.contains("amount-input")) {
-                updateTotal();
-            }
         });
-    });
-</script>
+    </script>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const accountSelect = document.querySelector('select[name="account_id[]"]');
-        const oopapSelect = document.querySelector('select[name="oopap_id"]');
-        const amountInput = document.querySelector('.amount-input');
-        const projectIdInput = document.getElementById('project_id');
 
-        // Create warning message element
-        const warningMessage = document.createElement('div');
-        warningMessage.className = 'text-warning mt-1';
-        warningMessage.style.display = 'none';
-        warningMessage.innerHTML = '<small><i class="bi bi-exclamation-triangle"></i> Warning: This will result in a negative balance!</small>';
-        amountInput.parentNode.appendChild(warningMessage);
-
-        async function checkAllotment() {
-            const accountId = accountSelect.value;
-            const oopapId = oopapSelect.value;
-            const amount = parseFloat(amountInput.value) || 0;
-
-            if (!accountId || !oopapId || amount === 0) {
-                projectIdInput.value = '';
-                warningMessage.style.display = 'none';
-                return;
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            function updateTotal() {
+                let total = 0;
+                document.querySelectorAll(".amount-input").forEach(function (input) {
+                    total += parseFloat(input.value) || 0;
+                });
+                document.getElementById("total_amount").value = total.toFixed(2);
             }
 
-            try {
-                const response = await fetch('check_allotment.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `account_id=${accountId}&oopap_id=${oopapId}&amount=${amount}`
-                });
+            // Listen for input changes
+            document.getElementById("accounting-table-body").addEventListener("input", function (event) {
+                if (event.target.classList.contains("amount-input")) {
+                    updateTotal();
+                }
+            });
+        });
+    </script>
 
-                const data = await response.json();
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const accountSelect = document.querySelector('select[name="account_id[]"]');
+            const oopapSelect = document.querySelector('select[name="oopap_id"]');
+            const amountInput = document.querySelector('.amount-input');
+            const projectIdInput = document.getElementById('project_id');
 
-                if (data.success) {
-                    projectIdInput.value = data.project_id;
-                    projectIdInput.style.backgroundColor = '#e8f5e9';
+            // Create warning message element
+            const warningMessage = document.createElement('div');
+            warningMessage.className = 'text-warning mt-1';
+            warningMessage.style.display = 'none';
+            warningMessage.innerHTML = '<small><i class="bi bi-exclamation-triangle"></i> Warning: This will result in a negative balance!</small>';
+            amountInput.parentNode.appendChild(warningMessage);
+
+            async function checkAllotment() {
+                const accountId = accountSelect.value;
+                const oopapId = oopapSelect.value;
+                const amount = parseFloat(amountInput.value) || 0;
+
+                if (!accountId || !oopapId || amount === 0) {
+                    projectIdInput.value = '';
                     warningMessage.style.display = 'none';
-                } else {
-                    projectIdInput.value = data.project_id;
-                    projectIdInput.style.backgroundColor = '#fff3e0';
-                    warningMessage.style.display = 'block';
+                    return;
                 }
-            } catch (error) {
-                console.error('Error checking allotment:', error);
-                projectIdInput.value = '';
-                projectIdInput.style.backgroundColor = '#ffebee';
-                warningMessage.style.display = 'none';
-            }
-        }
 
-        accountSelect.addEventListener('change', checkAllotment);
-        oopapSelect.addEventListener('change', checkAllotment);
-        amountInput.addEventListener('input', checkAllotment);
-    });
-</script>
-
-<!-- Add this before the closing </body> tag -->
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const oopapSelect = document.querySelector('select[name="oopap_id"]');
-        const servicesSelect = document.getElementById('services');
-        const dateInput = document.getElementById('dvDate');
-        const orsNoInput = document.getElementById('ors_no');
-
-        // Function to update services dropdown
-        function updateServices(oopapId) {
-            if (!oopapId) {
-                servicesSelect.innerHTML = '<option selected disabled>Select Services</option>';
-                return;
-            }
-
-            fetch('get_filtered_services.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `oopap_id=${oopapId}`
-            })
-                .then(response => response.json())
-                .then(services => {
-                    servicesSelect.innerHTML = '<option selected disabled>Select Services</option>';
-                    services.forEach(service => {
-                        const option = document.createElement('option');
-                        option.value = service.services_id;
-                        option.textContent = service.services_name;
-                        option.setAttribute('data-code', service.code);
-                        servicesSelect.appendChild(option);
+                try {
+                    const response = await fetch('check_allotment.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `account_id=${accountId}&oopap_id=${oopapId}&amount=${amount}`
                     });
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    servicesSelect.innerHTML = '<option selected disabled>Error loading services</option>';
-                });
-        }
 
-        // Listen for OO/PAP selection changes
-        oopapSelect.addEventListener('change', function () {
-            updateServices(this.value);
-        });
+                    const data = await response.json();
 
-        function generateORSNumber() {
-            const selectedService = servicesSelect.options[servicesSelect.selectedIndex];
-            const selectedDate = dateInput.value;
-
-            if (!selectedService || selectedService.disabled || !selectedDate) {
-                return;
-            }
-
-            const serviceCode = selectedService.getAttribute('data-code');
-            const date = new Date(selectedDate);
-            const year = date.getFullYear().toString().substr(-2);
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-
-            // Check if the service code is ADMIN&POLICY
-            if (serviceCode === 'ADMIN&POLICY') {
-                fetch('get_next_ors_sequence.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `service_code=ADMIN&POLICY&year=${year}&month=${month}`
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        const sequence = String(data.next_sequence).padStart(3, '0');
-                        orsNoInput.value = `ADMIN&POLICY-${year}-${month}-${sequence}`;
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
-            } else {
-                fetch('get_next_ors_sequence.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `service_code=${serviceCode}&year=${year}&month=${month}`
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        const sequence = String(data.next_sequence).padStart(3, '0');
-                        orsNoInput.value = `${serviceCode}-${year}-${month}-${sequence}`;
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
-            }
-        }
-
-        servicesSelect.addEventListener('change', generateORSNumber);
-        dateInput.addEventListener('change', generateORSNumber);
-    });
-</script>
-
-<!-- Add this JavaScript before the closing </body> tag -->
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const oopapSelect = document.querySelector('select[name="oopap_id"]');
-        const accountSelects = document.querySelectorAll('select[name="account_id[]"]');
-
-        function updateAccountOptions() {
-            const selectedOopapId = oopapSelect.value;
-
-            accountSelects.forEach(select => {
-                const currentValue = select.value;
-                const options = select.options;
-
-                // Show/hide options based on selected OO/PAP
-                for (let i = 0; i < options.length; i++) {
-                    const option = options[i];
-                    if (option.value === "") continue; // Skip the default "Select Account" option
-
-                    const optionOopapId = option.getAttribute('data-oopap_id');
-                    if (optionOopapId === selectedOopapId) {
-                        option.style.display = '';
+                    if (data.success) {
+                        projectIdInput.value = data.project_id;
+                        projectIdInput.style.backgroundColor = '#e8f5e9';
+                        warningMessage.style.display = 'none';
                     } else {
-                        option.style.display = 'none';
+                        projectIdInput.value = data.project_id;
+                        projectIdInput.style.backgroundColor = '#fff3e0';
+                        warningMessage.style.display = 'block';
                     }
+                } catch (error) {
+                    console.error('Error checking allotment:', error);
+                    projectIdInput.value = '';
+                    projectIdInput.style.backgroundColor = '#ffebee';
+                    warningMessage.style.display = 'none';
+                }
+            }
+
+            accountSelect.addEventListener('change', checkAllotment);
+            oopapSelect.addEventListener('change', checkAllotment);
+            amountInput.addEventListener('input', checkAllotment);
+        });
+    </script>
+
+    <!-- Add this before the closing </body> tag -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const oopapSelect = document.querySelector('select[name="oopap_id"]');
+            const servicesSelect = document.getElementById('services');
+            const dateInput = document.getElementById('dvDate');
+            const orsNoInput = document.getElementById('ors_no');
+
+            // Function to update services dropdown
+            function updateServices(oopapId) {
+                if (!oopapId) {
+                    servicesSelect.innerHTML = '<option selected disabled>Select Services</option>';
+                    return;
                 }
 
-                // Reset selection if current value is not in selected OO/PAP
-                if (currentValue && options[select.selectedIndex].style.display === 'none') {
-                    select.value = "";
-                }
+                fetch('get_filtered_services.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `oopap_id=${oopapId}`
+                })
+                    .then(response => response.json())
+                    .then(services => {
+                        servicesSelect.innerHTML = '<option selected disabled>Select Services</option>';
+                        services.forEach(service => {
+                            const option = document.createElement('option');
+                            option.value = service.services_id;
+                            option.textContent = service.services_name;
+                            option.setAttribute('data-code', service.code);
+                            servicesSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        servicesSelect.innerHTML = '<option selected disabled>Error loading services</option>';
+                    });
+            }
+
+            // Listen for OO/PAP selection changes
+            oopapSelect.addEventListener('change', function () {
+                updateServices(this.value);
             });
-        }
 
-        // Update account options when OO/PAP changes
-        oopapSelect.addEventListener('change', updateAccountOptions);
+            function generateORSNumber() {
+                const selectedService = servicesSelect.options[servicesSelect.selectedIndex];
+                const selectedDate = dateInput.value;
 
-        // Initial update
-        updateAccountOptions();
-    });
+                if (!selectedService || selectedService.disabled || !selectedDate) {
+                    return;
+                }
+
+                const serviceCode = selectedService.getAttribute('data-code');
+                const date = new Date(selectedDate);
+                const year = date.getFullYear().toString().substr(-2);
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+
+                // Check if the service code is ADMIN&POLICY
+                if (serviceCode === 'ADMIN&POLICY') {
+                    fetch('get_next_ors_sequence.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `service_code=ADMIN&POLICY&year=${year}&month=${month}`
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            const sequence = String(data.next_sequence).padStart(3, '0');
+                            orsNoInput.value = `ADMIN&POLICY-${year}-${month}-${sequence}`;
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                } else {
+                    fetch('get_next_ors_sequence.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `service_code=${serviceCode}&year=${year}&month=${month}`
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            const sequence = String(data.next_sequence).padStart(3, '0');
+                            orsNoInput.value = `${serviceCode}-${year}-${month}-${sequence}`;
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                }
+            }
+
+            servicesSelect.addEventListener('change', generateORSNumber);
+            dateInput.addEventListener('change', generateORSNumber);
+        });
+    </script>
+
+    <!-- Add this JavaScript before the closing </body> tag -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const oopapSelect = document.querySelector('select[name="oopap_id"]');
+            const accountSelects = document.querySelectorAll('select[name="account_id[]"]');
+
+            function updateAccountOptions() {
+                const selectedOopapId = oopapSelect.value;
+
+                accountSelects.forEach(select => {
+                    const currentValue = select.value;
+                    const options = select.options;
+
+                    // Show/hide options based on selected OO/PAP
+                    for (let i = 0; i < options.length; i++) {
+                        const option = options[i];
+                        if (option.value === "") continue; // Skip the default "Select Account" option
+
+                        const optionOopapId = option.getAttribute('data-oopap_id');
+                        if (optionOopapId === selectedOopapId) {
+                            option.style.display = '';
+                        } else {
+                            option.style.display = 'none';
+                        }
+                    }
+
+                    // Reset selection if current value is not in selected OO/PAP
+                    if (currentValue && options[select.selectedIndex].style.display === 'none') {
+                        select.value = "";
+                    }
+                });
+            }
+
+            // Update account options when OO/PAP changes
+            oopapSelect.addEventListener('change', updateAccountOptions);
+
+            // Initial update
+            updateAccountOptions();
+        });
+    </script>
+
+<!-- Filter -->
+<script>
+    // JavaScript to handle filtering without the "Apply Filters" button
+    document.getElementById('yearFilter').addEventListener('change', applyFilter);
+    document.getElementById('monthFilter').addEventListener('change', applyFilter);
+    document.getElementById('servicesFilter').addEventListener('change', applyFilter);
+
+    function applyFilter() {
+        var year = document.getElementById('yearFilter').value;
+        var month = document.getElementById('monthFilter').value;
+        var service = document.getElementById('servicesFilter').value;
+
+        // Get the current URL and append the filters
+        var newUrl = window.location.origin + window.location.pathname + '?year=' + year + '&month=' + month + '&service=' + service;
+
+        // Update the URL with the selected filters, keeping the #orsList tab in the URL
+        window.location.href = newUrl + '#orsList'; // Keep the user in the orsList tab
+    }
 </script>
 
 </body>
