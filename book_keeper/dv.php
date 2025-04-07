@@ -25,6 +25,7 @@ if (isset($_POST['submit'])) {
     $net_amount = $_POST['net_amount'];
     $chief_accountant = $_POST['chief_accountant'];
     $regional_director = $_POST['regional_director'];
+    $regional_director = $_POST['regional_director'];
 
     // Get the account titles and amounts arrays
     $account_titles = $_POST['account_titles'];

@@ -754,9 +754,10 @@ function numberToWords($number)
         </table>
         <div class="modal-footer no-print">
             <button type="button" class="btn btn-primary" onclick="window.print()">Print DV</button>
-            <button type="button" class="btn btn-secondary" onclick="window.history.back();">
+            <button type="button" class="btn btn-secondary" onclick="window.location.href='processed_dv.php';">
                 Back
             </button>
+
         </div>
 
     </div>

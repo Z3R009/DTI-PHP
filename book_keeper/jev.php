@@ -783,7 +783,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
 
     <main id="main" class="main">
         <div class="pagetitle d-flex align-items-center">
-            <h1 class="mb-0">Disbursement Voucher</h1>
+            <h1 class="mb-0">Journal Entry Voucher</h1>
 
             <!-- Buttons Container with right alignment -->
             <div class="ms-auto">
@@ -797,7 +797,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
 
         <div class="content-wrapper">
             <div class="form-container">
-                <h2 class="form-title">Disbursement Voucher</h2>
+                <h2 class="form-title">Journal Entry Voucher</h2>
 
                 <div class="tab-content">
                     <!-- DV List Tab -->
@@ -903,7 +903,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                     <th>Account Name</th>
                                     <th>UACS Object Code</th>
                                     <th>Account Type</th>
-                                    <th>Credit</th>
+                                    <th>Amount</th>
                                 </tr>
                             </thead>
                             <tbody>

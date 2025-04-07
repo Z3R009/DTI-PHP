@@ -2,135 +2,6 @@
 include '../DBConnection.php';
 
 
-// insert ors
-
-if (isset($_POST['submit'])) {
-    echo "Form submitted!";
-
-    // Debugging: Print all POST data
-    echo "<pre>";
-    print_r($_POST);
-    echo "</pre>";
-
-
-    $fund_cluster_id = $_POST['fund_cluster_id'];
-    $date = $_POST['date'];
-    $ors_no = $_POST['ors_no'];
-    $services_id = $_POST['services_id'];
-    $payee_id = $_POST['payee_id'];
-    $purpose = $_POST['purpose'];
-    $notes = $_POST['notes'];
-    $rc_id = $_POST['rc_id'];
-    $account_ids = $_POST['account_id']; // Array of account IDs
-    $amounts = $_POST['amount']; // Array of amounts
-    $oopap_id = $_POST['oopap_id'];
-    $total_amount = $_POST['total_amount'];
-    $approver_id = $_POST['approver_id'];
-    $budget_officer = $_POST['budget_officer'];
-
-    // Start transaction
-    $connection->begin_transaction();
-
-    try {
-        // Insert ORS record
-        $sql = "INSERT INTO ors (fund_cluster_id, date, services_id, ors_no, payee_id, purpose, notes, rc_id, account_id, oopap_id, total_amount, approver_id, budget_officer) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-        $stmt = $connection->prepare($sql);
-        if (!$stmt) {
-            throw new Exception('Prepare failed: ' . $connection->error);
-        }
-
-        // Use the first account_id for the main ORS record
-        $stmt->bind_param(
-            "isssssssiidis",
-            $fund_cluster_id,
-            $date,
-            $services_id,
-            $ors_no,
-            $payee_id,
-            $purpose,
-            $notes,
-            $rc_id,
-            $account_ids[0], // Use first account_id
-            $oopap_id,
-            $total_amount,
-            $approver_id,
-            $budget_officer
-        );
-
-        if (!$stmt->execute()) {
-            throw new Exception("Error inserting ORS: " . $stmt->error);
-        }
-
-        // Get the inserted ORS ID
-        $ors_id = $connection->insert_id;
-
-        // Insert obligation history for each account entry
-        $history_sql = "INSERT INTO obligation_history (ors_id, project_id, net) VALUES (?, ?, ?)";
-        $history_stmt = $connection->prepare($history_sql);
-        if (!$history_stmt) {
-            throw new Exception('Prepare failed for obligation_history: ' . $connection->error);
-        }
-
-        // Process each account entry
-        foreach ($account_ids as $index => $account_id) {
-            $amount = $amounts[$index];
-
-            // Get project information without balance check
-            $check_sql = "SELECT project_id, balances FROM project 
-                         WHERE account_id = ? AND oopap_id = ?";
-            $check_stmt = $connection->prepare($check_sql);
-            $check_stmt->bind_param("ii", $account_id, $oopap_id);
-            $check_stmt->execute();
-            $result = $check_stmt->get_result();
-
-            if ($result->num_rows === 0) {
-                throw new Exception("No project found for account ID: " . $account_id);
-            }
-
-            $project = $result->fetch_assoc();
-            $project_id = $project['project_id'];
-            $new_balance = $project['balances'] - $amount;
-
-            // Update project allotment (now allowing negative values)
-            $update_sql = "UPDATE project SET balances = ? WHERE project_id = ?";
-            $update_stmt = $connection->prepare($update_sql);
-            $update_stmt->bind_param("di", $new_balance, $project_id);
-            $update_stmt->execute();
-
-            // Insert obligation history record
-            $history_stmt->bind_param("iid", $ors_id, $project_id, $amount);
-            if (!$history_stmt->execute()) {
-                throw new Exception("Error inserting obligation history: " . $history_stmt->error);
-            }
-        }
-
-        $connection->commit();
-        header("Location: ors_form.php?ors_no=$ors_no");
-        exit();
-
-    } catch (Exception $e) {
-        $connection->rollback();
-        echo "Error: " . $e->getMessage();
-        exit();
-    } finally {
-        if (isset($check_stmt))
-            $check_stmt->close();
-        if (isset($update_stmt))
-            $update_stmt->close();
-        if (isset($stmt))
-            $stmt->close();
-        if (isset($history_stmt))
-            $history_stmt->close();
-        $connection->close();
-    }
-}
-
-
-
-
-
 // Query to fetch account titles and their corresponding UACS codes with OO/PAP
 $sql_account = "SELECT DISTINCT at.account_id, at.account_title, at.account_code, p.oopap_id, o.oopap_name
                 FROM account_title at
@@ -206,34 +77,57 @@ while ($row = $result_approvers->fetch_assoc()) {
 <?php
 // Fetch filter values from the URL, set the default year to current year if not provided
 $year = isset($_GET['year']) ? $_GET['year'] : date('Y'); // Default to current year
-$month = isset($_GET['month']) ? $_GET['month'] : '';
-$service = isset($_GET['service']) ? $_GET['service'] : '';
+$month = isset($_GET['month']) ? $_GET['month'] : ''; // Default to all months
+$service = isset($_GET['service']) ? $_GET['service'] : ''; // Default to all services
 
 // Build the WHERE clause based on filters
 $whereClauses = [];
-if ($year) {
-    $whereClauses[] = "YEAR(ors.date) = '$year'";
-}
+$params = [];
+$types = '';
+
+// Always filter by year
+$whereClauses[] = "YEAR(ors.date) = ?";
+$params[] = $year;
+$types .= 'i'; // Assuming year is an integer
+
+// Add month filter if selected
 if ($month) {
-    $whereClauses[] = "MONTH(ors.date) = '$month'";
+    $whereClauses[] = "MONTH(ors.date) = ?";
+    $params[] = $month;
+    $types .= 'i'; // Assuming month is an integer
 }
+
+// Add service filter if selected
 if ($service) {
-    $whereClauses[] = "services.services_name = '$service'";
+    $whereClauses[] = "services.services_name = ?";
+    $params[] = $service;
+    $types .= 's'; // Assuming service name is a string
 }
 
 // Combine all the where clauses
-$whereSql = '';
-if (count($whereClauses) > 0) {
-    $whereSql = " WHERE " . implode(' AND ', $whereClauses);
-}
+$whereSql = ' WHERE ' . implode(' AND ', $whereClauses);
 
-// Update your query with the filters
+// Prepare the query
 $ors_query = "SELECT * FROM ors
               LEFT JOIN services ON ors.services_id = services.services_id
               $whereSql
               ORDER BY ors.date DESC";
 
-$ors_result = $connection->query($ors_query);
+$stmt = $connection->prepare($ors_query);
+
+// Bind parameters dynamically
+if ($params) {
+    $stmt->bind_param($types, ...$params);
+}
+
+// Execute the query
+$stmt->execute();
+$ors_result = $stmt->get_result();
+
+// Debugging: Check if any records were found
+if ($ors_result->num_rows === 0) {
+    echo "<p>No records found for the selected filters.</p>";
+}
 ?>
 
 
@@ -542,12 +436,11 @@ $ors_result = $connection->query($ors_query);
                             <!-- Year Filter -->
                             <div class="form-group col-md-4">
                                 <label for="yearFilter">Year</label>
-                                <select class="form-control" id="yearFilter" name="yearFilter">
+                                <select class="form-control" id="yearFilter" name="year">
                                     <option value="">Select Year</option>
                                     <?php
-                                    // Generate year options dynamically (for example from 2010 to the current year)
                                     for ($yearOption = 2010; $yearOption <= date('Y'); $yearOption++) {
-                                        $selected = ($yearOption == $year) ? 'selected' : ''; // Keep the selected year
+                                        $selected = ($yearOption == $year) ? 'selected' : '';
                                         echo "<option value='" . $yearOption . "' $selected>" . $yearOption . "</option>";
                                     }
                                     ?>
@@ -557,8 +450,8 @@ $ors_result = $connection->query($ors_query);
                             <!-- Month Filter -->
                             <div class="form-group col-md-4">
                                 <label for="monthFilter">Month</label>
-                                <select class="form-control" id="monthFilter" name="monthFilter">
-                                    <option value="">Select Month</option>
+                                <select class="form-control" id="monthFilter" name="month">
+                                    <option value="">All Months</option>
                                     <?php
                                     $months = [
                                         "January",
@@ -574,10 +467,10 @@ $ors_result = $connection->query($ors_query);
                                         "November",
                                         "December"
                                     ];
-                                    foreach ($months as $index => $month) {
+                                    foreach ($months as $index => $monthName) {
                                         $monthNumber = $index + 1;
-                                        $selected = ($monthNumber == $month) ? 'selected' : ''; // Keep the selected month
-                                        echo "<option value='" . $monthNumber . "' $selected>" . $month . "</option>";
+                                        $selected = ($monthNumber == $month) ? 'selected' : '';
+                                        echo "<option value='" . $monthNumber . "' $selected>" . $monthName . "</option>";
                                     }
                                     ?>
                                 </select>
@@ -586,14 +479,13 @@ $ors_result = $connection->query($ors_query);
                             <!-- Services Filter -->
                             <div class="form-group col-md-4">
                                 <label for="servicesFilter">Services</label>
-                                <select class="form-control" id="servicesFilter" name="servicesFilter">
-                                    <option value="">Select Service</option>
+                                <select class="form-control" id="servicesFilter" name="service">
+                                    <option value="">All Services</option>
                                     <?php
-                                    // Fetch the services list dynamically
                                     $services_query = "SELECT * FROM services";
                                     $services_result = $connection->query($services_query);
                                     while ($row = $services_result->fetch_assoc()) {
-                                        $selected = ($row['services_name'] == $service) ? 'selected' : ''; // Keep the selected service
+                                        $selected = ($row['services_name'] == $service) ? 'selected' : '';
                                         echo "<option value='" . htmlspecialchars($row['services_name']) . "' $selected>" . htmlspecialchars($row['services_name']) . "</option>";
                                     }
                                     ?>
@@ -616,10 +508,6 @@ $ors_result = $connection->query($ors_query);
                                 </thead>
                                 <tbody>
                                     <?php
-                                    // Fetch ORS records from database
-                                    $ors_query = "SELECT * FROM ors ORDER BY date DESC";
-                                    $ors_result = $connection->query($ors_query);
-
                                     while ($ors = $ors_result->fetch_assoc()) {
                                         echo "<tr>";
                                         echo "<td>" . htmlspecialchars($ors['ors_no']) . "</td>";
@@ -635,8 +523,8 @@ $ors_result = $connection->query($ors_query);
                                         echo "<td>" . number_format($ors['total_amount'], 2) . "</td>";
                                         echo "<td>Processed</td>"; // You can add dynamic status logic
                                         echo "<td>
-                                                    <a href='ors_form.php?ors_no=" . $ors['ors_no'] . "' class='btn btn-info btn-sm'>View</a>
-                                                </td>";
+                                                <a href='ors_form.php?ors_no=" . $ors['ors_no'] . "' class='btn btn-info btn-sm'>View</a>
+                                            </td>";
                                         echo "</tr>";
                                     }
                                     ?>
@@ -686,8 +574,8 @@ $ors_result = $connection->query($ors_query);
             // Get the current URL and append the filters
             var newUrl = window.location.origin + window.location.pathname + '?year=' + year + '&month=' + month + '&service=' + service;
 
-            // Update the URL with the selected filters, keeping the #orsList tab in the URL
-            window.location.href = newUrl + '#orsList'; // Keep the user in the orsList tab
+            // Update the URL with the selected filters
+            window.location.href = newUrl; // Redirect to the new URL with filters
         }
     </script>
 
