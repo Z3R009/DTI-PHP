@@ -717,9 +717,50 @@ while ($row = $result_approvers->fetch_assoc()) {
                             </div>
                         </div>
 
-        
 
+                        
+                        <!-- ors list -->
                         <div class="tab-pane fade" id="orsList">
+
+                        <div class="form-group col-md-4">
+            <label for="yearFilter">Year</label>
+            <select class="form-control" id="yearFilter" name="yearFilter">
+                <option value="">Select Year</option>
+                <?php
+                // Generate year options dynamically (for example from 2010 to the current year)
+                for ($year = 2010; $year <= date('Y'); $year++) {
+                    echo "<option value='" . $year . "'>" . $year . "</option>";
+                }
+                ?>
+            </select>
+        </div>
+        <div class="form-group col-md-4">
+            <label for="monthFilter">Month</label>
+            <select class="form-control" id="monthFilter" name="monthFilter">
+                <option value="">Select Month</option>
+                <?php
+                $months = [
+                    "January",
+                    "February",
+                    "March",
+                    "April",
+                    "May",
+                    "June",
+                    "July",
+                    "August",
+                    "September",
+                    "October",
+                    "November",
+                    "December"
+                ];
+                foreach ($months as $index => $month) {
+                    $monthNumber = $index + 1;
+                    echo "<option value='" . $monthNumber . "'>" . $month . "</option>";
+                }
+                ?>
+            </select>
+        </div>
+
                             <div class="container">
                                 <div class="table-responsive">
                                     <table class="table table-striped">
@@ -742,7 +783,8 @@ while ($row = $result_approvers->fetch_assoc()) {
                                             while ($ors = $ors_result->fetch_assoc()) {
                                                 echo "<tr>";
                                                 echo "<td>" . htmlspecialchars($ors['ors_no']) . "</td>";
-                                                echo "<td>" . htmlspecialchars($ors['date']) . "</td>";
+                                                $date = new DateTime($ors['date']);
+                                                echo "<td>" . htmlspecialchars($date->format('F j, Y')) . "</td>";
 
                                                 // Fetch payee name
                                                 $payee_query = "SELECT payee_name FROM payee WHERE payee_id = " . $ors['payee_id'];
@@ -762,7 +804,7 @@ while ($row = $result_approvers->fetch_assoc()) {
                                     </table>
                                 </div>
                             </div>
-</div>
+    </div>
     </main><!-- End #main -->
 
 

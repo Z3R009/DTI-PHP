@@ -694,9 +694,9 @@ function numberToWords($number)
                 <td colspan="3">
                     <p><b>D. Approved for Payment</b></p>
                     <p style="text-align: center; margin-top: 20px;">
-                        <b>***<?php 
-                            $last_account = end($dv_accounts);
-                            echo numberToWords($last_account ? $last_account['amount'] : 0);
+                        <b>***<?php
+                        $last_account = end($dv_accounts);
+                        echo numberToWords($last_account ? $last_account['amount'] : 0);
                         ?> PESOS ONLY***</b>
                     </p>
                 </td>
@@ -753,8 +753,10 @@ function numberToWords($number)
             </tr>
         </table>
         <div class="modal-footer no-print">
-            <button type="button" class="btn btn-primary" onclick="window.print()">Print ORS</button>
-            <a href="dv.php" class="btn btn-secondary">Submit Another</a>
+            <button type="button" class="btn btn-primary" onclick="window.print()">Print DV</button>
+            <button type="button" class="btn btn-secondary" onclick="window.history.back();">
+                Back
+            </button>
         </div>
 
     </div>

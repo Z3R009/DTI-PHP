@@ -56,7 +56,7 @@ if (isset($_POST['submit'])) {
         // Insert the main DV record
         $sql = "INSERT INTO dv (date, dv_no, ors_id, payment_mode, vat, vat_amount, tax_base, tax_1, tax_1_amount, tax_2, tax_2_amount, net_amount, chief_accountant, regional_director) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        
+
         $stmt = $connection->prepare($sql);
         if ($stmt === false) {
             throw new Exception('Prepare failed: ' . htmlspecialchars($connection->error));
@@ -136,8 +136,8 @@ if (isset($_POST['submit'])) {
     $connection->close();
 }
 
-// retrieve
-$select = mysqli_query($connection, "
+// retrieve ors
+$select_ors = mysqli_query($connection, "
     SELECT 
         ors.*, 
         account_title.account_title, 
@@ -155,6 +155,32 @@ $select = mysqli_query($connection, "
     LEFT JOIN responsibility_center ON ors.rc_id = responsibility_center.rc_id
     LEFT JOIN oopap ON ors.oopap_id = oopap.oopap_id
     LEFT JOIN payee ON ors.payee_id = payee.payee_id
+");
+
+// retrieve_dv
+$select_dv = mysqli_query($connection, "
+SELECT 
+    ors.*,
+    ors.total_amount AS ors_total_amount,
+    dv.*, 
+    account_title.account_title, 
+    approver.approver_name,
+    CONCAT(fund_cluster.uacs_code, '-', fund_cluster.fund_cluster_name) AS fund_cluster,
+    responsibility_center.code,
+    oopap.oopap_name,
+    payee.payee_name,
+    payee.tin_no,
+    payee.address
+FROM dv
+LEFT JOIN ors ON dv.ors_id = ors.ors_id
+LEFT JOIN account_title ON ors.account_id = account_title.account_id
+LEFT JOIN approver ON ors.approver_id = approver.approver_id
+LEFT JOIN fund_cluster ON ors.fund_cluster_id = fund_cluster.fund_cluster_id
+LEFT JOIN responsibility_center ON ors.rc_id = responsibility_center.rc_id
+LEFT JOIN oopap ON ors.oopap_id = oopap.oopap_id
+LEFT JOIN payee ON ors.payee_id = payee.payee_id;
+
+
 ");
 
 ?>
@@ -812,65 +838,130 @@ $select = mysqli_query($connection, "
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1>Disbursement</h1>
+            <h1>Disbursement Voucher</h1>
         </div><!-- End Page Title -->
+
 
         <ul class="nav nav-tabs" role="tablist">
             <li class="nav-item" role="presentation">
-                <a class="nav-link active" data-bs-toggle="tab" href="#dvList" role="tab" aria-selected="true">ORS
+                <a class="nav-link active" data-bs-toggle="tab" href="#orsList" role="tab" aria-selected="true">ORS
                     List</a>
             </li>
             <li class="nav-item" role="presentation">
-                <a class="nav-link" data-bs-toggle="tab" href="#dvForm" role="tab" aria-selected="false">DV Form</a>
+                <a class="nav-link" data-bs-toggle="tab" href="#dvForm" role="tab" aria-selected="false">DV
+                    Form</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" data-bs-toggle="tab" href="#dvList" role="tab" aria-selected="false">DV
+                    List</a>
             </li>
         </ul>
 
-        <div class="tab-content">
-            <!-- DV List Tab -->
-            <div class="tab-pane fade show active" id="dvList" role="tabpanel">
-                <div class="card">
-                    <div class="card-body">
-                        <!-- Table with stripped rows -->
-                        <table class="table datatable">
-                            <thead>
-                                <tr>
-                                    <th>Obligation Request No.</th>
-                                    <th>Payee Name</th>
-                                    <th>Account Title</th>
-                                    <th>Amount</th>
-                                    <th>Approver</th>
-                                    <th>Budget Officer</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php while ($row = mysqli_fetch_assoc($select)) { ?>
-                                    <tr>
-                                        <td><?php echo htmlspecialchars($row['ors_no']); ?></td>
-                                        <td><?php echo htmlspecialchars($row['payee_name']); ?></td>
-                                        <td><?php echo htmlspecialchars($row['account_title']); ?></td>
-                                        <td><?php echo htmlspecialchars($row['total_amount']); ?></td>
-                                        <td><?php echo htmlspecialchars($row['approver_name']); ?></td>
-                                        <td><?php echo htmlspecialchars($row['budget_officer']); ?></td>
-                                        <td>
-                                            <button type="button" class="btn btn-primary view-details"
-                                                data-id="<?php echo $row['ors_id']; ?>">
-                                                <i class="bi bi-eye" data-bs-toggle="tooltip" data-bs-placement="top"
-                                                    title="View Details"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                <?php } ?>
-                            </tbody>
-                        </table>
+        <div class="content-wrapper">
+            <div class="form-container">
+                <h2 class="form-title">Disbursement Voucher</h2>
+
+                <div class="tab-content">
+                    <!-- DV List Tab -->
+                    <div class="tab-pane fade show active" id="orsList" role="tabpanel">
+                        <div class="card">
+                            <div class="card-body">
+                                <!-- Table with stripped rows -->
+                                <table class="table datatable">
+                                    <thead>
+                                        <tr>
+                                            <th>ORS No.</th>
+                                            <th>Date</th>
+                                            <th>Payee Name</th>
+                                            <th>Account Title</th>
+                                            <th>Amount</th>
+                                            <th>Approver</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php while ($row = mysqli_fetch_assoc($select_ors)) { ?>
+                                            <tr>
+                                                <td><?php echo htmlspecialchars($row['ors_no']); ?></td>
+                                                <td>
+                                                    <?php
+                                                    $date = new DateTime($row['date']);
+                                                    echo htmlspecialchars($date->format('F j, Y')); // Example: "April 7, 2025"
+                                                    ?>
+                                                </td>
+                                                <td><?php echo htmlspecialchars($row['payee_name']); ?></td>
+                                                <td><?php echo htmlspecialchars($row['account_title']); ?></td>
+                                                <td><?php echo htmlspecialchars($row['total_amount']); ?></td>
+                                                <td><?php echo htmlspecialchars($row['approver_name']); ?></td>
+                                                <td>
+                                                    <button type="button" class="btn btn-primary view-details"
+                                                        data-id="<?php echo $row['ors_id']; ?>">
+                                                        <i class="bi bi-eye" data-bs-toggle="tooltip"
+                                                            data-bs-placement="top" title="View Details"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
+
+
                 </div>
-            </div>
 
-            <!-- DV Form Tab -->
-            <div class="tab-pane fade" id="dvForm" role="tabpanel">
-                <div class="card">
+                <!-- DV Form Tab -->
+                <div class="tab-pane fade" id="dvForm" role="tabpanel">
 
+                </div>
+
+                <!-- dv list -->
+                <div class="tab-pane fade" id="dvList" role="tabpanel">
+                    <div class="card">
+                        <div class="card-body">
+                            <!-- Table with stripped rows -->
+                            <table class="table datatable">
+                                <thead>
+                                    <tr>
+                                        <th>DV No.</th>
+                                        <th>Date</th>
+                                        <th>Payee Name</th>
+                                        <th>Account Title</th>
+                                        <th>Total Amount</th>
+                                        <th>Approver Name</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php while ($row = mysqli_fetch_assoc($select_dv)) { ?>
+                                        <tr>
+                                            <td><?php echo htmlspecialchars($row['dv_no']); ?></td>
+                                            <td>
+                                                <?php
+                                                $date = new DateTime($row['date']);
+                                                echo htmlspecialchars($date->format('F j, Y'));
+                                                ?>
+                                            </td>
+                                            <td><?php echo htmlspecialchars($row['payee_name']); ?></td>
+                                            <td><?php echo htmlspecialchars($row['account_title']); ?></td>
+                                            <td><?php echo htmlspecialchars($row['ors_total_amount']); ?></td>
+                                            <td><?php echo htmlspecialchars($row['approver_name']); ?></td>
+                                            <td>
+                                                <a href="dv_form.php?dv_no=<?php echo urlencode($row['dv_no']); ?>"
+                                                    class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top"
+                                                    title="View Details">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+
+                                            </td>
+                                        </tr>
+                                    <?php } ?>
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
