@@ -1,9 +1,22 @@
 <?php
 include '../DBConnection.php';
 
+// Get filter parameters
+$selected_month = isset($_GET['month']) ? intval($_GET['month']) : date('n');
+$selected_year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
 
-// retrieve 
-$current_year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
+// Get oopap information
+$oopap_id = 9; 
+$oopap_query = "SELECT description FROM oopap WHERE oopap_id = $oopap_id";
+$oopap_result = mysqli_query($connection, $oopap_query);
+$oopap_data = mysqli_fetch_assoc($oopap_result);
+$oopap_description = $oopap_data['description'];
+
+// Base query for filtering
+$where_clause = "WHERE oopap_id = $oopap_id AND YEAR(ors.date) = $selected_year";
+if ($selected_month > 0) {
+    $where_clause .= " AND MONTH(ors.date) = $selected_month";
+}
 
 $select = mysqli_query(
     $connection,
@@ -17,22 +30,27 @@ $select = mysqli_query(
      FROM obligation_history 
      LEFT JOIN ors ON obligation_history.ors_id = ors.ors_id 
      LEFT JOIN payee ON ors.payee_id = payee.payee_id
-     WHERE oopap_id = 9" .
-    (isset($_GET['month']) ? " AND MONTH(ors.date) = " . intval($_GET['month']) : "") .
-    " AND YEAR(ors.date) = " . $current_year
+     $where_clause
+     ORDER BY ors.date ASC"
 );
 
+// Calculate total amount for the filtered data
+$total_filtered_amount = 0;
+$filtered_data = [];
+while ($row = mysqli_fetch_assoc($select)) {
+    $filtered_data[] = $row;
+    $total_filtered_amount += $row['total_amount'];
+}
+// Reset the pointer for later use
+mysqli_data_seek($select, 0);
 
-?>
-
-<?php
 // Fetch total allotment
-$total_allotment_query = "SELECT SUM(allotment) AS total_allotment FROM project WHERE oopap_id = 9";
+$total_allotment_query = "SELECT SUM(allotment) AS total_allotment FROM project WHERE oopap_id = $oopap_id";
 $total_allotment_result = mysqli_query($connection, $total_allotment_query);
 $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'];
 
 // Fetch total balances
-$total_balances_query = "SELECT SUM(balances) AS total_balances FROM project WHERE oopap_id = 9";
+$total_balances_query = "SELECT SUM(balances) AS total_balances FROM project WHERE oopap_id = $oopap_id";
 $total_balances_result = mysqli_query($connection, $total_balances_query);
 $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
 ?>
@@ -80,7 +98,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     <main id="main" class="main">
 
         <div class="pagetitle">
-            <h1>OO4.1.2(<?php echo date('Y'); ?>)</h1>
+            <h1>OO4.1.2-OBLIGATION(<?php echo date('Y'); ?>) - <?php echo htmlspecialchars($oopap_description); ?></h1>
         </div><!-- End Page Title -->
 
         <section class="section dashboard">
@@ -105,42 +123,48 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                 </div>
             </div>
 
-            <!-- Date Filter Section -->
-            <div class="row mb-2">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="d-flex flex-column flex-md-row justify-content-md-end align-items-center gap-2">
-                                <label class="form-label mb-0">Date:</label>
-                                <div class="d-flex flex-wrap gap-2">
-                                    <select class="form-select" id="monthSelect" onchange="filterData()" style="width: auto; min-width: 100px;">
-                                        <option value="">All Months</option>
-                                        <option value="1" <?php echo (isset($_GET['month']) && $_GET['month'] == '1') ? 'selected' : ''; ?>>January</option>
-                                        <option value="2" <?php echo (isset($_GET['month']) && $_GET['month'] == '2') ? 'selected' : ''; ?>>February</option>
-                                        <option value="3" <?php echo (isset($_GET['month']) && $_GET['month'] == '3') ? 'selected' : ''; ?>>March</option>
-                                        <option value="4" <?php echo (isset($_GET['month']) && $_GET['month'] == '4') ? 'selected' : ''; ?>>April</option>
-                                        <option value="5" <?php echo (isset($_GET['month']) && $_GET['month'] == '5') ? 'selected' : ''; ?>>May</option>
-                                        <option value="6" <?php echo (isset($_GET['month']) && $_GET['month'] == '6') ? 'selected' : ''; ?>>June</option>
-                                        <option value="7" <?php echo (isset($_GET['month']) && $_GET['month'] == '7') ? 'selected' : ''; ?>>July</option>
-                                        <option value="8" <?php echo (isset($_GET['month']) && $_GET['month'] == '8') ? 'selected' : ''; ?>>August</option>
-                                        <option value="9" <?php echo (isset($_GET['month']) && $_GET['month'] == '9') ? 'selected' : ''; ?>>September</option>
-                                        <option value="10" <?php echo (isset($_GET['month']) && $_GET['month'] == '10') ? 'selected' : ''; ?>>October</option>
-                                        <option value="11" <?php echo (isset($_GET['month']) && $_GET['month'] == '11') ? 'selected' : ''; ?>>November</option>
-                                        <option value="12" <?php echo (isset($_GET['month']) && $_GET['month'] == '12') ? 'selected' : ''; ?>>December</option>
-                                    </select>
-                                    <select class="form-select" id="yearSelect" onchange="filterData()" style="width: auto; min-width: 120px;">
-                                        <?php 
-                                        $current_year = date('Y');
-                                        for($year = $current_year; $year >= $current_year - 5; $year--) {
-                                            $selected = (isset($_GET['year']) && $_GET['year'] == $year) ? 'selected' : '';
-                                            echo "<option value='$year' $selected>$year</option>";
-                                        }
-                                        ?>
-                                    </select>
-                                </div>
-                            </div>
+            <!-- Filter Form -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Filter by Month and Year</h5>
+                    <form method="get" action="oo4_1_2_obligation.php" class="row g-3">
+                        <div class="col-md-4">
+                            <label for="month" class="form-label">Month</label>
+                            <select class="form-select" id="month" name="month">
+                                <option value="0" <?php echo ($selected_month == 0) ? 'selected' : ''; ?>>All Months</option>
+                                <?php
+                                $months = [
+                                    1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
+                                    5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
+                                    9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
+                                ];
+                                foreach ($months as $num => $name) {
+                                    $selected = ($num == $selected_month) ? 'selected' : '';
+                                    echo "<option value=\"$num\" $selected>$name</option>";
+                                }
+                                ?>
+                            </select>
+                            <small class="text-muted">Filter ORS by month</small>
                         </div>
-                    </div>
+
+                        <div class="col-md-4">
+                            <label for="year" class="form-label">Year</label>
+                            <select class="form-select" id="year" name="year">
+                                <?php
+                                $current_year = date('Y');
+                                for ($year = $current_year; $year >= $current_year - 5; $year--) {
+                                    $selected = ($year == $selected_year) ? 'selected' : '';
+                                    echo "<option value=\"$year\" $selected>$year</option>";
+                                }
+                                ?>
+                            </select>
+                            <small class="text-muted">Filter ORS by month</small>
+                        </div>
+                        
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary">Apply Filter</button>
+                        </div>
+                    </form>
                 </div>
             </div>
 
@@ -156,7 +180,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                                 <th>Payee</th>
                                 <th>Particulars</th>
                                 <th>Obligations</th>
-                                <th></th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>

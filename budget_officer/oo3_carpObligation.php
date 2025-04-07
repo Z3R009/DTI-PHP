@@ -6,7 +6,7 @@ $selected_month = isset($_GET['month']) ? intval($_GET['month']) : date('n');
 $selected_year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
 
 // Get oopap information
-$oopap_id = 5; // Set the oopap_id to 1 as requested
+$oopap_id = 13; 
 $oopap_query = "SELECT description FROM oopap WHERE oopap_id = $oopap_id";
 $oopap_result = mysqli_query($connection, $oopap_query);
 $oopap_data = mysqli_fetch_assoc($oopap_result);
@@ -25,6 +25,7 @@ $select = mysqli_query(
             ors.ors_no, 
             ors.payee_id, 
             ors.notes, 
+            ors.total_amount,
             payee.payee_name 
      FROM obligation_history 
      LEFT JOIN ors ON obligation_history.ors_id = ors.ors_id 
@@ -86,7 +87,6 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
 
     <!-- Template Main CSS File -->
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
-
 </head>
 
 <body>
@@ -97,7 +97,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     <main id="main" class="main">
 
         <div class="pagetitle">
-            <h1>OO3.1-OBLIGATION(<?php echo date('Y'); ?>) - <?php echo htmlspecialchars($oopap_description); ?></h1>
+        <h1>OO3-OBLIGATION(<?php echo date('Y'); ?>) - <?php echo htmlspecialchars($oopap_description); ?></h1>
         </div><!-- End Page Title -->
 
         <section class="section dashboard">
@@ -126,7 +126,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
             <div class="card mb-3">
                 <div class="card-body">
                     <h5 class="card-title">Filter by Month and Year</h5>
-                    <form method="get" action="oo3_1_obligation.php" class="row g-3">
+                    <form method="get" action="oo3_carpObligation.php" class="row g-3">
                         <div class="col-md-4">
                             <label for="month" class="form-label">Month</label>
                             <select class="form-select" id="month" name="month">
@@ -169,6 +169,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
 
             <div class="card">
                 <div class="card-body">
+
                     <!-- Table with stripped rows -->
                     <table class="table datatable">
                         <thead>
@@ -178,13 +179,13 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                                 <th>Payee</th>
                                 <th>Particulars</th>
                                 <th>Obligations</th>
-                                <th></th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php while ($row = mysqli_fetch_assoc($select)) { ?>
+                            <?php foreach ($filtered_data as $row) { ?>
                                 <tr>
-                                    <td><?php echo date("F-d-Y", strtotime($row['date'])); ?></td>
+                                <td><?php echo date("F-d-Y", strtotime($row['date'])); ?></td>
                                     <td><?php echo htmlspecialchars($row['ors_no']); ?></td>
                                     <td><?php echo htmlspecialchars($row['payee_name']); ?></td>
                                     <td><?php echo htmlspecialchars($row['notes']); ?></td>
@@ -198,6 +199,13 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                                 </tr>
                             <?php } ?>
                         </tbody>
+                        <tfoot>
+                            <tr class="table-primary">
+                                <td colspan="4" class="text-end"><strong>Total Obligations (<?php echo $selected_month > 0 ? $months[$selected_month] : 'All Months'; ?> <?php echo $selected_year; ?>):</strong></td>
+                                <td><strong>₱<?php echo number_format($total_filtered_amount, 2); ?></strong></td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
 
                     </table>
                 </div>
@@ -259,6 +267,18 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
 
     <!-- Template Main JS File -->
     <script src="../NiceAdmin/assets/js/main.js"></script>
+
+    <script>
+        function filterData() {
+            const month = document.getElementById('monthSelect').value;
+            const year = document.getElementById('yearSelect').value;
+            let url = 'oo3_carpObligation.php?year=' + year;
+            if (month) {
+                url += '&month=' + month;
+            }
+            window.location.href = url;
+        }
+    </script>
 
 </body>
 
