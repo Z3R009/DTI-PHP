@@ -1,37 +1,27 @@
 <?php
 include '../DBConnection.php';
 
-// Get filter parameters
 $selected_month = isset($_GET['month']) ? intval($_GET['month']) : date('n');
 $selected_year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
 
-// delete
 if (isset($_GET['project_id']) && $_GET['confirm'] == 'yes') {
-    // Get the user ID from the query string
     $project_id = intval($_GET['project_id']);
 
-    // Prepare and execute the deletion query for 'users' table
     $deleteUserSql = "DELETE FROM project WHERE project_id = ?";
     $stmtUser = $connection->prepare($deleteUserSql);
     $stmtUser->bind_param("i", $project_id);
 
-    // Execute both deletion queries
     if ($stmtUser->execute()) {
-        // Redirect to the manage members page after successful deletion
-        header('Location: oo3.php');
+       header('Location: oo3.php');
         exit();
     } else {
-        // Handle error if either query fails
         echo "Error deleting user: " . $connection->error;
     }
 } else {
-    // Handle invalid request
     echo "Invalid request.";
 }
 
-//Add users
 if (isset($_POST['submit'])) {
-    // Generate a new project_id
     $project_id_query = "SELECT MAX(project_id) as max_id FROM project";
     $project_id_result = mysqli_query($connection, $project_id_query);
     $project_id_row = mysqli_fetch_assoc($project_id_result);
@@ -40,8 +30,7 @@ if (isset($_POST['submit'])) {
     $account_id = $_POST['account_id'];
     $allotment = $_POST['allotment'];
     $balances = $_POST['balances'];
-    $created_at = $_POST['year']; // Use the selected date from the form
-
+    $created_at = $_POST['year']; 
     $sql = "INSERT INTO project (project_id, oopap_id, account_id, allotment, balances, created_at) VALUES (?, ?, ?, ?, ?, ?)";
     $stmt = $connection->prepare($sql);
     $stmt->bind_param("iiisss", $project_id, $oopap_id, $account_id, $allotment, $balances, $created_at);
@@ -54,7 +43,6 @@ if (isset($_POST['submit'])) {
 }
 
 
-/// retrieve - Filter by year only for display
 $select = mysqli_query(
     $connection,
     "SELECT project.*,
@@ -67,17 +55,14 @@ $select = mysqli_query(
             ORDER BY account_title.account_title ASC"
 );
 
-// Get oopap information    
 $oopap_query = "SELECT description FROM oopap WHERE oopap_id = 4";
 $oopap_result = mysqli_query($connection, $oopap_query);
 $oopap_data = mysqli_fetch_assoc($oopap_result);
 $description = $oopap_data['description'];
 
-// account name
 $query_account = "SELECT account_id, account_title, account_code FROM account_title ORDER BY account_title ASC";
 $result_account = $connection->query($query_account);
 
-// Fetch total allotment for the selected year
 $total_allotment_query = "SELECT SUM(allotment) AS total_allotment FROM project WHERE oopap_id = 4 AND YEAR(created_at) = $selected_year";
 $total_allotment_result = mysqli_query($connection, $total_allotment_query);
 $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'];
@@ -95,7 +80,6 @@ $update_balances_query = "UPDATE project p
                             AND YEAR(p.created_at) = $selected_year";
 mysqli_query($connection, $update_balances_query);
 
-// Fetch total balances for the selected month and year
 $total_balances_query = "SELECT SUM(balances) AS total_balances FROM project WHERE oopap_id = 4 AND YEAR(created_at) = $selected_year";
 $total_balances_result = mysqli_query($connection, $total_balances_query);
 $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
@@ -112,17 +96,14 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     <meta content="" name="description">
     <meta content="" name="keywords">
 
-    <!-- Favicons -->
     <link href="../NiceAdmin/assets/img/favicon.png" rel="icon">
     <link href="../NiceAdmin/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
-    <!-- Google Fonts -->
     <link href="https://fonts.gstatic.com" rel="preconnect">
     <link
         href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
         rel="stylesheet">
 
-    <!-- Vendor CSS Files -->
     <link href="../NiceAdmin/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
@@ -130,8 +111,9 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     <link href="../NiceAdmin/assets/vendor/quill/quill.bubble.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/remixicon/remixicon.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/simple-datatables/style.css" rel="stylesheet">
-
-    <!-- Template Main CSS File -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+    
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
     <style>
         .card {
@@ -980,6 +962,23 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
         
         @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap');
     </style>
+
+    <!-- Add jQuery and Select2 JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Initialize Select2 on the account_id dropdown
+            $('#account_id').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: 'Search for an account...',
+                allowClear: true,
+                dropdownParent: $('#addUserModal')
+            });
+        });
+    </script>
 
 </body>
 

@@ -120,6 +120,10 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
 
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
     
+    <!-- Add Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+    
     <style>
         .card {
             border-radius: 10px;
@@ -967,6 +971,23 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
         
         @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap');
     </style>
+
+    <!-- Add jQuery and Select2 JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Initialize Select2 on the account_id dropdown
+            $('#account_id').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: 'Search for an account...',
+                allowClear: true,
+                dropdownParent: $('#addUserModal')
+            });
+        });
+    </script>
 
 </body>
 
