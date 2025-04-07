@@ -1,0 +1,12 @@
+2025-04-07 07:31:56 - Update request received
+2025-04-07 07:31:56 - No update POST data received
+2025-04-07 07:32:05 - Update request received
+2025-04-07 07:32:05 - No update POST data received
+2025-04-07 07:34:17 - Update request received
+2025-04-07 07:34:17 - Project ID: 59, Allotment: 2100.00
+2025-04-07 07:34:17 - Direct SQL: UPDATE project SET allotment = 2100.00 WHERE project_id = 59
+2025-04-07 07:34:17 - Direct update successful
+2025-04-07 07:34:23 - Update request received
+2025-04-07 07:34:23 - Project ID: 59, Allotment: 21000.00
+2025-04-07 07:34:23 - Direct SQL: UPDATE project SET allotment = 21000.00 WHERE project_id = 59
+2025-04-07 07:34:23 - Direct update successful

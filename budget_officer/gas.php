@@ -1,37 +1,31 @@
 <?php
 include '../DBConnection.php';
-
-// Get filter parameters
 $selected_month = isset($_GET['month']) ? intval($_GET['month']) : date('n');
 $selected_year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
 
-// delete
+//Delete
 if (isset($_GET['project_id']) && $_GET['confirm'] == 'yes') {
-    // Get the user ID from the query string
     $project_id = intval($_GET['project_id']);
 
-    // Prepare and execute the deletion query for 'users' table
     $deleteUserSql = "DELETE FROM project WHERE project_id = ?";
     $stmtUser = $connection->prepare($deleteUserSql);
     $stmtUser->bind_param("i", $project_id);
 
-    // Execute both deletion queries
     if ($stmtUser->execute()) {
-        // Redirect to the manage members page after successful deletion
+        $_SESSION['success_message'] = "Project deleted successfully!";
         header('Location: gas.php');
         exit();
     } else {
-        // Handle error if either query fails
-        echo "Error deleting user: " . $connection->error;
+        $_SESSION['error_message'] = "Error deleting project: " . $connection->error;
+        header('Location: gas.php');
+        exit();
     }
 } else {
-    // Handle invalid request
     echo "Invalid request.";
 }
 
-//Add users
+//Add
 if (isset($_POST['submit'])) {
-    // Generate a new project_id
     $project_id_query = "SELECT MAX(project_id) as max_id FROM project";
     $project_id_result = mysqli_query($connection, $project_id_query);
     $project_id_row = mysqli_fetch_assoc($project_id_result);
@@ -40,9 +34,8 @@ if (isset($_POST['submit'])) {
     $account_id = $_POST['account_id'];
     $allotment = $_POST['allotment'];
     $balances = $_POST['balances'];
-    $created_at = $_POST['year']; // Use the selected date from the form
+    $created_at = $_POST['year'];   
 
-    // Validate required fields
     if (empty($account_id) || empty($allotment)) {
         $error_message = "Please fill in all required fields";
     } else {
@@ -51,6 +44,7 @@ if (isset($_POST['submit'])) {
         $stmt->bind_param("iiisss", $project_id, $oopap_id, $account_id, $allotment, $balances, $created_at);
 
         if ($stmt->execute()) {
+            $_SESSION['success_message'] = "Project added successfully!";
             header('Location: gas.php');
             exit();
         } else {
@@ -59,7 +53,7 @@ if (isset($_POST['submit'])) {
     }
 }
 
-// retrieve - Filter by year only for display
+// retrieve
 $select = mysqli_query(
     $connection,
     "SELECT project.*,
@@ -72,16 +66,13 @@ $select = mysqli_query(
             ORDER BY account_title.account_title ASC"
 );
 
-// account name
 $query_account = "SELECT account_id, account_title, account_code FROM account_title ORDER BY account_title ASC";
 $result_account = $connection->query($query_account);
 
-// Fetch total allotment for the selected year
 $total_allotment_query = "SELECT SUM(allotment) AS total_allotment FROM project WHERE oopap_id = 1 AND YEAR(created_at) = $selected_year";
 $total_allotment_result = mysqli_query($connection, $total_allotment_query);
 $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'];
 
-// Calculate balances based on allotment and ORS total_amount for the selected month
 $update_balances_query = "UPDATE project p 
                          SET p.balances = p.allotment - (
                              SELECT COALESCE(SUM(ors.total_amount), 0) 
@@ -95,7 +86,6 @@ $update_balances_query = "UPDATE project p
                          AND YEAR(p.created_at) = $selected_year";
 mysqli_query($connection, $update_balances_query);
 
-// Fetch total balances for the selected month and year
 $total_balances_query = "SELECT SUM(balances) AS total_balances FROM project WHERE oopap_id = 1 AND YEAR(created_at) = $selected_year";
 $total_balances_result = mysqli_query($connection, $total_balances_query);
 $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
@@ -112,17 +102,14 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     <meta content="" name="description">
     <meta content="" name="keywords">
 
-    <!-- Favicons -->
     <link href="../NiceAdmin/assets/img/favicon.png" rel="icon">
     <link href="../NiceAdmin/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
-    <!-- Google Fonts -->
     <link href="https://fonts.gstatic.com" rel="preconnect">
     <link
         href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
         rel="stylesheet">
 
-    <!-- Vendor CSS Files -->
     <link href="../NiceAdmin/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
@@ -131,7 +118,6 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     <link href="../NiceAdmin/assets/vendor/remixicon/remixicon.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/simple-datatables/style.css" rel="stylesheet">
 
-    <!-- Template Main CSS File -->
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
     
     <style>
@@ -175,11 +161,11 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
             border-radius: 10px;
             overflow: hidden;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
-            margin-bottom: 20px; /* Add bottom margin */
+            margin-bottom: 20px; 
         }
 
         .datatable {
-            margin-bottom: 0; /* Remove table bottom margin inside container */
+            margin-bottom: 0; 
         }
         .page-header {
             border-bottom: 2px solid #4154f1;
@@ -192,7 +178,6 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
             color: #012970;
         }
         
-        /* Enhanced Table Styling */
         .datatable {
             border-collapse: separate;
             border-spacing: 0;
@@ -280,10 +265,100 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
             justify-content: space-between;
             align-items: center;
         }
+     
+        .input-group-sm .input-group-text {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
         
-        /* .table-search {
-            max-width: 300px;
-        } */
+        .input-group-sm .form-select {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+        
+        .filter-form {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 8px 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .filter-form .input-group {
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            transition: all 0.2s ease;
+        }
+        
+        .filter-form .input-group:hover {
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .filter-form .input-group-text {
+            background-color: #f1f3f5;
+            border: 1px solid #e9ecef;
+            color: #6c757d;
+        }
+        
+        .filter-form .form-select {
+            border: 1px solid #e9ecef;
+            background-color: #fff;
+            cursor: pointer;
+        }
+        
+        .filter-form .form-select:focus {
+            border-color: #4154f1;
+            box-shadow: 0 0 0 0.2rem rgba(65, 84, 241, 0.25);
+        }
+        
+        .filter-form .btn-outline-primary {
+            border-color: #4154f1;
+            color: #4154f1;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .filter-form .btn-outline-primary:hover {
+            background-color: #4154f1;
+            color: #fff;
+            box-shadow: 0 2px 5px rgba(65, 84, 241, 0.3);
+        }
+        
+        .filter-active {
+            position: relative;
+        }
+        
+        .filter-active::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 8px;
+            height: 8px;
+            background-color: #4154f1;
+            border-radius: 50%;
+            border: 2px solid #fff;
+        }
+        
+        @media (max-width: 768px) {
+            .pagetitle .d-flex {
+                flex-direction: column;
+                align-items: flex-start !important;
+            }
+            
+            .pagetitle .d-flex form {
+                margin-bottom: 10px;
+            }
+            
+            .pagetitle .btn-lg {
+                width: 100%;
+            }
+            
+            .filter-form {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
     </style>
 </head>
 
@@ -304,91 +379,83 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                     </ol>
                 </nav>
             </div>
-            <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#addUserModal">
-                <i class="bi bi-plus-circle me-1"></i> Add Project
-            </button>
+            <div class="d-flex align-items-center">
+           
+                <form method="get" action="gas.php" class="d-flex align-items-center me-3 filter-form">
+                    <div class="input-group input-group-sm me-2 <?php echo ($selected_year != date('Y')) ? 'filter-active' : ''; ?>" data-bs-toggle="tooltip" data-bs-placement="top" title="Select year for total allotment">
+                        <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
+                        <select class="form-select form-select-sm" id="year" name="year" style="width: 80px;">
+                            <?php
+                            $current_year = date('Y');
+                            for ($year = $current_year; $year >= $current_year - 5; $year--) {
+                                $selected = ($year == $selected_year) ? 'selected' : '';
+                                echo "<option value=\"$year\" $selected>$year</option>";
+                            }
+                            ?>
+                        </select>
+                    </div>
+                    <div class="input-group input-group-sm me-2 <?php echo ($selected_month != date('n')) ? 'filter-active' : ''; ?>" data-bs-toggle="tooltip" data-bs-placement="top" title="Select month for remaining balances">
+                  
+                        <select class="form-select form-select-sm" id="month" name="month" style="width: 120px;">
+                            <?php
+                            $months = [
+                                1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
+                                5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
+                                9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
+                            ];
+                            foreach ($months as $num => $name) {
+                                $selected = ($num == $selected_month) ? 'selected' : '';
+                                echo "<option value=\"$num\" $selected>$name</option>";
+                            }
+                            ?>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Apply selected filters">
+                        <i class="bi bi-funnel me-1"></i>Filter
+                    </button>
+                    <a href="gas.php" class="btn btn-sm btn-outline-secondary ms-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Reset to current month and year" id="resetFilter">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i>Reset
+                    </a>
+                </form>
+                
+            </div>
         </div>
 
         <section class="section dashboard">
-            <!-- Filter Form -->
-            <div class="card mb-3">
-            <div class="card-body">
-                    <h5 class="card-title mb-3">Filter by Month and Year</h5> <!-- Added margin bottom -->
-                    <form method="get" action="gas.php" class="row g-3">
-                        <div class="col-md-4">
-                            <label for="year" class="form-label">Year</label>
-                            <select class="form-select" id="year" name="year">
-                                <?php
-                                $current_year = date('Y');
-                                for ($year = $current_year; $year >= $current_year - 5; $year--) {
-                                    $selected = ($year == $selected_year) ? 'selected' : '';
-                                    echo "<option value=\"$year\" $selected>$year</option>";
-                                }
-                                ?>
-                            </select>
-                            <small class="text-muted">Shows total allotment for the selected year</small>
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card summary-card">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center">
+                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center me-3" style="background-color: rgba(65, 84, 241, 0.1);">
+                                <i class="bi bi-cash-stack text-primary fs-4"></i>
+                            </div>
+                            <div>
+                                <h5 class="card-title">Total Allotment (Year <?php echo $selected_year; ?>)</h5>
+                                <h3 class="card-text">₱<?php echo number_format($total_allotment, 2); ?></h3>
+                            </div>
                         </div>
-                        <div class="col-md-4">
-                            <label for="month" class="form-label">Month (Remaining Balances)</label>
-                            <select class="form-select" id="month" name="month">
-                                <?php
-                                $months = [
-                                    1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
-                                    5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
-                                    9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
-                                ];
-                                foreach ($months as $num => $name) {
-                                    $selected = ($num == $selected_month) ? 'selected' : '';
-                                    echo "<option value=\"$num\" $selected>$name</option>";
-                                }
-                                ?>
-                            </select>
-                            <small class="text-muted">Shows remaining balances for the selected month</small>
-                        </div>
-                        
-                        <div class="col-md-4 d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary">Apply Filter</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-             <!-- Cards Row -->
-<div class="row mb-4">
-    <!-- Total Allotment Card -->
-    <div class="col-md-6">
-        <div class="card summary-card">
-            <div class="card-body p-4">
-                <div class="d-flex align-items-center">
-                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center me-3" style="background-color: rgba(65, 84, 241, 0.1);">
-                        <i class="bi bi-cash-stack text-primary fs-4"></i>
-                    </div>
-                    <div>
-                        <h5 class="card-title">Total Allotment (Year <?php echo $selected_year; ?>)</h5>
-                        <h3 class="card-text">₱<?php echo number_format($total_allotment, 2); ?></h3>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-    
+            
     <!-- Total Balances Card -->
-    <div class="col-md-6">
-        <div class="card summary-card">
-            <div class="card-body p-4">
-                <div class="d-flex align-items-center">
-                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center me-3" style="background-color: rgba(46, 202, 106, 0.1);">
-                        <i class="bi bi-wallet2 text-success fs-4"></i>
-                    </div>
-                    <div>
-                        <h5 class="card-title">Remaining Balances (<?php echo $months[$selected_month]; ?> <?php echo $selected_year; ?>)</h5>
-                        <h3 class="card-text">₱<?php echo number_format($total_balances, 2); ?></h3>
+            <div class="col-md-6">
+                <div class="card summary-card">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center">
+                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center me-3" style="background-color: rgba(46, 202, 106, 0.1);">
+                                <i class="bi bi-wallet2 text-success fs-4"></i>
+                            </div>
+                            <div>
+                                <h5 class="card-title">Remaining Balances (<?php echo $months[$selected_month]; ?> <?php echo $selected_year; ?>)</h5>
+                                <h3 class="card-text">₱<?php echo number_format($total_balances, 2); ?></h3>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
             <div class="card">
                 <div class="card-body p-4">
@@ -400,9 +467,12 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                     </div>
                     <?php endif; ?>
                     
-                    <h5 class="card-title">Projects/Programs/Activities List</h5>
+                    <div class="d-flex justify-content-end">
+    <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#addUserModal" style="width: 200px;" data-bs-toggle="tooltip" data-bs-placement="top" title="Add new project/program/activities">
+        <i class="bi bi-plus-circle me-1"></i> Add Project
+    </button>
+</div>
 
-                    <!-- Enhanced Table with search and filters -->
                     <div class="table-meta-container mb-3">
                         <!-- <div class="table-search">
                             <div class="input-group">
@@ -512,10 +582,8 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
 
         </section>
 
-    </main><!-- End #main -->
+    </main>
 
-
-    <!-- Modal for Add User Form -->
     <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -624,7 +692,6 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
             class="bi bi-arrow-up-short"></i></a>
 
-    <!-- Vendor JS Files -->
     <script src="../NiceAdmin/assets/vendor/apexcharts/apexcharts.min.js"></script>
     <script src="../NiceAdmin/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="../NiceAdmin/assets/vendor/chart.js/chart.umd.js"></script>
@@ -634,53 +701,163 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     <script src="../NiceAdmin/assets/vendor/tinymce/tinymce.min.js"></script>
     <script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
 
-    <!-- Template Main JS File -->
     <script src="../NiceAdmin/assets/js/main.js"></script>
 
-    <!-- clear -->
     <script>
-        // Function to clear form
+       
         function clearForm() {
             document.getElementById('addUserForm').reset();
             updateBalances();
         }
     </script>
 
-    <!-- show update -->
     <script>
- document.addEventListener("DOMContentLoaded", function () {
-    const editButtons = document.querySelectorAll(".edit-btn");
-
-    editButtons.forEach(button => {
-        button.addEventListener("click", function () {
-            const id = this.getAttribute("data-id");
-            const account_id = this.getAttribute("data-account_id");
-            const account_title = this.getAttribute("data-account_title");
-            const allotment = this.getAttribute("data-allotment");
-
-            document.getElementById("edit_project_id").value = id;
-            document.getElementById("edit_account_id").value = account_id;
-            document.getElementById("edit_account_title").value = account_title;
-            document.getElementById("edit_allotment").value = allotment;
+        document.addEventListener('DOMContentLoaded', function() {
+            const yearSelect = document.getElementById('year');
+            const monthSelect = document.getElementById('month');
+            const filterForm = yearSelect.closest('form');
+            const filterButton = filterForm.querySelector('button[type="submit"]');
+            const resetButton = document.getElementById('resetFilter');
             
-            // Open the modal
-            const editModal = new bootstrap.Modal(document.getElementById('editModal'));
-            editModal.show();
-        });
-    });
-});
-    </script>
+            function submitFilter() {
+                const originalButtonText = filterButton.innerHTML;
+                filterButton.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>Applying...';
+                filterButton.disabled = true;
+                
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true
+                });
+                
+                Toast.fire({
+                    icon: 'info',
+                    title: 'Applying filters...'
+                });
+                
+                filterForm.submit();
+            }
+       
+            yearSelect.addEventListener('change', submitFilter);
+            monthSelect.addEventListener('change', submitFilter);
 
-    <!-- delete with confirmation -->
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+            
+            filterButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                submitFilter();
+            });
+            
+            if (resetButton) {
+                resetButton.addEventListener('click', function(e) {
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true
+                    });
+                    
+                    Toast.fire({
+                        icon: 'info',
+                        title: 'Resetting filters...'
+                    });
+                });
+            }
+        });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const editButtons = document.querySelectorAll(".edit-btn");
+
+            editButtons.forEach(button => {
+                button.addEventListener("click", function () {
+                    const id = this.getAttribute("data-id");
+                    const account_id = this.getAttribute("data-account_id");
+                    const account_title = this.getAttribute("data-account_title");
+                    const allotment = this.getAttribute("data-allotment");
+
+                    document.getElementById("edit_project_id").value = id;
+                    document.getElementById("edit_account_id").value = account_id;
+                    document.getElementById("edit_account_title").value = account_title;
+                    document.getElementById("edit_allotment").value = allotment;
+                    const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+                    editModal.show();
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true
+                    });
+                    
+                    Toast.fire({
+                        icon: 'info',
+                        title: 'Editing project...'
+                    });
+                });
+            });
+        });
+    </script>
     <script>
         function deleteUser(gasID) {
-            if (confirm("Are you sure you want to delete this GAS?")) {
-                window.location.href = 'delete_gas.php?project_id=' + gasID + '&confirm=yes';
-            }
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Deleting...',
+                        text: 'Please wait while we process your request',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    window.location.href = 'gas.php?project_id=' + gasID + '&confirm=yes';
+                }
+            });
+        }
+
+        function confirmUpdate() {
+            event.preventDefault();
+            
+            Swal.fire({
+                title: 'Update Project',
+                text: "Are you sure you want to update this project?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, update it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Updating...',
+                        text: 'Please wait while we process your request',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    document.getElementById('editUserForm').submit();
+                }
+            });
+            return false;
         }
     </script>
-
-    <!-- tooltip initialization -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -689,35 +866,40 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
             });
         });
     </script>
-
-    <!-- balances calculation -->
     <script>
         function updateBalances() {
             var allotmentValue = document.getElementById('allotment').value;
             document.getElementById('balances').value = allotmentValue;
         }
     </script>
-
-    <!-- SweetAlert2 for better alerts -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
-    <?php if (isset($_SESSION['success_message'])): ?>
     <script>
-        Swal.fire({
-            icon: 'success',
-            title: 'Success',
-            text: '<?php echo $_SESSION['success_message']; ?>',
-            timer: 3000,
-            showConfirmButton: false
-        });
-        <?php unset($_SESSION['success_message']); ?>
-    </script>
-    <?php endif; ?>
+        <?php if (isset($_SESSION['success_message'])): ?>
+            Swal.fire({
+                title: 'Success!',
+                text: '<?php echo $_SESSION['success_message']; ?>',
+                icon: 'success',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false
+            });
+            <?php unset($_SESSION['success_message']); ?>
+        <?php endif; ?>
 
-    <!-- Enhanced table search functionality -->
+        <?php if (isset($_SESSION['error_message'])): ?>
+            Swal.fire({
+                title: 'Error!',
+                text: '<?php echo $_SESSION['error_message']; ?>',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            <?php unset($_SESSION['error_message']); ?>
+        <?php endif; ?>
+    </script>
+
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            // Initialize search functionality
             const searchInput = document.getElementById('tableSearch');
             const tableRows = document.querySelectorAll('.datatable tbody tr');
             
@@ -732,7 +914,6 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                 });
             }
             
-            // Refresh button functionality
             const refreshButton = document.getElementById('refreshTable');
             if (refreshButton) {
                 refreshButton.addEventListener('click', function() {
@@ -741,7 +922,6 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                         row.style.display = '';
                     });
                     
-                    // Show refresh animation
                     this.querySelector('i').classList.add('spin-animation');
                     setTimeout(() => {
                         this.querySelector('i').classList.remove('spin-animation');
@@ -763,7 +943,6 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
             animation: spin 1s linear;
         }
         
-        /* Add Google Fonts for monospace font */
         @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap');
     </style>
 
