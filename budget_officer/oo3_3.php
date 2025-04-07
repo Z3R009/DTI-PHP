@@ -54,7 +54,6 @@ if (isset($_POST['submit'])) {
 }
 
 
-/// retrieve - Filter by year only for display
 $select = mysqli_query(
     $connection,
     "SELECT project.*,
@@ -66,17 +65,14 @@ $select = mysqli_query(
             AND YEAR(project.created_at) = $selected_year
             ORDER BY account_title.account_title ASC"
 );
-
-// Get oopap information    
+  
 $oopap_query = "SELECT description FROM oopap WHERE oopap_id = 7";
 $oopap_result = mysqli_query($connection, $oopap_query);
 $oopap_data = mysqli_fetch_assoc($oopap_result);
 $description = $oopap_data['description'];
 
-// account name
 $query_account = "SELECT account_id, account_title, account_code FROM account_title ORDER BY account_title ASC";
 $result_account = $connection->query($query_account);
-// Fetch total allotment for the selected year
 $total_allotment_query = "SELECT SUM(allotment) AS total_allotment FROM project WHERE oopap_id = 7 AND YEAR(created_at) = $selected_year";
 $total_allotment_result = mysqli_query($connection, $total_allotment_query);
 $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'];
@@ -94,7 +90,6 @@ $update_balances_query = "UPDATE project p
                             AND YEAR(p.created_at) = $selected_year";
 mysqli_query($connection, $update_balances_query);
 
-// Fetch total balances for the selected month and year
 $total_balances_query = "SELECT SUM(balances) AS total_balances FROM project WHERE oopap_id = 7 AND YEAR(created_at) = $selected_year";
 $total_balances_result = mysqli_query($connection, $total_balances_query);
 $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
@@ -111,17 +106,14 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     <meta content="" name="description">
     <meta content="" name="keywords">
 
-    <!-- Favicons -->
     <link href="../NiceAdmin/assets/img/favicon.png" rel="icon">
     <link href="../NiceAdmin/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
-    <!-- Google Fonts -->
     <link href="https://fonts.gstatic.com" rel="preconnect">
     <link
         href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
         rel="stylesheet">
 
-    <!-- Vendor CSS Files -->
     <link href="../NiceAdmin/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
@@ -129,8 +121,8 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     <link href="../NiceAdmin/assets/vendor/quill/quill.bubble.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/remixicon/remixicon.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/simple-datatables/style.css" rel="stylesheet">
-
-    <!-- Template Main CSS File -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
     <style>
         .card {
@@ -979,6 +971,23 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
         
         @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap');
     </style>
+
+    <!-- Add jQuery and Select2 JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Initialize Select2 on the account_id dropdown
+            $('#account_id').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: 'Search for an account...',
+                allowClear: true,
+                dropdownParent: $('#addUserModal')
+            });
+        });
+    </script>
 
 </body>
 

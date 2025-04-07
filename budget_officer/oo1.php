@@ -110,7 +110,9 @@ $select = mysqli_query(
     <link href="../NiceAdmin/assets/vendor/quill/quill.bubble.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/remixicon/remixicon.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/simple-datatables/style.css" rel="stylesheet">
-
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+    
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
 </head>
 <style>
@@ -347,6 +349,13 @@ $select = mysqli_query(
         button:hover{
             background-color: #0077b6 !important;
         }
+        .btn-group-lg>.btn, .btn-lg {
+            padding: 0.5rem 1.5rem;
+            font-size: 1rem;
+            line-height: 1.5;
+            border-radius: 0.3rem;
+          
+        }
         @media (max-width: 768px) {
             .pagetitle .d-flex {
                 flex-direction: column;
@@ -477,7 +486,9 @@ $select = mysqli_query(
                     <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#addUserModal" style="width: 200px; background-color:#023e8a;" data-bs-toggle="tooltip" data-bs-placement="top" title="Add new project/program/activities">
                         <i class="bi bi-plus-circle me-1"></i> Add Project
                     </button>
+
                 </div>
+                <br>
                    
                     <div class="table-container">
                         <table class="table datatable table-striped table-hover">
@@ -970,20 +981,22 @@ $select = mysqli_query(
         @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap');
     </style>
 
+    <!-- Add jQuery and Select2 JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-
-    <!-- Vendor JS Files -->
-    <script src="../NiceAdmin/assets/vendor/apexcharts/apexcharts.min.js"></script>
-    <script src="../NiceAdmin/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="../NiceAdmin/assets/vendor/chart.js/chart.umd.js"></script>
-    <script src="../NiceAdmin/assets/vendor/echarts/echarts.min.js"></script>
-    <script src="../NiceAdmin/assets/vendor/quill/quill.js"></script>
-    <script src="../NiceAdmin/assets/vendor/simple-datatables/simple-datatables.js"></script>
-    <script src="../NiceAdmin/assets/vendor/tinymce/tinymce.min.js"></script>
-    <script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
-
-    <!-- Template Main JS File -->
-    <script src="../NiceAdmin/assets/js/main.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Initialize Select2 on the account_id dropdown
+            $('#account_id').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: 'Search for an account...',
+                allowClear: true,
+                dropdownParent: $('#addUserModal')
+            });
+        });
+    </script>
 
 </body>
 
