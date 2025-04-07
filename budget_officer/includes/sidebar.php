@@ -54,7 +54,7 @@
                     <ul id="mooe-nav" class="nav-content collapse" data-bs-parent="#status-nav">
                         <li>
                             <a href="gas.php">
-                                <i class="bi bi-circle"></i><span>OOA-GAS</span>
+                                <i class="bi bi-circle"></i><span>GAS</span>
                             </a>
                         </li>
                         <li>
