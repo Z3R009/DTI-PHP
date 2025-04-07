@@ -837,25 +837,21 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
     <?php include "Includes/sidebar.php"; ?>
 
     <main id="main" class="main">
-        <div class="pagetitle">
-            <h1>Disbursement Voucher</h1>
-        </div><!-- End Page Title -->
+        <div class="pagetitle d-flex align-items-center">
+            <h1 class="mb-0">Disbursement Voucher</h1>
+
+            <!-- Buttons Container with right alignment -->
+            <div class="ms-auto">
+                <button class="btn btn-primary" onclick="window.location.href='processed_dv.php'">
+                    View Processed DV
+                </button>
+                <button class="btn btn-primary" onclick="window.location.href='dv_w-out.php'">
+                    DV Form without ORS
+                </button>
+            </div>
+        </div>
 
 
-        <ul class="nav nav-tabs" role="tablist">
-            <li class="nav-item" role="presentation">
-                <a class="nav-link active" data-bs-toggle="tab" href="#orsList" role="tab" aria-selected="true">ORS
-                    List</a>
-            </li>
-            <li class="nav-item" role="presentation">
-                <a class="nav-link" data-bs-toggle="tab" href="#dvForm" role="tab" aria-selected="false">DV
-                    Form</a>
-            </li>
-            <li class="nav-item" role="presentation">
-                <a class="nav-link" data-bs-toggle="tab" href="#dvList" role="tab" aria-selected="false">DV
-                    List</a>
-            </li>
-        </ul>
 
         <div class="content-wrapper">
             <div class="form-container">
@@ -863,7 +859,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
 
                 <div class="tab-content">
                     <!-- DV List Tab -->
-                    <div class="tab-pane fade show active" id="orsList" role="tabpanel">
+                    <div>
                         <div class="card">
                             <div class="card-body">
                                 <!-- Table with stripped rows -->
@@ -909,59 +905,6 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                     </div>
 
 
-                </div>
-
-                <!-- DV Form Tab -->
-                <div class="tab-pane fade" id="dvForm" role="tabpanel">
-
-                </div>
-
-                <!-- dv list -->
-                <div class="tab-pane fade" id="dvList" role="tabpanel">
-                    <div class="card">
-                        <div class="card-body">
-                            <!-- Table with stripped rows -->
-                            <table class="table datatable">
-                                <thead>
-                                    <tr>
-                                        <th>DV No.</th>
-                                        <th>Date</th>
-                                        <th>Payee Name</th>
-                                        <th>Account Title</th>
-                                        <th>Total Amount</th>
-                                        <th>Approver Name</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php while ($row = mysqli_fetch_assoc($select_dv)) { ?>
-                                        <tr>
-                                            <td><?php echo htmlspecialchars($row['dv_no']); ?></td>
-                                            <td>
-                                                <?php
-                                                $date = new DateTime($row['date']);
-                                                echo htmlspecialchars($date->format('F j, Y'));
-                                                ?>
-                                            </td>
-                                            <td><?php echo htmlspecialchars($row['payee_name']); ?></td>
-                                            <td><?php echo htmlspecialchars($row['account_title']); ?></td>
-                                            <td><?php echo htmlspecialchars($row['ors_total_amount']); ?></td>
-                                            <td><?php echo htmlspecialchars($row['approver_name']); ?></td>
-                                            <td>
-                                                <a href="dv_form.php?dv_no=<?php echo urlencode($row['dv_no']); ?>"
-                                                    class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top"
-                                                    title="View Details">
-                                                    <i class="bi bi-eye"></i>
-                                                </a>
-
-                                            </td>
-                                        </tr>
-                                    <?php } ?>
-                                </tbody>
-                            </table>
-
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
