@@ -261,12 +261,12 @@
                     </a>
                     <ul id="personal-obligation-nav" class="nav-content collapse" data-bs-parent="#obligation-nav">
                         <li>
-                            <a href="oo1_personalServicesObligation.php">
+                            <a href="#">
                                 <i class="bi bi-circle"></i><span>001-Personnel Services</span>
                             </a>
                         </li>
                         <li>
-                            <a href="oo2_tidaObligation.php">
+                            <a href="#">
                                 <i class="bi bi-circle"></i><span>002-Tida Contractual</span>
                             </a>
                         </li>
@@ -280,47 +280,47 @@
                     </a>
                     <ul id="mooe-obligation-nav" class="nav-content collapse" data-bs-parent="#obligation-nav">
                         <li>
-                            <a href="gas_obligation.php">
+                            <a href="#">
                                 <i class="bi bi-circle"></i><span>GAS</span>
                             </a>
                         </li>
                         <li>
-                            <a href="oo1_obligation.php">
+                            <a href="#">
                                 <i class="bi bi-circle"></i><span>OO1</span>
                             </a>
                         </li>
                         <li>
-                            <a href="oo2_obligation.php">
+                            <a href="#">
                                 <i class="bi bi-circle"></i><span>OO2</span>
                             </a>
                         </li>
                         <li>
-                            <a href="oo3_obligation.php">
+                            <a href="#">
                                 <i class="bi bi-circle"></i><span>OO3</span>
                             </a>
                         </li>
                         <li>
-                            <a href="oo3_1_obligation.php">
+                            <a href="#">
                                 <i class="bi bi-circle"></i><span>OO3.1</span>
                             </a>
                         </li>
                         <li>
-                            <a href="oo3_2_obligation.php">
+                            <a href="#">
                                 <i class="bi bi-circle"></i><span>OO3.2</span>
                             </a>
                         </li>
                         <li>
-                            <a href="oo3_3_obligation.php">
+                            <a href="#">
                                 <i class="bi bi-circle"></i><span>OO3.3</span>
                             </a>
                         </li>
                         <li>
-                            <a href="oo4_1_1_obligation.php">
+                            <a href="#">
                                 <i class="bi bi-circle"></i><span>OO4.1.1</span>
                             </a>
                         </li>
                         <li>
-                            <a href="oo4_1_2_obligation.php">
+                            <a href="#">
                                 <i class="bi bi-circle"></i><span>OO4.1.2</span>
                             </a>
                         </li>
@@ -334,7 +334,7 @@
                     </a>
                     <ul id="carp-obligation-nav" class="nav-content collapse" data-bs-parent="#obligation-nav">
                         <li>
-                            <a href="oo3_carpObligation.php">
+                            <a href="#">
                                 <i class="bi bi-circle"></i><span>OO3-Carp</span>
                             </a>
                         </li>
@@ -348,12 +348,12 @@
                     </a>
                     <ul id="rapid-obligation-nav" class="nav-content collapse" data-bs-parent="#obligation-nav">
                         <li>
-                            <a href="o1_rapidRO12Obligation.php">
+                            <a href="#">
                                 <i class="bi bi-circle"></i><span>O1-Rapid RO 12</span>
                             </a>
                         </li>
                         <li>
-                            <a href="o2_rapidObligation.php">
+                            <a href="#">
                                 <i class="bi bi-circle"></i><span>O2-Rapid</span>
                             </a>
                         </li>
