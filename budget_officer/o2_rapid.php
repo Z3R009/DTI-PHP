@@ -18,7 +18,7 @@ if (isset($_GET['project_id']) && $_GET['confirm'] == 'yes') {
     // Execute both deletion queries
     if ($stmtUser->execute()) {
         // Redirect to the manage members page after successful deletion
-        header('Location: oo2.php');
+        header('Location: o2_rapid.php');
         exit();
     } else {
         // Handle error if either query fails
@@ -40,21 +40,26 @@ if (isset($_POST['submit'])) {
     $account_id = $_POST['account_id'];
     $allotment = $_POST['allotment'];
     $balances = $_POST['balances'];
-    $created_at = $_POST['year']; // Use the selected date from the form
+    $created_at = $_POST['year'];
 
-    $sql = "INSERT INTO project (project_id, oopap_id, account_id, allotment, balances, created_at) VALUES (?, ?, ?, ?, ?, ?)";
-    $stmt = $connection->prepare($sql);
-    $stmt->bind_param("iiisss", $project_id, $oopap_id, $account_id, $allotment, $balances, $created_at);
-
-    if ($stmt->execute()) {
-        header('Location: oo2.php');
+    // Validate required fields
+    if (empty($account_id) || empty($allotment)) {
+        $error_message = "Please fill in all required fields";
     } else {
-        echo "Error: " . $stmt->error;
+        $sql = "INSERT INTO project (project_id, oopap_id, account_id, allotment, balances, created_at) VALUES (?, ?, ?, ?, ?, ?)";
+        $stmt = $connection->prepare($sql);
+        $stmt->bind_param("iiisss", $project_id, $oopap_id, $account_id, $allotment, $balances, $created_at);
+
+        if ($stmt->execute()) {
+            header('Location: o2_rapid.php');
+            exit();
+        } else {
+            $error_message = "Error saving data: " . $stmt->error;
+        }
     }
 }
 
-
-/// retrieve - Filter by year only for display
+// retrieve 
 $select = mysqli_query(
     $connection,
     "SELECT project.*,
@@ -62,21 +67,21 @@ $select = mysqli_query(
             account_title.account_code 
             FROM project
             LEFT JOIN account_title ON project.account_id = account_title.account_id
-            WHERE oopap_id = 3
-            AND YEAR(project.created_at) = $selected_year
+            WHERE oopap_id = 15 
+             AND YEAR(project.created_at) = $selected_year
             ORDER BY account_title.account_title ASC"
 );
 
 // account name
-
 $query_account = "SELECT account_id, account_title, account_code FROM account_title ORDER BY account_title ASC";
 $result_account = $connection->query($query_account);
 
-// Fetch total allotment for the selected year
-$total_allotment_query = "SELECT SUM(allotment) AS total_allotment FROM project WHERE oopap_id = 3 AND YEAR(created_at) = $selected_year";
+// Fetch total allotment
+$total_allotment_query = "SELECT SUM(allotment) AS total_allotment FROM project WHERE oopap_id = 15 AND YEAR(created_at) = $selected_year";
 $total_allotment_result = mysqli_query($connection, $total_allotment_query);
 $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'];
 
+// Calculate balances based on allotment and ORS total_amount for the selected month
 $update_balances_query = "UPDATE project p 
                          SET p.balances = p.allotment - (
                              SELECT COALESCE(SUM(ors.total_amount), 0) 
@@ -85,13 +90,13 @@ $update_balances_query = "UPDATE project p
                              WHERE oh.project_id = p.project_id
                              AND MONTH(ors.date) = $selected_month
                              AND YEAR(ors.date) = $selected_year
-                            )
-                            WHERE p.oopap_id = 3 
-                            AND YEAR(p.created_at) = $selected_year";
+                         )
+                         WHERE p.oopap_id = 15 
+                         AND YEAR(p.created_at) = $selected_year";
 mysqli_query($connection, $update_balances_query);
 
 // Fetch total balances for the selected month and year
-$total_balances_query = "SELECT SUM(balances) AS total_balances FROM project WHERE oopap_id = 3 AND YEAR(created_at) = $selected_year";
+$total_balances_query = "SELECT SUM(balances) AS total_balances FROM project WHERE oopap_id = 15 AND YEAR(created_at) = $selected_year";
 $total_balances_result = mysqli_query($connection, $total_balances_query);
 $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
 ?>
@@ -138,7 +143,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     <main id="main" class="main">
 
         <div class="pagetitle">
-            <h1>OO2(<?php echo date('Y'); ?>)</h1>
+            <h1>O2-RAPID(<?php echo date('Y'); ?>)</h1>
         </div><!-- End Page Title -->
 
         <section class="section dashboard">
@@ -146,7 +151,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
             <div class="card mb-3">
                 <div class="card-body">
                     <h5 class="card-title">Filter</h5>
-                    <form method="get" action="oo2.php" class="row g-3">
+                    <form method="get" action="o2_rapid.php" class="row g-3">
                         <div class="col-md-4">
                             <label for="year" class="form-label">Year (Total Allotment)</label>
                             <select class="form-select" id="year" name="year">
@@ -183,13 +188,13 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                     </form>
                 </div>
             </div>
-
+            <!-- Cards Row -->
             <div class="row">
                 <!-- Total Allotment Card -->
                 <div class="col-md-6">
                     <div class="card bg-white text-dark mb-3">
                         <div class="card-body">
-                            <h5 class="card-title">Total Allotment (Year <?php echo $selected_year; ?>)</h5>
+                            <h5 class="card-title">Total Allotment</h5>
                             <h3 class="card-text">₱<?php echo number_format($total_allotment, 2); ?></h3>
                         </div>
                     </div>
@@ -198,15 +203,21 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                 <div class="col-md-6">
                     <div class="card bg-white text-dark mb-3">
                         <div class="card-body">
-                            <h5 class="card-title">Remaining Balances (<?php echo $months[$selected_month]; ?> <?php echo $selected_year; ?>)</h5>
+                            <h5 class="card-title">Total Balances</h5>
                             <h3 class="card-text">₱<?php echo number_format($total_balances, 2); ?></h3>
                         </div>
                     </div>
                 </div>
             </div>
-            </div>
+
             <div class="card">
                 <div class="card-body">
+                    <?php if (isset($error_message)): ?>
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <?php echo $error_message; ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    <?php endif; ?>
                     <h5 class="card-title">
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                             data-bs-target="#addUserModal">Add Project/Program/Activities</button>
@@ -227,17 +238,13 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                                 <div class="modal-body">
                                     <form method="post" id="addUserForm">
                                         <div class="mb-3">
-                                            <input type="hidden" class="form-control" id="project_id" name="project_id"
-                                                value="<?php echo time(); ?>" readonly required>
-                                        </div>
-                                        <div class="mb-3">
                                             <input type="hidden" class="form-control" id="oopap_id" name="oopap_id"
-                                                value="3" readonly required autocomplete="off">
+                                                value="15" readonly required autocomplete="off">
                                         </div>
                                         <div class="mb-3">
-                                            <label for="account_id" class="form-label">Account Title</label>
-                                            <select class="form-control" name="account_id" id="account_id">
-                                                <option selected disabled>Select Account</option>
+                                            <label for="account_id" class="form-label">Account Title <span class="text-danger">*</span></label>
+                                            <select class="form-control" name="account_id" id="account_id" required>
+                                                <option value="">Select Account</option>
                                                 <?php
                                                 while ($row = $result_account->fetch_assoc()) {
                                                     echo "<option value='" . htmlspecialchars($row['account_id']) . "' 
@@ -264,6 +271,8 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                                             <input type="date" class="form-control" id="year" name="year" required value="<?php echo date('Y-m-d'); ?>">
                                         </div>
                                         <div class="modal-footer">
+                                            <!-- <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Close</button> -->
                                             <button type="button" class="btn btn-secondary"
                                                 onclick="clearForm()">Clear</button>
                                             <button type="submit" id="submit" name="submit"
@@ -285,7 +294,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                                 <th>Allotment</th>
                                 <th>Balances</th>
                                 <th>Date</th>
-                                <th>Action</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -332,7 +341,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form method="post" id="editUserForm" action="update_oo1.php">
+                    <form method="post" id="editUserForm" action="update_o2_rapid.php">
                         <input type="hidden" id="edit_project_id" name="project_id">
                         <input type="hidden" id="edit_account_id" name="edit_account_id">
 
@@ -406,12 +415,13 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
 
     <!-- delete -->
     <script>
-        function deleteUser(oo2ID) {
-            if (confirm("Are you sure you want to delete this OO2?")) {
-                window.location.href = 'oo2.php?project_id=' + oo2ID + '&confirm=yes';
+        function deleteUser(rapidID) {
+            if (confirm("Are you sure you want to delete this O2-RAPID?")) {
+                window.location.href = 'o2_rapid.php?project_id=' + rapidID + '&confirm=yes';
             }
         }
     </script>
+
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {

@@ -11,7 +11,7 @@
         <li class="nav-item">
             <a class="nav-link " href="dashboard.php">
                 <i class="bi bi-grid"></i>
-                <span>Dashboard</span>
+                <span>DASHBOARD</span>
             </a>
         </li>
 
@@ -28,13 +28,13 @@
                     </a>
                     <ul id="personal-nav" class="nav-content collapse" data-bs-parent="#status-nav">
                         <li>
-                            <a href="#">
+                            <a href="oo1_personalServices.php">
                                 <i class="bi bi-circle"></i><span>001-Personnel Services</span>
                             </a>
                         </li>
 
                         <li>
-                            <a href="#">
+                            <a href="oo2_tida.php">
                                 <i class="bi bi-circle"></i><span>002-Tida Contractual</span>
                             </a>
                         </li>
@@ -102,7 +102,7 @@
                     </a>
                     <ul id="carp-nav" class="nav-content collapse" data-bs-parent="#status-nav">
                         <li>
-                            <a href="#">
+                            <a href="oo3_carp.php">
                                 <i class="bi bi-circle"></i><span>OO3-Carp</span>
                             </a>
                         </li>
@@ -116,13 +116,13 @@
                     </a>
                     <ul id="rapid-nav" class="nav-content collapse" data-bs-parent="#status-nav">
                         <li>
-                            <a href="#">
-                                <i class="bi bi-circle"></i><span>O1</span>
+                            <a href="o1_rapidRO12.php">
+                                <i class="bi bi-circle"></i><span>O1-Rapid RO 12</span>
                             </a>
                         </li>
                         <li>
-                            <a href="#">
-                                <i class="bi bi-circle"></i><span>O2</span>
+                            <a href="o2_rapid.php">
+                                <i class="bi bi-circle"></i><span>O2-Rapid</span>
                             </a>
                         </li>
                     </ul>
@@ -241,13 +241,13 @@
             <ul id="rapid-nav" class="nav-content collapse" data-bs-parent="#status-nav">
                 <li>
                     <a href="#">
-                        <i class="bi bi-circle"></i><span>O1</span>
+                        <i class="bi bi-circle"></i><span>O1-Rapid RO 12</span>
                     </a>
                 </li>
 
                 <li>
                     <a href="#">
-                        <i class="bi bi-circle"></i><span>O2</span>
+                        <i class="bi bi-circle"></i><span>O2-Rapid</span>
                     </a>
                 </li>
             </ul>
