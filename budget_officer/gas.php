@@ -133,7 +133,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
         }
         
         .summary-card {
-            border-left: 5px solid #4154f1;
+            border-left: 5px solid #023e8a;
             background: linear-gradient(to right, #f6f9ff 0%, #ffffff 100%);
         }
         
@@ -168,7 +168,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
             margin-bottom: 0; 
         }
         .page-header {
-            border-bottom: 2px solid #4154f1;
+            border-bottom: 2px solid #023e8a;
             margin-bottom: 25px;
             padding-bottom: 15px;
         }
@@ -219,8 +219,8 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
         }
         
         .datatable-pagination .active a {
-            background-color: #4154f1 !important;
-            border-color: #4154f1 !important;
+            background-color: #023e8a !important;
+            border-color: #023e8a !important;
         }
         
         .badge-code {
@@ -240,7 +240,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
         }
         
         .amount-cell:hover {
-            color: #4154f1;
+            color: #023e8a;
         }
         
         .table-footer {
@@ -256,7 +256,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
         }
         
         .blue-badge {
-            background: linear-gradient(135deg, #4154f1 0%, #5464fd 100%);
+            background: linear-gradient(135deg, #023e8a 0%, #0077b6 100%);
         }
         
         .table-meta-container {
@@ -307,13 +307,13 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
         }
         
         .filter-form .form-select:focus {
-            border-color: #4154f1;
+            border-color: #023e8a;
             box-shadow: 0 0 0 0.2rem rgba(65, 84, 241, 0.25);
         }
         
         .filter-form .btn-outline-primary {
-            border-color: #4154f1;
-            color: #4154f1;
+            border-color: #023e8a;
+            color: #023e8a;
             font-weight: 500;
             transition: all 0.2s ease;
         }
@@ -339,7 +339,27 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
             border-radius: 50%;
             border: 2px solid #fff;
         }
-        
+        .button{
+            background-color: #023e8a !important;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+        button:hover{
+            background-color: #0077b6 !important;
+        }
+        .btn-group-lg>.btn, .btn-lg {
+            padding: 0.5rem 1.5rem;
+            font-size: 1rem;
+            line-height: 1.5;
+            border-radius: 0.3rem;
+        }
         @media (max-width: 768px) {
             .pagetitle .d-flex {
                 flex-direction: column;
@@ -371,10 +391,12 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
 
         <div class="pagetitle page-header d-flex justify-content-between align-items-center">
             <div>
-                <h1>General Administrative Support (GAS) <?php echo date('Y'); ?></h1>
+                <h1>General Administrative and Support (GAS) <?php echo date('Y'); ?></h1>
                 <nav>
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index.php">Home</a></li>
+                    <li class="breadcrumb-item"><a href="index.php">Home</a></li>
+                        <li class="breadcrumb-item"><a href="index.php">Status of Fund</a></li>
+                        <li class="breadcrumb-item"><a href="index.php">MOOE</a></li>
                         <li class="breadcrumb-item active">GAS</li>
                     </ol>
                 </nav>
@@ -468,10 +490,10 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                     <?php endif; ?>
                     
                     <div class="d-flex justify-content-end">
-    <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#addUserModal" style="width: 200px;" data-bs-toggle="tooltip" data-bs-placement="top" title="Add new project/program/activities">
-        <i class="bi bi-plus-circle me-1"></i> Add Project
-    </button>
-</div>
+                    <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#addUserModal" style="width: 200px; background-color:#023e8a;" data-bs-toggle="tooltip" data-bs-placement="top" title="Add new project/program/activities">
+                        <i class="bi bi-plus-circle me-1"></i> Add Project
+                    </button>
+                </div>
 
                     <div class="table-meta-container mb-3">
                         <!-- <div class="table-search">

@@ -12,34 +12,21 @@ if (isset($_POST['submit'])) {
     echo "</pre>";
 
     $date = $_POST['date'];
-    $dv_no = $_POST['dv_no'];
-    $ors_no = $_POST['ors_id']; // This is actually the ORS number
-    $payment_mode = $_POST['payment_mode'];
-    $vat = $_POST['vat'];
-    $vat_amount = $_POST['vat_amount'];
-    $tax_base = $_POST['tax_base'];
-    $tax_1 = $_POST['tax_1'];
-    $tax_1_amount = $_POST['tax_1_amount'];
-    $tax_2 = $_POST['tax_2'];
-    $tax_2_amount = $_POST['tax_2_amount'];
-    $net_amount = $_POST['net_amount'];
-    $chief_accountant = $_POST['chief_accountant'];
-    $regional_director = $_POST['regional_director'];
-
-    // Get the account titles and amounts arrays
-    $account_titles = $_POST['account_titles'];
-    $debit_amounts = $_POST['debit_amounts'];
-    $credit_amounts = $_POST['credit_amounts'];
+    $dv_no = $_POST['dv_no']; // changed from dv_id to dv_no
+    $ors_no = $_POST['ors_no']; // clarified this is ORS number
+    $jev_no = $_POST['jev_no'];
+    $administrative_aide = $_POST['administrative_aide'];
+    $accountant = $_POST['accountant'];
 
     // Start a transaction
     $connection->begin_transaction();
 
     try {
-        // First, get the ors_id from the ors_no
+        // Get ors_id from ors_no
         $ors_query = "SELECT ors_id FROM ors WHERE ors_no = ?";
         $ors_stmt = $connection->prepare($ors_query);
         if ($ors_stmt === false) {
-            throw new Exception('Prepare failed: ' . htmlspecialchars($connection->error));
+            throw new Exception('Prepare failed (ORS): ' . htmlspecialchars($connection->error));
         }
         $ors_stmt->bind_param("s", $ors_no);
         if (!$ors_stmt->execute()) {
@@ -53,82 +40,57 @@ if (isset($_POST['submit'])) {
         $ors_id = $ors_row['ors_id'];
         $ors_stmt->close();
 
-        // Insert the main DV record
-        $sql = "INSERT INTO dv (date, dv_no, ors_id, payment_mode, vat, vat_amount, tax_base, tax_1, tax_1_amount, tax_2, tax_2_amount, net_amount, chief_accountant, regional_director) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        // Get dv_id from dv_no
+        $dv_query = "SELECT dv_id FROM dv WHERE dv_no = ?";
+        $dv_stmt = $connection->prepare($dv_query);
+        if ($dv_stmt === false) {
+            throw new Exception('Prepare failed (DV): ' . htmlspecialchars($connection->error));
+        }
+        $dv_stmt->bind_param("s", $dv_no);
+        if (!$dv_stmt->execute()) {
+            throw new Exception("Error getting DV ID: " . $dv_stmt->error);
+        }
+        $dv_result = $dv_stmt->get_result();
+        if ($dv_result->num_rows === 0) {
+            throw new Exception("DV number not found: " . $dv_no);
+        }
+        $dv_row = $dv_result->fetch_assoc();
+        $dv_id = $dv_row['dv_id'];
+        $dv_stmt->close();
+
+        // Insert into jev table
+        $sql = "INSERT INTO jev (date, dv_id, ors_id, jev_no, administrative_aide, accountant) 
+                VALUES (?, ?, ?, ?, ?, ?)";
 
         $stmt = $connection->prepare($sql);
         if ($stmt === false) {
-            throw new Exception('Prepare failed: ' . htmlspecialchars($connection->error));
+            throw new Exception('Prepare failed (JEV insert): ' . htmlspecialchars($connection->error));
         }
 
         $stmt->bind_param(
-            "ssisddddddddss",
+            "siiiss",
             $date,
-            $dv_no,
+            $dv_id,
             $ors_id,
-            $payment_mode,
-            $vat,
-            $vat_amount,
-            $tax_base,
-            $tax_1,
-            $tax_1_amount,
-            $tax_2,
-            $tax_2_amount,
-            $net_amount,
-            $chief_accountant,
-            $regional_director
+            $jev_no,
+            $administrative_aide,
+            $accountant
         );
 
         if (!$stmt->execute()) {
-            throw new Exception("Error: " . $stmt->error);
+            throw new Exception("Insert error: " . $stmt->error);
         }
 
-        $dv_id = $connection->insert_id;
         $stmt->close();
 
-        // Loop through each account and save it in dv_history
-        for ($i = 0; $i < count($account_titles); $i++) {
-            if (empty($account_titles[$i]))
-                continue; // Skip empty account selections
-
-            $account_id = $account_titles[$i];
-            $debit = !empty($debit_amounts[$i]) ? $debit_amounts[$i] : 0;
-            $credit = !empty($credit_amounts[$i]) ? $credit_amounts[$i] : 0;
-
-            // Determine the type (debit or credit)
-            $type = ($debit > 0) ? 'debit' : 'credit';
-            $amount = ($debit > 0) ? $debit : $credit;
-
-            // Skip if amount is zero
-            if ($amount == 0)
-                continue;
-
-            // Insert into dv_history
-            $history_sql = "INSERT INTO dv_history (dv_id, account_id, type, amount) VALUES (?, ?, ?, ?)";
-            $history_stmt = $connection->prepare($history_sql);
-            if ($history_stmt === false) {
-                throw new Exception('Prepare failed: ' . htmlspecialchars($connection->error));
-            }
-
-            $history_stmt->bind_param("iisd", $dv_id, $account_id, $type, $amount);
-
-            if (!$history_stmt->execute()) {
-                throw new Exception("Error: " . $history_stmt->error);
-            }
-
-            $history_stmt->close();
-        }
-
-        // Commit the transaction
+        // Commit transaction
         $connection->commit();
 
-        // Redirect after successful save
-        header("Location: dv_form.php?dv_no=$dv_no");
+        // Redirect
+        header("Location: jev_form.php?jev_no=$jev_no");
         exit();
 
     } catch (Exception $e) {
-        // Rollback the transaction on error
         $connection->rollback();
         echo "Error: " . $e->getMessage();
     }
@@ -136,28 +98,37 @@ if (isset($_POST['submit'])) {
     $connection->close();
 }
 
-// retrieve
-$select = mysqli_query($connection, "
-    SELECT 
-        ors.*, 
-        account_title.account_title, 
-        approver.approver_name,
-        CONCAT(fund_cluster.uacs_code, '-', fund_cluster.fund_cluster_name) AS fund_cluster,
-        responsibility_center.code,
-        oopap.oopap_name,
-        payee.payee_name,
-        payee.tin_no,
-        payee.address
-    FROM ors
-    LEFT JOIN account_title ON ors.account_id = account_title.account_id
-    LEFT JOIN approver ON ors.approver_id = approver.approver_id
-    LEFT JOIN fund_cluster ON ors.fund_cluster_id = fund_cluster.fund_cluster_id
-    LEFT JOIN responsibility_center ON ors.rc_id = responsibility_center.rc_id
-    LEFT JOIN oopap ON ors.oopap_id = oopap.oopap_id
-    LEFT JOIN payee ON ors.payee_id = payee.payee_id
+
+// retrieve_dv
+$select_dv = mysqli_query($connection, "
+SELECT 
+    ors.*,
+    ors.total_amount AS ors_total_amount,
+    dv.*, 
+    account_title.account_title, 
+    account_title.account_code,
+    approver.approver_name,
+    CONCAT(fund_cluster.uacs_code, '-', fund_cluster.fund_cluster_name) AS fund_cluster,
+    responsibility_center.code,
+    oopap.oopap_name,
+    payee.payee_name,
+    payee.tin_no,
+    payee.address
+FROM dv
+LEFT JOIN ors ON dv.ors_id = ors.ors_id
+LEFT JOIN account_title ON ors.account_id = account_title.account_id
+LEFT JOIN approver ON ors.approver_id = approver.approver_id
+LEFT JOIN fund_cluster ON ors.fund_cluster_id = fund_cluster.fund_cluster_id
+LEFT JOIN responsibility_center ON ors.rc_id = responsibility_center.rc_id
+LEFT JOIN oopap ON ors.oopap_id = oopap.oopap_id
+LEFT JOIN payee ON ors.payee_id = payee.payee_id;
+
+
 ");
 
 ?>
+
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -811,65 +782,70 @@ $select = mysqli_query($connection, "
     <?php include "Includes/sidebar.php"; ?>
 
     <main id="main" class="main">
-        <div class="pagetitle">
-            <h1>Disbursement</h1>
-        </div><!-- End Page Title -->
+        <div class="pagetitle d-flex align-items-center">
+            <h1 class="mb-0">Disbursement Voucher</h1>
 
-        <ul class="nav nav-tabs" role="tablist">
-            <li class="nav-item" role="presentation">
-                <a class="nav-link active" data-bs-toggle="tab" href="#dvList" role="tab" aria-selected="true">ORS
-                    List</a>
-            </li>
-            <li class="nav-item" role="presentation">
-                <a class="nav-link" data-bs-toggle="tab" href="#dvForm" role="tab" aria-selected="false">DV Form</a>
-            </li>
-        </ul>
-
-        <div class="tab-content">
-            <!-- DV List Tab -->
-            <div class="tab-pane fade show active" id="dvList" role="tabpanel">
-                <div class="card">
-                    <div class="card-body">
-                        <!-- Table with stripped rows -->
-                        <table class="table datatable">
-                            <thead>
-                                <tr>
-                                    <th>Obligation Request No.</th>
-                                    <th>Payee Name</th>
-                                    <th>Account Title</th>
-                                    <th>Amount</th>
-                                    <th>Approver</th>
-                                    <th>Budget Officer</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php while ($row = mysqli_fetch_assoc($select)) { ?>
-                                    <tr>
-                                        <td><?php echo htmlspecialchars($row['ors_no']); ?></td>
-                                        <td><?php echo htmlspecialchars($row['payee_name']); ?></td>
-                                        <td><?php echo htmlspecialchars($row['account_title']); ?></td>
-                                        <td><?php echo htmlspecialchars($row['total_amount']); ?></td>
-                                        <td><?php echo htmlspecialchars($row['approver_name']); ?></td>
-                                        <td><?php echo htmlspecialchars($row['budget_officer']); ?></td>
-                                        <td>
-                                            <button type="button" class="btn btn-primary view-details"
-                                                data-id="<?php echo $row['ors_id']; ?>">
-                                                <i class="bi bi-eye" data-bs-toggle="tooltip" data-bs-placement="top"
-                                                    title="View Details"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                <?php } ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+            <!-- Buttons Container with right alignment -->
+            <div class="ms-auto">
+                <button class="btn btn-primary" onclick="window.location.href='processed_jev.php'">
+                    View Processed JEV
+                </button>
             </div>
+        </div>
 
-            <!-- DV Form Tab -->
-            <div class="tab-pane fade" id="dvForm" role="tabpanel">
-                <div class="card">
+
+
+        <div class="content-wrapper">
+            <div class="form-container">
+                <h2 class="form-title">Disbursement Voucher</h2>
+
+                <div class="tab-content">
+                    <!-- DV List Tab -->
+                    <div>
+                        <div class="card">
+                            <div class="card-body">
+                                <!-- Table with stripped rows -->
+                                <table class="table datatable">
+                                    <thead>
+                                        <tr>
+                                            <th>DV No.</th>
+                                            <th>Date</th>
+                                            <th>Payee Name</th>
+                                            <th>Account Title</th>
+                                            <th>Amount</th>
+                                            <th>Approver</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php while ($row = mysqli_fetch_assoc($select_dv)) { ?>
+                                            <tr>
+                                                <td><?php echo htmlspecialchars($row['dv_no']); ?></td>
+                                                <td>
+                                                    <?php
+                                                    $date = new DateTime($row['date']);
+                                                    echo htmlspecialchars($date->format('F j, Y')); // Example: "April 7, 2025"
+                                                    ?>
+                                                </td>
+                                                <td><?php echo htmlspecialchars($row['payee_name']); ?></td>
+                                                <td><?php echo htmlspecialchars($row['account_title']); ?></td>
+                                                <td><?php echo htmlspecialchars($row['ors_total_amount']); ?></td>
+                                                <td><?php echo htmlspecialchars($row['approver_name']); ?></td>
+                                                <td>
+                                                    <button type="button" class="btn btn-primary view-details"
+                                                        data-id="<?php echo $row['dv_id']; ?>">
+                                                        <i class="bi bi-eye" data-bs-toggle="tooltip"
+                                                            data-bs-placement="top" title="View Details"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
 
                 </div>
             </div>
@@ -880,277 +856,96 @@ $select = mysqli_query($connection, "
     <div id="dvFormModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Disbursement Voucher</h2>
+                <h2 class="modal-title">Journal Entry Voucher</h2>
                 <span class="close-modal" id="closeDvModal">&times;</span>
             </div>
-            <!-- ORS Type Selection -->
-            <!-- <div class="form-group">
-                <label class="form-label">Select DV Type</label>
-                <select class="form-control" id="ors_type">
-                    <option value="" selected disabled>Select DV Type</option>
-                    <option value="cash_advance">Cash Advance</option>
-                    <option value="transfer_fund">Transfer of Fund</option>
-                    <option value="regular">Regular</option>
-                </select>
-            </div> -->
-
 
             <div class="modal-body">
 
-                <div id="dv_form">
-                    <form action="" method="post">
-                        <div class="form-container">
-                            <div class="form-section">
-                                <h3>General Information</h3>
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label class="form-label">Fund Cluster</label>
-                                        <input type="text" class="form-control" id="fund_cluster" readonly>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Date</label>
-                                        <input type="date" class="form-control" id="date" name="date">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">ORS No.</label>
-                                        <input type="text" class="form-control" id="ors_no" name="ors_id" readonly>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Disbursement Voucher No.</label>
-                                        <input type="text" class="form-control" id="dv_no" name="dv_no" readonly>
-                                    </div>
+                <form action="" method="post">
+                    <div class="form-container">
+                        <div class="form-section">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Date</label>
+                                    <input type="date" class="form-control" id="date" name="date">
                                 </div>
-                            </div>
-
-                            <div class="form-section">
-                                <h3>Mode of Payment</h3>
-                                <div class="form-row">
-                                    <div class="form-group full-width">
-                                        <div class="checkbox-group">
-                                            <div class="checkbox-item">
-                                                <input type="checkbox" id="mds" name="payment_mode" value="MDS Check">
-                                                <label for="mds">MDS Check</label>
-                                            </div>
-                                            <div class="checkbox-item">
-                                                <input type="checkbox" id="commercial" name="payment_mode"
-                                                    value="Commercial Check">
-                                                <label for="commercial">Commercial Check</label>
-                                            </div>
-                                            <div class="checkbox-item">
-                                                <input type="checkbox" id="ada" name="payment_mode" value="ADA">
-                                                <label for="ada">ADA</label>
-                                            </div>
-                                            <div class="checkbox-item">
-                                                <input type="checkbox" id="others" name="payment_mode" value="Others">
-                                                <label for="others">Others (Specify):</label>
-                                                <input type="text" class="form-control" id="otherText"
-                                                    name="other_specify" style="width: 200px;" disabled>
-                                            </div>
-                                        </div>
-                                    </div>
+                                <div class="form-group">
+                                    <label class="form-label">ORS No.</label>
+                                    <input type="text" class="form-control" id="ors_no" name="ors_no" readonly>
                                 </div>
-
-                                <!-- Payee Details Section -->
-                                <div class="form-section">
-                                    <h3>Payee Details</h3>
-                                    <div class="form-row">
-                                        <div class="form-group">
-                                            <label class="form-label">Payee Name</label>
-                                            <input type="text" class="form-control" id="payee_name" readonly>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="form-label">TIN/Employee No.</label>
-                                            <input type="text" class="form-control" id="tin_no" readonly>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Address</label>
-                                        <input type="text" class="form-control" id="address" readonly>
-                                    </div>
+                                <div class="form-group">
+                                    <label class="form-label">DV No.</label>
+                                    <input type="text" class="form-control" id="dv_no" name="dv_no" readonly>
                                 </div>
-                                <!-- Payment Details Section -->
-                                <div class="form-section">
-                                    <h3>Purpose</h3>
-                                    <div class="form-row">
-                                        <div class="form-group full-width">
-                                            <textarea class="form-control" id="notes" readonly></textarea>
-                                        </div>
-                                    </div>
-                                    <div class="form-row">
-                                        <div class="form-group">
-                                            <label class="form-label">Responsibility Center</label>
-                                            <input type="text" class="form-control" id="code" readonly>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="form-label">OO/PAP</label>
-                                            <input type="text" class="form-control" id="oopap_name" readonly>
-                                        </div>
-                                        <!-- <div class="form-group">
-                                        <label class="form-label">Amount</label>
-                                        <input type="number" class="form-control" id="amount" step="0.01">
-                                    </div> -->
-                                    </div>
+                                <div class="form-group">
+                                    <label class="form-label">JEV No.</label>
+                                    <input type="text" class="form-control" name="jev_no" autocomplete="off">
                                 </div>
-
-                                <!-- tax -->
-                                <div class="form-section">
-                                    <h3>Breakdown of Expenses</h3>
-                                    <div class="form-row">
-                                        <div class="form-group half-width">
-                                            <label class="form-label">Gross Amount</label>
-                                            <input type="number" class="form-control" id="total_amount" step="0.01"
-                                                readonly>
-                                        </div>
-                                        <div class="form-group half-width">
-                                            <div class="checkbox-item">
-                                                <input type="checkbox" class="apply_taxes" id="apply_taxes">
-                                                <label for="apply_taxes">With VAT</label>
-                                            </div>
-
-                                        </div>
-                                    </div>
-
-                                    <div id="tax_fields_container" class="tax-fields">
-                                        <div class="form-row">
-
-                                        </div>
-
-                                        <div class="form-group half-width">
-                                            <label class="form-label">VAT <input type="number" class="tax-percentage"
-                                                    id="vat_percentage" name="vat" value="12" min="0" max="100"
-                                                    step="0.01" readonly>
-                                                %</label>
-                                            <input type="number" class="form-control calculation-field" id="vat_amount"
-                                                name="vat_amount" step="0.01" readonly>
-                                        </div>
-                                    </div>
-                                    <div class="form-row">
-                                        <div class="form-group">
-                                            <label class="form-label">Tax Base</label>
-                                            <input type="number" class="form-control calculation-field" id="tax_base"
-                                                name="tax_base" step="0.01">
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="form-label">Less: <input type="number" class="tax-percentage"
-                                                    id="tax1_percentage" name="tax_1" value="5" min="0" max="100"
-                                                    step="0.01"> % Tax</label>
-                                            <input type="number" class="form-control calculation-field" id="tax_1"
-                                                name="tax_1_amount" step="0.01">
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="form-label">Less: <input type="number" class="tax-percentage"
-                                                    id="tax2_percentage" name="tax_2" value="2" min="0" max="100"
-                                                    step="0.01"> % Tax</label>
-                                            <input type="number" class="form-control calculation-field" id="tax_2"
-                                                name="tax_2_amount" step="0.01">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label class="form-label">Net Amount</label>
-                                        <input type="number" class="form-control calculation-field" id="net_amount"
-                                            name="net_amount" step="0.01" readonly>
-                                    </div>
-
-
-                                </div>
-                            </div>
-
-                            <div class="form-section">
-                                <h3>Accounting Entry</h3>
-                                <div class="table-responsive">
-                                    <table class="accounting-entry-table">
-                                        <thead>
-                                            <tr>
-                                                <th colspan="2">Account Title</th>
-                                                <th>Debit Amount</th>
-                                                <th>Credit Amount</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="accountingTableBody">
-                                            <tr>
-                                                <td colspan="2">
-                                                    <select class="form-control account-select" name="account_titles[]">
-                                                        <option selected disabled>Select Account</option>
-                                                        <?php
-                                                        $account_query = "SELECT * FROM account_title ORDER BY account_title ASC";
-                                                        $account_result = $connection->query($account_query);
-                                                        while ($account = $account_result->fetch_assoc()) {
-                                                            echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
-                                                        }
-                                                        ?>
-                                                    </select>
-                                                </td>
-                                                <td><input type="number" class="form-control debit-amount"
-                                                        name="debit_amounts[]" step="0.01"></td>
-                                                <td><input type="number" class="form-control credit-amount"
-                                                        name="credit_amounts[]" step="0.01"></td>
-                                            </tr>
-                                        </tbody>
-                                        <tfoot>
-                                            <tr>
-                                                <td colspan="2">
-                                                    <select class="form-control account-select" name="account_titles[]">
-                                                        <option selected disabled>Select Account</option>
-                                                        <?php
-                                                        $account_query = "SELECT * FROM account_title ORDER BY account_title ASC";
-                                                        $account_result = $connection->query($account_query);
-                                                        while ($account = $account_result->fetch_assoc()) {
-                                                            echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
-                                                        }
-                                                        ?>
-                                                    </select>
-                                                </td>
-                                                <td><input type="number" class="form-control debit-amount"
-                                                        name="debit_amounts[]" step="0.01"></td>
-                                                <td><input type="number" class="form-control credit-amount"
-                                                        name="credit_amounts[]" step="0.01"></td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    <button type="button" id="addAccountRow" class="btn btn-secondary"
-                                                        style="padding: 5px 10px; font-size: 12px;">
-                                                        <ion-icon name="add-outline"></ion-icon> Add Row
-                                                    </button>
-                                                </td>
-                                                <td colspan="3"></td>
-                                            </tr>
-                                        </tfoot>
-                                    </table>
-                                </div>
-                            </div>
-
-                            <!-- Approver Section -->
-                            <div class="form-section">
-                                <h3>Approver Details</h3>
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label class="form-label">Chief Accountant</label>
-                                        <select class="form-control" name="chief_accountant">
-                                            <option>NEIL ANTHONY T. MORALA</option>
-
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Regional Director</label>
-                                        <select class="form-control" name="regional_director">
-                                            <option>FLORA D. POLITUD-GABUNALES, CESO V</option>
-
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-
-
-                            <!-- Buttons -->
-                            <div class="btn-container">
-                                <button type="submit" class="btn btn-primary" name="submit">Print</button>
                             </div>
                         </div>
-                    </form>
-                </div>
+
+                        <!-- Payee Details Section -->
+                        <div class="form-section">
+                            <h3>Payee Details</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Payee Name</label>
+                                    <input type="text" class="form-control" id="payee_name" readonly>
+                                </div>
+                            </div>
+                        </div>
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Responsibility Center</th>
+                                    <th>Account Name</th>
+                                    <th>UACS Object Code</th>
+                                    <th>Account Type</th>
+                                    <th>Credit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php while ($row = mysqli_fetch_assoc($select_dv)) { ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($row['code']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['account_title']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['account_code']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['type']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['amount']); ?></td>
+                                    </tr>
+                                <?php } ?>
+                            </tbody>
+                        </table>
+
+
+                        <div class="form-section">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Administrative Aide</label>
+                                    <select class="form-control" name="administrative_aide">
+                                        <option>JINNARD B. LUBATON</option>
+
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Accountant III</label>
+                                    <select class="form-control" name="accountant">
+                                        <option>NEIL ANTHONY T. MORALA</option>
+
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Buttons -->
+                        <div class="btn-container">
+                            <button type="submit" class="btn btn-primary" name="submit">Print</button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
 
@@ -1181,61 +976,57 @@ $select = mysqli_query($connection, "
                 // Open modal and populate data
                 viewDetailsButtons.forEach(button => {
                     button.addEventListener('click', function () {
-                        const orsId = this.getAttribute('data-id');
-                        fetch(`get_ors_details.php?id=${orsId}`)
+                        const dvId = this.getAttribute('data-id');
+                        fetch(`get_jev_details.php?id=${dvId}`)
                             .then(response => response.json())
                             .then(data => {
+                                // Populate the form fields with the returned data
                                 document.getElementById('ors_no').value = data.ors_no;
-                                document.getElementById('fund_cluster').value = data.fund_cluster;
+                                document.getElementById('dv_no').value = data.dv_no;
                                 document.getElementById('payee_name').value = data.payee_name;
-                                document.getElementById('tin_no').value = data.tin_no;
-                                document.getElementById('address').value = data.address;
-                                document.getElementById('notes').value = data.notes;
-                                document.getElementById('code').value = data.code;
-                                document.getElementById('oopap_name').value = data.oopap_name;
-                                document.getElementById('total_amount').value = data.total_amount;
 
-                                // Show modal first
+                                // Populate the accounts table dynamically
+                                const tableBody = document.querySelector('#dvFormModal table tbody');
+                                tableBody.innerHTML = '';  // Clear any existing rows
+                                data.accounts.forEach(account => {
+                                    const row = document.createElement('tr');
+                                    row.innerHTML = `
+                            <td>${account.code}</td>
+                            <td>${account.account_title}</td>
+                            <td>${account.account_code}</td>
+                            <td>${account.type}</td
+                            <td>${account.amount}</td>
+                        `;
+                                    tableBody.appendChild(row);
+                                });
+
+                                // Show modal
                                 modal.style.display = 'block';
 
-                                // Then trigger calculations and add BIR rows
+                                // Optionally trigger any additional calculations or setup here
                                 setTimeout(() => {
-                                    calculate(); // Trigger calculation
-                                    generateDVNumber();
+                                    calculate(); // Trigger calculations if needed
+                                    generateDVNumber(); // Generate DV number if needed
                                 }, 100);
                             })
-                            .catch(error => console.error('Error fetching ORS details:', error));
+                            .catch(error => console.error('Error fetching DV details:', error));
                     });
                 });
 
                 // Close modal
                 closeModalBtn.addEventListener('click', function () {
                     modal.style.display = 'none';
-                    // Clear BIR rows when closing modal
-                    const tableBody = document.getElementById('accountingTableBody');
-                    const existingRows = tableBody.querySelectorAll('tr');
-                    existingRows.forEach(row => {
-                        if (row.querySelector('.account-select')?.value === 'BIR') {
-                            row.remove();
-                        }
-                    });
                 });
 
-                // Close modal when clicking outside
-                window.addEventListener('click', function (event) {
-                    if (event.target === modal) {
+                // Close modal if clicked outside the modal content
+                window.addEventListener('click', function (e) {
+                    if (e.target === modal) {
                         modal.style.display = 'none';
-                        // Clear BIR rows when closing modal
-                        const tableBody = document.getElementById('accountingTableBody');
-                        const existingRows = tableBody.querySelectorAll('tr');
-                        existingRows.forEach(row => {
-                            if (row.querySelector('.account-select')?.value === 'BIR') {
-                                row.remove();
-                            }
-                        });
                     }
                 });
             });
+
+
         </script>
 
         <!-- mode of payment -->

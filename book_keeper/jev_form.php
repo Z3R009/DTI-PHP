@@ -35,18 +35,19 @@ if (!$ors_id) {
 
 // Fetch ORS record and join with other tables
 $query2 = "
-    SELECT ors.*, dv.*,
-           financial_object_code.object_name, 
-           financial_object_code.uacs_code,
+    SELECT ors.*, dv.*, dv_history.*,
            approver.approver_name,
+           account_title.account_title,
+           account_title.account_code,
            approver.designation,
            CONCAT(fund_cluster.uacs_code, '-', fund_cluster.fund_cluster_name) AS fund_cluster,
            responsibility_center.code AS code,
            oopap.oopap_name
     FROM ors 
     INNER JOIN dv ON ors.ors_id = dv.ors_id
-    LEFT JOIN financial_object_code ON ors.object_code_id = financial_object_code.object_code_id
+    INNER JOIN dv_history ON dv_history.dvhis_id = dv_history.dvhis_id
     LEFT JOIN approver ON ors.approver_id = approver.approver_id
+    LEFT JOIN account_title ON account_title.account_id = account_title.account_id
     LEFT JOIN fund_cluster ON ors.fund_cluster_id = fund_cluster.fund_cluster_id
     LEFT JOIN responsibility_center ON ors.rc_id = responsibility_center.rc_id
     LEFT JOIN oopap ON ors.oopap_id = oopap.oopap_id
@@ -81,10 +82,11 @@ $connection->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Accounting Entries</title>
     <style>
-          body {
+        body {
             font-family: Arial, sans-serif;
             background-color: #f8f9fa;
         }
+
         .floating-card {
             width: 1300px;
             margin: 50px auto;
@@ -93,200 +95,180 @@ $connection->close();
             border-radius: 10px;
             box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
         }
-        th, td {
+
+        th,
+        td {
             border: 1px solid black;
             padding: 8px;
             text-align: left;
         }
+
         .header-table td {
             border: none;
         }
+
         .signature {
             margin-top: 20px;
         }
-        
-         /* Hide buttons when printing */
-    @media print {
-        .no-print {
-            display: none !important;
+
+        /* Hide buttons when printing */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
         }
-    }
 
-    /* Center the button group */
-    .modal-footer {
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        margin-top: 20px;
-    }
+        /* Center the button group */
+        .modal-footer {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
 
-    /* Button styles */
-    .btn {
-        padding: 10px 20px;
-        font-size: 16px;
-        font-weight: bold;
-        border: none;
-        border-radius: 8px;
-        transition: all 0.3s ease-in-out;
-        cursor: pointer;
-    }
+        /* Button styles */
+        .btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            transition: all 0.3s ease-in-out;
+            cursor: pointer;
+        }
 
-    /* Primary Button */
-    .btn-primary {
-        background-color: #007bff;
-        color: white;
-    }
+        /* Primary Button */
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
 
-    .btn-primary:hover {
-        background-color: #0056b3;
-    }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
 
-    /* Secondary Button */
-    .btn-secondary {
-        background-color: #6c757d;
-        color: white;
-        text-decoration: none;
-    }
+        /* Secondary Button */
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            text-decoration: none;
+        }
 
-    .btn-secondary:hover {
-        background-color: #5a6268;
-    }
-    
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
     </style>
 </head>
 
 <body>
 
 
-<div class="container">
-    <div class="floating-card">
-    <table>
-        <tr>
-            <td colspan="2"></td>
-            <td>JEV No.</td>
-            <td><?php echo $jev_form['jev_no']; ?></td>
-        </tr>
-        <tr>
-            <td><strong>Entity Name:</strong> </td>
-            <td>DEPARTMENT OF TRADE AND INDUSTRY</td>
-            <td rowspan="3">Date:</td>
-            <td rowspan="3"><?php echo $jev_form['date']; ?></td>
-        </tr>
-        <tr>
-            <td><strong>Payee:</strong> </td>
-            <td><?php echo !empty($ors_form['payee_name']) ? htmlspecialchars($ors_form['payee_name']) : "Not Available"; ?></td>
-        </tr>
-        <tr>
-    <td><strong>Fund Cluster:</strong></td>
-    <td>
-        <?php echo !empty($ors_form['fund_cluster']) ? htmlspecialchars($ors_form['fund_cluster']) : "Not Available"; ?>
-    </td>
-</tr>
-    </table>
+    <div class="container">
+        <div class="floating-card">
+            <table>
+                <tr>
+                    <td colspan="2"></td>
+                    <td colspan="4">JEV No.</td>
+                    <td><?php echo $jev_form['jev_no']; ?></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><strong>Entity Name:</strong> </td>
+                    <td colspan="4">DEPARTMENT OF TRADE AND INDUSTRY</td>
+                    <td rowspan="3" colspan="2">Date:</td>
+                    <td rowspan="3"><?php echo $jev_form['date']; ?></td>
+                </tr>
+                <tr>
+                    <td><strong>Payee:</strong> </td>
+                    <td><?php echo !empty($ors_form['payee_name']) ? htmlspecialchars($ors_form['payee_name']) : "Not Available"; ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Fund Cluster:</strong></td>
+                    <td>
+                        <?php echo !empty($ors_form['fund_cluster']) ? htmlspecialchars($ors_form['fund_cluster']) : "Not Available"; ?>
+                    </td>
+                </tr>
 
-    <table>
-        <tr>
-            <td colspan="2">Responsibility Center</td>
-            <td colspan="5">ACCOUNTING ENTRIES</td>
-        </tr>
-        <tr>
-            <th rowspan="6" colspan="2"><?php echo $ors_form['code']; ?></th>
-            <th>Account Name</th>
-            <th>UACS Object Code</th>
-            <th>P</th>
-            <th>Debit</th>
-            <th>Credit</th>
-        </tr>
-        <tr>
-            <td><?php echo $ors_form['object_name']; ?></td>
-            <td><?php echo $ors_form['uacs_code']; ?></td>
-            <td></td>
-            <td><?php echo number_format($ors_form['debit'], 2, '.', ','); ?></td>
-            <td><?php echo number_format($ors_form['credit'], 2, '.', ','); ?></td>
-        </tr>
-        <tr>
-            <td>Due to BIR <?php echo $ors_form['tax_1']; ?>%</td>
-            <td>(UACS CODE)</td>
-            <td></td>
-            <td></td>
-            <td><?php echo number_format($ors_form['tax_1_amount'], 2, '.', ','); ?></td>
-        </tr>
-        <tr>
-        <td>Due to BIR <?php echo $ors_form['tax_2']; ?>%</td>
-        <td>(UACS CODE)</td>
-            <td></td>
-            <td></td>
-            <td><?php echo number_format($ors_form['tax_2_amount'], 2, '.', ','); ?></td>
-        </tr>
-        <tr>
-            <td>Cash - Modified Disbursement System (MDS), Regular</td>
-            <td>1010404000</td>
-            <td></td>
-            <td></td>
-            <td><?php echo number_format($ors_form['net_amount'], 2, '.', ','); ?></td>
-        </tr>
-        <tr>
-            <td><?php echo $ors_form['notes']; ?>
-            </td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
-        <tr>
-            <td><strong>DV No.:</strong></td>
-            <td><?php echo $jev_form['dv_no']; ?></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
-        <tr>
-            <td><strong>O.R.S No.:</strong></td>
-            <td><?php echo $ors_form['ors_no']; ?></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
-        <tr>
-            <td><strong>Total</strong></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td><?php echo number_format($ors_form['debit'], 2, '.', ','); ?></td>
-            <td><?php echo number_format($ors_form['credit'], 2, '.', ','); ?></td>
-        </tr>
-    </table>
+                <tr>
+                    <td colspan="2">Responsibility Center</td>
+                    <td colspan="5">ACCOUNTING ENTRIES</td>
+                </tr>
+                <tr>
+                    <th rowspan="6" colspan="2"><?php echo $ors_form['code']; ?></th>
+                    <th>Account Name</th>
+                    <th>UACS Object Code</th>
+                    <th>P</th>
+                    <th>Debit</th>
+                    <th>Credit</th>
+                </tr>
+                <tr>
+                    <td><?php echo $ors_form['account_title']; ?></td>
+                    <td><?php echo $ors_form['account_code']; ?></td>
+                    <td></td>
+                    <td><?php echo number_format($ors_form['amount'], 2, '.', ','); ?></td>
+                    <td><?php echo number_format($ors_form['credit'], 2, '.', ','); ?></td>
+                </tr>
+                <tr>
+                    <td><?php echo $ors_form['notes']; ?>
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><strong>DV No.:</strong></td>
+                    <td><?php echo $ors_form['dv_no']; ?></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><strong>O.R.S No.:</strong></td>
+                    <td><?php echo $ors_form['ors_no']; ?></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><strong>Total</strong></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td><?php echo number_format($ors_form['debit'], 2, '.', ','); ?></td>
+                    <td><?php echo number_format($ors_form['credit'], 2, '.', ','); ?></td>
+                </tr>
 
-    <table>
-    <td style="text-align: center;" colspan="2" class="name"><strong
-                    style="font-size:18px;"><?php echo $jev_form['administrative_aide']; ?></strong> <br>
-                <p>Administrative Aide VI</p>
-            </td>
-            <td style="text-align: center;" colspan="2" class="name"><strong
-                    style="font-size:18px;"><?php echo $jev_form['accountant']; ?></strong>
-                <br>
-                <p>Accountant III</p>
-            </td>
-    </table>
-</div>
-</div>
+                <td style="text-align: center;" colspan="2" class="name"><strong
+                        style="font-size:18px;"><?php echo $jev_form['administrative_aide']; ?></strong> <br>
+                    <p>Administrative Aide VI</p>
+                </td>
+                <td style="text-align: center;" colspan="2" class="name"><strong
+                        style="font-size:18px;"><?php echo $jev_form['accountant']; ?></strong>
+                    <br>
+                    <p>Accountant III</p>
+                </td>
+            </table>
+        </div>
+    </div>
 
-<div class="modal-footer no-print text-center">
-    <button type="button" class="btn btn-primary" onclick="window.print()">Print JEV</button>
-    <a href="jev.php" class="btn btn-secondary">Submit Another</a>
-</div>
+    <div class="modal-footer no-print text-center">
+        <button type="button" class="btn btn-primary" onclick="window.print()">Print JEV</button>
+        <a href="jev.php" class="btn btn-secondary">Submit Another</a>
+    </div>
 
 
-    
+
 
 </body>
 
