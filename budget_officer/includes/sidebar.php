@@ -249,41 +249,121 @@
         </li>
 
         <li class="nav-heading mt-3">Reports & Analytics</li>
-
         <li class="nav-item">
             <a class="nav-link collapsed" data-bs-target="#reports-nav" data-bs-toggle="collapse" href="#">
-                <i class="bi bi-journal-text"></i>
-                <span>REPORTS</span><i class="bi bi-chevron-down ms-auto"></i>
+                <i class="bi bi-bar-chart"></i><span>REPORTS</span><i class="bi bi-chevron-down ms-auto"></i>
             </a>
             <ul id="reports-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+                <!-- Personnel Services Submenu -->
                 <li>
-                    <a href="#">
-                        <i class="bi bi-circle"></i><span>PERSONNEL SERVICES REPORT</span>
+                    <a class="nav-link collapsed" data-bs-target="#personal-obligation-nav" data-bs-toggle="collapse" href="#">
+                        <i class="bi bi-bar-chart"></i><span>PERSONNEL SERVICES</span><i class="bi bi-chevron-down ms-auto"></i>
                     </a>
+                    <ul id="personal-obligation-nav" class="nav-content collapse" data-bs-parent="#obligation-nav">
+                        <li>
+                            <a href="#">
+                                <i class="bi bi-circle"></i><span>001-Personnel Services</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <i class="bi bi-circle"></i><span>002-Tida Contractual</span>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
+
+                <!-- MOOE Submenu -->
                 <li>
-                    <a href="#">
-                        <i class="bi bi-circle"></i><span>MOOE REPORT</span>
+                    <a class="nav-link collapsed" data-bs-target="#mooe-obligation-nav" data-bs-toggle="collapse" href="#">
+                        <i class="bi bi-bar-chart"></i><span>MOOE</span><i class="bi bi-chevron-down ms-auto"></i>
                     </a>
+                    <ul id="mooe-obligation-nav" class="nav-content collapse" data-bs-parent="#obligation-nav">
+                        <li>
+                            <a href="#">
+                                <i class="bi bi-circle"></i><span>GAS</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <i class="bi bi-circle"></i><span>OO1</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <i class="bi bi-circle"></i><span>OO2</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <i class="bi bi-circle"></i><span>OO3</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <i class="bi bi-circle"></i><span>OO3.1</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <i class="bi bi-circle"></i><span>OO3.2</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <i class="bi bi-circle"></i><span>OO3.3</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <i class="bi bi-circle"></i><span>OO4.1.1</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <i class="bi bi-circle"></i><span>OO4.1.2</span>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
+
+                <!-- CARP Submenu -->
                 <li>
-                    <a href="#">
-                        <i class="bi bi-circle"></i><span>CARP REPORT</span>
+                    <a class="nav-link collapsed" data-bs-target="#carp-obligation-nav" data-bs-toggle="collapse" href="#">
+                        <i class="bi bi-bar-chart"></i><span>CARP</span><i class="bi bi-chevron-down ms-auto"></i>
                     </a>
+                    <ul id="carp-obligation-nav" class="nav-content collapse" data-bs-parent="#obligation-nav">
+                        <li>
+                            <a href="#">
+                                <i class="bi bi-circle"></i><span>OO3-Carp</span>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
+
+                <!-- RAPID Growth Project Submenu -->
                 <li>
-                    <a href="#">
-                        <i class="bi bi-circle"></i><span>RAPID GROWTH PROJECT REPORT</span>
+                    <a class="nav-link collapsed" data-bs-target="#rapid-obligation-nav" data-bs-toggle="collapse" href="#">
+                        <i class="bi bi-bar-chart"></i><span>RAPID GROWTH PROJECT</span><i class="bi bi-chevron-down ms-auto"></i>
                     </a>
-                </li>
-                <li>
-                    <a href="reports_copy.php">
-                        <i class="bi bi-circle"></i><span>All Reports</span>
-                    </a>
+                    <ul id="rapid-obligation-nav" class="nav-content collapse" data-bs-parent="#obligation-nav">
+                        <li>
+                            <a href="#">
+                                <i class="bi bi-circle"></i><span>O1-Rapid RO 12</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <i class="bi bi-circle"></i><span>O2-Rapid</span>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
             </ul>
-        </li>
-    </ul>
+        </li> 
+        </ul>
+    </li>
+</ul>
 
     
 </aside><!-- End Sidebar-->
