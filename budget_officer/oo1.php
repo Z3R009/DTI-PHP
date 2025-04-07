@@ -67,8 +67,13 @@ $select = mysqli_query(
             ORDER BY account_title.account_title ASC"
 );
 
-// account name
+// Get oopap information    
+$oopap_query = "SELECT description FROM oopap WHERE oopap_id = 2";
+$oopap_result = mysqli_query($connection, $oopap_query);
+$oopap_data = mysqli_fetch_assoc($oopap_result);
+$description = $oopap_data['description'];
 
+// account name
 $query_account = "SELECT account_id, account_title, account_code FROM account_title ORDER BY account_title ASC";
 $result_account = $connection->query($query_account);
 
@@ -138,7 +143,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     <main id="main" class="main">
 
         <div class="pagetitle">
-            <h1>OO1(<?php echo date('Y'); ?>)</h1>
+            <h1>OO1 - <?php echo htmlspecialchars($description); ?></h1>
         </div><!-- End Page Title -->
 
         <section class="section dashboard">
