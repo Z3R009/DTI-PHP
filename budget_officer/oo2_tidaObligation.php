@@ -1,12 +1,13 @@
 <?php
 include '../DBConnection.php';
 
+
 // Get filter parameters
 $selected_month = isset($_GET['month']) ? intval($_GET['month']) : date('n');
 $selected_year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
 
 // Get oopap information
-$oopap_id = 5; // Set the oopap_id to 1 as requested
+$oopap_id = 12; // Set the oopap_id to 12 as requested
 $oopap_query = "SELECT description FROM oopap WHERE oopap_id = $oopap_id";
 $oopap_result = mysqli_query($connection, $oopap_query);
 $oopap_data = mysqli_fetch_assoc($oopap_result);
@@ -25,6 +26,7 @@ $select = mysqli_query(
             ors.ors_no, 
             ors.payee_id, 
             ors.notes, 
+            ors.total_amount,
             payee.payee_name 
      FROM obligation_history 
      LEFT JOIN ors ON obligation_history.ors_id = ors.ors_id 
@@ -43,6 +45,9 @@ while ($row = mysqli_fetch_assoc($select)) {
 // Reset the pointer for later use
 mysqli_data_seek($select, 0);
 
+?>
+
+<?php
 // Fetch total allotment
 $total_allotment_query = "SELECT SUM(allotment) AS total_allotment FROM project WHERE oopap_id = $oopap_id";
 $total_allotment_result = mysqli_query($connection, $total_allotment_query);
@@ -86,7 +91,6 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
 
     <!-- Template Main CSS File -->
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
-
 </head>
 
 <body>
@@ -97,7 +101,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     <main id="main" class="main">
 
         <div class="pagetitle">
-            <h1>OO3.1-OBLIGATION(<?php echo date('Y'); ?>) - <?php echo htmlspecialchars($oopap_description); ?></h1>
+            <h1>OO2-OBLIGATION(<?php echo date('Y'); ?>) - <?php echo htmlspecialchars($oopap_description); ?></h1>
         </div><!-- End Page Title -->
 
         <section class="section dashboard">
@@ -126,7 +130,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
             <div class="card mb-3">
                 <div class="card-body">
                     <h5 class="card-title">Filter by Month and Year</h5>
-                    <form method="get" action="oo3_1_obligation.php" class="row g-3">
+                    <form method="get" action="oo2_tidaObligation.php" class="row g-3">
                         <div class="col-md-4">
                             <label for="month" class="form-label">Month</label>
                             <select class="form-select" id="month" name="month">
@@ -157,7 +161,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                                 }
                                 ?>
                             </select>
-                            <small class="text-muted">Filter ORS by month</small>
+                            <small class="text-muted">Shows all ors for the selected year</small>
                         </div>
                         
                         <div class="col-md-4 d-flex align-items-end">
@@ -178,13 +182,13 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                                 <th>Payee</th>
                                 <th>Particulars</th>
                                 <th>Obligations</th>
-                                <th></th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php while ($row = mysqli_fetch_assoc($select)) { ?>
+                            <?php foreach ($filtered_data as $row) { ?>
                                 <tr>
-                                    <td><?php echo date("F-d-Y", strtotime($row['date'])); ?></td>
+                                <td><?php echo date("F-d-Y", strtotime($row['date'])); ?></td>
                                     <td><?php echo htmlspecialchars($row['ors_no']); ?></td>
                                     <td><?php echo htmlspecialchars($row['payee_name']); ?></td>
                                     <td><?php echo htmlspecialchars($row['notes']); ?></td>
@@ -194,11 +198,16 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                                             <i class="bi bi-eye" data-bs-toggle="tooltip" data-bs-placement="top"
                                                 title="View Details"></i>
                                         </button></td>
-
                                 </tr>
                             <?php } ?>
                         </tbody>
-
+                        <tfoot>
+                            <tr class="table-primary">
+                                <td colspan="4" class="text-end"><strong>Total Obligations (<?php echo $selected_month > 0 ? $months[$selected_month] : 'All Months'; ?> <?php echo $selected_year; ?>):</strong></td>
+                                <td><strong>₱<?php echo number_format($total_filtered_amount, 2); ?></strong></td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
                     </table>
                 </div>
             </div>
@@ -206,42 +215,6 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
         </section>
 
     </main><!-- End #main -->
-
-    <!-- update modal -->
-
-    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editModalLabel">Edit Project/Program/Activities</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form method="post" id="editUserForm" action="update_gas.php">
-                        <input type="hidden" id="edit_project_id" name="project_id">
-                        <input type="hidden" id="edit_account_id" name="edit_account_id">
-
-                        <div class="mb-3">
-                            <label for="edit_account_id" class="form-label">Project/Program/Activities</label>
-                            <input type="text" class="form-control" id="edit_account_title" name="account_id" required
-                                autocomplete="off" readonly>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="edit_allotment" class="form-label">Allotment</label>
-                            <input type="number" class="form-control" id="edit_allotment" name="allotment" step="0.01"
-                                required autocomplete="off">
-                        </div>
-
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" id="update" name="update" class="btn btn-primary">Update</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
 
 
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
@@ -259,6 +232,18 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
 
     <!-- Template Main JS File -->
     <script src="../NiceAdmin/assets/js/main.js"></script>
+
+    <script>
+        function filterData() {
+            const month = document.getElementById('monthSelect').value;
+            const year = document.getElementById('yearSelect').value;
+            let url = 'oo2_tidaObligation.php?year=' + year;
+            if (month) {
+                url += '&month=' + month;
+            }
+            window.location.href = url;
+        }
+    </script>
 
 </body>
 

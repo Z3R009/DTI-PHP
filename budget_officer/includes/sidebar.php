@@ -147,12 +147,12 @@
                     </a>
                     <ul id="personal-obligation-nav" class="nav-content collapse" data-bs-parent="#obligation-nav">
                         <li>
-                            <a href="#">
+                            <a href="oo1_personalServicesObligation.php">
                                 <i class="bi bi-circle"></i><span>001-Personnel Services</span>
                             </a>
                         </li>
                         <li>
-                            <a href="#">
+                            <a href="oo2_tidaObligation.php">
                                 <i class="bi bi-circle"></i><span>002-Tida Contractual</span>
                             </a>
                         </li>
@@ -220,7 +220,7 @@
                     </a>
                     <ul id="carp-obligation-nav" class="nav-content collapse" data-bs-parent="#obligation-nav">
                         <li>
-                            <a href="#">
+                            <a href="oo3_carpObligation.php">
                                 <i class="bi bi-circle"></i><span>OO3-Carp</span>
                             </a>
                         </li>
@@ -234,12 +234,12 @@
                     </a>
                     <ul id="rapid-obligation-nav" class="nav-content collapse" data-bs-parent="#obligation-nav">
                         <li>
-                            <a href="#">
+                            <a href="o1_rapidRO12Obligation.php">
                                 <i class="bi bi-circle"></i><span>O1-Rapid RO 12</span>
                             </a>
                         </li>
                         <li>
-                            <a href="#">
+                            <a href="o2_rapidObligation.php">
                                 <i class="bi bi-circle"></i><span>O2-Rapid</span>
                             </a>
                         </li>

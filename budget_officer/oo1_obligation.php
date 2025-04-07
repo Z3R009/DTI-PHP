@@ -6,7 +6,7 @@ $selected_month = isset($_GET['month']) ? intval($_GET['month']) : date('n');
 $selected_year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
 
 // Get oopap information
-$oopap_id = 2; // Set the oopap_id to 1 as requested
+$oopap_id = 2; 
 $oopap_query = "SELECT description FROM oopap WHERE oopap_id = $oopap_id";
 $oopap_result = mysqli_query($connection, $oopap_query);
 $oopap_data = mysqli_fetch_assoc($oopap_result);
@@ -97,7 +97,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     <main id="main" class="main">
 
         <div class="pagetitle">
-        <h1>OO1(<?php echo date('Y'); ?>) - <?php echo htmlspecialchars($oopap_description); ?></h1>
+        <h1>OO1-OBLIGATION(<?php echo date('Y'); ?>) - <?php echo htmlspecialchars($oopap_description); ?></h1>
         </div><!-- End Page Title -->
 
         <section class="section dashboard">
