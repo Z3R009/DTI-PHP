@@ -97,7 +97,7 @@ $query2 = "
     LEFT JOIN fund_cluster ON ors.fund_cluster_id = fund_cluster.fund_cluster_id
     LEFT JOIN responsibility_center ON ors.rc_id = responsibility_center.rc_id
     LEFT JOIN oopap ON ors.oopap_id = oopap.oopap_id
-    WHERE ors.ors_id = ?";
+    WHERE ors.ors_id = ? AND payee.payee_id = 25 ";
 
 $stmt2 = $connection->prepare($query2);
 if (!$stmt2) {
@@ -232,6 +232,7 @@ $connection->close();
                     <td colspan="2"><strong>Payee:</strong> </td>
                     <td colspan="6">
                         <?php echo !empty($ors_form['payee_name']) ? htmlspecialchars($ors_form['payee_name']) : "Not Available"; ?>
+
                     </td>
                 </tr>
                 <tr>
