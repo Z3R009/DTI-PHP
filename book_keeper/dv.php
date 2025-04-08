@@ -25,7 +25,6 @@ if (isset($_POST['submit'])) {
     $net_amount = $_POST['net_amount'];
     $chief_accountant = $_POST['chief_accountant'];
     $regional_director = $_POST['regional_director'];
-    $regional_director = $_POST['regional_director'];
 
     // Get the account titles and amounts arrays
     $account_titles = $_POST['account_titles'];
@@ -87,6 +86,20 @@ if (isset($_POST['submit'])) {
 
         $dv_id = $connection->insert_id;
         $stmt->close();
+
+        // Update the ORS status to 'Processed'
+        $update_status_sql = "UPDATE ors SET status = 'Processed' WHERE ors_id = ?";
+        $update_status_stmt = $connection->prepare($update_status_sql);
+        if ($update_status_stmt === false) {
+            throw new Exception('Prepare failed (ORS update): ' . htmlspecialchars($connection->error));
+        }
+
+        $update_status_stmt->bind_param("i", $ors_id);
+        if (!$update_status_stmt->execute()) {
+            throw new Exception("Error updating ORS status: " . $update_status_stmt->error);
+        }
+        $update_status_stmt->close();
+
 
         // Loop through each account and save it in dv_history
         for ($i = 0; $i < count($account_titles); $i++) {
@@ -156,6 +169,8 @@ $select_ors = mysqli_query($connection, "
     LEFT JOIN responsibility_center ON ors.rc_id = responsibility_center.rc_id
     LEFT JOIN oopap ON ors.oopap_id = oopap.oopap_id
     LEFT JOIN payee ON ors.payee_id = payee.payee_id
+
+    WHERE ors.status = 'Pending';
 ");
 
 // retrieve_dv

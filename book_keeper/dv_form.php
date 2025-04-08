@@ -578,7 +578,7 @@ function numberToWords($number)
                         <div class="amount-row">
                             <span class="amount-label">Total amount Billed:</span>
                             <span
-                                class="amount-value"><?php echo number_format($dv_form['amount'], 2, '.', ','); ?></span>
+                                class="amount-value"><?php echo number_format($ors_form['total_amount'], 2, '.', ','); ?></span>
                         </div>
 
                         <div class="amount-row">

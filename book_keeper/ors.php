@@ -979,9 +979,6 @@ $ors_result = $connection->query($ors_query);
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 
-
-    
-    <!-- total_amount -->
     <script>
         $(document).ready(function () {
             $('#payee_id').on('change', function () {
@@ -1074,7 +1071,7 @@ $ors_result = $connection->query($ors_query);
         });
     </script>
 
-    <!-- Add this before the closing </body> tag -->
+    <!-- services -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const oopapSelect = document.querySelector('select[name="oopap_id"]');

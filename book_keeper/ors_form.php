@@ -460,7 +460,7 @@ if (isset($_GET['ors_no'])) {
 
         <div class="modal-footer no-print">
             <button type="button" class="btn btn-primary" onclick="window.print()">Print ORS</button>
-            <button type="button" class="btn btn-secondary" onclick="window.history.back();">
+            <button type="button" class="btn btn-secondary" onclick="window.location.href='processed_ors.php';">
                 Back
             </button>
         </div>
