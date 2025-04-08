@@ -17,7 +17,7 @@ $select = mysqli_query(
         account_title.account_code
      FROM project 
      LEFT JOIN account_title ON project.account_id = account_title.account_id 
-     WHERE project.oopap_id = 1 
+     WHERE project.oopap_id = 4
      AND YEAR(project.created_at) = $selected_year
      ORDER BY account_title.account_title ASC"
 );
@@ -31,7 +31,7 @@ function getObligations($connection, $account_id, $year, $start_month, $end_mont
                   SELECT project_id 
                   FROM project 
                   WHERE account_id = ? 
-                  AND oopap_id = 1
+                  AND oopap_id = 4
               )
               AND YEAR(ors.date) = ?
               AND MONTH(ors.date) BETWEEN ? AND ?";
@@ -93,7 +93,7 @@ $months = [
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>GAS REPORTS</title>
+    <title>OO3 REPORTS</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
@@ -124,15 +124,15 @@ $months = [
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1>GAS REPORTS</h1>
+            <h1>OO3 REPORTS</h1>
         </div>
 
         <section class="section dashboard">
             <!-- Filter Card -->
             <div class="card mb-3">
                 <div class="card-body">
-                    <h5 class="card-title">SUMMARY OF OBLIGATION (GAS) <?php echo $months[$selected_month] . ' ' . $selected_year; ?></h5>
-                    <form method="get" action="gasReport.php" class="row g-3">
+                    <h5 class="card-title">SUMMARY OF OBLIGATION (OO3) <?php echo $months[$selected_month] . ' ' . $selected_year; ?></h5>
+                    <form method="get" action="oo3Report.php" class="row g-3">
                         <div class="col-md-4">
                             <label for="year" class="form-label">Year</label>
                             <select class="form-select" id="year" name="year" required>
