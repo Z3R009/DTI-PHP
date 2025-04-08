@@ -280,8 +280,8 @@
                     </a>
                     <ul id="mooe-obligation-nav" class="nav-content collapse" data-bs-parent="#obligation-nav">
                         <li>
-                            <a href="#">
-                                <i class="bi bi-circle"></i><span>GAS</span>
+                            <a href="gasReport.php">
+                                <i class="bi bi-circle"></i><span>GAS REPORT</span>
                             </a>
                         </li>
                         <li>
