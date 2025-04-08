@@ -541,8 +541,10 @@ function numberToWords($number)
             </tr>
 
             <tr>
-                <td><b>Mode of Payment</b></td>
-                <td colspan="5"> <?php echo $dv_form['payment_mode']; ?></td>
+                <td><strong>Mode of Payment:</strong> <input type="checkbox">MDS Check <input type="checkbox">Commercial
+                    Check
+                    <input type="checkbox">ADA <input type="checkbox">Others (Please specify)
+                </td>
             </tr>
 
 
@@ -578,7 +580,7 @@ function numberToWords($number)
                         <div class="amount-row">
                             <span class="amount-label">Total amount Billed:</span>
                             <span
-                                class="amount-value"><?php echo number_format($dv_form['amount'], 2, '.', ','); ?></span>
+                                class="amount-value"><?php echo number_format($ors_form['total_amount'], 2, '.', ','); ?></span>
                         </div>
 
                         <div class="amount-row">

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 07, 2025 at 09:27 AM
+-- Generation Time: Apr 08, 2025 at 11:59 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -221,7 +221,6 @@ CREATE TABLE `dv` (
   `date` date DEFAULT NULL,
   `ors_id` int(255) NOT NULL,
   `dv_no` varchar(50) DEFAULT NULL,
-  `payment_mode` varchar(100) DEFAULT NULL,
   `vat` double(40,2) DEFAULT NULL,
   `vat_amount` double(40,2) NOT NULL,
   `tax_base` double(40,2) NOT NULL,
@@ -232,15 +231,20 @@ CREATE TABLE `dv` (
   `net_amount` double(40,2) DEFAULT NULL,
   `total_amount` double(40,2) NOT NULL,
   `chief_accountant` varchar(255) DEFAULT NULL,
-  `regional_director` varchar(255) DEFAULT NULL
+  `regional_director` varchar(255) DEFAULT NULL,
+  `status` enum('Pending','Endorsed') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `dv`
 --
 
-INSERT INTO `dv` (`dv_id`, `date`, `ors_id`, `dv_no`, `payment_mode`, `vat`, `vat_amount`, `tax_base`, `tax_1`, `tax_1_amount`, `tax_2`, `tax_2_amount`, `net_amount`, `total_amount`, `chief_accountant`, `regional_director`) VALUES
-(46, '2025-04-10', 61, '1-25-04-002', 'Commercial Check', 12.00, 0.00, 1000.00, 3.00, 30.00, 1.00, 10.00, 960.00, 0.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V');
+INSERT INTO `dv` (`dv_id`, `date`, `ors_id`, `dv_no`, `vat`, `vat_amount`, `tax_base`, `tax_1`, `tax_1_amount`, `tax_2`, `tax_2_amount`, `net_amount`, `total_amount`, `chief_accountant`, `regional_director`, `status`) VALUES
+(48, '2025-04-08', 62, '1-25-04-001', 12.00, 546.43, 4553.57, 5.00, 227.68, 2.00, 91.07, 4781.25, 0.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', 'Endorsed'),
+(50, '2025-04-08', 63, '4-25-04-001', 12.00, 0.00, 100.00, 0.00, 0.00, 0.00, 0.00, 100.00, 0.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', 'Pending'),
+(51, '2025-04-08', 66, '1-25-04-002', 12.00, 0.00, 750.00, 0.00, 0.00, 0.00, 0.00, 1000.00, 0.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', 'Endorsed'),
+(52, '2025-04-08', 64, '1-25-04-003', 12.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 750.00, 0.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', 'Endorsed'),
+(53, '2025-04-08', 67, '1-25-04-004', 12.00, 0.00, 1000.00, 3.00, 30.00, 1.00, 10.00, 960.00, 0.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', 'Endorsed');
 
 -- --------------------------------------------------------
 
@@ -261,10 +265,19 @@ CREATE TABLE `dv_history` (
 --
 
 INSERT INTO `dv_history` (`dvhis_id`, `dv_id`, `account_id`, `type`, `amount`) VALUES
-(4, 46, 318, 'debit', 1000.00),
-(5, 46, 278, 'credit', 30.00),
-(6, 46, 278, 'credit', 10.00),
-(7, 46, 382, 'credit', 960.00);
+(12, 48, 318, 'debit', 5000.00),
+(13, 48, 380, 'debit', 100.00),
+(14, 48, 278, 'credit', 227.68),
+(15, 48, 278, 'credit', 91.07),
+(16, 48, 382, 'credit', 4781.25),
+(17, 50, 268, 'debit', 100.00),
+(18, 50, 273, 'credit', 100.00),
+(19, 51, 379, 'debit', 1.00),
+(20, 51, 379, 'credit', 1.00),
+(21, 52, 311, 'debit', 750.00),
+(22, 52, 382, 'credit', 750.00),
+(23, 53, 276, 'debit', 1000.00),
+(24, 53, 260, 'credit', 1000.00);
 
 -- --------------------------------------------------------
 
@@ -308,6 +321,17 @@ CREATE TABLE `jev` (
   `accountant` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `jev`
+--
+
+INSERT INTO `jev` (`jev_id`, `date`, `dv_id`, `ors_id`, `jev_no`, `administrative_aide`, `accountant`) VALUES
+(12, '2025-04-08', 48, 62, '231313', 'JINNARD B. LUBATON', 'NEIL ANTHONY T. MORALA'),
+(13, '2025-04-08', 52, 64, '101', 'JINNARD B. LUBATON', 'NEIL ANTHONY T. MORALA'),
+(14, '2025-04-08', 51, 66, '44', 'JINNARD B. LUBATON', 'NEIL ANTHONY T. MORALA'),
+(15, '2025-04-08', 52, 64, '11111', 'JINNARD B. LUBATON', 'NEIL ANTHONY T. MORALA'),
+(16, '2025-04-08', 53, 67, '23123', 'JINNARD B. LUBATON', 'NEIL ANTHONY T. MORALA');
+
 -- --------------------------------------------------------
 
 --
@@ -326,7 +350,12 @@ CREATE TABLE `obligation_history` (
 --
 
 INSERT INTO `obligation_history` (`id`, `ors_id`, `project_id`, `net`) VALUES
-(26, 61, 63, 1000.00);
+(27, 62, 63, 5000.00),
+(28, 62, 379, 100.00),
+(29, 63, 61, 100.00),
+(30, 64, 56, 750.00),
+(31, 66, 378, 1000.00),
+(32, 67, 56, 1000.00);
 
 -- --------------------------------------------------------
 
@@ -380,15 +409,20 @@ CREATE TABLE `ors` (
   `oopap_id` int(255) NOT NULL,
   `total_amount` double(40,2) NOT NULL,
   `approver_id` int(255) NOT NULL,
-  `budget_officer` varchar(255) NOT NULL
+  `budget_officer` varchar(255) NOT NULL,
+  `status` enum('Pending','Endorsed') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `ors`
 --
 
-INSERT INTO `ors` (`ors_id`, `fund_cluster_id`, `services_id`, `date`, `ors_no`, `payee_id`, `notes`, `purpose`, `rc_id`, `account_id`, `oopap_id`, `total_amount`, `approver_id`, `budget_officer`) VALUES
-(61, 3, 7, '2025-04-04', 'RR-25-04-001', 17, 'Payment for water expense', 'To Payment of', 9, 318, 1, 1000.00, 1, 'CONNIE M. BARNACHEA');
+INSERT INTO `ors` (`ors_id`, `fund_cluster_id`, `services_id`, `date`, `ors_no`, `payee_id`, `notes`, `purpose`, `rc_id`, `account_id`, `oopap_id`, `total_amount`, `approver_id`, `budget_officer`, `status`) VALUES
+(62, 3, 3, '2025-04-08', 'ONETIME-25-04-001', 19, 'Payment of water expense', 'To Payment of', 1, 318, 1, 5100.00, 1, 'CONNIE M. BARNACHEA', ''),
+(63, 6, 4, '2025-04-08', 'OS-25-04-001', 18, 'Payment', 'To Payment of', 3, 317, 1, 100.00, 4, 'CONNIE M. BARNACHEA', ''),
+(64, 3, 11, '2025-04-08', 'ADMINPOLICY-25-04-001', 25, 'Conduct of pre-procurement activities and market scoping for various requests and activities on Mar 5, 2025', 'To Payment of', 1, 311, 1, 750.00, 1, 'CONNIE M. BARNACHEA', ''),
+(66, 4, 3, '2025-04-02', 'ONETIME-25-04-002', 18, 'asea', 'To Payment of', 8, 379, 1, 1000.00, 3, 'CONNIE M. BARNACHEA', ''),
+(67, 3, 2, '2025-04-08', 'RM-25-04-001', 17, 'akjsabx', 'To Payment of', 1, 311, 1, 1000.00, 1, 'CONNIE M. BARNACHEA', '');
 
 -- --------------------------------------------------------
 
@@ -419,7 +453,8 @@ INSERT INTO `payee` (`payee_id`, `payee_name`, `tin_no`, `bank_acc_no`, `address
 (21, 'ADC AUTOMOTIVE SHOP BY ANNIE LIZA R CERALVO', '', 'LBP - SA 0751-1741-01', '', '', ''),
 (22, 'ADWERKZ PRINTING SOLUTIONS/PAUL RYAN C. BARCELONA', '', 'LBP - SA 3416-0029-23', '', '', ''),
 (23, 'AFL 168 CORPORATION', '', 'LBP - SA 0751-1769-37', '', '', ''),
-(24, 'AHR WOODCRAFT CENTER BY ALLAN B. HIMALLA ', '', 'LBP - SA 0751-1759-90', '', '', '');
+(24, 'AHR WOODCRAFT CENTER BY ALLAN B. HIMALLA ', '', 'LBP - SA 0751-1759-90', '', '', ''),
+(25, 'BENJO G. BASID', '', '', 'Koronadal City', '', '');
 
 -- --------------------------------------------------------
 
@@ -441,13 +476,13 @@ CREATE TABLE `project` (
 --
 
 INSERT INTO `project` (`project_id`, `oopap_id`, `account_id`, `allotment`, `balances`, `created_at`) VALUES
-(56, 1, 311, 1562000.00, 1562000.00, '2025-03-31'),
+(56, 1, 311, 1562000.00, 1560250.00, '2025-03-31'),
 (57, 1, 313, 800000.00, 800000.00, '2025-03-31'),
 (58, 1, 314, 196000.00, 196000.00, '2025-03-31'),
 (59, 1, 315, 21000.00, 21000.00, '2025-03-31'),
 (60, 1, 355, 130000.00, 130000.00, '2025-03-31'),
-(61, 1, 317, 140000.00, 140000.00, '2025-03-31'),
-(63, 1, 318, 200000.00, 199000.00, '2025-03-31'),
+(61, 1, 317, 140000.00, 139900.00, '2025-03-31'),
+(63, 1, 318, 200000.00, 194000.00, '2025-03-31'),
 (64, 1, 319, 200000.00, 200000.00, '2025-03-31'),
 (65, 1, 320, 50000.00, 50000.00, '2025-03-31'),
 (66, 1, 357, 125000.00, 125000.00, '2025-03-31'),
@@ -716,8 +751,8 @@ INSERT INTO `project` (`project_id`, `oopap_id`, `account_id`, `allotment`, `bal
 (374, 9, 364, 0.00, 0.00, '2025-03-31'),
 (375, 9, 314, 50000.00, 50000.00, '2025-03-31'),
 (376, 9, 346, 50000.00, 50000.00, '2025-03-31'),
-(378, 1, 379, 100000.00, 100000.00, '2025-04-02'),
-(379, 1, 380, 100000.00, 100000.00, '2025-04-02'),
+(378, 1, 379, 100000.00, 99000.00, '2025-04-02'),
+(379, 1, 380, 100000.00, 99900.00, '2025-04-02'),
 (380, 1, 381, 0.00, 0.00, '2025-04-02'),
 (381, 11, 295, 3817000.00, 3817000.00, '2025-04-06'),
 (382, 11, 383, 144000.00, 144000.00, '2025-04-06'),
@@ -1010,13 +1045,13 @@ ALTER TABLE `approver`
 -- AUTO_INCREMENT for table `dv`
 --
 ALTER TABLE `dv`
-  MODIFY `dv_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
+  MODIFY `dv_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
 
 --
 -- AUTO_INCREMENT for table `dv_history`
 --
 ALTER TABLE `dv_history`
-  MODIFY `dvhis_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `dvhis_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `fund_cluster`
@@ -1028,13 +1063,13 @@ ALTER TABLE `fund_cluster`
 -- AUTO_INCREMENT for table `jev`
 --
 ALTER TABLE `jev`
-  MODIFY `jev_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `jev_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `obligation_history`
 --
 ALTER TABLE `obligation_history`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
 -- AUTO_INCREMENT for table `oopap`
@@ -1046,13 +1081,13 @@ ALTER TABLE `oopap`
 -- AUTO_INCREMENT for table `ors`
 --
 ALTER TABLE `ors`
-  MODIFY `ors_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=62;
+  MODIFY `ors_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=68;
 
 --
 -- AUTO_INCREMENT for table `payee`
 --
 ALTER TABLE `payee`
-  MODIFY `payee_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `payee_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `project`

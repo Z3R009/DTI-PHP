@@ -87,42 +87,6 @@ if (isset($_POST['submit'])) {
         $dv_id = $connection->insert_id;
         $stmt->close();
 
-        // Loop through each account and save it in dv_history
-        for ($i = 0; $i < count($account_titles); $i++) {
-            if (empty($account_titles[$i]))
-                continue; // Skip empty account selections
-
-            $account_id = $account_titles[$i];
-            $debit = !empty($debit_amounts[$i]) ? $debit_amounts[$i] : 0;
-            $credit = !empty($credit_amounts[$i]) ? $credit_amounts[$i] : 0;
-
-            // Determine the type (debit or credit)
-            $type = ($debit > 0) ? 'debit' : 'credit';
-            $amount = ($debit > 0) ? $debit : $credit;
-
-            // Skip if amount is zero
-            if ($amount == 0)
-                continue;
-
-            // Insert into dv_history
-            $history_sql = "INSERT INTO dv_history (dv_id, account_id, type, amount) VALUES (?, ?, ?, ?)";
-            $history_stmt = $connection->prepare($history_sql);
-            if ($history_stmt === false) {
-                throw new Exception('Prepare failed: ' . htmlspecialchars($connection->error));
-            }
-
-            $history_stmt->bind_param("iisd", $dv_id, $account_id, $type, $amount);
-
-            if (!$history_stmt->execute()) {
-                throw new Exception("Error: " . $history_stmt->error);
-            }
-
-            $history_stmt->close();
-        }
-
-        // Commit the transaction
-        $connection->commit();
-
         // Redirect after successful save
         header("Location: dv_form.php?dv_no=$dv_no");
         exit();
@@ -136,53 +100,29 @@ if (isset($_POST['submit'])) {
     $connection->close();
 }
 
-// retrieve ors
-$select_ors = mysqli_query($connection, "
-    SELECT 
-        ors.*, 
-        account_title.account_title, 
-        approver.approver_name,
-        CONCAT(fund_cluster.uacs_code, '-', fund_cluster.fund_cluster_name) AS fund_cluster,
-        responsibility_center.code,
-        oopap.oopap_name,
-        payee.payee_name,
-        payee.tin_no,
-        payee.address
-    FROM ors
-    LEFT JOIN account_title ON ors.account_id = account_title.account_id
-    LEFT JOIN approver ON ors.approver_id = approver.approver_id
-    LEFT JOIN fund_cluster ON ors.fund_cluster_id = fund_cluster.fund_cluster_id
-    LEFT JOIN responsibility_center ON ors.rc_id = responsibility_center.rc_id
-    LEFT JOIN oopap ON ors.oopap_id = oopap.oopap_id
-    LEFT JOIN payee ON ors.payee_id = payee.payee_id
-");
 
-// retrieve_dv
-$select_dv = mysqli_query($connection, "
-SELECT 
-    ors.*,
-    ors.total_amount AS ors_total_amount,
-    dv.*, 
-    account_title.account_title, 
-    approver.approver_name,
-    CONCAT(fund_cluster.uacs_code, '-', fund_cluster.fund_cluster_name) AS fund_cluster,
-    responsibility_center.code,
-    oopap.oopap_name,
-    payee.payee_name,
-    payee.tin_no,
-    payee.address
-FROM dv
-LEFT JOIN ors ON dv.ors_id = ors.ors_id
-LEFT JOIN account_title ON ors.account_id = account_title.account_id
-LEFT JOIN approver ON ors.approver_id = approver.approver_id
-LEFT JOIN fund_cluster ON ors.fund_cluster_id = fund_cluster.fund_cluster_id
-LEFT JOIN responsibility_center ON ors.rc_id = responsibility_center.rc_id
-LEFT JOIN oopap ON ors.oopap_id = oopap.oopap_id
-LEFT JOIN payee ON ors.payee_id = payee.payee_id;
+// retrieve payee
+
+$sql_payee = "SELECT payee_id, payee_name, tin_no, address  FROM payee";
+$result_payee = $connection->query($sql_payee);
+
+// retrieve responsibility
+
+$sql_responsibility_center = "SELECT rc_id, code, description FROM responsibility_center";
+$result_responsibility_center = $connection->query($sql_responsibility_center);
+
+// retrieve fund_cluster
+$sql_fund_cluster = "SELECT fund_cluster_id, fund_cluster_name FROM fund_cluster";
+$result_fund_cluster = $connection->query($sql_fund_cluster);
 
 
-");
+// retrieve oo/pap
+$sql_oopap = "SELECT oopap_id, oopap_name FROM oopap";
+$result_oopap = $connection->query($sql_oopap);
 
+// retrieve services
+$sql_services = "SELECT services_id, services_name, code FROM services";
+$result_services = $connection->query($sql_services);
 ?>
 
 <!DOCTYPE html>
@@ -837,6 +777,10 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
     <?php include "Includes/sidebar.php"; ?>
 
     <main id="main" class="main">
+
+
+
+
         <div class="pagetitle d-flex align-items-center">
             <h1 class="mb-0">Disbursement Voucher</h1>
 
@@ -852,56 +796,129 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
         </div>
 
 
-
         <div class="content-wrapper">
             <div class="form-container">
                 <h2 class="form-title">Disbursement Voucher</h2>
-                <form method="post">
-                    <div class="form-section">
-                        <h3>General Information</h3>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">Fund Cluster</label>
-                                <select class="form-control" name="fund_cluster_id">
-                                    <option selected disabled>Select Fund Cluster</option>
-                                    <?php
-                                    while ($row = $result_fund_cluster->fetch_assoc()) {
-                                        echo "<option value='" . htmlspecialchars($row['fund_cluster_id']) . "'>" . htmlspecialchars($row['fund_cluster_name']) . "</option>";
-                                    }
-                                    ?>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">OO/PAP</label>
-                                <select class="form-control" name="oopap_id">
-                                    <option selected disabled>Select OO/PAP</option>
-                                    <?php
-                                    while ($row = $result_oopap->fetch_assoc()) {
-                                        echo "<option value='" . htmlspecialchars($row['oopap_id']) . "'>" . htmlspecialchars($row['oopap_name']) . "</option>";
-                                    }
-                                    ?>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Services</label>
-                                <select class="form-control" name="services_id" id="services">
-                                    <option selected disabled>Select Services</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Date</label>
-                                <input type="date" class="form-control" id="dvDate" name="date">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Obligation Request No.</label>
-                                <input type="text" class="form-control" name="ors_no" id="ors_no" required readonly>
-                            </div>
+
+                <div class="tab-content">
+                    <div>
+                        <div id="ors_form">
+                            <form method="post">
+                                <div class="form-section">
+                                    <h3>General Information</h3>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label">Fund Cluster</label>
+                                            <select class="form-control" name="fund_cluster_id">
+                                                <option selected disabled>Select Fund Cluster</option>
+                                                <?php
+                                                while ($row = $result_fund_cluster->fetch_assoc()) {
+                                                    echo "<option value='" . htmlspecialchars($row['fund_cluster_id']) . "'>" . htmlspecialchars($row['fund_cluster_name']) . "</option>";
+                                                }
+                                                ?>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">OO/PAP</label>
+                                            <select class="form-control" name="oopap_id">
+                                                <option selected disabled>Select OO/PAP</option>
+                                                <?php
+                                                while ($row = $result_oopap->fetch_assoc()) {
+                                                    echo "<option value='" . htmlspecialchars($row['oopap_id']) . "'>" . htmlspecialchars($row['oopap_name']) . "</option>";
+                                                }
+                                                ?>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Services</label>
+                                            <select class="form-control" name="services_id" id="services">
+                                                <option selected disabled>Select Services</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Date</label>
+                                            <input type="date" class="form-control" id="dvDate" name="date">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">DV No.</label>
+                                            <input type="text" class="form-control" name="ors_no" id="ors_no" required
+                                                readonly>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Payee Details Section -->
+                                <div class="form-section">
+                                    <h3> Payee Details</h3>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label">Payee Name</label>
+                                            <select class="form-control" name="payee_id" id="payee_id">
+                                                <option selected disabled>Select Payee</option>
+                                                <?php
+                                                while ($row = $result_payee->fetch_assoc()) {
+                                                    echo "<option value='" . htmlspecialchars($row['payee_id']) . "' 
+                                                                        data-tin='" . htmlspecialchars($row['tin_no']) . "' 
+                                                                        data-address='" . htmlspecialchars($row['address']) . "'>"
+                                                        . htmlspecialchars($row['payee_name']) .
+                                                        "</option>";
+                                                }
+                                                ?>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">TIN/Employee No.</label>
+                                            <input type="text" class="form-control" name="tin_no" id="tin_no"
+                                                autocomplete="off">
+
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Address</label>
+                                        <input type="text" class="form-control" name="address" id="address"
+                                            autocomplete="off">
+
+                                    </div>
+                                </div>
+
+                                <div class="form-section">
+
+
+                                    <label class="form-label">Purpose</label>
+                                    <div class="form-row">
+                                        <select class="form-control" name="purpose">
+                                            <option value="To Payment of">To Payment of</option>
+                                            <option value="To Disburse">To Reimburse</option>
+                                            <option value="To Cash Advance">To Cash Advance</option>
+                                        </select>
+
+                                    </div>
+
+                                    <div class="form-group">
+
+                                        <div class="form-row">
+                                            <label class="form-label">Responsibility Center</label>
+                                            <select class="form-control" name="rc_id">
+                                                <option selected disabled>Select Responsibility Center</option>
+                                                <?php
+                                                while ($row = $result_responsibility_center->fetch_assoc()) {
+                                                    echo "<option value='" . htmlspecialchars($row['rc_id']) . "'>"
+                                                        . htmlspecialchars($row['code']) . " - " . htmlspecialchars($row['description']) .
+                                                        "</option>";
+                                                }
+                                                ?>
+                                            </select>
+                                        </div>
+
+
+                                    </div>
+                                </div>
+
+                            </form>
                         </div>
                     </div>
-                </form>
+                </div>
 
-            </div>
-        </div>
     </main>
 
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center">
@@ -921,499 +938,116 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
     <!-- Template Main JS File -->
     <script src="../NiceAdmin/assets/js/main.js"></script>
 
-    <!-- Custom Script for Modal -->
+    <!-- services -->
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const modal = document.getElementById('dvFormModal');
-            const closeModalBtn = document.getElementById('closeDvModal');
-            const viewDetailsButtons = document.querySelectorAll('.view-details');
+        document.addEventListener("DOMContentLoaded", function () {
+            const oopapSelect = document.querySelector('select[name="oopap_id"]');
+            const servicesSelect = document.getElementById('services');
+            const dateInput = document.getElementById('dvDate');
+            const orsNoInput = document.getElementById('ors_no');
 
-            // Open modal and populate data
-            viewDetailsButtons.forEach(button => {
-                button.addEventListener('click', function () {
-                    const orsId = this.getAttribute('data-id');
-                    fetch(`get_ors_details.php?id=${orsId}`)
+            // Function to update services dropdown
+            function updateServices(oopapId) {
+                if (!oopapId) {
+                    servicesSelect.innerHTML = '<option selected disabled>Select Services</option>';
+                    return;
+                }
+
+                fetch('get_filtered_services.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `oopap_id=${oopapId}`
+                })
+                    .then(response => response.json())
+                    .then(services => {
+                        servicesSelect.innerHTML = '<option selected disabled>Select Services</option>';
+                        services.forEach(service => {
+                            const option = document.createElement('option');
+                            option.value = service.services_id;
+                            option.textContent = service.services_name;
+                            option.setAttribute('data-code', service.code);
+                            servicesSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        servicesSelect.innerHTML = '<option selected disabled>Error loading services</option>';
+                    });
+            }
+
+            // Listen for OO/PAP selection changes
+            oopapSelect.addEventListener('change', function () {
+                updateServices(this.value);
+            });
+
+            function generateORSNumber() {
+                const selectedService = servicesSelect.options[servicesSelect.selectedIndex];
+                const selectedDate = dateInput.value;
+
+                if (!selectedService || selectedService.disabled || !selectedDate) {
+                    return;
+                }
+
+                const serviceCode = selectedService.getAttribute('data-code');
+                const date = new Date(selectedDate);
+                const year = date.getFullYear().toString().substr(-2);
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+
+                // Check if the service code is ADMIN&POLICY
+                if (serviceCode === 'ADMIN&POLICY') {
+                    fetch('get_next_ors_sequence.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `service_code=ADMIN&POLICY&year=${year}&month=${month}`
+                    })
                         .then(response => response.json())
                         .then(data => {
-                            document.getElementById('ors_no').value = data.ors_no;
-                            document.getElementById('fund_cluster').value = data.fund_cluster;
-                            document.getElementById('payee_name').value = data.payee_name;
-                            document.getElementById('tin_no').value = data.tin_no;
-                            document.getElementById('address').value = data.address;
-                            document.getElementById('notes').value = data.notes;
-                            document.getElementById('code').value = data.code;
-                            document.getElementById('oopap_name').value = data.oopap_name;
-                            document.getElementById('total_amount').value = data.total_amount;
-
-                            // Show modal first
-                            modal.style.display = 'block';
-
-                            // Then trigger calculations and add BIR rows
-                            setTimeout(() => {
-                                calculate(); // Trigger calculation
-                                generateDVNumber();
-                            }, 100);
+                            const sequence = String(data.next_sequence).padStart(3, '0');
+                            orsNoInput.value = `ADMIN&POLICY-${year}-${month}-${sequence}`;
                         })
-                        .catch(error => console.error('Error fetching ORS details:', error));
-                });
-            });
-
-            // Close modal
-            closeModalBtn.addEventListener('click', function () {
-                modal.style.display = 'none';
-                // Clear BIR rows when closing modal
-                const tableBody = document.getElementById('accountingTableBody');
-                const existingRows = tableBody.querySelectorAll('tr');
-                existingRows.forEach(row => {
-                    if (row.querySelector('.account-select')?.value === 'BIR') {
-                        row.remove();
-                    }
-                });
-            });
-
-            // Close modal when clicking outside
-            window.addEventListener('click', function (event) {
-                if (event.target === modal) {
-                    modal.style.display = 'none';
-                    // Clear BIR rows when closing modal
-                    const tableBody = document.getElementById('accountingTableBody');
-                    const existingRows = tableBody.querySelectorAll('tr');
-                    existingRows.forEach(row => {
-                        if (row.querySelector('.account-select')?.value === 'BIR') {
-                            row.remove();
-                        }
-                    });
-                }
-            });
-        });
-    </script>
-
-    <!-- mode of payment -->
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const checkboxes = document.querySelectorAll('input[name="payment_mode"]');
-            const otherText = document.getElementById('otherText');
-
-            checkboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', function () {
-                    if (this.checked) {
-                        checkboxes.forEach(cb => {
-                            if (cb !== this) {
-                                cb.checked = false;
-                            }
+                        .catch(error => {
+                            console.error('Error:', error);
                         });
-
-                        // Enable/Disable text field based on "Others" selection
-                        if (this.id === "others") {
-                            otherText.disabled = false;
-                        } else {
-                            otherText.disabled = true;
-                            otherText.value = ""; // Clear input if another option is selected
-                        }
-                    }
-                });
-            });
-        });
-    </script>
-
-    <!-- tax calculation -->
-    <script>
-        let calculate; // Declare calculate in wider scope
-
-        document.addEventListener("DOMContentLoaded", function () {
-            const amountInput = document.getElementById("total_amount");
-            const applyTaxesCheckbox = document.getElementById("apply_taxes");
-            const vatPercentageInput = document.getElementById("vat_percentage");
-            const tax1PercentageInput = document.getElementById("tax1_percentage");
-            const tax2PercentageInput = document.getElementById("tax2_percentage");
-
-            const vatAmountInput = document.getElementById("vat_amount");
-            const taxBaseInput = document.getElementById("tax_base");
-            const tax1Input = document.getElementById("tax_1");
-            const tax2Input = document.getElementById("tax_2");
-            const netAmountInput = document.getElementById("net_amount");
-
-            calculate = function () { // Assign calculate function to the wider scope variable
-                const grossAmount = parseFloat(amountInput.value) || 0;
-
-                if (applyTaxesCheckbox.checked) {
-                    // With VAT calculation
-                    // VAT calculation (12% of gross)
-                    const vatPercentage = 12;
-                    const vatAmount = (grossAmount * vatPercentage) / (100 + vatPercentage);
-
-                    // Tax base is gross minus VAT
-                    const taxBase = grossAmount - vatAmount;
-
-                    // Calculate 5% and 2% from tax base
-                    const tax1Amount = taxBase * 0.05; // 5% with VAT
-                    const tax2Amount = taxBase * 0.02; // 2% with VAT
-
-                    // Update tax percentage displays
-                    tax1PercentageInput.value = "5";
-                    tax2PercentageInput.value = "2";
-
-                    // Net amount is gross amount minus the sum of taxes
-                    const totalTaxes = tax1Amount + tax2Amount;
-                    const netAmount = grossAmount - totalTaxes;
-
-                    // Update form fields
-                    vatAmountInput.value = vatAmount.toFixed(2);
-                    taxBaseInput.value = taxBase.toFixed(2);
-                    tax1Input.value = tax1Amount.toFixed(2);
-                    tax2Input.value = tax2Amount.toFixed(2);
-                    netAmountInput.value = netAmount.toFixed(2);
-
-                    // Show tax fields
-                    document.getElementById('tax_fields_container').style.display = 'block';
-
-                    // Add BIR-related rows
-                    addBIRRows(tax1Amount, tax2Amount);
                 } else {
-                    // Without VAT - use 3% and 1% tax rates
-                    const tax1Amount = grossAmount * 0.03; // 3% without VAT
-                    const tax2Amount = grossAmount * 0.01; // 1% without VAT
-
-                    // Update tax percentage displays
-                    tax1PercentageInput.value = "3";
-                    tax2PercentageInput.value = "1";
-
-                    // Net amount is gross amount minus the sum of taxes
-                    const totalTaxes = tax1Amount + tax2Amount;
-                    const netAmount = grossAmount - totalTaxes;
-
-                    // Update form fields
-                    vatAmountInput.value = "0.00";
-                    taxBaseInput.value = grossAmount.toFixed(2);
-                    tax1Input.value = tax1Amount.toFixed(2);
-                    tax2Input.value = tax2Amount.toFixed(2);
-                    netAmountInput.value = netAmount.toFixed(2);
-
-                    // Hide VAT fields but show tax fields
-                    document.getElementById('tax_fields_container').style.display = 'none';
-
-                    // Add BIR-related rows
-                    addBIRRows(tax1Amount, tax2Amount);
+                    fetch('get_next_ors_sequence.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `service_code=${serviceCode}&year=${year}&month=${month}`
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            const sequence = String(data.next_sequence).padStart(3, '0');
+                            orsNoInput.value = `${serviceCode}-${year}-${month}-${sequence}`;
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
                 }
-            };
+            }
 
-            // Function to add BIR-related rows
-            // function addBIRRows(tax1Amount, tax2Amount) {
-            //     const tableBody = document.getElementById('accountingTableBody');
-
-            //     // Clear existing BIR rows
-            //     const existingRows = tableBody.querySelectorAll('tr');
-            //     existingRows.forEach(row => {
-            //         if (row.querySelector('.account-select')?.value === 'BIR') {
-            //             row.remove();
-            //         }
-            //     });
-
-            //     // Add rows only if there are tax amounts
-            //     if (tax1Amount > 0 || tax2Amount > 0) {
-            //         // Add first BIR row
-            //         const row1 = document.createElement('tr');
-            //         row1.innerHTML = `
-            //             <td colspan="2">
-            //                 <select class="form-control account-select" name="account_titles[]">
-            //                     <option value="BIR" selected>Due to BIR - 2020101000</option>
-            //                 </select>
-            //             </td>
-            //             <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
-            //             <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01" value="${tax1Amount.toFixed(2)}" readonly></td>
-            //         `;
-            //         tableBody.appendChild(row1);
-
-            //         // Add second BIR row
-            //         const row2 = document.createElement('tr');
-            //         row2.innerHTML = `
-            //             <td colspan="2">
-            //                 <select class="form-control account-select" name="account_titles[]">
-            //                     <option value="BIR" selected>Due to BIR - 2020101000</option>
-            //                 </select>
-            //             </td>
-            //             <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
-            //             <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01" value="${tax2Amount.toFixed(2)}" readonly></td>
-            //         `;
-            //         tableBody.appendChild(row2);
-
-            //         // Setup calculation listeners for new rows
-            //         setupCalculationListeners(row1);
-            //         setupCalculationListeners(row2);
-            //     }
-            // }
-
-            // Event listeners
-            amountInput.addEventListener("input", calculate);
-            applyTaxesCheckbox.addEventListener("change", calculate);
-
-            // Initial calculation - trigger calculation as soon as the page loads
-            calculate();
+            servicesSelect.addEventListener('change', generateORSNumber);
+            dateInput.addEventListener('change', generateORSNumber);
         });
     </script>
 
+    <!-- payee -->
 
-    <!-- dv number -->
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            generateDVNumber(); // Call function when page loads
+        $(document).ready(function () {
+            $('#payee_id').on('change', function () {
+                var selectedOption = $(this).find('option:selected');
+                var tinNo = selectedOption.data('tin');
+                var address = selectedOption.data('address');
 
-            // Re-fetch DV number when fund cluster input changes
-            let fundClusterInput = document.getElementById("fund_cluster");
-            if (fundClusterInput) {
-                fundClusterInput.addEventListener("input", generateDVNumber);
-            } else {
-                console.error("Fund cluster input field not found!");
-            }
-
-            // Re-fetch DV number when date input changes
-            let dateInput = document.getElementById("date");
-            if (dateInput) {
-                dateInput.addEventListener("change", generateDVNumber);
-            } else {
-                console.error("Date input field not found!");
-            }
-        });
-
-        function generateDVNumber() {
-            let fundClusterInput = document.getElementById("fund_cluster");
-            let dateInput = document.getElementById("date");
-
-            if (!fundClusterInput) {
-                console.error("Fund cluster input field not found!");
-                return;
-            }
-
-            let fundClusterValue = fundClusterInput.value.trim();
-            let fundClusterNumber = fundClusterValue.match(/^\d+/); // Extract only the leading number
-
-            if (!fundClusterNumber) {
-                console.error("Fund cluster ID is missing or invalid!");
-                return;
-            }
-
-            let formData = new FormData();
-            formData.append("fund_cluster_id", fundClusterNumber[0]); // Send only the number
-
-            // Add date parameter if available
-            if (dateInput && dateInput.value) {
-                formData.append("date", dateInput.value);
-            }
-
-            fetch("fetch_dv_number.php", {
-                method: "POST",
-                body: formData,
-            })
-                .then(response => response.json())
-                .then(data => {
-                    console.log("Fetched DV Data:", data); // Debugging
-                    let dvNoInput = document.getElementById("dv_no");
-
-                    if (dvNoInput) {
-                        if (data.success) {
-                            dvNoInput.value = data.dv_no;
-                            console.log("DV No Set:", dvNoInput.value);
-                        } else {
-                            console.error("Error fetching DV number:", data.error);
-                        }
-                    } else {
-                        console.error("DV Number input field not found!");
-                    }
-                })
-                .catch(error => console.error("Fetch error:", error));
-        }
-
-
-    </script>
-
-    <!-- show form after selecting ors type  -->
-    <!-- <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const orsTypeSelect = document.getElementById("ors_type");
-            const orsForm = document.getElementById("dv_form");
-
-            orsTypeSelect.addEventListener("change", function () {
-                if (this.value) {
-                    orsForm.style.display = "block";  // Show the form
-                }
-            });
-        });
-    </script> -->
-
-    <!-- account_title -->
-    <!-- <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const orsTypeSelect = document.getElementById("ors_type");
-
-            function filterAccountTitles() {
-                const selectedType = orsTypeSelect.value;
-                const accountSelects = document.querySelectorAll('.account-select');
-
-                accountSelects.forEach(select => {
-                    const currentValue = select.value;
-                    const currentTitle = select.options[select.selectedIndex]?.getAttribute('data-title') || '';
-
-                    Array.from(select.options).forEach(option => {
-                        if (option.value === "") return;
-
-                        const accountTitle = option.getAttribute('data-title')?.toLowerCase() || '';
-                        const accountCode = option.getAttribute('data-uacs') || '';
-                        if (selectedType === "cash_advance") {
-                            option.hidden = !accountTitle.includes('advance');
-                        } else if (selectedType === "transfer_fund") {
-                            option.hidden = !(accountTitle.includes('cash') && accountCode.startsWith('10'));
-                        } else {
-                            option.hidden = false;
-                        }
-                    });
-
-                    // Restore selection if it's still valid
-                    if (currentValue && select.querySelector(`option[value="${currentValue}"]`)) {
-                        select.value = currentValue;
-                    }
-                });
-            }
-
-            // Filter on initial load and when DV type changes
-            orsTypeSelect.addEventListener("change", filterAccountTitles);
-
-            // Also filter when new rows are added
-            document.getElementById('addAccountRow').addEventListener('click', function () {
-                setTimeout(filterAccountTitles, 0);
-            });
-        });
-    </script> -->
-
-    <!-- add row and calculate totals -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const tableBody = document.getElementById('accountingTableBody');
-
-            // Function to update UACS code when account is selected
-            function setupAccountSelect(row) {
-                const accountSelect = row.querySelector('.account-select');
-                const uacsInput = row.querySelector('.uacs-code');
-
-                accountSelect.addEventListener('change', function () {
-                    const selectedOption = this.options[this.selectedIndex];
-                    uacsInput.value = selectedOption.getAttribute('data-uacs') || '';
-                });
-            }
-
-            // Function to calculate totals
-            function calculateTotals() {
-                let totalDebit = 0;
-                let totalCredit = 0;
-
-                // Get all debit and credit inputs except the footer row
-                const debitInputs = document.querySelectorAll('tbody .debit-amount');
-                const creditInputs = document.querySelectorAll('tbody .credit-amount');
-
-                // Sum up debit amounts
-                debitInputs.forEach(input => {
-                    totalDebit += parseFloat(input.value || 0);
-                });
-
-                // Sum up credit amounts
-                creditInputs.forEach(input => {
-                    totalCredit += parseFloat(input.value || 0);
-                });
-
-                // Calculate the difference (total debit - total credit)
-                const difference = totalDebit - totalCredit;
-
-                // Update the footer row's credit field with the difference
-                const footerCreditInput = document.querySelector('tfoot .credit-amount');
-                if (footerCreditInput) {
-                    footerCreditInput.value = difference.toFixed(2);
-                }
-            }
-
-            // Function to filter account titles
-            function filterAccountTitles(select, selectedType) {
-                const currentValue = select.value;
-                Array.from(select.options).forEach(option => {
-                    if (option.value === "") return; // Skip the "Select Account" option
-
-                    const accountTitle = option.getAttribute('data-title')?.toLowerCase() || '';
-                    const accountCode = option.getAttribute('data-uacs') || '';
-                    if (selectedType === "cash_advance") {
-                        option.hidden = !accountTitle.includes('advance');
-                    } else if (selectedType === "transfer_fund") {
-                        option.hidden = !(accountTitle.includes('cash') && accountCode.startsWith('10'));
-                    } else {
-                        option.hidden = false;
-                    }
-                });
-
-                // Restore selection if it's still valid
-                if (currentValue && select.querySelector(`option[value="${currentValue}"]`)) {
-                    select.value = currentValue;
-                }
-            }
-
-            // Add event listener for the "Add Row" button
-            document.getElementById('addAccountRow').addEventListener('click', function () {
-                const newRow = document.createElement('tr');
-                newRow.innerHTML = `
-                    <td colspan="2">
-                        <select class="form-control account-select" name="account_titles[]">
-                            <option selected disabled>Select Account</option>
-                            <?php
-                            $account_result->data_seek(0);
-                            while ($account = $account_result->fetch_assoc()) {
-                                echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
-                            }
-                            ?>
-                        </select>
-                    </td>
-                    <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
-                    <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01"></td>
-                `;
-
-                tableBody.appendChild(newRow);
-                setupAccountSelect(newRow);
-                setupCalculationListeners(newRow);
-
-                // Filter account titles for the new row
-                const orsTypeSelect = document.getElementById("ors_type");
-                const accountSelect = newRow.querySelector('.account-select');
-                filterAccountTitles(accountSelect, orsTypeSelect.value);
-            });
-
-            // Function to setup calculation listeners for a row
-            function setupCalculationListeners(row) {
-                const debitInput = row.querySelector('.debit-amount');
-                const creditInput = row.querySelector('.credit-amount');
-
-                debitInput.addEventListener('input', function () {
-                    if (this.value && parseFloat(this.value) > 0) {
-                        creditInput.value = ''; // Clear credit when debit has value
-                    }
-                    calculateTotals();
-                });
-
-                creditInput.addEventListener('input', function () {
-                    if (this.value && parseFloat(this.value) > 0) {
-                        debitInput.value = ''; // Clear debit when credit has value
-                    }
-                    calculateTotals();
-                });
-            }
-
-            // Setup initial row
-            const initialRow = tableBody.querySelector('tr');
-            setupAccountSelect(initialRow);
-            setupCalculationListeners(initialRow);
-
-            // Add event listener for DV type changes
-            document.getElementById('ors_type').addEventListener('change', function () {
-                const selectedType = this.value;
-                const accountSelects = document.querySelectorAll('.account-select');
-                accountSelects.forEach(select => {
-                    filterAccountTitles(select, selectedType);
-                });
+                $('#tin_no').val(tinNo);
+                $('#address').val(address);
             });
         });
     </script>

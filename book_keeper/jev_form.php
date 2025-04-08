@@ -97,7 +97,7 @@ $query2 = "
     LEFT JOIN fund_cluster ON ors.fund_cluster_id = fund_cluster.fund_cluster_id
     LEFT JOIN responsibility_center ON ors.rc_id = responsibility_center.rc_id
     LEFT JOIN oopap ON ors.oopap_id = oopap.oopap_id
-    WHERE ors.ors_id = ?";
+    WHERE ors.ors_id = ? AND payee.payee_id = 25 ";
 
 $stmt2 = $connection->prepare($query2);
 if (!$stmt2) {
@@ -232,6 +232,7 @@ $connection->close();
                     <td colspan="2"><strong>Payee:</strong> </td>
                     <td colspan="6">
                         <?php echo !empty($ors_form['payee_name']) ? htmlspecialchars($ors_form['payee_name']) : "Not Available"; ?>
+
                     </td>
                 </tr>
                 <tr>
@@ -246,7 +247,9 @@ $connection->close();
                     <td colspan="6">ACCOUNTING ENTRIES</td>
                 </tr>
                 <tr>
-                    <td rowspan="6" colspan="2"></td>
+                    <td rowspan="6" colspan="2">
+                        <?php echo !empty($ors_form['code']) ? htmlspecialchars($ors_form['code']) : "Not Available"; ?>
+                    </td>
                     <td colspan="2">Account Title</td>
                     <td colspan="2">
                         <p>UACS Code</p>
@@ -258,7 +261,17 @@ $connection->close();
                         <p>Credit</p>
                     </td>
                 </tr>
-                <?php foreach ($dv_accounts as $account): ?>
+                <?php
+                $total_debit = 0;
+                $total_credit = 0;
+
+                foreach ($dv_accounts as $account):
+                    if ($account['type'] == 'debit') {
+                        $total_debit += $account['amount'];
+                    } else {
+                        $total_credit += $account['amount'];
+                    }
+                    ?>
                     <tr>
                         <td colspan="2"><?php echo $account['account_title']; ?></td>
                         <td colspan="2"><?php echo $account['account_code']; ?></td>
@@ -272,8 +285,9 @@ $connection->close();
                 <?php endforeach; ?>
                 <tr>
 
-                    <td colspan="3"><?php echo $ors_form['notes']; ?>
+                    <td colspan="2"><?php echo $ors_form['notes']; ?>
                     </td>
+                    <td colspan="3"></td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -310,8 +324,8 @@ $connection->close();
                     <td colspan="2"><strong>Total</strong></td>
                     <td colspan="3"></td>
                     <td></td>
-                    <td><?php echo number_format($ors_form['amount'], 2, '.', ','); ?></td>
-                    <td><?php echo number_format($ors_form['amount'], 2, '.', ','); ?></td>
+                    <td><strong><?php echo number_format($total_debit, 2, '.', ','); ?></strong></td>
+                    <td><strong><?php echo number_format($total_credit, 2, '.', ','); ?></strong></td>
                 </tr>
 
                 <td style="text-align: center;" colspan="3" class="name"><strong
@@ -329,7 +343,7 @@ $connection->close();
 
     <div class="modal-footer no-print text-center">
         <button type="button" class="btn btn-primary" onclick="window.print()">Print JEV</button>
-        <button type="button" class="btn btn-secondary" onclick="window.history.back();">
+        <button type="button" class="btn btn-secondary" onclick="window.location.href='processed_jev.php';">
             Back
         </button>
     </div>

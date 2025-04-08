@@ -83,6 +83,19 @@ if (isset($_POST['submit'])) {
 
         $stmt->close();
 
+        // Update the dv status to 'Processed'
+        $update_status_sql = "UPDATE dv SET status = 'Endorsed' WHERE dv_id = ?";
+        $update_status_stmt = $connection->prepare($update_status_sql);
+        if ($update_status_stmt === false) {
+            throw new Exception('Prepare failed (ORS update): ' . htmlspecialchars($connection->error));
+        }
+
+        $update_status_stmt->bind_param("i", $dv_id);
+        if (!$update_status_stmt->execute()) {
+            throw new Exception("Error updating ORS status: " . $update_status_stmt->error);
+        }
+        $update_status_stmt->close();
+
         // Commit transaction
         $connection->commit();
 
@@ -121,7 +134,10 @@ LEFT JOIN approver ON ors.approver_id = approver.approver_id
 LEFT JOIN fund_cluster ON ors.fund_cluster_id = fund_cluster.fund_cluster_id
 LEFT JOIN responsibility_center ON ors.rc_id = responsibility_center.rc_id
 LEFT JOIN oopap ON ors.oopap_id = oopap.oopap_id
-LEFT JOIN payee ON ors.payee_id = payee.payee_id;
+LEFT JOIN payee ON ors.payee_id = payee.payee_id
+
+WHERE dv.status = 'Pending'
+;
 
 
 ");
@@ -899,17 +915,15 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Responsibility Center</th>
                                     <th>Account Name</th>
                                     <th>UACS Object Code</th>
-                                    <th>Account Type</th>
-                                    <th>Amount</th>
+                                    <th>Debit</th>
+                                    <th>Credit</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php while ($row = mysqli_fetch_assoc($select_dv)) { ?>
                                     <tr>
-                                        <td><?php echo htmlspecialchars($row['code']); ?></td>
                                         <td><?php echo htmlspecialchars($row['account_title']); ?></td>
                                         <td><?php echo htmlspecialchars($row['account_code']); ?></td>
                                         <td><?php echo htmlspecialchars($row['type']); ?></td>
@@ -988,17 +1002,54 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                 // Populate the accounts table dynamically
                                 const tableBody = document.querySelector('#dvFormModal table tbody');
                                 tableBody.innerHTML = '';  // Clear any existing rows
+
+                                // Initialize totals
+                                let totalDebit = 0;
+                                let totalCredit = 0;
+
+                                // Add account rows
                                 data.accounts.forEach(account => {
                                     const row = document.createElement('tr');
+                                    const amount = parseFloat(account.amount) || 0;
+
+                                    // Determine if this should be debit or credit based on account type
+                                    const isDebit = account.type === 'debit' || account.type === 'asset' || account.type === 'expense';
+                                    const debitAmount = isDebit ? amount : 0;
+                                    const creditAmount = !isDebit ? amount : 0;
+
+                                    // Add to totals
+                                    totalDebit += debitAmount;
+                                    totalCredit += creditAmount;
+
                                     row.innerHTML = `
-                            <td>${account.code}</td>
                             <td>${account.account_title}</td>
                             <td>${account.account_code}</td>
-                            <td>${account.type}</td
-                            <td>${account.amount}</td>
+                            <td>${debitAmount.toFixed(2)}</td>
+                            <td>${creditAmount.toFixed(2)}</td>
                         `;
                                     tableBody.appendChild(row);
                                 });
+
+                                // Add totals row
+                                const totalsRow = document.createElement('tr');
+                                totalsRow.className = 'table-active';
+                                totalsRow.innerHTML = `
+                        <td colspan="2"><strong>TOTAL</strong></td>
+                        <td><strong>${totalDebit.toFixed(2)}</strong></td>
+                        <td><strong>${totalCredit.toFixed(2)}</strong></td>
+                    `;
+                                tableBody.appendChild(totalsRow);
+
+                                // Optional: Add balance check row
+                                if (Math.abs(totalDebit - totalCredit) > 0.01) { // Use small threshold for floating point comparison
+                                    const balanceRow = document.createElement('tr');
+                                    balanceRow.className = 'table-danger';
+                                    balanceRow.innerHTML = `
+                            <td colspan="2"><strong>OUT OF BALANCE</strong></td>
+                            <td colspan="2" class="text-center"><strong>${Math.abs(totalDebit - totalCredit).toFixed(2)}</strong></td>
+                        `;
+                                    tableBody.appendChild(balanceRow);
+                                }
 
                                 // Show modal
                                 modal.style.display = 'block';
@@ -1025,8 +1076,6 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                     }
                 });
             });
-
-
         </script>
 
         <!-- mode of payment -->
