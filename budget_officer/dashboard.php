@@ -386,11 +386,11 @@ $recent_transactions = getRecentTransactions($connection, 5);
     <main id="main" class="main">
         <div class="pagetitle d-flex justify-content-between align-items-center">
             <div>
-                <h1>Financial Dashboard</h1>
+                <h1>Dashboard</h1>
                 <nav>
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                        <li class="breadcrumb-item active">Financial Dashboard</li>
+                        <li class="breadcrumb-item active">Dashboard</li>
                     </ol>
                 </nav>
             </div>
@@ -558,7 +558,7 @@ $recent_transactions = getRecentTransactions($connection, 5);
                                     <div class="budget-card-item" style="min-width: 100%; flex-shrink: 0;">
                                         <div class="d-flex justify-content-between align-items-center mb-3">
                                             <h5 class="card-title mb-0">GAS</h5>
-                                            <span class="badge bg-primary">General Administration</span>
+                                            <span class="badge bg-primary">General Administration and Support</span>
                                         </div>
                                         <div class="mb-3">
                                             <h6 class="text-muted mb-1">Allotment</h6>
@@ -932,7 +932,6 @@ $recent_transactions = getRecentTransactions($connection, 5);
             let currentIndex = 0;
             const totalCards = cardItems.length;
             
-            // Create indicators
             for (let i = 0; i < totalCards; i++) {
                 const dot = document.createElement('div');
                 dot.className = i === 0 ? 'indicator-dot active' : 'indicator-dot';
@@ -940,7 +939,6 @@ $recent_transactions = getRecentTransactions($connection, 5);
                 indicators.appendChild(dot);
             }
             
-            // Function to update indicators
             function updateIndicators() {
                 const dots = document.querySelectorAll('.indicator-dot');
                 dots.forEach((dot, i) => {
@@ -948,7 +946,6 @@ $recent_transactions = getRecentTransactions($connection, 5);
                 });
             }
             
-            // Function to go to a specific card
             function goToCard(index) {
                 if (index < 0) index = 0;
                 if (index >= totalCards) index = totalCards - 1;
@@ -958,11 +955,9 @@ $recent_transactions = getRecentTransactions($connection, 5);
                 updateIndicators();
             }
             
-            // Previous and Next button handlers
             prevBtn.addEventListener('click', () => goToCard(currentIndex - 1));
             nextBtn.addEventListener('click', () => goToCard(currentIndex + 1));
-            
-            // Touch swipe functionality
+
             let touchStartX = 0;
             let touchEndX = 0;
             
