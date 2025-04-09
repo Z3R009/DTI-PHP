@@ -51,7 +51,8 @@
 
 <style>
 
-    .sidebar {
+ 
+.sidebar {
         position: fixed;
         top: 0;
         left: 0;
@@ -106,14 +107,15 @@
     }
 
     .sidebar-nav .nav-link:hover,
-    .sidebar-nav .nav-link.active {
-        background-color: rgba(0, 121, 107, 0.1);
-        color: var(--primary-color);
+    .sidebar-nav .nav-link.active,
+    .sidebar-nav .nav-link ul .active{
+        background-color: rgba(10, 111, 253, 0.42);
+        color: white;
     }
 
     .sidebar-nav .nav-link:hover i,
     .sidebar-nav .nav-link.active i {
-        color: var(--primary-color);
+        color:white;
     }
 
     .sidebar-nav .nav-heading {
@@ -126,7 +128,7 @@
 
     .user-profile {
         padding: 20px;
-        background: rgba(0, 121, 107, 0.1);
+        background:  rgba(10, 111, 253, 0.42);
         border-radius: 15px;
         margin-bottom: 20px;
     }

@@ -922,7 +922,6 @@ $recent_transactions = getRecentTransactions($connection, 5);
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // Budget cards swiper functionality
             const cardsWrapper = document.getElementById('budget-cards-wrapper');
             const cardItems = document.querySelectorAll('.budget-card-item');
             const prevBtn = document.getElementById('prev-card');
@@ -975,16 +974,12 @@ $recent_transactions = getRecentTransactions($connection, 5);
             function handleSwipe() {
                 const SWIPE_THRESHOLD = 50;
                 if (touchEndX < touchStartX - SWIPE_THRESHOLD) {
-                    // Swiped left
                     goToCard(currentIndex + 1);
                 }
                 if (touchEndX > touchStartX + SWIPE_THRESHOLD) {
-                    // Swiped right
                     goToCard(currentIndex - 1);
                 }
             }
-            
-            // Auto swipe
             let autoSwipeInterval;
             
             function startAutoSwipe() {
@@ -992,40 +987,28 @@ $recent_transactions = getRecentTransactions($connection, 5);
                     let nextIndex = currentIndex + 1;
                     if (nextIndex >= totalCards) nextIndex = 0;
                     goToCard(nextIndex);
-                }, 5000); // Change slide every 5 seconds
+                }, 5000); 
             }
             
             function stopAutoSwipe() {
                 clearInterval(autoSwipeInterval);
             }
-            
-            // Start auto swipe
             startAutoSwipe();
             
-            // Stop auto swipe on interaction
             container.addEventListener('mouseenter', stopAutoSwipe);
             container.addEventListener('touchstart', stopAutoSwipe);
-            
-            // Resume auto swipe after interaction
             container.addEventListener('mouseleave', startAutoSwipe);
-            
-            // Category tabs functionality
             const categoryTabs = document.querySelectorAll('.category-tab');
             categoryTabs.forEach(tab => {
                 tab.addEventListener('click', function() {
-                    // Remove active class from all tabs
                     categoryTabs.forEach(t => t.classList.remove('active'));
-                    // Add active class to clicked tab
                     this.classList.add('active');
-                    
-                    // Filter logic would go here
+
                     const filterType = this.getAttribute('data-type');
-                    // For now we'll just reset to the first card
                     goToCard(0);
                 });
             });
-            
-            // Chart dropdown functionality
+
             const chartTypeLinks = document.querySelectorAll('[data-chart-type]');
             chartTypeLinks.forEach(link => {
                 link.addEventListener('click', function(e) {
@@ -1036,15 +1019,12 @@ $recent_transactions = getRecentTransactions($connection, 5);
             });
             
             function updateChartType(type) {
-                // Create new chart options based on type
                 chart.updateOptions({
                     chart: {
                         type: type
                     }
                 });
             }
-
-            // Monthly Trend Chart
             var options = {
                 series: [{
                     name: 'Allotment',
