@@ -391,28 +391,34 @@ if (isset($_GET['ors_no'])) {
                     <strong>₱<?php echo number_format((float) $ors_form['total_amount'], 2, '.', ','); ?></strong>
                 </td>
             </tr>
-
             <tr>
                 <td colspan="4">
-                    <p style="height: 150px;"><strong>A. Certified:</strong> Charges to appropriation/allotment are
+                    <p style="height: 80px; "><strong>A. Certified:</strong> Charges to
+                        appropriation/allotment are
                         necessary, lawful, and under
                         my direct supervision.</p>
-                    <div style="text-align: center; margin-top: 20px;">
-                        <p style="margin-bottom: 0;"><?php echo $ors_form['approver_name']; ?></p>
-                        <div style="width: 250px; border-top: 1px solid black; margin: 0 auto;"></div>
-                        <p style="margin-top: 3px;"><?php echo $ors_form['designation']; ?></p>
-                        <p style="margin-top: 3px;"><?php echo $ors_form['sub_title']; ?></p>
+                    <p>Signature:</p>
+                    <div class="signature-line"></div>
+                    <div class="signature-container">
+                        <p class="signature-name"><?php echo $ors_form['approver_name']; ?></p>
+                        <p class="signature-title"><?php echo $ors_form['designation']; ?></p>
+                        <p class="signature-title"><?php echo $ors_form['sub_title']; ?></p>
                     </div>
                 </td>
                 <td colspan="4">
-                    <p style="height: 150px;"><strong>B. Certified:</strong> Allotment available and obligated for the
+
+
+
+                    <p style="height: 80px; "><strong>B. Certified:</strong> Allotment available and
+                        obligated for the
                         purpose/adjustment
                         necessary as indicated above.</p>
-                    <div style="text-align: center; margin-top: 20px;">
-                        <p style="margin-bottom: 0;"><?php echo $ors_form['budget_officer']; ?></p>
-                        <div style="width: 250px; border-top: 1px solid black; margin: 0 auto;"></div>
-                        <p style="margin-top: 3px;">Budget Officer</p>
-                        <p style="margin-top: 3px;">Head, Budget Division/Unit/Authorized Representative</p>
+                    <p>Signature:</p>
+                    <div class="signature-line"></div>
+                    <div class="signature-container">
+                        <p class="signature-name"><?php echo $ors_form['budget_officer']; ?></p>
+                        <p class="signature-title">Budget Officer</p>
+                        <p class="signature-title">Head, Budget Division/Unit/Authorized Representative</p>
                     </div>
                 </td>
             </tr>

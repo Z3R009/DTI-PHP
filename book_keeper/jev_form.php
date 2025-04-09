@@ -97,7 +97,7 @@ $query2 = "
     LEFT JOIN fund_cluster ON ors.fund_cluster_id = fund_cluster.fund_cluster_id
     LEFT JOIN responsibility_center ON ors.rc_id = responsibility_center.rc_id
     LEFT JOIN oopap ON ors.oopap_id = oopap.oopap_id
-    WHERE ors.ors_id = ? AND payee.payee_id = 25 ";
+    WHERE ors.ors_id = ? ";
 
 $stmt2 = $connection->prepare($query2);
 if (!$stmt2) {
@@ -243,22 +243,22 @@ $connection->close();
                 </tr>
 
                 <tr>
-                    <td colspan="2">Responsibility Center</td>
-                    <td colspan="6">ACCOUNTING ENTRIES</td>
+                    <td style="text-align: center;" colspan="2"><b>Responsibility Center</b></td>
+                    <td style="text-align: center;" colspan="6"><b>ACCOUNTING ENTRIES</b></td>
                 </tr>
                 <tr>
-                    <td rowspan="6" colspan="2">
+                    <td rowspan="7" colspan="2">
                         <?php echo !empty($ors_form['code']) ? htmlspecialchars($ors_form['code']) : "Not Available"; ?>
                     </td>
-                    <td colspan="2">Account Title</td>
-                    <td colspan="2">
-                        <p>UACS Code</p>
+                    <td style="text-align: center;" colspan="2"><b>Account Name</b></td>
+                    <td style="text-align: center;" colspan="2">
+                        <b>UACS Code</b>
                     </td>
-                    <td>
-                        <p>Debit</p>
+                    <td style="text-align: center;">
+                        <b>Debit</b>
                     </td>
-                    <td>
-                        <p>Credit</p>
+                    <td style="text-align: center;">
+                        <b>Credit</b>
                     </td>
                 </tr>
                 <?php
@@ -285,19 +285,21 @@ $connection->close();
                 <?php endforeach; ?>
                 <tr>
 
-                    <td colspan="2"><?php echo $ors_form['notes']; ?>
+                    <td style="text-align: center;" colspan="2" rowspan="4"><?php echo $ors_form['notes']; ?>
                     </td>
-                    <td colspan="3"></td>
-                    <td></td>
+                    <td colspan="2"></td>
                     <td></td>
                     <td></td>
                 </tr>
-                <tr>
-                    <td colspan="2"><strong>DV No.:</strong></td>
-                    <td colspan="3"><?php echo $ors_form['dv_no']; ?></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                <tr></tr>
+                <tr></tr>
+                <tr></tr>
+                <td colspan="2"><strong>DV No.:</strong></td>
+                <td colspan="3"><?php echo $ors_form['dv_no']; ?></td>
+                <td></td>
+
+                <td></td>
+                <td></td>
                 </tr>
                 <tr>
                     <td colspan="2"><strong>O.R.S No.:</strong></td>
