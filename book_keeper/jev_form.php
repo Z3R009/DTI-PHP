@@ -92,7 +92,7 @@ $query2 = "
     INNER JOIN dv ON ors.ors_id = dv.ors_id
     INNER JOIN dv_history ON dv_history.dv_id = dv.dv_id
     LEFT JOIN approver ON ors.approver_id = approver.approver_id
-    LEFT JOIN payee ON payee.payee_id = payee.payee_id
+    LEFT JOIN payee ON ors.payee_id = payee.payee_id
     LEFT JOIN account_title ON account_title.account_id = account_title.account_id
     LEFT JOIN fund_cluster ON ors.fund_cluster_id = fund_cluster.fund_cluster_id
     LEFT JOIN responsibility_center ON ors.rc_id = responsibility_center.rc_id
@@ -232,7 +232,6 @@ $connection->close();
                     <td colspan="2"><strong>Payee:</strong> </td>
                     <td colspan="6">
                         <?php echo !empty($ors_form['payee_name']) ? htmlspecialchars($ors_form['payee_name']) : "Not Available"; ?>
-
                     </td>
                 </tr>
                 <tr>
