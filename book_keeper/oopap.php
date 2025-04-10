@@ -72,36 +72,41 @@ $select = mysqli_query($connection, "SELECT * FROM oopap");
 
         <div class="pagetitle">
             <h1>OO/PAP</h1>
-        </div><!-- End Page Title -->
-
+              <nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="index.php">Home</a></li>
+                    <li class="breadcrumb-item active">OO/PAP</li>
+                </ol>
+            </nav>
+        </div>
         <section class="section dashboard">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                            data-bs-target="#addUserModal">Add OO/PAP</button>
-                    </h5>
-                    <p></p>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="card-title mb-0">OO/PAP</h5>
+                        <button type="button" class="btn btn-primary rounded-pill" data-bs-toggle="modal"
+                            data-bs-target="#addUserModal">
+                            <i class="bi bi-plus-circle me-1"></i>Add OO/PAP</button>
+                </div>
+
 
                     <!-- Modal for Add User Form -->
                     <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel"
                         aria-hidden="true">
-                        <div class="modal-dialog">
+                        <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="addUserModalLabel">Add OO/PAP
-                                    </h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
+                            <div class="modal-header bg-primary text-white">
+                                    <h5 class="modal-title" id="addUserModalLabel">Add OO/PAP</h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
                                     <form method="post" id="addUserForm">
-                                        <div class="mb-3">
+                                        <div class="mb-4">
                                             <label for="oopap_name" class="form-label">OO/PAP</label>
                                             <input type="text" class="form-control" id="oopap_name" name="oopap_name"
                                                 placeholder="Enter OO/PAP" required autocomplete="off">
                                         </div>
-                                        <div class="mb-3">
+                                        <div class="mb-4">
                                             <label for="description" class="form-label">Description</label>
                                             <input type="text" class="form-control" id="description" name="description"
                                                 placeholder="Enter Description" required autocomplete="off">
@@ -136,7 +141,7 @@ $select = mysqli_query($connection, "SELECT * FROM oopap");
                                     <td><?php echo htmlspecialchars($row['oopap_name']); ?></td>
                                     <td><?php echo htmlspecialchars($row['description']); ?></td>
                                     <td>
-                                        <button type="button" class="btn btn-primary edit-btn" data-bs-toggle="modal"
+                                        <button type="button" class="btn btn-sm btn-outline-primary edit-btn" data-bs-toggle="modal"
                                             data-bs-target="#editModal" data-id="<?php echo $row['oopap_id']; ?>"
                                             data-oopap_name="<?php echo htmlspecialchars($row['oopap_name']); ?>"
                                             data-description="<?php echo htmlspecialchars($row['description']); ?>">
@@ -144,7 +149,7 @@ $select = mysqli_query($connection, "SELECT * FROM oopap");
                                                 title="Edit"></i>
                                         </button>
 
-                                        <button type="button" class="btn btn-danger"
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
                                             onclick="deleteUser(<?php echo $row['oopap_id']; ?>)"><i class="bi bi-trash"
                                                 data-bs-toggle="tooltip" data-bs-placement="top"
                                                 title="Delete"></i></i></button>

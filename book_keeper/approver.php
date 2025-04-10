@@ -150,7 +150,7 @@ $select = mysqli_query($connection, "SELECT * FROM approver");
                                     <td><?php echo htmlspecialchars($row['approver_name']); ?></td>
                                     <td><?php echo htmlspecialchars($row['designation']); ?></td>
                                     <td>
-                                        <button type="button" class="btn btn-primary edit-btn" data-bs-toggle="modal"
+                                        <button type="button" class="btn btn-sm btn-outline-primary edit-btn" data-bs-toggle="modal"
                                             data-bs-target="#editUserModal" data-id="<?php echo $row['approver_id']; ?>"
                                             data-name="<?php echo htmlspecialchars($row['approver_name']); ?>"
                                             data-designation="<?php echo htmlspecialchars($row['designation']); ?>"
@@ -160,7 +160,7 @@ $select = mysqli_query($connection, "SELECT * FROM approver");
                                         </button>
 
 
-                                        <button type="button" class="btn btn-danger"
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
                                             onclick="deleteUser(<?php echo $row['approver_id']; ?>)"><i class="bi bi-trash"
                                                 data-bs-toggle="tooltip" data-bs-placement="top"
                                                 title="Delete"></i></i></button>

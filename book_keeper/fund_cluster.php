@@ -75,144 +75,157 @@ $select = mysqli_query($connection, "SELECT * FROM fund_cluster ");
     <?php include "Includes/sidebar.php"; ?>
 
     <main id="main" class="main">
-
         <div class="pagetitle">
-            <h1>Fund Cluster</h1>
-        </div><!-- End Page Title -->
+            <h1>Fund Cluster Management</h1>
+            <nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="index.php">Home</a></li>
+                    <li class="breadcrumb-item active">Fund Cluster</li>
+                </ol>
+            </nav>
+        </div>
 
         <section class="section dashboard">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                            data-bs-target="#addUserModal">Add Fund Clusters</button>
-                    </h5>
-                    <p></p>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="card-title mb-0">Fund Clusters List</h5>
+                        <button type="button" class="btn btn-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                            <i class="bi bi-plus-circle me-1"></i> Add Fund Cluster
+                        </button>
+                    </div>
 
                     <!-- Modal for Add User Form -->
-                    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel"
-                        aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="addUserModalLabel">Add Fund Cluster
-                                    </h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
+                    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow">
+                        <div class="modal-header border-0 pb-0">
+                                    <h5 class="modal-title" id="addUserModalLabel">Add New Fund Cluster</h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
-                                <div class="modal-body">
-                                    <form method="post" id="addCluster">
-
+                                <div class="modal-body pt-0">
+                                    <form method="post" id="addCluster" class="needs-validation" novalidate>
                                         <div class="mb-3">
-                                            <label for="fund_cluster_name" class="form-label">Fund Cluster
-                                                Name</label>
-                                            <input type="text" class="form-control" id="fund_cluster_name"
-                                                name="fund_cluster_name" placeholder="Enter Fund Cluster Name" required
-                                                autocomplete="off">
+                                            <label for="fund_cluster_name" class="form-label">Fund Cluster Name</label>
+                                            <input type="text" class="form-control" id="fund_cluster_name" 
+                                                name="fund_cluster_name" placeholder="Enter Fund Cluster Name" required autocomplete="off">
+                                            <div class="invalid-feedback">Please enter a fund cluster name.</div>
                                         </div>
-                                        <div class="mb-3">
+                                        <div class="mb-4">
                                             <label for="uacs_code" class="form-label">UACS Code</label>
-                                            <input type="uacs_code" class="form-control" id="uacs_code" name="uacs_code"
-                                                placeholder="Enter UACS Code" required autocomplete="off">
+                                            <input type="text" class="form-control" id="uacs_code" 
+                                                name="uacs_code" placeholder="Enter UACS Code" required autocomplete="off">
+                                            <div class="invalid-feedback">Please enter a UACS code.</div>
                                         </div>
-                                        <div class="mb-3">
+                                        <div class="mb-4">
                                             <label for="status" class="form-label">Status</label>
-                                            <select class="form-select" id="status" name="status">
-                                                <option selected disabled>Select Status</option>
+                                            <select class="form-select" id="status" name="status" required>
+                                                <option value="" selected disabled>Select Status</option>
                                                 <option value="Active">Active</option>
                                                 <option value="Inactive">Inactive</option>
                                             </select>
+                                            <div class="invalid-feedback">Please select a status.</div>
                                         </div>
-                                        <div class="modal-footer">
-                                            <!-- <button type="button" class="btn btn-secondary"
-                                        data-bs-dismiss="modal">Close</button> -->
-                                            <button type="button" class="btn btn-secondary"
-                                                onclick="clearForm()">Clear</button>
-                                            <button type="submit" id="submit" name="submit"
-                                                class="btn btn-primary">Save</button>
+                                        <div class="modal-footer border-0 pt-0">
+                                            <button type="button" class="btn btn-light" onclick="clearForm()">
+                                                <i class="bi bi-x-circle me-1"></i> Clear
+                                            </button>
+                                            <button type="submit" id="submit" name="submit" class="btn btn-primary">
+                                                <i class="bi bi-check-circle me-1"></i> Save
+                                            </button>
                                         </div>
                                     </form>
                                 </div>
-
                             </div>
                         </div>
                     </div>
 
                     <!-- Table with stripped rows -->
-                    <table class="table datatable">
-                        <thead>
-                            <tr>
-                                <th>Fund Cluster Name</th>
-                                <th>UACS Code</th>
-                                <th>Status</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php while ($row = mysqli_fetch_assoc($select)) { ?>
+                    <div class="table-responsive">
+                        <table class="table table-hover datatable">
+                            <thead class="table-light">
                                 <tr>
-                                    <td><?php echo htmlspecialchars($row['fund_cluster_name']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['uacs_code']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['status']); ?></td>
-                                    <td>
-                                        <button type="button" class="btn btn-primary edit-btn" data-bs-toggle="modal"
-                                            data-bs-target="#editModal" data-id="<?php echo $row['fund_cluster_id']; ?>"
-                                            data-name="<?php echo htmlspecialchars($row['fund_cluster_name']); ?>"
-                                            data-uacs="<?php echo htmlspecialchars($row['uacs_code']); ?>"
-                                            data-status="<?php echo htmlspecialchars($row['status']); ?>">
-                                            <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top"
-                                                title="Edit"></i>
-                                        </button>
-
-                                        <button type="button" class="btn btn-danger"
-                                            onclick="deleteUser(<?php echo $row['fund_cluster_id']; ?>)"><i
-                                                class="bi bi-trash" data-bs-toggle="tooltip" data-bs-placement="top"
-                                                title="Delete"></i></i></button>
-                                    </td>
+                                    <th scope="col">Fund Cluster Name</th>
+                                    <th scope="col">UACS Code</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col" class="text-end">Actions</th>
                                 </tr>
-                            <?php } ?>
-                        </tbody>
-
-                    </table>
+                            </thead>
+                            <tbody>
+                                <?php while ($row = mysqli_fetch_assoc($select)) { ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($row['fund_cluster_name']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['uacs_code']); ?></td>
+                                        <td>
+                                            <span class="badge bg-<?php echo $row['status'] === 'Active' ? 'success' : 'danger'; ?>">
+                                                <?php echo htmlspecialchars($row['status']); ?>
+                                            </span>
+                                        </td>
+                                        <td class="text-end">
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-sm btn-outline-primary edit-btn" 
+                                                    data-bs-toggle="modal" data-bs-target="#editModal" 
+                                                    data-id="<?php echo $row['fund_cluster_id']; ?>"
+                                                    data-name="<?php echo htmlspecialchars($row['fund_cluster_name']); ?>"
+                                                    data-uacs="<?php echo htmlspecialchars($row['uacs_code']); ?>"
+                                                    data-status="<?php echo htmlspecialchars($row['status']); ?>">
+                                                    <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                    onclick="deleteUser(<?php echo $row['fund_cluster_id']; ?>)">
+                                                    <i class="bi bi-trash" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php } ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-
         </section>
+    </main>
 
-    </main><!-- End #main -->
-
-    <!-- update modal -->
-
+    <!-- Edit Modal -->
     <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="editModalLabel">Edit Fund Cluster</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form method="post" id="editUserForm" action="update_fund_cluster.php">
+                    <form method="post" id="editUserForm" action="update_fund_cluster.php" class="needs-validation" novalidate>
                         <input type="hidden" id="edit_fund_cluster_id" name="fund_cluster_id">
-                        <div class="mb-3">
+                        <div class="mb-4">
                             <label for="edit_fund_cluster_name" class="form-label">Fund Cluster Name</label>
-                            <input type="text" class="form-control" id="edit_fund_cluster_name" name="fund_cluster_name"
-                                required>
+                            <input type="text" class="form-control" id="edit_fund_cluster_name" 
+                                name="fund_cluster_name" required>
+                            <div class="invalid-feedback">Please enter a fund cluster name.</div>
                         </div>
-                        <div class="mb-3">
+                        <div class="mb-4">
                             <label for="edit_uacs_code" class="form-label">UACS Code</label>
-                            <input type="text" class="form-control" id="edit_uacs_code" name="uacs_code" required>
+                            <input type="text" class="form-control " id="edit_uacs_code" 
+                                name="uacs_code" required>
+                            <div class="invalid-feedback">Please enter a UACS code.</div>
                         </div>
-                        <div class="mb-3">
+                        <div class="mb-4">
                             <label for="edit_status" class="form-label">Status</label>
-                            <select class="form-select" id="edit_status" name="status">
-                                <option selected disabled>Select Status</option>
+                            <select class="form-select" id="edit_status" name="status" required>
+                                <option value="" selected disabled>Select Status</option>
                                 <option value="Active">Active</option>
                                 <option value="Inactive">Inactive</option>
                             </select>
+                            <div class="invalid-feedback">Please select a status.</div>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" id="update" name="update" class="btn btn-primary">Update</button>
+                        <div class="modal-footer border-0 pt-0">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                                <i class="bi bi-x-circle me-1"></i> Close
+                            </button>
+                            <button type="submit" id="update" name="update" class="btn btn-primary">
+                                <i class="bi bi-check-circle me-1"></i> Update
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -284,6 +297,41 @@ $select = mysqli_query($connection, "SELECT * FROM fund_cluster ");
             });
         });
 
+    </script>
+
+    <!-- Add form validation script -->
+    <script>
+        // Form validation
+        (function () {
+            'use strict'
+            var forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms).forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        })()
+
+        // Enhanced delete confirmation
+        function deleteUser(userID) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This action cannot be undone!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = 'delete_fund_cluster.php?id=' + userID;
+                }
+            })
+        }
     </script>
 
 </body>

@@ -80,23 +80,27 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
         <div class="pagetitle">
             <h1>Payee</h1>
             <nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="index.php">Home</a></li>
+                    <li class="breadcrumb-item active">Payee Information</li>
+                </ol>
             </nav>
-        </div><!-- End Page Title -->
+        </div>
 
         <section class="section dashboard">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="card-title">Payee Information</h5>
+                        <button type="button" class="btn btn-primary rounded-pill" data-bs-toggle="modal"
                             data-bs-target="#addUserModal">Add Payee</button>
-                    </h5>
-                    <p></p>
-
+                 
+                </div>
                     <!-- Modal for Add User Form -->
                     <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel"
                         aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content border-0 shadow">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="addUserModalLabel">Add Payee
                                     </h5>
@@ -155,16 +159,17 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                     </div>
 
                     <!-- Table with stripped rows -->
-                    <table class="table datatable">
-                        <thead>
+                     <div class="table-responsive">
+                    <table class="table table-hover datatable">
+                        <thead class="table-light">
                             <tr>
-                                <th>Payee Name</th>
-                                <th>Bank Account No.</th>
-                                <th>TIN/Employee No.</th>
-                                <th>Address</th>
-                                <th>Nature of Business</th>
-                                <th>Contact Number</th>
-                                <th></th>
+                                <th scope="col">Payee Name</th>
+                                <th scope="col">Bank Account No.</th>
+                                <th scope="col">TIN/Employee No.</th>
+                                <th scope="col">Address</th>
+                                <th scope="col">Nature of Business</th>
+                                <th scope="col">Contact Number</th>
+                                <th scope="col">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -176,8 +181,8 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                                     <td><?php echo htmlspecialchars($row['address']); ?></td>
                                     <td><?php echo htmlspecialchars($row['nature']); ?></td>
                                     <td><?php echo htmlspecialchars($row['contact_no']); ?></td>
-                                    <td>
-                                        <button type="button" class="btn btn-primary edit-btn" data-bs-toggle="modal"
+                                    <td class="text-end"> 
+                                        <button type="button" class="btn btn-sm btn-outline-primary edit-btn" data-bs-toggle="modal"
                                             data-bs-target="#editUserModal" data-id="<?php echo $row['payee_id']; ?>"
                                             data-payee_name="<?= htmlspecialchars($row['payee_name']); ?>"
                                             data-bank_acc_no="<?= htmlspecialchars($row['bank_acc_no']); ?>"
@@ -190,7 +195,7 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                                         </button>
 
 
-                                        <button type="button" class="btn btn-danger"
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
                                             onclick="deleteUser(<?php echo $row['payee_id']; ?>)"><i class="bi bi-trash"
                                                 data-bs-toggle="tooltip" data-bs-placement="top"
                                                 title="Delete"></i></i></button>
@@ -200,6 +205,7 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                         </tbody>
 
                     </table>
+                    </div>
                 </div>
             </div>
 
