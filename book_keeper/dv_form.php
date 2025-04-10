@@ -529,6 +529,7 @@ function numberToWords($number)
         <table>
             <tr>
                 <th colspan="5" class="centered header-cell">
+                    <img src="../img/dtilogo.jpg" alt="" style="width: 80px; height: 80px;">
                     <h3>DEPARTMENT OF TRADE AND INDUSTRY 12</h3>
                     <h5>Entity Name</h5>
                     <h3>DISBURSEMENT VOUCHER</h3>
@@ -720,7 +721,7 @@ function numberToWords($number)
                     <div class="signature-line"></div>
                     <div class="signature-container">
                         <p class="signature-name"><?php echo $dv_form['regional_director']; ?></p>
-                        <p class="signature-title">Budget Officer</p>
+                        <p class="signature-title">Regional Director</p>
                         <p class="signature-title">Agency Head/Authorized Representative</p>
                     </div>
                 </td>
