@@ -127,11 +127,6 @@ if (isset($_POST['submit'])) {
     }
 }
 
-
-
-
-
-// Query to fetch account titles and their corresponding UACS codes with OO/PAP
 $sql_account = "SELECT DISTINCT at.account_id, at.account_title, at.account_code, p.oopap_id, o.oopap_name
                 FROM account_title at
                 INNER JOIN project p ON at.account_id = p.account_id
@@ -140,7 +135,6 @@ $sql_account = "SELECT DISTINCT at.account_id, at.account_title, at.account_code
 
 $result_account = $connection->query($sql_account);
 
-// Store account data for JavaScript
 $accountData = [];
 while ($row = $result_account->fetch_assoc()) {
     $accountData[] = $row;
@@ -283,48 +277,18 @@ $ors_result = $connection->query($ors_query);
             text-align: center;
             margin-bottom: 30px;
             color: #03045e;
-            font-weight: 600;
-            position: relative;
-            padding-bottom: 15px;
-        }
-        
-        .form-title:after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px;
-            height: 3px;
-            background: linear-gradient(to right, #0077b6, #00b4d8);
-            border-radius: 3px;
         }
 
         .form-section {
             margin-bottom: 30px;
             border-bottom: 1px solid #eee;
             padding-bottom: 20px;
-            transition: all 0.3s ease;
         }
-        
-    
+
         .form-section h3 {
             color: #0077b6;
             margin-bottom: 15px;
             font-size: 1.2rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-        }
-        
-        .form-section h3:before {
-            content: '';
-            display: inline-block;
-            width: 4px;
-            height: 18px;
-            background-color: #0077b6;
-            margin-right: 10px;
-            border-radius: 2px;
         }
 
         .form-row {
@@ -358,19 +322,17 @@ $ors_result = $connection->query($ors_query);
 
         .form-control {
             width: 100%;
-            padding: 10px 15px;
+            padding: 10px;
             border: 1px solid #ddd;
             border-radius: 8px;
             background-color: #f8f9fa;
             transition: all 0.3s ease;
-            font-size: 0.95rem;
         }
 
         .form-control:focus {
             outline: none;
             border-color: #0077b6;
-            box-shadow: 0 0 0 3px rgba(0, 119, 182, 0.2);
-            background-color: #fff;
+            box-shadow: 0 0 0 2px rgba(0, 119, 182, 0.2);
         }
 
         textarea.form-control {
@@ -404,10 +366,6 @@ $ors_result = $connection->query($ors_query);
             cursor: pointer;
             font-weight: 500;
             transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
         }
 
         .btn-primary {
@@ -417,8 +375,6 @@ $ors_result = $connection->query($ors_query);
 
         .btn-primary:hover {
             background-color: #03045e;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .btn-secondary {
@@ -428,14 +384,10 @@ $ors_result = $connection->query($ors_query);
 
         .btn-secondary:hover {
             background-color: #2B2D42;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .table-responsive {
             overflow-x: auto;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
 
         table {
@@ -445,7 +397,7 @@ $ors_result = $connection->query($ors_query);
 
         table th,
         table td {
-            padding: 12px 15px;
+            padding: 12px;
             text-align: left;
             border-bottom: 1px solid #eee;
         }
@@ -454,10 +406,6 @@ $ors_result = $connection->query($ors_query);
             background-color: #0077b6;
             color: white;
             font-weight: 500;
-        }
-        
-        table tr:hover {
-            background-color: #f8f9fa;
         }
 
         .signature-box {
@@ -470,182 +418,12 @@ $ors_result = $connection->query($ors_query);
             justify-content: center;
             color: #aaa;
             cursor: pointer;
-            transition: all 0.3s ease;
         }
 
         .signature-box:hover {
             background-color: #f8f9fa;
-            border-color: #0077b6;
-            color: #0077b6;
         }
 
-        .calculation-field {
-            background-color: #edf2f7;
-            cursor: not-allowed;
-        }
-
-        .accounting-entry-table th:nth-child(1),
-        .accounting-entry-table td:nth-child(1) {
-            width: 40%;
-        }
-
-        .accounting-entry-table th:nth-child(2),
-        .accounting-entry-table td:nth-child(2) {
-            width: 20%;
-        }
-
-        .accounting-entry-table th:nth-child(3),
-        .accounting-entry-table th:nth-child(4),
-        .accounting-entry-table td:nth-child(3),
-        .accounting-entry-table td:nth-child(4) {
-            width: 20%;
-        }
-
-        .tax-fields {
-            width: 100%;
-            transition: all 0.3s ease;
-        }
-
-        .tax-fields.hidden {
-            display: none;
-        }
-        
-        /* New styles for enhanced UI */
-        .card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-        
-        .card:hover {
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-            transform: translateY(-5px);
-        }
-        
-        .card-body {
-            padding: 25px;
-        }
-        
-        .pagetitle {
-            margin-bottom: 25px;
-        }
-        
-        .pagetitle h1 {
-            font-weight: 600;
-            color: #03045e;
-        }
-        
-        .breadcrumb {
-            background-color: transparent;
-            padding: 0;
-            margin: 0;
-        }
-        
-        .breadcrumb-item a {
-            color: #0077b6;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-        
-        .breadcrumb-item a:hover {
-            color: #03045e;
-            text-decoration: underline;
-        }
-        
-        .breadcrumb-item.active {
-            color: #6c757d;
-        }
-        
-        select.form-control {
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 15px center;
-            background-size: 16px;
-            padding-right: 40px;
-        }
-        
-        .btn-add-row {
-            background-color: #e9ecef;
-            color: #495057;
-            border: none;
-            border-radius: 8px;
-            padding: 8px 15px;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-add-row:hover {
-            background-color: #dee2e6;
-            color: #212529;
-        }
-        
-        .btn-add-row i {
-            font-size: 1.1rem;
-        }
-        
-        .total-row {
-            background-color: #f8f9fa;
-            font-weight: 600;
-        }
-        
-        .total-row td {
-            padding: 15px;
-        }
-        
-        .form-section-title {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 15px;
-        }
-        
-        .form-section-title h3 {
-            margin-bottom: 0;
-        }
-        
-        .form-section-title .badge {
-            background-color: #0077b6;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-        
-        .alert {
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            border: none;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-        }
-        
-        .alert-info {
-            background-color: #e3f2fd;
-            color: #0d47a1;
-        }
-        
-        .alert-warning {
-            background-color: #fff3e0;
-            color: #e65100;
-        }
-        
-        .alert-danger {
-            background-color: #ffebee;
-            color: #c62828;
-        }
-        
-        .alert-success {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-        }
-        
         @media (max-width: 992px) {
             .form-group.half-width {
                 flex: 0 0 100%;
@@ -693,6 +471,111 @@ $ors_result = $connection->query($ors_query);
                 padding: 0;
             }
         }
+
+
+        .calculation-field {
+            background-color: #edf2f7;
+            cursor: not-allowed;
+        }
+
+        .accounting-entry-table th:nth-child(1),
+        .accounting-entry-table td:nth-child(1) {
+            width: 40%;
+        }
+
+        .accounting-entry-table th:nth-child(2),
+        .accounting-entry-table td:nth-child(2) {
+            width: 20%;
+        }
+
+        .accounting-entry-table th:nth-child(3),
+        .accounting-entry-table th:nth-child(4),
+        .accounting-entry-table td:nth-child(3),
+        .accounting-entry-table td:nth-child(4) {
+            width: 20%;
+        }
+
+        .tax-fields {
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .tax-fields.hidden {
+            display: none;
+        }
+
+        /* Custom Searchable Dropdown Styles */
+        .custom-dropdown {
+            position: relative;
+            width: 100%;
+        }
+        
+        .custom-dropdown .dropdown-toggle {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            text-align: left;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .custom-dropdown .dropdown-toggle:after {
+            content: '';
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid #333;
+        }
+        
+        .custom-dropdown .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            max-height: 300px;
+            overflow-y: auto;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+        }
+        
+        .custom-dropdown .dropdown-menu.show {
+            display: block;
+        }
+        
+        .custom-dropdown .search-box {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .custom-dropdown .search-box input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .custom-dropdown .dropdown-item {
+            padding: 8px 10px;
+            cursor: pointer;
+        }
+        
+        .custom-dropdown .dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .custom-dropdown .dropdown-item.selected {
+            background-color: #0077b6;
+            color: white;
+        }
     </style>
 </head>
 
@@ -705,263 +588,245 @@ $ors_result = $connection->query($ors_query);
     <main id="main" class="main">
 
         <div class="pagetitle d-flex justify-content-between align-items-center">
-            <div>
-                <h1>Obligation Request and Status</h1>
-                <nav>
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index.php">Home</a></li>
-                        <li class="breadcrumb-item active">ORS</li>
-                    </ol>
-                </nav>
-            </div>
-            <button class="btn btn-primary rounded-pill" onclick="window.location.href='processed_ors.php'">
-                <i class="bi bi-file-earmark-text me-1"></i> View Processed ORS
+            <h1 class="mb-0">Obligation Request and Status</h1>
+            <button class="btn btn-primary" onclick="window.location.href='processed_ors.php'">
+                View Processed ORS
             </button>
-        </div>
+
+        </div><!-- End Page Title -->
+
+
 
         <div class="content-wrapper">
-            <div class="card">
-                <div class="card-body">
-                    <h2 class="form-title">Obligation Request And Status</h2>
+            <div class="form-container">
+                <h2 class="form-title">Obligation Request And Status</h2>
 
-                    <!-- General Information Section -->
-                    <div class="tab-content">
-                        <div>
-                            <div id="ors_form">
-                                <form method="post" class="needs-validation" novalidate>
-                                    <div class="form-section">
-                                        <div class="form-section-title">
-                                            <h3>General Information</h3>
-                                            <span class="badge">Required</span>
+
+                <!-- General Information Section -->
+                <div class="tab-content">
+                    <div>
+                        <div id="ors_form">
+                            <form method="post">
+                                <div class="form-section">
+                                    <h3>General Information</h3>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label">Fund Cluster</label>
+                                            <select class="form-control" name="fund_cluster_id">
+                                                <option selected disabled>Select Fund Cluster</option>
+                                                <?php
+                                                while ($row = $result_fund_cluster->fetch_assoc()) {
+                                                    echo "<option value='" . htmlspecialchars($row['fund_cluster_id']) . "'>" . htmlspecialchars($row['fund_cluster_name']) . "</option>";
+                                                }
+                                                ?>
+                                            </select>
                                         </div>
-                                        <div class="form-row">
-                                            <div class="form-group">
-                                                <label class="form-label">Fund Cluster</label>
-                                                <select class="form-control" name="fund_cluster_id" required>
-                                                    <option value="" selected disabled>Select Fund Cluster</option>
-                                                    <?php
-                                                    while ($row = $result_fund_cluster->fetch_assoc()) {
-                                                        echo "<option value='" . htmlspecialchars($row['fund_cluster_id']) . "'>" . htmlspecialchars($row['fund_cluster_name']) . "</option>";
-                                                    }
-                                                    ?>
-                                                </select>
-                                                <div class="invalid-feedback">Please select a fund cluster.</div>
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="form-label">OO/PAP</label>
-                                                <select class="form-control" name="oopap_id" required>
-                                                    <option value="" selected disabled>Select OO/PAP</option>
-                                                    <?php
-                                                    while ($row = $result_oopap->fetch_assoc()) {
-                                                        echo "<option value='" . htmlspecialchars($row['oopap_id']) . "'>" . htmlspecialchars($row['oopap_name']) . "</option>";
-                                                    }
-                                                    ?>
-                                                </select>
-                                                <div class="invalid-feedback">Please select an OO/PAP.</div>
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="form-label">Services</label>
-                                                <select class="form-control" name="services_id" id="services" required>
-                                                    <option value="" selected disabled>Select Services</option>
-                                                </select>
-                                                <div class="invalid-feedback">Please select a service.</div>
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="form-label">Date</label>
-                                                <input type="date" class="form-control" id="dvDate" name="date" required>
-                                                <div class="invalid-feedback">Please select a date.</div>
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="form-label">Obligation Request No.</label>
-                                                <input type="text" class="form-control" name="ors_no" id="ors_no" required readonly>
-                                            </div>
+                                        <div class="form-group">
+                                            <label class="form-label">OO/PAP</label>
+                                            <select class="form-control" name="oopap_id">
+                                                <option selected disabled>Select OO/PAP</option>
+                                                <?php
+                                                while ($row = $result_oopap->fetch_assoc()) {
+                                                    echo "<option value='" . htmlspecialchars($row['oopap_id']) . "'>" . htmlspecialchars($row['oopap_name']) . "</option>";
+                                                }
+                                                ?>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Services</label>
+                                            <select class="form-control" name="services_id" id="services">
+                                                <option selected disabled>Select Services</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Date</label>
+                                            <input type="date" class="form-control" id="dvDate" name="date">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Obligation Request No.</label>
+                                            <input type="text" class="form-control" name="ors_no" id="ors_no" required
+                                                readonly>
                                         </div>
                                     </div>
+                                </div>
 
 
-                                    <!-- Payee Details Section -->
-                                    <div class="form-section">
-                                        <div class="form-section-title">
-                                            <h3>Payee Details</h3>
-                                            <span class="badge">Required</span>
-                                        </div>
-                                        <div class="form-row">
-                                            <div class="form-group">
-                                                <label class="form-label">Payee Name</label>
-                                                <select class="form-control" name="payee_id" id="payee_id" required>
-                                                    <option value="" selected disabled>Select Payee</option>
-                                                    <?php
-                                                    while ($row = $result_payee->fetch_assoc()) {
-                                                        echo "<option value='" . htmlspecialchars($row['payee_id']) . "' 
+                                <!-- Payee Details Section -->
+                                <div class="form-section">
+                                    <h3> Payee Details</h3>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label">Payee Name</label>
+                                            <select class="form-control" name="payee_id" id="payee_id">
+                                                <option selected disabled>Select Payee</option>
+                                                <?php
+                                                while ($row = $result_payee->fetch_assoc()) {
+                                                    echo "<option value='" . htmlspecialchars($row['payee_id']) . "' 
                                                                         data-tin='" . htmlspecialchars($row['tin_no']) . "' 
                                                                         data-address='" . htmlspecialchars($row['address']) . "'>"
                                                         . htmlspecialchars($row['payee_name']) .
                                                         "</option>";
-                                                    }
-                                                    ?>
-                                                </select>
-                                                <div class="invalid-feedback">Please select a payee.</div>
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="form-label">TIN/Employee No.</label>
-                                                <input type="text" class="form-control" name="tin_no" id="tin_no"
-                                                    autocomplete="off" readonly>
-                                            </div>
+                                                }
+                                                ?>
+                                            </select>
                                         </div>
                                         <div class="form-group">
-                                            <label class="form-label">Address</label>
-                                            <input type="text" class="form-control" name="address" id="address"
-                                                autocomplete="off" readonly>
+                                            <label class="form-label">TIN/Employee No.</label>
+                                            <input type="text" class="form-control" name="tin_no" id="tin_no"
+                                                autocomplete="off">
+
                                         </div>
                                     </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Address</label>
+                                        <input type="text" class="form-control" name="address" id="address"
+                                            autocomplete="off">
 
-                                    <!-- Payment Details Section -->
-                                    <div class="form-section">
-                                        <div class="form-section-title">
-                                            <h3>Payment Details</h3>
-                                            <span class="badge">Required</span>
-                                        </div>
-                                        <div class="form-row">
-                                            <div class="form-group">
-                                                <label class="form-label">Purpose</label>
-                                                <select class="form-control" name="purpose" required>
-                                                    <option value="To Payment of" selected>To Payment of</option>
-                                                    <option value="To Disburse">To Reimburse</option>
-                                                    <option value="To Cash Advance">To Cash Advance</option>
-                                                </select>
-                                                <div class="invalid-feedback">Please select a purpose.</div>
-                                            </div>
-                                        </div>
-                                        <div class="form-row">
-                                            <div class="form-group full-width">
-                                                <label class="form-label">Description</label>
-                                                <textarea class="form-control" name="notes" placeholder="Enter Description" required></textarea>
-                                                <div class="invalid-feedback">Please enter a description.</div>
-                                            </div>
-                                        </div>
-                                        <div class="form-row">
-                                            <div class="form-group">
-                                                <label class="form-label">Responsibility Center</label>
-                                                <select class="form-control" name="rc_id" required>
-                                                    <option value="" selected disabled>Select Responsibility Center</option>
-                                                    <?php
-                                                    while ($row = $result_responsibility_center->fetch_assoc()) {
-                                                        echo "<option value='" . htmlspecialchars($row['rc_id']) . "'>"
-                                                            . htmlspecialchars($row['code']) . " - " . htmlspecialchars($row['description']) .
-                                                            "</option>";
-                                                    }
-                                                    ?>
-                                                </select>
-                                                <div class="invalid-feedback">Please select a responsibility center.</div>
-                                            </div>
-                                        </div>
                                     </div>
+                                </div>
 
-                                    <!-- Accounting Entry Section -->
-                                    <div class="form-section">
-                                        <div class="form-section-title">
+                                <!-- Payment Details Section -->
+                                <div class="form-section">
+                                    <h3></h3>
+
+
+                                    <label class="form-label">Purpose</label>
+                                    <div class="form-row">
+                                        <select class="form-control" name="purpose">
+                                            <option value="To Payment of">To Payment of</option>
+                                            <option value="To Disburse">To Reimburse</option>
+                                            <option value="To Cash Advance">To Cash Advance</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group full-width">
+
+                                            <textarea class="form-control" name="notes" placeholder="Enter Purpose"></textarea autocomplete="off">
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                            <div class="form-group">
+                                                    <label class="form-label">Responsibility Center</label>
+                                                    <select class="form-control" name="rc_id">
+                                                        <option selected disabled>Select Responsibility Center</option>
+                                                        <?php
+                                                        while ($row = $result_responsibility_center->fetch_assoc()) {
+                                                            echo "<option value='" . htmlspecialchars($row['rc_id']) . "'>"
+                                                                . htmlspecialchars($row['code']) . " - " . htmlspecialchars($row['description']) .
+                                                                "</option>";
+                                                        }
+                                                        ?>
+                                                    </select>
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+                                        <!-- Accounting Entry Section -->
+                                        <div class="form-section">
                                             <h3>Particulars</h3>
-                                            <span class="badge">Required</span>
-                                        </div>
-                                        <div class="table-responsive">
-                                            <table class="accounting-entry-table">
-                                                <thead>
-                                                    <tr>
-                                                        <th colspan="3">Account Title</th>
-                                                        <th>Amount</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="accounting-table-body">
-                                                    <!-- First row -->
-                                                    <tr class="entry-row">
-                                                        <td colspan="3">
-                                                            <select class="form-control" name="account_id[]" required>
-                                                                <option value="" selected disabled>Select Account</option>
-                                                                <?php
-                                                                // Reset the result pointer
-                                                                $result_account->data_seek(0);
-                                                                while ($row = $result_account->fetch_assoc()) {
-                                                                    echo "<option value='" . htmlspecialchars($row['account_id']) . "' 
-                                                                        data-account_code='" . htmlspecialchars($row['account_code']) . "'
-                                                                        data-oopap_id='" . htmlspecialchars($row['oopap_id']) . "'>"
-                                                                        . htmlspecialchars($row['account_title']) . " - " . htmlspecialchars($row['account_code']) .
-                                                                        "</option>";
-                                                                }
-                                                                ?>
-                                                            </select>
-                                                            <div class="invalid-feedback">Please select an account.</div>
-                                                        </td>
-                                                        <td>
-                                                            <input type="number" class="form-control amount-input" name="amount[]" step="0.01" required>
-                                                            <div class="invalid-feedback">Please enter an amount.</div>
-                                                        </td>
-                                                    </tr>
-                                                    <!-- Add Row button row -->
-                                                    <tr id="add-row-container">
-                                                        <td colspan="4" class="text-left">
-                                                            <button type="button" id="addAccountRow" class="btn-add-row">
-                                                                <i class="bi bi-plus-circle"></i> Add Row
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                    <!-- Total Amount Row -->
-                                                    <tr class="total-row">
-                                                        <td colspan="3" class="text-end">Total Amount:</td>
-                                                        <td><input type="text" id="total_amount" class="form-control calculation-field" name="total_amount" readonly></td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
+                                            <div class="table-responsive">
+                                               <!-- HTML Table Structure -->
+<table class="accounting-entry-table">
+    <thead>
+        <tr>
+            <th colspan="2">Account Title</th>
+            <th>Code</th>
+            <th>Amount</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody id="accounting-table-body">
+        <!-- First row -->
+        <tr class="entry-row">
+            <td colspan="2">
+            <select class="form-control" name="account_id[]" required>
+                                                                    <option selected disabled>Select Account</option>
+                                                                    <?php
+                                                                    // Reset the result pointer
+                                                                    $result_account->data_seek(0);
+                                                                    while ($row = $result_account->fetch_assoc()) {
+                                                                        echo "<option value='" . htmlspecialchars($row['account_id']) . "' 
+                                                                            data-account_code='" . htmlspecialchars($row['account_code']) . "'
+                                                                            data-oopap_id='" . htmlspecialchars($row['oopap_id']) . "'>"
+                                                                            . htmlspecialchars($row['account_title']) . " - " . htmlspecialchars($row['account_code']) .
+                                                                            "</option>";
+                    }
+                    ?>
+                </select>
+            </td>
+            <td>
+                <input type="text" class="form-control account-code" name="account_code[]" readonly>
+            </td>
+            <td>
+                <input type="number" class="form-control amount-input" name="amount[]" step="0.01" required>
+            </td>
+            <td>
+                <button type="button" class="btn btn-danger btn-sm delete-row">Delete</button>
+            </td>
+        </tr>
+        <!-- Add Row button row -->
+        <tr id="add-row-container">
+            <td colspan="4" class="text-left">
+                <button type="button" id="addAccountRow" class="btn btn-secondary">
+                    <ion-icon name="add-outline"></ion-icon> Add Row
+                </button>
+            </td>
+            <td></td>
+        </tr>
+        <!-- Total Amount Row -->
+        <tr>
+            <td colspan="3" class="text-right font-weight-bold">Total Amount:</td>
+            <td><input type="text" id="total_amount" class="form-control" name="total_amount" readonly></td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
 
-                                    <input type="hidden" class="form-control" id="project_id" name="project_id" readonly placeholder="Project ID">
 
-                                    <!-- Approver Section -->
-                                    <div class="form-section">
-                                        <div class="form-section-title">
-                                            <h3>Approval</h3>
-                                            <span class="badge">Required</span>
-                                        </div>
-                                        <div class="form-row">
-                                            <div class="form-group">
-                                                <label class="form-label" id="designationLabel">Designation</label>
-                                                <select class="form-control" id="approverSelect" name="approver_id" required>
-                                                    <option value="" selected disabled>Select Approver</option>
-                                                    <?php
-                                                    foreach ($approverData as $approver_id => $data) {
-                                                        echo "<option value='" . htmlspecialchars($approver_id) . "' data-designation='" . htmlspecialchars($data['designation']) . "'>" . htmlspecialchars($data['name']) . "</option>";
-                                                    }
-                                                    ?>
-                                                </select>
-                                                <div class="invalid-feedback">Please select an approver.</div>
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="form-label">Budget Officer</label>
-                                                <select class="form-control" name="budget_officer" required>
-                                                    <option value="CONNIE M. BARNACHEA" selected>CONNIE M. BARNACHEA</option>
-                                                </select>
-                                                <div class="invalid-feedback">Please select a budget officer.</div>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <!-- Form Buttons -->
-                                    <div class="btn-container">
-                                        <button type="button" class="btn btn-secondary" onclick="clearForm()">
-                                            <i class="bi bi-x-circle me-1"></i> Clear Form
-                                        </button>
-                                        <button type="submit" class="btn btn-primary" name="submit">
-                                            <i class="bi bi-check-circle me-1"></i> Submit ORS
-                                        </button>
-                                    </div>
-                                </form>
+                                        <input type="hidden" class="form-control" id="project_id" name="project_id" readonly placeholder="Project ID">
+
+
+                                        <!-- Receipt Section -->
+                                        <div class="form-section">
+                                            <div class="form-row">
+                                                <div class="form-group">
+                                                    <label class="form-label" id="designationLabel">Designation</label>
+                                                    <select class="form-control" id="approverSelect" name="approver_id">
+                                                        <option value="">Select Approver</option>
+                                                        <?php
+                                                        foreach ($approverData as $approver_id => $data) {
+                                                            echo "<option value='" . htmlspecialchars($approver_id) . "' data-designation='" . htmlspecialchars($data['designation']) . "'>" . htmlspecialchars($data['name']) . "</option>";
+                                                        }
+                                                        ?>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="form-label">Budget Officer</label>
+                                                    <select class="form-control" name="budget_officer">
+                                                        <option>CONNIE M. BARNACHEA</option>
+
+                                                    </select>
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                        <!-- Form Buttons -->
+                                        <div class="btn-container">
+                                            <button type="button" class="btn btn-secondary">Clear Form</button>
+                                            <button type="submit" class="btn btn-primary" name="submit">Submit Voucher</button>
+                                        </div>
+
+                                    </form>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
+    </main><!-- End #main -->
 
 
 
@@ -980,6 +845,9 @@ $ors_result = $connection->query($ors_query);
 
     <!-- Template Main JS File -->
     <script src="../NiceAdmin/assets/js/main.js"></script>
+
+    <!-- Custom Accounting Entry JS -->
+    <script src="js/accounting-entry.js"></script>
 
     <script>
 
@@ -1076,66 +944,166 @@ $ors_result = $connection->query($ors_query);
             calculateTaxes();
         });
 
-    </script>
+        <!-- JavaScript Code -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const tableBody = document.querySelector("#accounting-table-body");
+    const addRowContainer = document.querySelector("#add-row-container");
 
-    <!-- add row and total amount calculation -->
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const tableBody = document.querySelector("#accounting-table-body");
-            const addRowContainer = document.querySelector("#add-row-container");
-
-            // Function to update total
-            function updateTotal() {
-                let total = 0;
-                document.querySelectorAll(".amount-input").forEach(function (input) {
-                    total += parseFloat(input.value) || 0;
-                });
-                document.getElementById("total_amount").value = total.toFixed(2);
-            }
-
-            // Add new row functionality
-            document.getElementById("addAccountRow").addEventListener("click", function () {
-                const newRow = document.createElement("tr");
-                newRow.classList.add("entry-row");
-
-                // Clone the account select options
-                const accountSelect = document.querySelector('select[name="account_id[]"]').cloneNode(true);
-                accountSelect.name = "account_id[]";
-                accountSelect.value = ""; // Reset selection
-
-                // Create amount input
-                const amountInput = document.createElement("input");
-                amountInput.type = "number";
-                amountInput.className = "form-control amount-input";
-                amountInput.name = "amount[]";
-                amountInput.step = "0.01";
-                amountInput.required = true;
-
-                // Create cells
-                const accountCell = document.createElement("td");
-                accountCell.colSpan = 3;
-                accountCell.appendChild(accountSelect);
-
-                const amountCell = document.createElement("td");
-                amountCell.appendChild(amountInput);
-
-                // Add cells to row
-                newRow.appendChild(accountCell);
-                newRow.appendChild(amountCell);
-
-                // Insert before the add row container
-                tableBody.insertBefore(newRow, addRowContainer);
-
-                // Add event listener for amount changes
-                amountInput.addEventListener("input", updateTotal);
-            });
-
-            // Listen for input changes on all amount inputs
-            document.querySelectorAll(".amount-input").forEach(input => {
-                input.addEventListener("input", updateTotal);
-            });
+    // Function to update total
+    function updateTotal() {
+        let total = 0;
+        document.querySelectorAll(".amount-input").forEach(function (input) {
+            total += parseFloat(input.value) || 0;
         });
-    </script>
+        document.getElementById("total_amount").value = total.toFixed(2);
+    }
+
+    // Function to create a new row
+    function createNewRow() {
+        const newRow = document.createElement("tr");
+        newRow.classList.add("entry-row");
+
+        // Clone the account select options
+        const accountSelect = document.querySelector('select[name="account_id[]"]').cloneNode(true);
+        accountSelect.name = "account_id[]";
+        accountSelect.className = "form-control account-select";
+        accountSelect.value = ""; // Reset selection
+
+        // Create account code input
+        const codeInput = document.createElement("input");
+        codeInput.type = "text";
+        codeInput.className = "form-control account-code";
+        codeInput.name = "account_code[]";
+        codeInput.readOnly = true;
+
+        // Create amount input
+        const amountInput = document.createElement("input");
+        amountInput.type = "number";
+        amountInput.className = "form-control amount-input";
+        amountInput.name = "amount[]";
+        amountInput.step = "0.01";
+        amountInput.required = true;
+
+        // Create delete button
+        const deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.className = "btn btn-danger btn-sm delete-row";
+        deleteButton.innerHTML = "Delete";
+        deleteButton.addEventListener("click", function() {
+            newRow.remove();
+            updateTotal();
+        });
+
+        // Create cells
+        const accountCell = document.createElement("td");
+        accountCell.colSpan = 2;
+        accountCell.appendChild(accountSelect);
+
+        const codeCell = document.createElement("td");
+        codeCell.appendChild(codeInput);
+
+        const amountCell = document.createElement("td");
+        amountCell.appendChild(amountInput);
+
+        const deleteCell = document.createElement("td");
+        deleteCell.appendChild(deleteButton);
+
+        newRow.appendChild(accountCell);
+        newRow.appendChild(codeCell);
+        newRow.appendChild(amountCell);
+        newRow.appendChild(deleteCell);
+
+        // Add event listeners
+        amountInput.addEventListener("input", updateTotal);
+        
+        accountSelect.addEventListener("change", function() {
+            const selectedOption = this.options[this.selectedIndex];
+            if (selectedOption && selectedOption.dataset.account_code) {
+                codeInput.value = selectedOption.dataset.account_code;
+            } else {
+                codeInput.value = "";
+            }
+        });
+
+        return newRow;
+    }
+
+    // Add new row functionality
+    document.getElementById("addAccountRow").addEventListener("click", function () {
+        const newRow = createNewRow();
+        tableBody.insertBefore(newRow, addRowContainer);
+        
+        // Apply custom dropdown to the new select
+        setTimeout(function() {
+            const newSelect = newRow.querySelector('select[name="account_id[]"]');
+            if (newSelect && !newSelect.classList.contains('custom-dropdown-processed')) {
+                newSelect.classList.add('custom-dropdown-processed');
+                const container = window.convertToSearchableDropdown(newSelect);
+                window.dropdownContainers.push(container);
+                window.updateAccountOptions();
+            }
+        }, 100);
+    });
+
+    // Add delete buttons to existing rows
+    function addDeleteButtonsToExistingRows() {
+        const existingRows = document.querySelectorAll("#accounting-table-body tr.entry-row");
+        
+        existingRows.forEach(row => {
+            if (!row.querySelector('.delete-row')) {
+                const deleteButton = document.createElement("button");
+                deleteButton.type = "button";
+                deleteButton.className = "btn btn-danger btn-sm delete-row";
+                deleteButton.innerHTML = "Delete";
+                
+                deleteButton.addEventListener("click", function() {
+                    row.remove();
+                    updateTotal();
+                });
+                
+                const deleteCell = document.createElement("td");
+                deleteCell.appendChild(deleteButton);
+                
+                row.appendChild(deleteCell);
+            }
+        });
+    }
+
+    addDeleteButtonsToExistingRows();
+
+    // Set up event listeners for existing amount inputs
+    document.querySelectorAll(".amount-input").forEach(input => {
+        input.addEventListener("input", updateTotal);
+    });
+
+    // Set up event listeners for existing account selects
+    document.querySelectorAll(".account-select").forEach(select => {
+        select.addEventListener("change", function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const row = this.closest("tr");
+            const codeInput = row.querySelector(".account-code");
+            
+            if (selectedOption && selectedOption.dataset.account_code) {
+                codeInput.value = selectedOption.dataset.account_code;
+            } else {
+                codeInput.value = "";
+            }
+        });
+    });
+
+    // Initialize account codes for existing rows
+    document.querySelectorAll(".account-select").forEach(select => {
+        const selectedOption = select.options[select.selectedIndex];
+        const row = select.closest("tr");
+        const codeInput = row.querySelector(".account-code");
+        
+        if (selectedOption && selectedOption.dataset.account_code) {
+            codeInput.value = selectedOption.dataset.account_code;
+        }
+    });
+});
+</script>
 
     <!-- approver -->
 
@@ -1145,11 +1113,10 @@ $ors_result = $connection->query($ors_query);
             const designationLabel = document.getElementById("designationLabel");
 
             approverSelect.addEventListener("change", function () {
-                // Get the selected option
+              
                 const selectedOption = approverSelect.options[approverSelect.selectedIndex];
                 const designation = selectedOption.getAttribute("data-designation") || "Designation";
 
-                // Update the label text
                 designationLabel.textContent = designation;
             });
         });
@@ -1171,15 +1138,12 @@ $ors_result = $connection->query($ors_query);
                     return;
                 }
 
-                // Extract Year and Month from Date Input
                 const dateObj = new Date(selectedDate);
                 const year = dateObj.getFullYear();
-                const month = String(dateObj.getMonth() + 1).padStart(2, '0'); // Ensure two digits
+                const month = String(dateObj.getMonth() + 1).padStart(2, '0'); 
 
-                // Retrieve the Last Sequence Number from PHP
                 const lastSequence = "<?php echo $new_sequence; ?>";
 
-                // Format Disbursement Voucher No.
                 const orsNumber = `${selectedUACS}-${year}-${month}-${lastSequence}`;
                 orsNumberInput.value = orsNumber;
             }
@@ -1294,7 +1258,6 @@ $ors_result = $connection->query($ors_query);
             const dateInput = document.getElementById('dvDate');
             const orsNoInput = document.getElementById('ors_no');
 
-            // Function to update services dropdown
             function updateServices(oopapId) {
                 if (!oopapId) {
                     servicesSelect.innerHTML = '<option selected disabled>Select Services</option>';
@@ -1325,7 +1288,6 @@ $ors_result = $connection->query($ors_query);
                     });
             }
 
-            // Listen for OO/PAP selection changes
             oopapSelect.addEventListener('change', function () {
                 updateServices(this.value);
             });
@@ -1384,7 +1346,6 @@ $ors_result = $connection->query($ors_query);
         });
     </script>
 
-    <!-- Add this JavaScript before the closing </body> tag -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const oopapSelect = document.querySelector('select[name="oopap_id"]');
@@ -1396,11 +1357,9 @@ $ors_result = $connection->query($ors_query);
                 accountSelects.forEach(select => {
                     const currentValue = select.value;
                     const options = select.options;
-
-                    // Show/hide options based on selected OO/PAP
                     for (let i = 0; i < options.length; i++) {
                         const option = options[i];
-                        if (option.value === "") continue; // Skip the default "Select Account" option
+                        if (option.value === "") continue; 
 
                         const optionOopapId = option.getAttribute('data-oopap_id');
                         if (optionOopapId === selectedOopapId) {
@@ -1410,24 +1369,16 @@ $ors_result = $connection->query($ors_query);
                         }
                     }
 
-                    // Reset selection if current value is not in selected OO/PAP
                     if (currentValue && options[select.selectedIndex].style.display === 'none') {
                         select.value = "";
                     }
                 });
             }
-
-            // Update account options when OO/PAP changes
             oopapSelect.addEventListener('change', updateAccountOptions);
-
-            // Initial update
             updateAccountOptions();
         });
     </script>
-
-<!-- Filter -->
 <script>
-    // JavaScript to handle filtering without the "Apply Filters" button
     document.getElementById('yearFilter').addEventListener('change', applyFilter);
     document.getElementById('monthFilter').addEventListener('change', applyFilter);
     document.getElementById('servicesFilter').addEventListener('change', applyFilter);
@@ -1436,59 +1387,158 @@ $ors_result = $connection->query($ors_query);
         var year = document.getElementById('yearFilter').value;
         var month = document.getElementById('monthFilter').value;
         var service = document.getElementById('servicesFilter').value;
-
-        // Get the current URL and append the filters
         var newUrl = window.location.origin + window.location.pathname + '?year=' + year + '&month=' + month + '&service=' + service;
-
-        // Update the URL with the selected filters, keeping the #orsList tab in the URL
-        window.location.href = newUrl + '#orsList'; // Keep the user in the orsList tab
+        window.location.href = newUrl + '#orsList'; 
     }
 </script>
 
-    <!-- Add form validation script -->
+    <!-- Custom Searchable Dropdown Implementation -->
     <script>
-        // Form validation
-        (function () {
-            'use strict'
-            var forms = document.querySelectorAll('.needs-validation')
-            Array.prototype.slice.call(forms).forEach(function (form) {
-                form.addEventListener('submit', function (event) {
-                    if (!form.checkValidity()) {
-                        event.preventDefault()
-                        event.stopPropagation()
+        document.addEventListener("DOMContentLoaded", function() {
+            const dropdownContainers = [];
+            
+            function convertToSearchableDropdown(selectElement) {
+                const dropdownContainer = document.createElement('div');
+                dropdownContainer.className = 'custom-dropdown';
+      
+                const dropdownToggle = document.createElement('div');
+                dropdownToggle.className = 'dropdown-toggle';
+                dropdownToggle.textContent = selectElement.options[selectElement.selectedIndex]?.text || 'Select Account';
+                
+                const dropdownMenu = document.createElement('div');
+                dropdownMenu.className = 'dropdown-menu';
+                
+                const searchBox = document.createElement('div');
+                searchBox.className = 'search-box';
+                const searchInput = document.createElement('input');
+                searchInput.type = 'text';
+                searchInput.placeholder = 'Search...';
+                searchBox.appendChild(searchInput);
+                dropdownMenu.appendChild(searchBox);
+                
+                const dropdownItems = document.createElement('div');
+                dropdownItems.className = 'dropdown-items';
+                
+                Array.from(selectElement.options).forEach(option => {
+                    if (option.value === '') return; 
+                    const dropdownItem = document.createElement('div');
+                    dropdownItem.className = 'dropdown-item';
+                    dropdownItem.dataset.value = option.value;
+                    dropdownItem.dataset.oopapId = option.getAttribute('data-oopap_id');
+                    dropdownItem.dataset.accountCode = option.getAttribute('data-account_code');
+                    
+                    // Include account code in the display text
+                    const accountCode = option.getAttribute('data-account_code') || '';
+                    const displayText = accountCode ? `${option.text} (${accountCode})` : option.text;
+                    dropdownItem.textContent = displayText;
+                    
+                    dropdownItem.addEventListener('click', function() {
+                        selectElement.value = this.dataset.value;
+                        dropdownToggle.textContent = displayText;
+                        dropdownMenu.classList.remove('show');
+                        
+                        dropdownItems.querySelectorAll('.dropdown-item').forEach(item => {
+                            item.classList.remove('selected');
+                        });
+                        this.classList.add('selected');
+                        
+                        // Update the account code input
+                        const row = selectElement.closest('tr');
+                        const codeInput = row.querySelector('.account-code');
+                        if (codeInput && this.dataset.accountCode) {
+                            codeInput.value = this.dataset.accountCode;
+                        }
+                        
+                        const event = new Event('change', { bubbles: true });
+                        selectElement.dispatchEvent(event);
+                    });
+                    
+                    dropdownItems.appendChild(dropdownItem);
+                });
+                
+                dropdownMenu.appendChild(dropdownItems);
+                dropdownToggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdownMenu.classList.toggle('show');
+                    if (dropdownMenu.classList.contains('show')) {
+                        searchInput.focus();
                     }
-                    form.classList.add('was-validated')
-                }, false)
-            })
-        })()
-        
-        // Function to clear form
-        function clearForm() {
-            document.querySelector('form').reset();
-            document.querySelector('form').classList.remove('was-validated');
-            
-            // Reset the ORS number
-            document.getElementById('ors_no').value = '';
-            
-            // Reset the accounting table to just one row
-            const tableBody = document.getElementById('accounting-table-body');
-            const rows = tableBody.querySelectorAll('.entry-row');
-            
-            // Keep only the first row
-            for (let i = 1; i < rows.length; i++) {
-                rows[i].remove();
+                });
+                
+                searchInput.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    dropdownItems.querySelectorAll('.dropdown-item').forEach(item => {
+                        const text = item.textContent.toLowerCase();
+                        if (text.includes(searchTerm)) {
+                            item.style.display = '';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                });
+                
+                document.addEventListener('click', function(e) {
+                    if (!dropdownContainer.contains(e.target)) {
+                        dropdownMenu.classList.remove('show');
+                    }
+                });
+                
+                selectElement.style.display = 'none';
+                dropdownContainer.appendChild(dropdownToggle);
+                dropdownContainer.appendChild(dropdownMenu);
+                selectElement.parentNode.insertBefore(dropdownContainer, selectElement);
+                
+                return dropdownContainer;
             }
             
-            // Reset the total amount
-            document.getElementById('total_amount').value = '';
-
-            Swal.fire({
-                title: 'Form Cleared',
-                text: 'All form fields have been reset.',
-                icon: 'success',
-                confirmButtonColor: '#0077b6'
+            const accountSelects = document.querySelectorAll('select[name="account_id[]"]');
+            
+            accountSelects.forEach(select => {
+                if (!select.classList.contains('custom-dropdown-processed')) {
+                    select.classList.add('custom-dropdown-processed');
+                    const container = convertToSearchableDropdown(select);
+                    dropdownContainers.push(container);
+                }
             });
-        }
+            
+            const oopapSelect = document.querySelector('select[name="oopap_id"]');
+            
+            function updateAccountOptions() {
+                const selectedOopapId = oopapSelect.value;
+                
+                dropdownContainers.forEach(container => {
+                    const dropdownItems = container.querySelectorAll('.dropdown-item');
+                    const selectElement = container.nextElementSibling;
+                    
+                    dropdownItems.forEach(item => {
+                        const itemOopapId = item.dataset.oopapId;
+                        if (selectedOopapId && itemOopapId !== selectedOopapId) {
+                            item.style.display = 'none';
+                        } else {
+                            item.style.display = '';
+                        }
+                    });
+                    
+                    if (selectedOopapId) {
+                        const selectedItem = container.querySelector(`.dropdown-item[data-value="${selectElement.value}"]`);
+                        if (selectedItem && selectedItem.dataset.oopapId !== selectedOopapId) {
+                            selectElement.value = '';
+                            container.querySelector('.dropdown-toggle').textContent = 'Select Account';
+                        }
+                    }
+                });
+            }
+            
+            if (oopapSelect) {
+                oopapSelect.addEventListener('change', updateAccountOptions);
+                updateAccountOptions();
+            }
+            
+            // Make the convertToSearchableDropdown function available globally
+            window.convertToSearchableDropdown = convertToSearchableDropdown;
+            window.dropdownContainers = dropdownContainers;
+            window.updateAccountOptions = updateAccountOptions;
+        });
     </script>
 
 </body>

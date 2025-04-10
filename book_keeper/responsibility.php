@@ -80,7 +80,7 @@ $select = mysqli_query($connection, "SELECT * FROM responsibility_center");
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="index.php">Home</a></li>
-                    <li class="breadcrumb-item active"> Services</li>
+                    <li class="breadcrumb-item active"> Responsibility Center Management</li>
                 </ol>
             </nav>
         </div>
