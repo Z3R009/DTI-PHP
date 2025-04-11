@@ -733,25 +733,25 @@ function numberToWords($number)
                 </td>
             </tr>
             <tr>
-                <td colspan="3">
+                <td colspan="3"><br>
                     <p>Signature:</p>
                     <div class="signature-line"></div>
                     <div class="signature-container">
                         <p class="signature-name"><?php echo $dv_form['chief_accountant']; ?></p>
                         <p class="signature-title">Chief Accountant</p>
                         <p class="signature-title">Head, Accounting Unit/Authorized Representative</p>
-                    </div><br>
+                    </div>
                     <p>Date:</p>
                     <div class="signature-line"></div>
                 </td>
-                <td colspan="3">
+                <td colspan="3"><br>
                     <p>Signature:</p>
                     <div class="signature-line"></div>
                     <div class="signature-container">
                         <p class="signature-name"><?php echo $dv_form['regional_director']; ?></p>
                         <p class="signature-title">Regional Director</p>
                         <p class="signature-title">Agency Head/Authorized Representative</p>
-                    </div><br>
+                    </div>
                     <p>Date:</p>
                     <div class="signature-line"></div>
                 </td>
