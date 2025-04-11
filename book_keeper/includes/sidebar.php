@@ -1,6 +1,6 @@
 <style>
-    .sidebar{
-        margin-top:60px;
+    .sidebar {
+        margin-top: 60px;
     }
 </style>
 
@@ -8,16 +8,17 @@
 <aside id="sidebar" class="sidebar">
     <div class="user-profile text-center mb-4">
         <div class="avatar mb-2">
-            <img src="../img/incognito-circle-icon-md.png" alt="Profile" class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover; border: 3px solid rgba(0, 121, 107, 0.2);">
+            <img src="../img/dti_logo.png " alt="Profile" class="rounded-circle"
+                style="width: 80px; height: 80px; object-fit: cover; border: 3px solid rgba(0, 121, 107, 0.2);">
         </div>
         <h5 class="text-dark fw-bold mb-0">Book Keeper</h5>
         <p class="text-dark-emphasis small">Department of Trade & Industry</p>
     </div>
 
-    
+
     <ul class="sidebar-nav" id="sidebar-nav">
 
-       
+
         <li class="nav-item">
             <a class="nav-link " href="dashboard.php">
                 <i class="bi bi-grid"></i>
@@ -108,9 +109,7 @@
 </aside>
 
 <style>
-
- 
-.sidebar {
+    .sidebar {
         position: fixed;
         top: 0;
         left: 0;
@@ -166,14 +165,14 @@
 
     .sidebar-nav .nav-link:hover,
     .sidebar-nav .nav-link.active,
-    .sidebar-nav .nav-link ul .active{
+    .sidebar-nav .nav-link ul .active {
         background-color: rgba(10, 111, 253, 0.42);
         color: white;
     }
 
     .sidebar-nav .nav-link:hover i,
     .sidebar-nav .nav-link.active i {
-        color:white;
+        color: white;
     }
 
     .sidebar-nav .nav-heading {
@@ -186,7 +185,7 @@
 
     .user-profile {
         padding: 20px;
-        background:  rgba(10, 111, 253, 0.42);
+        background: rgba(10, 111, 253, 0.42);
         border-radius: 15px;
         margin-bottom: 20px;
     }
@@ -212,7 +211,7 @@
         .sidebar {
             left: -280px;
         }
-        
+
         .toggle-sidebar .sidebar {
             left: 0;
         }
@@ -220,10 +219,10 @@
 </style>
 <script src="../NiceAdmin/assets/js/main.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const currentPage = window.location.pathname.split('/').pop();
         const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
-        
+
         navLinks.forEach(link => {
             if (link.getAttribute('href') === currentPage) {
                 link.classList.add('active');
@@ -238,4 +237,4 @@
             document.body.classList.toggle('toggle-sidebar');
         });
     });
-</script> 
+</script>

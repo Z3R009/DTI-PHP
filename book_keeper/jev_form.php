@@ -280,10 +280,10 @@ $connection->close();
                     <tr>
                         <td colspan="2"><?php echo $account['account_title']; ?></td>
                         <td colspan="2"><?php echo $account['account_code']; ?></td>
-                        <td>
+                        <td style="text-align: right;">
                             <?php echo $account['type'] == 'debit' ? number_format($account['amount'], 2, '.', ',') : ''; ?>
                         </td>
-                        <td>
+                        <td style="text-align: right;">
                             <?php echo $account['type'] == 'credit' ? number_format($account['amount'], 2, '.', ',') : ''; ?>
                         </td>
                     </tr>
@@ -331,11 +331,15 @@ $connection->close();
                     <td colspan="2"><strong>Total</strong></td>
                     <td colspan="3"></td>
                     <td></td>
-                    <td><strong><?php echo number_format($total_debit, 2, '.', ','); ?></strong></td>
-                    <td><strong><?php echo number_format($total_credit, 2, '.', ','); ?></strong></td>
+                    <td style="text-align: right;">
+                        <strong>₱ <?php echo number_format($total_debit, 2, '.', ','); ?></strong>
+                    </td>
+                    <td style="text-align: right;">
+                        <strong>₱ <?php echo number_format($total_credit, 2, '.', ','); ?></strong>
+                    </td>
                 </tr>
 
-                <td style="text-align: center;" colspan="3" class="name"><strong
+                <td style="text-align: center; width: 53%;" colspan="3" class="name"><strong
                         style="font-size:18px;"><?php echo $jev_form['administrative_aide']; ?></strong> <br>
                     <p>Administrative Aide VI</p>
                 </td>

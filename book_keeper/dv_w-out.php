@@ -837,12 +837,11 @@ $result_services = $connection->query($sql_services);
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label">Date</label>
-                                            <input type="date" class="form-control" id="dvDate" name="date">
+                                            <input type="date" class="form-control" id="date" name="date">
                                         </div>
                                         <div class="form-group">
-                                            <label class="form-label">DV No.</label>
-                                            <input type="text" class="form-control" name="ors_no" id="ors_no" required
-                                                readonly>
+                                            <label class="form-label">Disbursement Voucher No.</label>
+                                            <input type="text" class="form-control" id="dv_no" name="dv_no" readonly>
                                         </div>
                                     </div>
                                 </div>
@@ -911,6 +910,81 @@ $result_services = $connection->query($sql_services);
                                         </div>
 
 
+                                    </div>
+
+                                    <div class="form-section">
+                                        <h3>Accounting Entry</h3>
+                                        <div class="table-responsive">
+                                            <table class="accounting-entry-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th colspan="2">Account Title</th>
+                                                        <th>Debit Amount</th>
+                                                        <th>Credit Amount</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="accountingTableBody">
+                                                    <tr>
+                                                        <td colspan="2">
+                                                            <select class="form-control account-select"
+                                                                name="account_titles[]">
+                                                                <option selected disabled>Select Account</option>
+                                                                <?php
+                                                                $account_query = "SELECT * FROM account_title ORDER BY account_title ASC";
+                                                                $account_result = $connection->query($account_query);
+                                                                while ($account = $account_result->fetch_assoc()) {
+                                                                    echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
+                                                                }
+                                                                ?>
+                                                            </select>
+                                                        </td>
+                                                        <td><input type="number" class="form-control debit-amount"
+                                                                name="debit_amounts[]"></td>
+                                                        <td><input type="number" class="form-control credit-amount"
+                                                                name="credit_amounts[]"></td>
+                                                    </tr>
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <td colspan="2"></td>
+                                                        <td><input type="number" class="form-control debit-amount"
+                                                                name="debit_amounts[]" readonly></td>
+                                                        <td><input type="number" class="form-control credit-amount"
+                                                                name="credit_amounts[]" readonly></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <button type="button" id="addAccountRow"
+                                                                class="btn btn-secondary"
+                                                                style="padding: 5px 10px; font-size: 12px;">
+                                                                <ion-icon name="add-outline"></ion-icon> Add Row
+                                                            </button>
+                                                        </td>
+                                                        <td colspan="3"></td>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-section">
+                                        <h3>Approver Details</h3>
+                                        <div class="form-row">
+                                            <div class="form-group">
+                                                <label class="form-label">Chief Accountant</label>
+                                                <select class="form-control" name="chief_accountant">
+                                                    <option>NEIL ANTHONY T. MORALA</option>
+
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="form-label">Regional Director</label>
+                                                <select class="form-control" name="regional_director">
+                                                    <option>FLORA D. POLITUD-GABUNALES, CESO V</option>
+
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -1050,6 +1124,213 @@ $result_services = $connection->query($sql_services);
                 $('#address').val(address);
             });
         });
+    </script>
+
+    <!-- add row and calculate totals -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const tableBody = document.getElementById('accountingTableBody');
+
+            // Function to update UACS code when account is selected
+            function setupAccountSelect(row) {
+                const accountSelect = row.querySelector('.account-select');
+                const uacsInput = row.querySelector('.uacs-code');
+
+                accountSelect.addEventListener('change', function () {
+                    const selectedOption = this.options[this.selectedIndex];
+                    uacsInput.value = selectedOption.getAttribute('data-uacs') || '';
+                });
+            }
+
+            // Function to calculate totals
+            function calculateTotals() {
+                let totalDebit = 0;
+                let totalCredit = 0;
+
+                // Get all debit and credit inputs except the footer row
+                const debitInputs = document.querySelectorAll('tbody .debit-amount');
+                const creditInputs = document.querySelectorAll('tbody .credit-amount');
+
+                // Sum up debit amounts
+                debitInputs.forEach(input => {
+                    totalDebit += parseFloat(input.value || 0);
+                });
+
+                // Sum up credit amounts
+                creditInputs.forEach(input => {
+                    totalCredit += parseFloat(input.value || 0);
+                });
+
+                // Calculate the difference (total debit - total credit)
+                const difference = totalDebit - totalCredit;
+
+                // Update the footer row's credit field with the difference
+                const footerCreditInput = document.querySelector('tfoot .credit-amount');
+                if (footerCreditInput) {
+                    footerCreditInput.value = difference.toFixed(2);
+                }
+            }
+
+            // Function to filter account titles
+            function filterAccountTitles(select, selectedType) {
+                const currentValue = select.value;
+                Array.from(select.options).forEach(option => {
+                    if (option.value === "") return; // Skip the "Select Account" option
+
+                    const accountTitle = option.getAttribute('data-title')?.toLowerCase() || '';
+                    const accountCode = option.getAttribute('data-uacs') || '';
+                    if (selectedType === "cash_advance") {
+                        option.hidden = !accountTitle.includes('advance');
+                    } else if (selectedType === "transfer_fund") {
+                        option.hidden = !(accountTitle.includes('cash') && accountCode.startsWith('10'));
+                    } else {
+                        option.hidden = false;
+                    }
+                });
+
+                // Restore selection if it's still valid
+                if (currentValue && select.querySelector(`option[value="${currentValue}"]`)) {
+                    select.value = currentValue;
+                }
+            }
+
+            // Add event listener for the "Add Row" button
+            document.getElementById('addAccountRow').addEventListener('click', function () {
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td colspan="2">
+                        <select class="form-control account-select" name="account_titles[]">
+                            <option selected disabled>Select Account</option>
+                            <?php
+                            $account_result->data_seek(0);
+                            while ($account = $account_result->fetch_assoc()) {
+                                echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
+                            }
+                            ?>
+                        </select>
+                    </td>
+                    <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
+                    <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01"></td>
+                `;
+
+                tableBody.appendChild(newRow);
+                setupAccountSelect(newRow);
+                setupCalculationListeners(newRow);
+
+                // Filter account titles for the new row
+                const orsTypeSelect = document.getElementById("ors_type");
+                const accountSelect = newRow.querySelector('.account-select');
+                filterAccountTitles(accountSelect, orsTypeSelect.value);
+            });
+
+            // Function to setup calculation listeners for a row
+            function setupCalculationListeners(row) {
+                const debitInput = row.querySelector('.debit-amount');
+                const creditInput = row.querySelector('.credit-amount');
+
+                debitInput.addEventListener('input', function () {
+                    if (this.value && parseFloat(this.value) > 0) {
+                        creditInput.value = ''; // Clear credit when debit has value
+                    }
+                    calculateTotals();
+                });
+
+                creditInput.addEventListener('input', function () {
+                    if (this.value && parseFloat(this.value) > 0) {
+                        debitInput.value = ''; // Clear debit when credit has value
+                    }
+                    calculateTotals();
+                });
+            }
+
+            // Setup initial row
+            const initialRow = tableBody.querySelector('tr');
+            setupAccountSelect(initialRow);
+            setupCalculationListeners(initialRow);
+
+            // Add event listener for DV type changes
+            document.getElementById('ors_type').addEventListener('change', function () {
+                const selectedType = this.value;
+                const accountSelects = document.querySelectorAll('.account-select');
+                accountSelects.forEach(select => {
+                    filterAccountTitles(select, selectedType);
+                });
+            });
+        });
+    </script>
+
+    <!-- dv number -->
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            generateDVNumber(); // Call function when page loads
+
+            // Re-fetch DV number when fund cluster input changes
+            let fundClusterInput = document.getElementById("fund_cluster");
+            if (fundClusterInput) {
+                fundClusterInput.addEventListener("input", generateDVNumber);
+            } else {
+                console.error("Fund cluster input field not found!");
+            }
+
+            // Re-fetch DV number when date input changes
+            let dateInput = document.getElementById("date");
+            if (dateInput) {
+                dateInput.addEventListener("change", generateDVNumber);
+            } else {
+                console.error("Date input field not found!");
+            }
+        });
+
+        function generateDVNumber() {
+            let fundClusterInput = document.getElementById("fund_cluster");
+            let dateInput = document.getElementById("date");
+
+            if (!fundClusterInput) {
+                console.error("Fund cluster input field not found!");
+                return;
+            }
+
+            let fundClusterValue = fundClusterInput.value.trim();
+            let fundClusterNumber = fundClusterValue.match(/^\d+/); // Extract only the leading number
+
+            if (!fundClusterNumber) {
+                console.error("Fund cluster ID is missing or invalid!");
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append("fund_cluster_id", fundClusterNumber[0]); // Send only the number
+
+            // Add date parameter if available
+            if (dateInput && dateInput.value) {
+                formData.append("date", dateInput.value);
+            }
+
+            fetch("fetch_dv_number.php", {
+                method: "POST",
+                body: formData,
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Fetched DV Data:", data); // Debugging
+                    let dvNoInput = document.getElementById("dv_no");
+
+                    if (dvNoInput) {
+                        if (data.success) {
+                            dvNoInput.value = data.dv_no;
+                            console.log("DV No Set:", dvNoInput.value);
+                        } else {
+                            console.error("Error fetching DV number:", data.error);
+                        }
+                    } else {
+                        console.error("DV Number input field not found!");
+                    }
+                })
+                .catch(error => console.error("Fetch error:", error));
+        }
+
+
     </script>
 
 </body>
