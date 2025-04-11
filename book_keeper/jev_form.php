@@ -218,7 +218,12 @@ $connection->close();
         <div class="floating-card">
             <table>
                 <tr>
-                    <td colspan="6"></td>
+                    <td colspan="6">
+                        <div style="display: flex; align-items: center; gap: 80px;">
+                            <img src="../img/dtilogo.jpg" alt="DTI Logo"
+                                style="width: 80px; height: 80px; text-align: left;">
+                        </div>
+                    </td>
                     <td>JEV No.:</td>
                     <td><?php echo $jev_form['jev_no']; ?></td>
                 </tr>
@@ -226,7 +231,8 @@ $connection->close();
                     <td colspan="2"><strong>Entity Name:</strong> </td>
                     <td colspan="4">DEPARTMENT OF TRADE AND INDUSTRY</td>
                     <td rowspan="3">Date:</td>
-                    <td rowspan="3"><?php echo $jev_form['date']; ?></td>
+                    <td rowspan="3"><?php $date = new DateTime($dv_form['date']);
+                    echo $date->format('F j, Y'); ?></td>
                 </tr>
                 <tr>
                     <td colspan="2"><strong>Payee:</strong> </td>

@@ -325,16 +325,22 @@ if (isset($_GET['ors_no'])) {
         <table>
             <tr>
                 <th colspan="5" class="centered header-cell">
-                    <h3>OBLIGATION REQUEST AND STATUS</h3>
-                    <h3>DEPARTMENT OF TRADE AND INDUSTRY 12</h3>
-                    <h5>Entity Name</h5>
+                    <div style="display: flex; align-items: center; gap: 80px;">
+                        <img src="../img/dtilogo.jpg" alt="DTI Logo"
+                            style="width: 80px; height: 80px; text-align: left;">
+                        <div>
+                            <h3>OBLIGATION REQUEST AND STATUS</h3>
+                            <h3>DEPARTMENT OF TRADE AND INDUSTRY 12</h3>
+                            <h5>Entity Name</h5>
+                        </div>
+                    </div>
                 </th>
                 <td colspan="3" class="header-cell">
                     <p style="text-align: left;">ORS No.: <b
                             style="text-align: center; margin-left: 40px; "><u><?php echo $ors_form['ors_no']; ?></u></b>
                     </p>
-                    <p style="text-align: left;">Date: <b
-                            style="text-align: center; margin-left: 60px;"><u><?php echo $ors_form['date']; ?></u></b>
+                    <p style="text-align: left;">Date: <b style="text-align: center; margin-left: 60px;"><u><?php $date = new DateTime($ors_form['date']);
+                    echo $date->format('F j, Y'); ?></u></b>
                     </p>
                     <p style="text-align: left;">Fund Cluster: <b
                             style="text-align: center; margin-left: 23px;"><u><?php echo $ors_form['fund_cluster']; ?></u></b>
@@ -486,16 +492,20 @@ if (isset($_GET['ors_no'])) {
             </tr>
 
             <tr>
-                <td><?php echo $ors_form['date']; ?></td>
+                <td><?php $date = new DateTime($ors_form['date']);
+                echo $date->format('F j, Y'); ?></td>
                 <td><?php echo $ors_form['account_title']; ?></td>
                 <td><?php echo $ors_form['ors_no']; ?></td>
                 <td style="text-align: right;">
                     <?php echo number_format((float) $ors_form['total_amount'], 2, '.', ','); ?>
                 </td>
                 <td style="text-align: right;">
-                    <?php echo number_format((float) $ors_form['total_amount'], 2, '.', ','); ?></td>
+                    <?php echo number_format((float) $ors_form['total_amount'], 2, '.', ','); ?>
+                </td>
                 <td style="text-align: right;">
-                    <?php echo number_format((float) $ors_form['total_amount'], 2, '.', ','); ?></td>
+                    <?php echo number_format((float) $ors_form['total_amount'], 2, '.', ','); ?>
+                </td>
+                <td></td>
             </tr>
         </table>
 
