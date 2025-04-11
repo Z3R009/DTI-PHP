@@ -228,6 +228,9 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
     <link href="../NiceAdmin/assets/vendor/quill/quill.bubble.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/remixicon/remixicon.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/simple-datatables/style.css" rel="stylesheet">
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
 
     <!-- Template Main CSS File -->
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
@@ -240,6 +243,61 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
             padding: 30px;
             border-radius: 15px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Select2 Custom Styles */
+        .select2-container--bootstrap-5 {
+            width: 100% !important;
+        }
+        
+        .select2-container--bootstrap-5 .select2-selection {
+            min-height: 38px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+        
+        .select2-container--bootstrap-5 .select2-selection--single {
+            padding: 5px 10px;
+        }
+        
+        .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+            padding: 0;
+            line-height: 28px;
+        }
+        
+        .select2-container--bootstrap-5 .select2-selection--single .select2-selection__arrow {
+            height: 36px;
+        }
+        
+        .select2-container--bootstrap-5 .select2-dropdown {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .select2-container--bootstrap-5 .select2-search__field {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 8px;
+        }
+        
+        .select2-container--bootstrap-5 .select2-results__option--highlighted {
+            background-color: #0077b6;
+        }
+        
+        .select2-container--bootstrap-5 .select2-results__option--selected {
+            background-color: #e0f2fe;
+            color: #0077b6;
+        }
+        
+        /* Fix for Select2 in tables */
+        .accounting-entry-table .select2-container {
+            z-index: 1000;
+        }
+        
+        .accounting-entry-table td {
+            position: relative;
         }
 
         .form-title {
@@ -1189,6 +1247,10 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
         <script src="../NiceAdmin/assets/vendor/simple-datatables/simple-datatables.js"></script>
         <script src="../NiceAdmin/assets/vendor/tinymce/tinymce.min.js"></script>
         <script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
+        <!-- jQuery -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <!-- Select2 JS -->
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
         <!-- Template Main JS File -->
         <script src="../NiceAdmin/assets/js/main.js"></script>
@@ -1593,14 +1655,25 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
             document.addEventListener('DOMContentLoaded', function () {
                 const tableBody = document.getElementById('accountingTableBody');
 
-                // Function to update UACS code when account is selected
+                // Function to setup account select with Select2
                 function setupAccountSelect(row) {
                     const accountSelect = row.querySelector('.account-select');
                     const uacsInput = row.querySelector('.uacs-code');
 
-                    accountSelect.addEventListener('change', function () {
-                        const selectedOption = this.options[this.selectedIndex];
-                        uacsInput.value = selectedOption.getAttribute('data-uacs') || '';
+                    // Initialize Select2
+                    $(accountSelect).select2({
+                        theme: 'bootstrap-5',
+                        width: '100%',
+                        placeholder: 'Select Account',
+                        allowClear: true
+                    });
+
+                    // Update UACS code when selection changes
+                    $(accountSelect).on('change', function() {
+                        const selectedOption = $(this).find('option:selected');
+                        if (uacsInput) {
+                            uacsInput.value = selectedOption.data('uacs') || '';
+                        }
                     });
                 }
 
@@ -1635,24 +1708,32 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
 
                 // Function to filter account titles
                 function filterAccountTitles(select, selectedType) {
-                    const currentValue = select.value;
-                    Array.from(select.options).forEach(option => {
-                        if (option.value === "") return; // Skip the "Select Account" option
-
-                        const accountTitle = option.getAttribute('data-title')?.toLowerCase() || '';
-                        const accountCode = option.getAttribute('data-uacs') || '';
+                    const currentValue = $(select).val();
+                    
+                    // Get all options
+                    const options = $(select).find('option');
+                    
+                    // Filter options based on selected type
+                    options.each(function() {
+                        if ($(this).val() === "") return; // Skip the "Select Account" option
+                        
+                        const accountTitle = $(this).data('title')?.toLowerCase() || '';
+                        const accountCode = $(this).data('uacs') || '';
+                        
                         if (selectedType === "cash_advance") {
-                            option.hidden = !accountTitle.includes('advance');
+                            $(this).toggle(accountTitle.includes('advance'));
                         } else if (selectedType === "transfer_fund") {
-                            option.hidden = !(accountTitle.includes('cash') && accountCode.startsWith('10'));
+                            $(this).toggle(accountTitle.includes('cash') && accountCode.startsWith('10'));
                         } else {
-                            option.hidden = false;
+                            $(this).show();
                         }
                     });
-
+                    
                     // Restore selection if it's still valid
-                    if (currentValue && select.querySelector(`option[value="${currentValue}"]`)) {
-                        select.value = currentValue;
+                    if (currentValue && $(select).find(`option[value="${currentValue}"]`).length) {
+                        $(select).val(currentValue).trigger('change');
+                    } else {
+                        $(select).val(null).trigger('change');
                     }
                 }
 
@@ -1716,6 +1797,25 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                     const accountSelects = document.querySelectorAll('.account-select');
                     accountSelects.forEach(select => {
                         filterAccountTitles(select, selectedType);
+                    });
+                });
+
+                // Initialize Select2 on existing account selects when the page loads
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Initialize Select2 on all existing account selects
+                    $('.account-select').each(function() {
+                        $(this).select2({
+                            theme: 'bootstrap-5',
+                            width: '100%',
+                            placeholder: 'Select Account',
+                            allowClear: true
+                        });
+                    });
+                    
+                    // Setup calculation listeners for existing rows
+                    const existingRows = document.querySelectorAll('tbody tr');
+                    existingRows.forEach(row => {
+                        setupCalculationListeners(row);
                     });
                 });
             });
