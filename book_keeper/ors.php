@@ -944,7 +944,7 @@ $ors_result = $connection->query($ors_query);
             calculateTaxes();
         });
 
-        <!-- JavaScript Code -->
+        //    JavaScript Code
         <script>
             document.addEventListener("DOMContentLoaded", function () {
     const tableBody = document.querySelector("#accounting-table-body");
@@ -958,7 +958,6 @@ $ors_result = $connection->query($ors_query);
         });
             document.getElementById("total_amount").value = total.toFixed(2);
     }
-
 
             // Function to create a new row
             function createNewRow() {
@@ -1029,7 +1028,6 @@ $ors_result = $connection->query($ors_query);
 
             return newRow;
     }
-
 
             // Add new row functionality
             document.getElementById("addAccountRow").addEventListener("click", function () {
@@ -1146,8 +1144,8 @@ $ors_result = $connection->query($ors_query);
 
             const lastSequence = "<?php echo $new_sequence; ?>";
 
-            const orsNumber = `${selectedUACS}-${year}-${month}-${lastSequence}`;
-                orsNumberInput.value = orsNumber;
+            const orsNumber = ${selectedUACS}-${year}-${month}-${lastSequence};
+            orsNumberInput.value = orsNumber;
             }
 
             fundClusterSelect.addEventListener("change", generateorsNumber);
@@ -1161,15 +1159,15 @@ $ors_result = $connection->query($ors_query);
 
 
     <script>
-        $(document).ready(function () {
-            $('#payee_id').on('change', function () {
-                var selectedOption = $(this).find('option:selected');
-                var tinNo = selectedOption.data('tin');
-                var address = selectedOption.data('address');
+            $(document).ready(function () {
+                $('#payee_id').on('change', function () {
+                    var selectedOption = $(this).find('option:selected');
+                    var tinNo = selectedOption.data('tin');
+                    var address = selectedOption.data('address');
 
-                $('#tin_no').val(tinNo);
-                $('#address').val(address);
-            });
+                    $('#tin_no').val(tinNo);
+                    $('#address').val(address);
+                });
         });
     </script>
 
@@ -1224,25 +1222,25 @@ $ors_result = $connection->query($ors_query);
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
                         },
-            body: `account_id=${accountId}&oopap_id=${oopapId}&amount=${amount}`
+            body: account_id=${accountId}&oopap_id=${oopapId}&amount=${amount}
                     });
 
-                    const data = await response.json();
+            const data = await response.json();
 
-                    if (data.success) {
-                        projectIdInput.value = data.project_id;
-                        projectIdInput.style.backgroundColor = '#e8f5e9';
-                        warningMessage.style.display = 'none';
+            if (data.success) {
+                projectIdInput.value = data.project_id;
+            projectIdInput.style.backgroundColor = '#e8f5e9';
+            warningMessage.style.display = 'none';
                     } else {
-                        projectIdInput.value = data.project_id;
-                        projectIdInput.style.backgroundColor = '#fff3e0';
-                        warningMessage.style.display = 'block';
+                projectIdInput.value = data.project_id;
+            projectIdInput.style.backgroundColor = '#fff3e0';
+            warningMessage.style.display = 'block';
                     }
                 } catch (error) {
-                    console.error('Error checking allotment:', error);
-                    projectIdInput.value = '';
-                    projectIdInput.style.backgroundColor = '#ffebee';
-                    warningMessage.style.display = 'none';
+                console.error('Error checking allotment:', error);
+            projectIdInput.value = '';
+            projectIdInput.style.backgroundColor = '#ffebee';
+            warningMessage.style.display = 'none';
                 }
             }
 
@@ -1271,7 +1269,7 @@ $ors_result = $connection->query($ors_query);
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
                     },
-            body: `oopap_id=${oopapId}`
+            body: oopap_id=${oopapId}
                 })
                     .then(response => response.json())
                     .then(services => {
@@ -1314,32 +1312,32 @@ $ors_result = $connection->query($ors_query);
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    body: `service_code=ADMIN&POLICY&year=${year}&month=${month}`
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        const sequence = String(data.next_sequence).padStart(3, '0');
-                        orsNoInput.value = `ADMIN&POLICY-${year}-${month}-${sequence}`;
+                    body: service_code = ADMIN & POLICY & year= ${ year } & month= ${month}
                     })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
+                        .then(response => response.json())
+                        .then(data => {
+                            const sequence = String(data.next_sequence).padStart(3, '0');
+            orsNoInput.value = ADMIN&POLICY-${year}-${month}-${sequence};
+                        })
+                        .catch(error => {
+                console.error('Error:', error);
+                        });
                 } else {
                 fetch('get_next_ors_sequence.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    body: `service_code=${serviceCode}&year=${year}&month=${month}`
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        const sequence = String(data.next_sequence).padStart(3, '0');
-                        orsNoInput.value = `${serviceCode}-${year}-${month}-${sequence}`;
+                    body: service_code = ${ serviceCode } & year= ${year}&month=${month}
                     })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
+                        .then(response => response.json())
+                        .then(data => {
+                            const sequence = String(data.next_sequence).padStart(3, '0');
+            orsNoInput.value = ${serviceCode}-${year}-${month}-${sequence};
+                        })
+                        .catch(error => {
+                console.error('Error:', error);
+                        });
                 }
             }
 
@@ -1431,7 +1429,7 @@ $ors_result = $connection->query($ors_query);
 
             // Include account code in the display text
             const accountCode = option.getAttribute('data-account_code') || '';
-            const displayText = accountCode ? `${option.text} (${accountCode})` : option.text;
+            const displayText = accountCode ? ${option.text} (${accountCode}) : option.text;
             dropdownItem.textContent = displayText;
 
             dropdownItem.addEventListener('click', function() {
@@ -1522,7 +1520,7 @@ $ors_result = $connection->query($ors_query);
                     });
 
             if (selectedOopapId) {
-                        const selectedItem = container.querySelector(`.dropdown-item[data-value="${selectElement.value}"]`);
+                        const selectedItem = container.querySelector(.dropdown-item[data-value="${selectElement.value}"]);
             if (selectedItem && selectedItem.dataset.oopapId !== selectedOopapId) {
                 selectElement.value = '';
             container.querySelector('.dropdown-toggle').textContent = 'Select Account';
