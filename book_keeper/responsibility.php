@@ -75,175 +75,178 @@ $select = mysqli_query($connection, "SELECT * FROM responsibility_center");
     <?php include "Includes/sidebar.php";?>
 
     <main id="main" class="main">
-
         <div class="pagetitle">
-            <h1>Dashboard</h1>
+            <h1>Responsibility Center Management</h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-                    <li class="breadcrumb-item active">Dashboard</li>
+                    <li class="breadcrumb-item"><a href="index.php">Home</a></li>
+                    <li class="breadcrumb-item active"> Responsibility Center Management</li>
                 </ol>
             </nav>
-        </div><!-- End Page Title -->
-
+        </div>
 
         <section class="section dashboard">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                            data-bs-target="#addUserModal">Add Responsibility Center</button>
-                    </h5>
-                    <p></p>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="card-title mb-0">Responsibility Centers List</h5>
+                        <button type="button" class="btn btn-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                            <i class="bi bi-plus-circle me-1"></i> Add Responsibility Center
+                        </button>
+                    </div>
 
                     <!-- Modal for Add User Form -->
-                    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel"
-                        aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="addUserModalLabel">Add Responsibility Center
-                                    </h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
+                    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content border-0 shadow">
+                            <div class="modal-header border-0 pb-0 mb-3">
+                                    <h5 class="modal-title fw-bold" id="addUserModalLabel">Add New Account Title</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
-                                <div class="modal-body">
-                                    <form method="post" id="addCluster">
-
+                                <div class="modal-body pt-0">
+                                    <form method="post" id="addCluster" class="needs-validation" novalidate>
                                         <div class="mb-3">
                                             <label for="code" class="form-label">Code</label>
-                                            <input type="text" class="form-control" id="code" name="code"
+                                            <input type="text" class="form-control " id="code" name="code" 
                                                 placeholder="Enter Code" required autocomplete="off">
+                                            <div class="invalid-feedback">Please enter a code.</div>
                                         </div>
                                         <div class="mb-3">
                                             <label for="parent_code" class="form-label">Parent Code</label>
-                                            <input type="text" class="form-control" id="parent_code"
-                                                name="parent_code" placeholder="Enter Parent Code" required
-                                                autocomplete="off">
+                                            <input type="text" class="form-control " id="parent_code" 
+                                                name="parent_code" placeholder="Enter Parent Code" required autocomplete="off">
+                                            <div class="invalid-feedback">Please enter a parent code.</div>
                                         </div>
                                         <div class="mb-3">
                                             <label for="type" class="form-label">Type</label>
-                                            <input type="text" class="form-control" id="type" name="type"
+                                            <input type="text" class="form-control" id="type" name="type" 
                                                 placeholder="Enter Type" required autocomplete="off">
+                                            <div class="invalid-feedback">Please enter a type.</div>
                                         </div>
                                         <div class="mb-3">
                                             <label for="acronym" class="form-label">Acronym</label>
-                                            <input type="text" class="form-control" id="acronym" name="acronym"
+                                            <input type="text" class="form-control " id="acronym" name="acronym" 
                                                 placeholder="Enter Acronym" required autocomplete="off">
+                                            <div class="invalid-feedback">Please enter an acronym.</div>
                                         </div>
                                         <div class="mb-3">
                                             <label for="description" class="form-label">Description</label>
-                                            <input type="text" class="form-control" id="description"
-                                                name="description" placeholder="Enter Description" required
-                                                autocomplete="off">
+                                            <input type="text" class="form-control" id="description" 
+                                                name="description" placeholder="Enter Description" required autocomplete="off">
+                                                <div class="invalid-feedback">Please enter an account code.</div>
                                         </div>
-                                        <div class="modal-footer">
-                                            <!-- <button type="button" class="btn btn-secondary"
-                                        data-bs-dismiss="modal">Close</button> -->
-                                            <button type="button" class="btn btn-secondary"
-                                                onclick="clearForm()">Clear</button>
-                                            <button type="submit" id="submit" name="submit"
-                                                class="btn btn-primary">Save</button>
+                                        <div class="modal-footer border-0 pt-0">
+                                            <button type="button" class="btn btn-light" onclick="clearForm()">
+                                                <i class="bi bi-x-circle me-1"></i> Clear
+                                            </button>
+                                            <button type="submit" id="submit" name="submit" class="btn btn-primary">
+                                                <i class="bi bi-check-circle me-1"></i> Save
+                                            </button>
                                         </div>
                                     </form>
                                 </div>
-
                             </div>
                         </div>
                     </div>
 
                     <!-- Table with stripped rows -->
-                    <table class="table datatable">
-                        <thead>
-                            <tr>
-                                <th>Code</th>
-                                <th>Parent Code</th>
-                                <th>Type</th>
-                                <th>Acronym</th>
-                                <th>Description</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php while ($row = mysqli_fetch_assoc($select)) { ?>
+                    <div class="table-responsive">
+                        <table class="table table-hover datatable">
+                            <thead class="table-light">
                                 <tr>
-                                    <td><?php echo htmlspecialchars($row['code']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['parent_code']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['type']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['acronym']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['description']); ?></td>
-                                    <td>
-                                    <button type="button" class="btn btn-primary edit-btn"
-    data-bs-toggle="modal" 
-    data-bs-target="#editUserModal"
-    data-id="<?php echo $row['rc_id']; ?>"
-    data-code="<?php echo htmlspecialchars($row['code']); ?>"
-    data-parent_code="<?php echo htmlspecialchars($row['parent_code']); ?>"
-    data-type="<?php echo htmlspecialchars($row['type']); ?>"
-    data-acronym="<?php echo htmlspecialchars($row['acronym']); ?>"
-    data-description="<?php echo htmlspecialchars($row['description']); ?>">
-    <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"></i>
-</button>
-
-                                        <button type="button" class="btn btn-danger"
-                                            onclick="deleteUser(<?php echo $row['rc_id']; ?>)"><i class="bi bi-trash"
-                                                data-bs-toggle="tooltip" data-bs-placement="top"
-                                                title="Delete"></i></i></button>
-                                    </td>
+                                    <th scope="col">Code</th>
+                                    <th scope="col">Parent Code</th>
+                                    <th scope="col">Type</th>
+                                    <th scope="col">Acronym</th>
+                                    <th scope="col">Description</th>
+                                    <th scope="col" class="text-end">Actions</th>
                                 </tr>
-                            <?php } ?>
-                        </tbody>
-
-                    </table>
+                            </thead>
+                            <tbody>
+                                <?php while ($row = mysqli_fetch_assoc($select)) { ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($row['code']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['parent_code']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['type']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['acronym']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['description']); ?></td>
+                                        <td class="text-end">
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-sm btn-outline-primary edit-btn" 
+                                                    data-bs-toggle="modal" data-bs-target="#editUserModal" 
+                                                    data-id="<?php echo $row['rc_id']; ?>"
+                                                    data-code="<?php echo htmlspecialchars($row['code']); ?>"
+                                                    data-parent_code="<?php echo htmlspecialchars($row['parent_code']); ?>"
+                                                    data-type="<?php echo htmlspecialchars($row['type']); ?>"
+                                                    data-acronym="<?php echo htmlspecialchars($row['acronym']); ?>"
+                                                    data-description="<?php echo htmlspecialchars($row['description']); ?>">
+                                                    <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                    onclick="deleteUser(<?php echo $row['rc_id']; ?>)">
+                                                    <i class="bi bi-trash" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php } ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-
         </section>
+    </main>
 
-    </main><!-- End #main -->
-
-    <!-- update modal -->
-
+    <!-- Edit Modal -->
     <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editUserModalLabel">Edit Responsibility Center</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form method="post" id="editUserForm" action="update_responsibility.php" >
-                    <input type="hidden" id="edit_rc_id" name="rc_id">
-                    <div class="mb-3">
-                        <label for="edit_code" class="form-label">Code</label>
-                        <input type="text" class="form-control" id="edit_code" name="code" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="edit_parent_code" class="form-label">Parent Code</label>
-                        <input type="text" class="form-control" id="edit_parent_code" name="parent_code" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="edit_type" class="form-label">Type</label>
-                        <input type="text" class="form-control" id="edit_type" name="type" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="edit_acronym" class="form-label">Acronym</label>
-                        <input type="text" class="form-control" id="edit_acronym" name="acronym" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="edit_description" class="form-label">Description</label>
-                        <input type="text" class="form-control" id="edit_description" name="description" required>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" id="update" name="update" class="btn btn-primary">Update</button>
-                    </div>
-                </form>
+    <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title" id="editUserModalLabel">Edit Responsibility Center</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body pt-0">
+                    <form method="post" id="editUserForm" action="update_responsibility.php" class="needs-validation" novalidate>
+                        <input type="hidden" id="edit_rc_id" name="rc_id">
+                        <div class="mb-3">
+                            <label for="edit_code" class="form-label">Code</label>
+                            <input type="text" class="form-control " id="edit_code" name="code" required>
+                            <div class="invalid-feedback">Please enter a code.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_parent_code" class="form-label">Parent Code</label>
+                            <input type="text" class="form-control" id="edit_parent_code" name="parent_code" required>
+                            <div class="invalid-feedback">Please enter a parent code.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_type" class="form-label">Type</label>
+                            <input type="text" class="form-control" id="edit_type" name="type" required>
+                            <div class="invalid-feedback">Please enter a type.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_acronym" class="form-label">Acronym</label>
+                            <input type="text" class="form-control" id="edit_acronym" name="acronym" required>
+                            <div class="invalid-feedback">Please enter an acronym.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_description" class="form-label">Description</label>
+                            <input type="text" class="form-control" id="edit_description" name="description" required>
+                            <div class="invalid-feedback">Please enter a description.</div>
+                        </div>
+                        <div class="modal-footer border-0 pt-0">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                                <i class="bi bi-x-circle me-1"></i> Close
+                            </button>
+                            <button type="submit" id="update" name="update" class="btn btn-primary">
+                                <i class="bi bi-check-circle me-1"></i> Update
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
-
 
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
             class="bi bi-arrow-up-short"></i></a>
@@ -262,35 +265,36 @@ $select = mysqli_query($connection, "SELECT * FROM responsibility_center");
     <script src="../NiceAdmin/assets/js/main.js"></script>
 
     <script>
-document.addEventListener("DOMContentLoaded", function() {
-    const editButtons = document.querySelectorAll(".edit-btn");
+        // Form validation
+        (function () {
+            'use strict'
+            var forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms).forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        })()
 
-    editButtons.forEach(button => {
-        button.addEventListener("click", function() {
-            const id = this.getAttribute("data-id");
-            const code = this.getAttribute("data-code");
-            const parent_code = this.getAttribute("data-parent_code");
-            const type = this.getAttribute("data-type");
-            const acronym = this.getAttribute("data-acronym");
-            const description = this.getAttribute("data-description");
-
-            document.getElementById("edit_rc_id").value = id;
-            document.getElementById("edit_code").value = code;
-            document.getElementById("edit_parent_code").value = parent_code;
-            document.getElementById("edit_type").value = type;
-            document.getElementById("edit_acronym").value = acronym;
-            document.getElementById("edit_description").value = description;
-        });
-    });
-});
-</script>
-
- <!-- delete -->
- <script>
+        // Enhanced delete confirmation
         function deleteUser(userID) {
-            if (confirm("Are you sure you want to delete this user?")) {
-                window.location.href = 'delete_responsibility.php?rc_id=' + userID + '&confirm=yes';
-            }
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This action cannot be undone!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = 'delete_responsibility.php?id=' + userID;
+                }
+            })
         }
     </script>
 

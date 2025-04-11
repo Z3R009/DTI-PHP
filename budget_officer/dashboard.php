@@ -386,11 +386,11 @@ $recent_transactions = getRecentTransactions($connection, 5);
     <main id="main" class="main">
         <div class="pagetitle d-flex justify-content-between align-items-center">
             <div>
-                <h1>Financial Dashboard</h1>
+                <h1>Dashboard</h1>
                 <nav>
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                        <li class="breadcrumb-item active">Financial Dashboard</li>
+                        <li class="breadcrumb-item active">Dashboard</li>
                     </ol>
                 </nav>
             </div>
@@ -558,7 +558,7 @@ $recent_transactions = getRecentTransactions($connection, 5);
                                     <div class="budget-card-item" style="min-width: 100%; flex-shrink: 0;">
                                         <div class="d-flex justify-content-between align-items-center mb-3">
                                             <h5 class="card-title mb-0">GAS</h5>
-                                            <span class="badge bg-primary">General Administration</span>
+                                            <span class="badge bg-primary">General Administration and Support</span>
                                         </div>
                                         <div class="mb-3">
                                             <h6 class="text-muted mb-1">Allotment</h6>
@@ -922,7 +922,6 @@ $recent_transactions = getRecentTransactions($connection, 5);
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // Budget cards swiper functionality
             const cardsWrapper = document.getElementById('budget-cards-wrapper');
             const cardItems = document.querySelectorAll('.budget-card-item');
             const prevBtn = document.getElementById('prev-card');
@@ -932,7 +931,6 @@ $recent_transactions = getRecentTransactions($connection, 5);
             let currentIndex = 0;
             const totalCards = cardItems.length;
             
-            // Create indicators
             for (let i = 0; i < totalCards; i++) {
                 const dot = document.createElement('div');
                 dot.className = i === 0 ? 'indicator-dot active' : 'indicator-dot';
@@ -940,7 +938,6 @@ $recent_transactions = getRecentTransactions($connection, 5);
                 indicators.appendChild(dot);
             }
             
-            // Function to update indicators
             function updateIndicators() {
                 const dots = document.querySelectorAll('.indicator-dot');
                 dots.forEach((dot, i) => {
@@ -948,7 +945,6 @@ $recent_transactions = getRecentTransactions($connection, 5);
                 });
             }
             
-            // Function to go to a specific card
             function goToCard(index) {
                 if (index < 0) index = 0;
                 if (index >= totalCards) index = totalCards - 1;
@@ -958,11 +954,9 @@ $recent_transactions = getRecentTransactions($connection, 5);
                 updateIndicators();
             }
             
-            // Previous and Next button handlers
             prevBtn.addEventListener('click', () => goToCard(currentIndex - 1));
             nextBtn.addEventListener('click', () => goToCard(currentIndex + 1));
-            
-            // Touch swipe functionality
+
             let touchStartX = 0;
             let touchEndX = 0;
             
@@ -980,16 +974,12 @@ $recent_transactions = getRecentTransactions($connection, 5);
             function handleSwipe() {
                 const SWIPE_THRESHOLD = 50;
                 if (touchEndX < touchStartX - SWIPE_THRESHOLD) {
-                    // Swiped left
                     goToCard(currentIndex + 1);
                 }
                 if (touchEndX > touchStartX + SWIPE_THRESHOLD) {
-                    // Swiped right
                     goToCard(currentIndex - 1);
                 }
             }
-            
-            // Auto swipe
             let autoSwipeInterval;
             
             function startAutoSwipe() {
@@ -997,40 +987,28 @@ $recent_transactions = getRecentTransactions($connection, 5);
                     let nextIndex = currentIndex + 1;
                     if (nextIndex >= totalCards) nextIndex = 0;
                     goToCard(nextIndex);
-                }, 5000); // Change slide every 5 seconds
+                }, 5000); 
             }
             
             function stopAutoSwipe() {
                 clearInterval(autoSwipeInterval);
             }
-            
-            // Start auto swipe
             startAutoSwipe();
             
-            // Stop auto swipe on interaction
             container.addEventListener('mouseenter', stopAutoSwipe);
             container.addEventListener('touchstart', stopAutoSwipe);
-            
-            // Resume auto swipe after interaction
             container.addEventListener('mouseleave', startAutoSwipe);
-            
-            // Category tabs functionality
             const categoryTabs = document.querySelectorAll('.category-tab');
             categoryTabs.forEach(tab => {
                 tab.addEventListener('click', function() {
-                    // Remove active class from all tabs
                     categoryTabs.forEach(t => t.classList.remove('active'));
-                    // Add active class to clicked tab
                     this.classList.add('active');
-                    
-                    // Filter logic would go here
+
                     const filterType = this.getAttribute('data-type');
-                    // For now we'll just reset to the first card
                     goToCard(0);
                 });
             });
-            
-            // Chart dropdown functionality
+
             const chartTypeLinks = document.querySelectorAll('[data-chart-type]');
             chartTypeLinks.forEach(link => {
                 link.addEventListener('click', function(e) {
@@ -1041,15 +1019,12 @@ $recent_transactions = getRecentTransactions($connection, 5);
             });
             
             function updateChartType(type) {
-                // Create new chart options based on type
                 chart.updateOptions({
                     chart: {
                         type: type
                     }
                 });
             }
-
-            // Monthly Trend Chart
             var options = {
                 series: [{
                     name: 'Allotment',

@@ -14,7 +14,6 @@ if (isset($_POST['submit'])) {
     $date = $_POST['date'];
     $dv_no = $_POST['dv_no'];
     $ors_no = $_POST['ors_id']; // This is actually the ORS number
-    $payment_mode = $_POST['payment_mode'];
     $vat = $_POST['vat'];
     $vat_amount = $_POST['vat_amount'];
     $tax_base = $_POST['tax_base'];
@@ -54,8 +53,8 @@ if (isset($_POST['submit'])) {
         $ors_stmt->close();
 
         // Insert the main DV record
-        $sql = "INSERT INTO dv (date, dv_no, ors_id, payment_mode, vat, vat_amount, tax_base, tax_1, tax_1_amount, tax_2, tax_2_amount, net_amount, chief_accountant, regional_director) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO dv (date, dv_no, ors_id, vat, vat_amount, tax_base, tax_1, tax_1_amount, tax_2, tax_2_amount, net_amount, chief_accountant, regional_director) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         $stmt = $connection->prepare($sql);
         if ($stmt === false) {
@@ -63,11 +62,10 @@ if (isset($_POST['submit'])) {
         }
 
         $stmt->bind_param(
-            "ssisddddddddss",
+            "ssiddddddddss",
             $date,
             $dv_no,
             $ors_id,
-            $payment_mode,
             $vat,
             $vat_amount,
             $tax_base,
@@ -230,6 +228,9 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
     <link href="../NiceAdmin/assets/vendor/quill/quill.bubble.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/remixicon/remixicon.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/simple-datatables/style.css" rel="stylesheet">
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
 
     <!-- Template Main CSS File -->
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
@@ -242,6 +243,61 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
             padding: 30px;
             border-radius: 15px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Select2 Custom Styles */
+        .select2-container--bootstrap-5 {
+            width: 100% !important;
+        }
+        
+        .select2-container--bootstrap-5 .select2-selection {
+            min-height: 38px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+        
+        .select2-container--bootstrap-5 .select2-selection--single {
+            padding: 5px 10px;
+        }
+        
+        .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+            padding: 0;
+            line-height: 28px;
+        }
+        
+        .select2-container--bootstrap-5 .select2-selection--single .select2-selection__arrow {
+            height: 36px;
+        }
+        
+        .select2-container--bootstrap-5 .select2-dropdown {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .select2-container--bootstrap-5 .select2-search__field {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 8px;
+        }
+        
+        .select2-container--bootstrap-5 .select2-results__option--highlighted {
+            background-color: #0077b6;
+        }
+        
+        .select2-container--bootstrap-5 .select2-results__option--selected {
+            background-color: #e0f2fe;
+            color: #0077b6;
+        }
+        
+        /* Fix for Select2 in tables */
+        .accounting-entry-table .select2-container {
+            z-index: 1000;
+        }
+        
+        .accounting-entry-table td {
+            position: relative;
         }
 
         .form-title {
@@ -973,32 +1029,6 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                             </div>
 
                             <div class="form-section">
-                                <h3>Mode of Payment</h3>
-                                <div class="form-row">
-                                    <div class="form-group full-width">
-                                        <div class="checkbox-group">
-                                            <div class="checkbox-item">
-                                                <input type="checkbox" id="mds" name="payment_mode" value="MDS Check">
-                                                <label for="mds">MDS Check</label>
-                                            </div>
-                                            <div class="checkbox-item">
-                                                <input type="checkbox" id="commercial" name="payment_mode"
-                                                    value="Commercial Check">
-                                                <label for="commercial">Commercial Check</label>
-                                            </div>
-                                            <div class="checkbox-item">
-                                                <input type="checkbox" id="ada" name="payment_mode" value="ADA">
-                                                <label for="ada">ADA</label>
-                                            </div>
-                                            <div class="checkbox-item">
-                                                <input type="checkbox" id="others" name="payment_mode" value="Others">
-                                                <label for="others">Others (Specify):</label>
-                                                <input type="text" class="form-control" id="otherText"
-                                                    name="other_specify" style="width: 200px;" disabled>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
 
                                 <!-- Payee Details Section -->
                                 <div class="form-section">
@@ -1217,6 +1247,10 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
         <script src="../NiceAdmin/assets/vendor/simple-datatables/simple-datatables.js"></script>
         <script src="../NiceAdmin/assets/vendor/tinymce/tinymce.min.js"></script>
         <script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
+        <!-- jQuery -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <!-- Select2 JS -->
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
         <!-- Template Main JS File -->
         <script src="../NiceAdmin/assets/js/main.js"></script>
@@ -1315,11 +1349,8 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                 });
             });
         </script>
-
         <!-- tax calculation -->
         <script>
-            let calculate; // Declare calculate in wider scope
-
             document.addEventListener("DOMContentLoaded", function () {
                 const amountInput = document.getElementById("total_amount");
                 const applyTaxesCheckbox = document.getElementById("apply_taxes");
@@ -1333,7 +1364,61 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                 const tax2Input = document.getElementById("tax_2");
                 const netAmountInput = document.getElementById("net_amount");
 
-                calculate = function () { // Assign calculate function to the wider scope variable
+                // Make tax fields editable or readonly based on VAT checkbox
+                function setTaxFieldsEditability() {
+                    const isVatChecked = applyTaxesCheckbox.checked;
+
+                    // Set readonly attribute based on VAT checkbox state
+                    tax1PercentageInput.readOnly = isVatChecked;
+                    tax2PercentageInput.readOnly = isVatChecked;
+                    tax1Input.readOnly = isVatChecked;
+                    tax2Input.readOnly = isVatChecked;
+
+                    // Update style to visually indicate if editable or not
+                    tax1PercentageInput.style.backgroundColor = isVatChecked ? "#f0f0f0" : "white";
+                    tax2PercentageInput.style.backgroundColor = isVatChecked ? "#f0f0f0" : "white";
+                    tax1Input.style.backgroundColor = isVatChecked ? "#f0f0f0" : "white";
+                    tax2Input.style.backgroundColor = isVatChecked ? "#f0f0f0" : "white";
+                }
+
+                // Recalculate tax amounts when tax percentages change
+                function recalculateTaxAmounts() {
+                    if (applyTaxesCheckbox.checked) {
+                        return; // Don't manually recalculate if VAT is checked
+                    }
+
+                    const grossAmount = parseFloat(taxBaseInput.value) || 0;
+                    const tax1Percentage = parseFloat(tax1PercentageInput.value) || 0;
+                    const tax2Percentage = parseFloat(tax2PercentageInput.value) || 0;
+
+                    // Calculate tax amounts based on percentages
+                    const tax1Amount = grossAmount * (tax1Percentage / 100);
+                    const tax2Amount = grossAmount * (tax2Percentage / 100);
+
+                    // Update tax amount fields
+                    tax1Input.value = tax1Amount.toFixed(2);
+                    tax2Input.value = tax2Amount.toFixed(2);
+
+                    // Recalculate net amount
+                    recalculateNetAmount();
+                }
+
+                // Recalculate net amount when tax amounts are manually edited
+                function recalculateNetAmount() {
+                    const grossAmount = parseFloat(amountInput.value) || 0;
+                    const tax1Amount = parseFloat(tax1Input.value) || 0;
+                    const tax2Amount = parseFloat(tax2Input.value) || 0;
+
+                    // Calculate net amount
+                    const totalTaxes = tax1Amount + tax2Amount;
+                    const netAmount = grossAmount - totalTaxes;
+
+                    // Update net amount field
+                    netAmountInput.value = netAmount.toFixed(2);
+                }
+
+                // Main calculation function
+                function calculate() {
                     const grossAmount = parseFloat(amountInput.value) || 0;
 
                     if (applyTaxesCheckbox.checked) {
@@ -1366,17 +1451,18 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
 
                         // Show tax fields
                         document.getElementById('tax_fields_container').style.display = 'block';
-
-                        // Add BIR-related rows
-                        addBIRRows(tax1Amount, tax2Amount);
                     } else {
-                        // Without VAT - use 3% and 1% tax rates
-                        const tax1Amount = grossAmount * 0.03; // 3% without VAT
-                        const tax2Amount = grossAmount * 0.01; // 1% without VAT
-
-                        // Update tax percentage displays
+                        // Without VAT - use 3% and 1% tax rates as default
+                        // Set default tax percentages
                         tax1PercentageInput.value = "3";
                         tax2PercentageInput.value = "1";
+
+                        // Calculate tax amounts based on percentages
+                        const tax1Percentage = parseFloat(tax1PercentageInput.value);
+                        const tax2Percentage = parseFloat(tax2PercentageInput.value);
+
+                        const tax1Amount = grossAmount * (tax1Percentage / 100);
+                        const tax2Amount = grossAmount * (tax2Percentage / 100);
 
                         // Net amount is gross amount minus the sum of taxes
                         const totalTaxes = tax1Amount + tax2Amount;
@@ -1389,69 +1475,48 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                         tax2Input.value = tax2Amount.toFixed(2);
                         netAmountInput.value = netAmount.toFixed(2);
 
-                        // Hide VAT fields but show tax fields
+                        // Hide VAT fields
                         document.getElementById('tax_fields_container').style.display = 'none';
-
-                        // Add BIR-related rows
-                        addBIRRows(tax1Amount, tax2Amount);
                     }
-                };
 
-                // Function to add BIR-related rows
-                // function addBIRRows(tax1Amount, tax2Amount) {
-                //     const tableBody = document.getElementById('accountingTableBody');
+                    // Set fields editability based on VAT checkbox
+                    setTaxFieldsEditability();
+                }
 
-                //     // Clear existing BIR rows
-                //     const existingRows = tableBody.querySelectorAll('tr');
-                //     existingRows.forEach(row => {
-                //         if (row.querySelector('.account-select')?.value === 'BIR') {
-                //             row.remove();
-                //         }
-                //     });
-
-                //     // Add rows only if there are tax amounts
-                //     if (tax1Amount > 0 || tax2Amount > 0) {
-                //         // Add first BIR row
-                //         const row1 = document.createElement('tr');
-                //         row1.innerHTML = `
-                //             <td colspan="2">
-                //                 <select class="form-control account-select" name="account_titles[]">
-                //                     <option value="BIR" selected>Due to BIR - 2020101000</option>
-                //                 </select>
-                //             </td>
-                //             <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
-                //             <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01" value="${tax1Amount.toFixed(2)}" readonly></td>
-                //         `;
-                //         tableBody.appendChild(row1);
-
-                //         // Add second BIR row
-                //         const row2 = document.createElement('tr');
-                //         row2.innerHTML = `
-                //             <td colspan="2">
-                //                 <select class="form-control account-select" name="account_titles[]">
-                //                     <option value="BIR" selected>Due to BIR - 2020101000</option>
-                //                 </select>
-                //             </td>
-                //             <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
-                //             <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01" value="${tax2Amount.toFixed(2)}" readonly></td>
-                //         `;
-                //         tableBody.appendChild(row2);
-
-                //         // Setup calculation listeners for new rows
-                //         setupCalculationListeners(row1);
-                //         setupCalculationListeners(row2);
-                //     }
-                // }
-
-                // Event listeners
+                // Add event listeners
                 amountInput.addEventListener("input", calculate);
                 applyTaxesCheckbox.addEventListener("change", calculate);
+
+                // Add event listeners for tax percentage fields
+                tax1PercentageInput.addEventListener("input", function () {
+                    if (!applyTaxesCheckbox.checked) {
+                        recalculateTaxAmounts();
+                    }
+                });
+
+                tax2PercentageInput.addEventListener("input", function () {
+                    if (!applyTaxesCheckbox.checked) {
+                        recalculateTaxAmounts();
+                    }
+                });
+
+                // Add event listeners for tax amount fields (when editable)
+                tax1Input.addEventListener("input", function () {
+                    if (!applyTaxesCheckbox.checked) {
+                        recalculateNetAmount();
+                    }
+                });
+
+                tax2Input.addEventListener("input", function () {
+                    if (!applyTaxesCheckbox.checked) {
+                        recalculateNetAmount();
+                    }
+                });
 
                 // Initial calculation - trigger calculation as soon as the page loads
                 calculate();
             });
         </script>
-
 
         <!-- dv number -->
 
@@ -1590,14 +1655,25 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
             document.addEventListener('DOMContentLoaded', function () {
                 const tableBody = document.getElementById('accountingTableBody');
 
-                // Function to update UACS code when account is selected
+                // Function to setup account select with Select2
                 function setupAccountSelect(row) {
                     const accountSelect = row.querySelector('.account-select');
                     const uacsInput = row.querySelector('.uacs-code');
 
-                    accountSelect.addEventListener('change', function () {
-                        const selectedOption = this.options[this.selectedIndex];
-                        uacsInput.value = selectedOption.getAttribute('data-uacs') || '';
+                    // Initialize Select2
+                    $(accountSelect).select2({
+                        theme: 'bootstrap-5',
+                        width: '100%',
+                        placeholder: 'Select Account',
+                        allowClear: true
+                    });
+
+                    // Update UACS code when selection changes
+                    $(accountSelect).on('change', function() {
+                        const selectedOption = $(this).find('option:selected');
+                        if (uacsInput) {
+                            uacsInput.value = selectedOption.data('uacs') || '';
+                        }
                     });
                 }
 
@@ -1632,24 +1708,32 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
 
                 // Function to filter account titles
                 function filterAccountTitles(select, selectedType) {
-                    const currentValue = select.value;
-                    Array.from(select.options).forEach(option => {
-                        if (option.value === "") return; // Skip the "Select Account" option
-
-                        const accountTitle = option.getAttribute('data-title')?.toLowerCase() || '';
-                        const accountCode = option.getAttribute('data-uacs') || '';
+                    const currentValue = $(select).val();
+                    
+                    // Get all options
+                    const options = $(select).find('option');
+                    
+                    // Filter options based on selected type
+                    options.each(function() {
+                        if ($(this).val() === "") return; // Skip the "Select Account" option
+                        
+                        const accountTitle = $(this).data('title')?.toLowerCase() || '';
+                        const accountCode = $(this).data('uacs') || '';
+                        
                         if (selectedType === "cash_advance") {
-                            option.hidden = !accountTitle.includes('advance');
+                            $(this).toggle(accountTitle.includes('advance'));
                         } else if (selectedType === "transfer_fund") {
-                            option.hidden = !(accountTitle.includes('cash') && accountCode.startsWith('10'));
+                            $(this).toggle(accountTitle.includes('cash') && accountCode.startsWith('10'));
                         } else {
-                            option.hidden = false;
+                            $(this).show();
                         }
                     });
-
+                    
                     // Restore selection if it's still valid
-                    if (currentValue && select.querySelector(`option[value="${currentValue}"]`)) {
-                        select.value = currentValue;
+                    if (currentValue && $(select).find(`option[value="${currentValue}"]`).length) {
+                        $(select).val(currentValue).trigger('change');
+                    } else {
+                        $(select).val(null).trigger('change');
                     }
                 }
 
@@ -1713,6 +1797,25 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                     const accountSelects = document.querySelectorAll('.account-select');
                     accountSelects.forEach(select => {
                         filterAccountTitles(select, selectedType);
+                    });
+                });
+
+                // Initialize Select2 on existing account selects when the page loads
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Initialize Select2 on all existing account selects
+                    $('.account-select').each(function() {
+                        $(this).select2({
+                            theme: 'bootstrap-5',
+                            width: '100%',
+                            placeholder: 'Select Account',
+                            allowClear: true
+                        });
+                    });
+                    
+                    // Setup calculation listeners for existing rows
+                    const existingRows = document.querySelectorAll('tbody tr');
+                    existingRows.forEach(row => {
+                        setupCalculationListeners(row);
                     });
                 });
             });

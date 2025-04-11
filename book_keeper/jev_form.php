@@ -92,12 +92,12 @@ $query2 = "
     INNER JOIN dv ON ors.ors_id = dv.ors_id
     INNER JOIN dv_history ON dv_history.dv_id = dv.dv_id
     LEFT JOIN approver ON ors.approver_id = approver.approver_id
-    LEFT JOIN payee ON payee.payee_id = payee.payee_id
+    LEFT JOIN payee ON ors.payee_id = payee.payee_id
     LEFT JOIN account_title ON account_title.account_id = account_title.account_id
     LEFT JOIN fund_cluster ON ors.fund_cluster_id = fund_cluster.fund_cluster_id
     LEFT JOIN responsibility_center ON ors.rc_id = responsibility_center.rc_id
     LEFT JOIN oopap ON ors.oopap_id = oopap.oopap_id
-    WHERE ors.ors_id = ?";
+    WHERE ors.ors_id = ? ";
 
 $stmt2 = $connection->prepare($query2);
 if (!$stmt2) {
@@ -218,7 +218,12 @@ $connection->close();
         <div class="floating-card">
             <table>
                 <tr>
-                    <td colspan="6"></td>
+                    <td colspan="6">
+                        <div style="display: flex; align-items: center; gap: 80px;">
+                            <img src="../img/dtilogo.jpg" alt="DTI Logo"
+                                style="width: 80px; height: 80px; text-align: left;">
+                        </div>
+                    </td>
                     <td>JEV No.:</td>
                     <td><?php echo $jev_form['jev_no']; ?></td>
                 </tr>
@@ -226,7 +231,8 @@ $connection->close();
                     <td colspan="2"><strong>Entity Name:</strong> </td>
                     <td colspan="4">DEPARTMENT OF TRADE AND INDUSTRY</td>
                     <td rowspan="3">Date:</td>
-                    <td rowspan="3"><?php echo $jev_form['date']; ?></td>
+                    <td rowspan="3"><?php $date = new DateTime($dv_form['date']);
+                    echo $date->format('F j, Y'); ?></td>
                 </tr>
                 <tr>
                     <td colspan="2"><strong>Payee:</strong> </td>
@@ -242,22 +248,22 @@ $connection->close();
                 </tr>
 
                 <tr>
-                    <td colspan="2">Responsibility Center</td>
-                    <td colspan="6">ACCOUNTING ENTRIES</td>
+                    <td style="text-align: center;" colspan="2"><b>Responsibility Center</b></td>
+                    <td style="text-align: center;" colspan="6"><b>ACCOUNTING ENTRIES</b></td>
                 </tr>
                 <tr>
-                    <td rowspan="6" colspan="2">
+                    <td rowspan="7" colspan="2">
                         <?php echo !empty($ors_form['code']) ? htmlspecialchars($ors_form['code']) : "Not Available"; ?>
                     </td>
-                    <td colspan="2">Account Title</td>
-                    <td colspan="2">
-                        <p>UACS Code</p>
+                    <td style="text-align: center;" colspan="2"><b>Account Name</b></td>
+                    <td style="text-align: center;" colspan="2">
+                        <b>UACS Code</b>
                     </td>
-                    <td>
-                        <p>Debit</p>
+                    <td style="text-align: center;">
+                        <b>Debit</b>
                     </td>
-                    <td>
-                        <p>Credit</p>
+                    <td style="text-align: center;">
+                        <b>Credit</b>
                     </td>
                 </tr>
                 <?php
@@ -274,29 +280,31 @@ $connection->close();
                     <tr>
                         <td colspan="2"><?php echo $account['account_title']; ?></td>
                         <td colspan="2"><?php echo $account['account_code']; ?></td>
-                        <td>
+                        <td style="text-align: right;">
                             <?php echo $account['type'] == 'debit' ? number_format($account['amount'], 2, '.', ',') : ''; ?>
                         </td>
-                        <td>
+                        <td style="text-align: right;">
                             <?php echo $account['type'] == 'credit' ? number_format($account['amount'], 2, '.', ',') : ''; ?>
                         </td>
                     </tr>
                 <?php endforeach; ?>
                 <tr>
 
-                    <td colspan="2"><?php echo $ors_form['notes']; ?>
+                    <td style="text-align: center;" colspan="2" rowspan="4"><?php echo $ors_form['notes']; ?>
                     </td>
-                    <td colspan="3"></td>
-                    <td></td>
+                    <td colspan="2"></td>
                     <td></td>
                     <td></td>
                 </tr>
-                <tr>
-                    <td colspan="2"><strong>DV No.:</strong></td>
-                    <td colspan="3"><?php echo $ors_form['dv_no']; ?></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                <tr></tr>
+                <tr></tr>
+                <tr></tr>
+                <td colspan="2"><strong>DV No.:</strong></td>
+                <td colspan="3"><?php echo $ors_form['dv_no']; ?></td>
+                <td></td>
+
+                <td></td>
+                <td></td>
                 </tr>
                 <tr>
                     <td colspan="2"><strong>O.R.S No.:</strong></td>
@@ -323,11 +331,15 @@ $connection->close();
                     <td colspan="2"><strong>Total</strong></td>
                     <td colspan="3"></td>
                     <td></td>
-                    <td><strong><?php echo number_format($total_debit, 2, '.', ','); ?></strong></td>
-                    <td><strong><?php echo number_format($total_credit, 2, '.', ','); ?></strong></td>
+                    <td style="text-align: right;">
+                        <strong>₱ <?php echo number_format($total_debit, 2, '.', ','); ?></strong>
+                    </td>
+                    <td style="text-align: right;">
+                        <strong>₱ <?php echo number_format($total_credit, 2, '.', ','); ?></strong>
+                    </td>
                 </tr>
 
-                <td style="text-align: center;" colspan="3" class="name"><strong
+                <td style="text-align: center; width: 53%;" colspan="3" class="name"><strong
                         style="font-size:18px;"><?php echo $jev_form['administrative_aide']; ?></strong> <br>
                     <p>Administrative Aide VI</p>
                 </td>

@@ -86,50 +86,55 @@ $select = mysqli_query($connection, "SELECT * FROM account_title $where ORDER BY
     <?php include "Includes/sidebar.php"; ?>
 
     <main id="main" class="main">
-
         <div class="pagetitle">
-            <h1>Account Title</h1>
-        </div><!-- End Page Title -->
+            <h1>Account Title Management</h1>
+            <nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="index.php">Home</a></li>
+                    <li class="breadcrumb-item active">Account Title</li>
+                </ol>
+            </nav>
+        </div>
 
         <section class="section dashboard">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                            data-bs-target="#addUserModal">Add Account Title</button>
-                    </h5>
-                    <p></p>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="card-title mb-0">Account Titles List</h5>
+                        <button type="button" class="btn btn-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                            <i class="bi bi-plus-circle me-1"></i> Add Account Title
+                        </button>
+                    </div>
 
                     <!-- Modal for Add User Form -->
-                    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel"
-                        aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="addUserModalLabel">Add Account Title
-                                    </h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
+                    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content border-0 shadow">
+                                <div class="modal-header border-0 pb-0">
+                                    <h5 class="modal-title fw-bold" id="addUserModalLabel">Add New Account Title</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
-                                <div class="modal-body">
-                                    <form method="post" id="addUserForm">
+                                <div class="modal-body pt-0">
+                                    <form method="post" id="addUserForm" class="needs-validation" novalidate>
                                         <div class="mb-3">
-                                            <label for="account_title" class="form-label">Acccount Title</label>
-                                            <input type="text" class="form-control" id="account_title"
-                                                name="account_title" placeholder="Enter Acccount Title" required
-                                                autocomplete="off">
+                                            <label for="account_title" class="form-label">Account Title</label>
+                                            <input type="text" class="form-control" id="account_title" name="account_title" 
+                                                placeholder="Enter Account Title" required autocomplete="off">
+                                            <div class="invalid-feedback">Please enter an account title.</div>
                                         </div>
                                         <div class="mb-3">
                                             <label for="account_code" class="form-label">Account Code</label>
-                                            <input type="number" class="form-control" id="account_code"
-                                                name="account_code" placeholder="Enter Account Code" required
-                                                autocomplete="off">
+                                            <input type="number" class="form-control" id="account_code" name="account_code" 
+                                                placeholder="Enter Account Code" required autocomplete="off">
+                                            <div class="invalid-feedback">Please enter an account code.</div>
                                         </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary"
-                                                onclick="clearForm()">Clear</button>
-                                            <button type="submit" id="submit" name="submit"
-                                                class="btn btn-primary">Save</button>
+                                        <div class="modal-footer border-0 pt-0">
+                                            <button type="button" class="btn btn-light" onclick="clearForm()">
+                                                <i class="bi bi-x-circle me-1"></i> Clear
+                                            </button>
+                                            <button type="submit" id="submit" name="submit" class="btn btn-primary">
+                                                <i class="bi bi-check-circle me-1"></i> Save
+                                            </button>
                                         </div>
                                     </form>
                                 </div>
@@ -138,78 +143,73 @@ $select = mysqli_query($connection, "SELECT * FROM account_title $where ORDER BY
                     </div>
 
                     <!-- Table with stripped rows -->
-                    <table class="table datatable">
-                        <thead>
-                            <tr>
-                                <th>Account Title</th>
-                                <th>Acccount Code</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php while ($row = mysqli_fetch_assoc($select)) { ?>
+                    <div class="table-responsive">
+                        <table class="table table-hover datatable">
+                            <thead class="table-light">
                                 <tr>
-                                    <td><?php echo htmlspecialchars($row['account_title']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['account_code']); ?></td>
-                                    <td>
-                                        <button type="button" class="btn btn-primary edit-btn" data-bs-toggle="modal"
-                                            data-bs-target="#editModal" data-id="<?php echo $row['account_id']; ?>"
-                                            data-account_title="<?php echo htmlspecialchars($row['account_title']); ?>"
-                                            data-account_code="<?php echo htmlspecialchars($row['account_code']); ?>"><i
-                                                class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top"
-                                                title="Edit"></i>
-                                        </button>
-
-                                        <button type="button" class="btn btn-danger"
-                                            onclick="deleteUser(<?php echo $row['account_id']; ?>)"><i class="bi bi-trash"
-                                                data-bs-toggle="tooltip" data-bs-placement="top"
-                                                title="Delete"></i></i></button>
-                                    </td>
+                                    <th scope="col">Account Title</th>
+                                    <th scope="col">Account Code</th>
+                                    <th scope="col" class="text-end">Actions</th>
                                 </tr>
-                            <?php } ?>
-                        </tbody>
-
-                    </table>
+                            </thead>
+                            <tbody>
+                                <?php while ($row = mysqli_fetch_assoc($select)) { ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($row['account_title']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['account_code']); ?></td>
+                                        <td class="text-end">
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-sm btn-outline-primary edit-btn" 
+                                                    data-bs-toggle="modal" data-bs-target="#editModal" 
+                                                    data-id="<?php echo $row['account_id']; ?>"
+                                                    data-account_title="<?php echo htmlspecialchars($row['account_title']); ?>"
+                                                    data-account_code="<?php echo htmlspecialchars($row['account_code']); ?>">
+                                                    <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                    onclick="deleteUser(<?php echo $row['account_id']; ?>)">
+                                                    <i class="bi bi-trash" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php } ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-
         </section>
+    </main>
 
-    </main><!-- End #main -->
-
-    <!-- update modal -->
-
+    <!-- Edit Modal -->
     <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editModalLabel">Edit User</h5>
+                    <h5 class="modal-title fw-bold" id="editModalLabel">Edit Account Title</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <form method="post" id="editUserForm" action="update_account.php">
+                <div class="modal-body mb-4">
+                    <form method="post" id="editUserForm" action="update_account.php" class="needs-validation" novalidate>
                         <input type="hidden" id="edit_account_id" name="account_id">
-                        <div class="mb-3">
-                            <label for="edit_account_title" class="form-label">Acccount Title</label>
-                            <input type="text" class="form-control" id="edit_account_title" name="account_title"
-                                required autocomplete="off">
+                        <div class="mb-4">
+                            <label for="edit_account_title" class="form-label">Account Title</label>
+                            <input type="text" class="form-control" id="edit_account_title" name="account_title" required autocomplete="off">
+                            <div class="invalid-feedback">Please enter an account title.</div>
                         </div>
-                        <div class="mb-3">
+                        <div class="mb-4">
                             <label for="edit_account_code" class="form-label">Account Code</label>
-                            <input type="number" class="form-control" id="edit_account_code" name="account_code"
-                                required autocomplete="off">
+                            <input type="number" class="form-control" id="edit_account_code" name="account_code" required autocomplete="off">
+                            <div class="invalid-feedback">Please enter an account code.</div>
                         </div>
-
-                        <script>
-                            document.getElementById("edit_allotment").addEventListener("blur", function () {
-                                // Ensure the value is formatted to 2 decimal places
-                                this.value = parseFloat(this.value).toFixed(2);
-                            });
-                        </script>
-
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" id="update" name="update" class="btn btn-primary">Update</button>
+                        <div class="modal-footer border-0 pt-0">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                                <i class="bi bi-x-circle me-1"></i> Close
+                            </button>
+                            <button type="submit" id="update" name="update" class="btn btn-primary">
+                                <i class="bi bi-check-circle me-1"></i> Update
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -280,7 +280,6 @@ $select = mysqli_query($connection, "SELECT * FROM account_title $where ORDER BY
     </script>
 
     <!-- show update -->
-
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const editButtons = document.querySelectorAll(".edit-btn");
@@ -299,16 +298,7 @@ $select = mysqli_query($connection, "SELECT * FROM account_title $where ORDER BY
         });
     </script>
 
-    <!-- delete -->
-    <script>
-        function deleteUser(userID) {
-            if (confirm("Are you sure you want to delete this User?")) {
-                window.location.href = 'delete_account.php?account_id=' + userID + '&confirm=yes';
-            }
-        }
-    </script>
-
-
+    <!-- Initialize tooltips -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -316,7 +306,43 @@ $select = mysqli_query($connection, "SELECT * FROM account_title $where ORDER BY
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
         });
+    </script>
 
+    <!-- Form validation and delete confirmation -->
+    <script>
+        // Form validation
+        (function () {
+            'use strict'
+            var forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms).forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        })()
+
+        // Enhanced delete confirmation
+        function deleteUser(userID) {
+            Swal.fire({
+                title: 'Delete Account Title?',
+                text: "This action cannot be undone!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = 'delete_account.php?account_id=' + userID + '&confirm=yes';
+                }
+            })
+        }
     </script>
 
 </body>

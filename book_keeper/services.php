@@ -92,22 +92,28 @@ $result_oopap = $connection->query($sql_oopap);
 
         <div class="pagetitle">
             <h1>Service</h1>
-        </div><!-- End Page Title -->
+            <nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="index.php">Home</a></li>
+                    <li class="breadcrumb-item active">Responsibility Center</li>
+                </ol>
+            </nav>
+        </div>
 
         <section class="section dashboard">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                            data-bs-target="#addUserModal">Add Services</button>
-                    </h5>
-                    <p></p>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="card-title">SEVICES</h5>
+                        <button type="button " class="btn btn-primary rounded-pill" data-bs-toggle="modal"
+                            data-bs-target="#addUserModal">Add Services</button>                
+                        </div>
 
                     <!-- Modal for Add User Form -->
                     <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel"
                         aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content border-0 shadow">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="addUserModalLabel">Add Service
                                     </h5>
@@ -156,13 +162,14 @@ $result_oopap = $connection->query($sql_oopap);
                     </div>
 
                     <!-- Table with stripped rows -->
-                    <table class="table datatable">
-                        <thead>
+                     <div class="table-responsive">
+                    <table class="table table-hover datatable">
+                        <thead class="table-light">
                             <tr>
-                                <th>Service Name</th>
-                                <th>Code</th>
-                                <th>OO/PAP</th>
-                                <th></th>
+                                <th scope="col">Service Name</th>
+                                <th scope="col">Code</th>
+                                <th scope="col">OO/PAP</th>
+                                <th scope="col">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -171,20 +178,23 @@ $result_oopap = $connection->query($sql_oopap);
                                     <td><?php echo htmlspecialchars($row['services_name']); ?></td>
                                     <td><?php echo htmlspecialchars($row['code']); ?></td>
                                     <td><?php echo htmlspecialchars($row['oopap_name']); ?></td>
-                                    <td>
-                                        <button type="button" class="btn btn-primary edit-btn" data-bs-toggle="modal"
-                                            data-bs-target="#editModal" data-id="<?php echo $row['services_id']; ?>"
+                                    <td class="text-end">
+                                        <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-sm btn-outline-primary edit-btn" 
+                                        data-bs-toggle="modal" data-bs-target="#editModal" 
+                                            data-id="<?php echo $row['services_id']; ?>"
                                             data-name="<?php echo htmlspecialchars($row['services_name']); ?>"
                                             data-code="<?php echo htmlspecialchars($row['code']); ?>"
-                                            data-oopap_id="<?php echo htmlspecialchars($row['oopap_id']); ?>"><i
-                                                class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top"
+                                            data-oopap_id="<?php echo htmlspecialchars($row['oopap_id']); ?>">
+                                            <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top"
                                                 title="Edit"></i>
                                         </button>
 
-                                        <button type="button" class="btn btn-danger"
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
                                             onclick="deleteUser(<?php echo $row['services_id']; ?>)"><i class="bi bi-trash"
                                                 data-bs-toggle="tooltip" data-bs-placement="top"
                                                 title="Delete"></i></i></button>
+                            </div>
                                     </td>
                                 </tr>
                             <?php } ?>
@@ -229,7 +239,7 @@ $result_oopap = $connection->query($sql_oopap);
                                     echo "<option value='" . htmlspecialchars($row['oopap_id']) . "'>" . htmlspecialchars($row['oopap_name']) . "</option>";
                                 }
                                 ?>
-                            </select>
+                             </select>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

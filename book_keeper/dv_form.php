@@ -528,21 +528,47 @@ function numberToWords($number)
 
         <table>
             <tr>
-                <th colspan="5" class="centered header-cell">
-                    <h3>DEPARTMENT OF TRADE AND INDUSTRY 12</h3>
-                    <h5>Entity Name</h5>
-                    <h3>DISBURSEMENT VOUCHER</h3>
+                <th colspan="4" class="centered header-cell" rowspan="2">
+                    <div style="display: flex; align-items: center; gap: 40px;">
+                        <img src="../img/dtilogo.jpg" alt="DTI Logo"
+                            style="width: 80px; height: 80px; text-align: left;">
+                        <div>
+                            <h3 style="margin: 0;">DEPARTMENT OF TRADE AND INDUSTRY 12</h3>
+                            <h5 style="margin: 0;">Entity Name</h5>
+                            <h3 style="margin: 0;">DISBURSEMENT VOUCHER</h3>
+                        </div>
+                    </div>
                 </th>
-                <td class="header-cell">
-                    <p>Fund Cluster: <b><?php echo $ors_form['fund_cluster']; ?></b></p>
-                    <p>Date: <b><?php echo $dv_form['date']; ?></b></p>
-                    <p>DV No.: <b><?php echo $dv_form['dv_no']; ?></b></p>
+
+                <td colspan="4" class="header-cell">
+                    <p style="text-align: left;"><b>Fund Cluster:</b>
+                    <p>
+                        <b style="text-align: center; margin-left: 10px; "><?php echo $ors_form['fund_cluster']; ?></b>
+                    </p>
+                    </p>
+
                 </td>
             </tr>
-
+            <td colspan="4">
+                <p style="text-align: left;"><b>Date: </b><b style="text-align: center; margin-left: 20px;"><?php $date = new DateTime($dv_form['date']);
+                echo $date->format('F j, Y'); ?></b>
+                </p>
+                <p style="text-align: left;"><b>DV No.:</b>
+                <p>
+                    <b style="text-align: left;"><?php echo $dv_form['dv_no']; ?></b>
+                </p>
+                </p>
+            </td>
             <tr>
-                <td><b>Mode of Payment</b></td>
-                <td colspan="5"> <?php echo $dv_form['payment_mode']; ?></td>
+
+            </tr>
+            <tr>
+                <td style="text-align: center; " class="centered"><strong>Mode of Payment:</strong>
+                </td>
+                <td colspan="5"><input type="checkbox">MDS Check <input type="checkbox">Commercial
+                    Check
+                    <input type="checkbox">ADA <input type="checkbox">Others (Please specify)
+                </td>
             </tr>
 
 
@@ -563,11 +589,12 @@ function numberToWords($number)
                 <td><strong>Address</strong></td>
                 <td colspan="5"><b><?php echo $ors_form['address']; ?></b></td>
             </tr>
+
             <tr>
-                <th colspan="3">Particulars</th>
-                <th>Responsibility Center</th>
-                <th>OO/PAP</th>
-                <th>Amount</th>
+                <th style="text-align: center; width: 55%;" colspan="3">Particulars</th>
+                <th style="text-align: center;">Responsibility Center</th>
+                <th style="text-align: center; width: 15%;">OO/PAP</th>
+                <th style="text-align: center;" colspan="3">Amount</th>
             </tr>
 
             <tr>
@@ -628,14 +655,16 @@ function numberToWords($number)
                         <div class="amount-line"></div>
                     </div>
 
-                <td rowspan="2"><?php echo $ors_form['code']; ?></td>
-                <td rowspan="2"><?php echo $ors_form['oopap_name']; ?></td>
+                <td style="text-align: center;" rowspan="2"><?php echo $ors_form['code']; ?></td>
+                <td style="text-align: center;" rowspan="2"><?php echo $ors_form['oopap_name']; ?></td>
                 <td></td>
             </tr>
 
             <tr>
                 <td colspan="3">Amount Due</td>
-                <td><?php echo number_format($dv_form['net_amount'], 2, '.', ','); ?></td>
+                <td style="text-align: right;">
+                    <strong>₱<?php echo number_format($dv_form['net_amount'], 2, '.', ','); ?></strong>
+                </td>
             </tr>
             <tr>
                 <td colspan="6"><strong>A. Certified: Expenses/Cash Advance necessary, lawful and incurred under my
@@ -652,15 +681,17 @@ function numberToWords($number)
                 <td colspan="6"><strong>B. Accounting Entry</strong>
                 </td>
             </tr>
+
+
             <tr>
-                <td colspan="2">Account Title</td>
-                <td>
+                <td style="text-align: center;" colspan="2">Account Title</td>
+                <td style="text-align: center;">
                     <p>UACS Code</p>
                 </td>
-                <td colspan="2">
+                <td style="text-align: center;" colspan="2">
                     <p>Debit</p>
                 </td>
-                <td>
+                <td style="text-align: center;" colspan="2">
                     <p>Credit</p>
                 </td>
             </tr>
@@ -668,11 +699,11 @@ function numberToWords($number)
             <?php foreach ($dv_accounts as $account): ?>
                 <tr>
                     <td colspan="2"><?php echo $account['account_title']; ?></td>
-                    <td><?php echo $account['account_code']; ?></td>
-                    <td colspan="2">
+                    <td style="text-align: center;"><?php echo $account['account_code']; ?></td>
+                    <td style="text-align: right;" colspan="2">
                         <?php echo $account['type'] == 'debit' ? number_format($account['amount'], 2, '.', ',') : ''; ?>
                     </td>
-                    <td>
+                    <td style="width: 40%; text-align: right;">
                         <?php echo $account['type'] == 'credit' ? number_format($account['amount'], 2, '.', ',') : ''; ?>
                     </td>
                 </tr>
@@ -702,7 +733,7 @@ function numberToWords($number)
                 </td>
             </tr>
             <tr>
-                <td colspan="3">
+                <td colspan="3"><br>
                     <p>Signature:</p>
                     <div class="signature-line"></div>
                     <div class="signature-container">
@@ -710,47 +741,50 @@ function numberToWords($number)
                         <p class="signature-title">Chief Accountant</p>
                         <p class="signature-title">Head, Accounting Unit/Authorized Representative</p>
                     </div>
+                    <p>Date:</p>
+                    <div class="signature-line"></div>
                 </td>
-                <td colspan="3">
+                <td colspan="3"><br>
                     <p>Signature:</p>
                     <div class="signature-line"></div>
                     <div class="signature-container">
                         <p class="signature-name"><?php echo $dv_form['regional_director']; ?></p>
-                        <p class="signature-title">Budget Officer</p>
+                        <p class="signature-title">Regional Director</p>
                         <p class="signature-title">Agency Head/Authorized Representative</p>
                     </div>
+                    <p>Date:</p>
+                    <div class="signature-line"></div>
                 </td>
             </tr>
-            <tr>
-                <td><strong>Date</strong></td>
-                <td colspan="2"></td>
-                <td><strong>Date</strong></td>
-                <td colspan="2"></td>
-            </tr>
-            <tr>
-                <th colspan="6">E. Receipt of Payment</th>
 
-            </tr>
             <tr>
-                <td style="font-size: 12px;">Check/ADA No. :
+                <td colspan="5">E. Receipt of Payment</td>
+                <td rowspan="2">JEV No.</td>
+            </tr>
+
+            <tr>
+                <td>
+                    <p>Check/ADA No.:</p>
                 </td>
-                <td>1232343</td>
-                <td style="font-size: 12px;">Date :</td>
-                <td style="font-size: 12px;">Bank Name & Account Number:</td>
-                <td colspan="2"> <?php echo $ors_form['bank_acc_no']; ?></td>
-
-            </tr>
-            <tr>
-                <td style="font-size: 12px;">Signature :</td>
                 <td></td>
-                <td style="font-size: 12px;">Date :</td>
-                <td colspan="2" style="font-size: 12px;">Printed Name:</td>
-                <td style="font-size: 12px;">JEV No.</td>
+                <td>Date: </td>
+                <td colspan="2">Bank Name & Account Number:
+                    <?php echo !empty($ors_form['bank_acc_no']) ? htmlspecialchars($ors_form['bank_acc_no']) : "&nbsp"; ?>
+                </td>
             </tr>
+
             <tr>
-                <td style="font-size: 12px;" colspan="5">Official Receipt No. & Date/Other Documents</td>
-                <td style="font-size: 12px;">Date: </td>
+                <td>Signature:</td>
+                <td></td>
+                <td>Date: </td>
+                <td colspan="2">Printed Name: </td>
+                <td rowspan="2">Date</td>
             </tr>
+
+            <tr>
+                <td colspan="2">Official Receipt No. & Date/Other Documents </td>
+            </tr>
+
         </table>
         <div class="modal-footer no-print">
             <button type="button" class="btn btn-primary" onclick="window.print()">Print DV</button>

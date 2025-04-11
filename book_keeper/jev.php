@@ -68,7 +68,7 @@ if (isset($_POST['submit'])) {
         }
 
         $stmt->bind_param(
-            "siiiss",
+            "siisss",
             $date,
             $dv_id,
             $ors_id,

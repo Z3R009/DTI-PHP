@@ -127,11 +127,6 @@ if (isset($_POST['submit'])) {
     }
 }
 
-
-
-
-
-// Query to fetch account titles and their corresponding UACS codes with OO/PAP
 $sql_account = "SELECT DISTINCT at.account_id, at.account_title, at.account_code, p.oopap_id, o.oopap_name
                 FROM account_title at
                 INNER JOIN project p ON at.account_id = p.account_id
@@ -140,7 +135,6 @@ $sql_account = "SELECT DISTINCT at.account_id, at.account_title, at.account_code
 
 $result_account = $connection->query($sql_account);
 
-// Store account data for JavaScript
 $accountData = [];
 while ($row = $result_account->fetch_assoc()) {
     $accountData[] = $row;
@@ -509,6 +503,79 @@ $ors_result = $connection->query($ors_query);
         .tax-fields.hidden {
             display: none;
         }
+
+        /* Custom Searchable Dropdown Styles */
+        .custom-dropdown {
+            position: relative;
+            width: 100%;
+        }
+
+        .custom-dropdown .dropdown-toggle {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            text-align: left;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .custom-dropdown .dropdown-toggle:after {
+            content: '';
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid #333;
+        }
+
+        .custom-dropdown .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            max-height: 300px;
+            overflow-y: auto;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+        }
+
+        .custom-dropdown .dropdown-menu.show {
+            display: block;
+        }
+
+        .custom-dropdown .search-box {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .custom-dropdown .search-box input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .custom-dropdown .dropdown-item {
+            padding: 8px 10px;
+            cursor: pointer;
+        }
+
+        .custom-dropdown .dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .custom-dropdown .dropdown-item.selected {
+            background-color: #0077b6;
+            color: white;
+        }
     </style>
 </head>
 
@@ -659,18 +726,21 @@ $ors_result = $connection->query($ors_query);
                                         <div class="form-section">
                                             <h3>Particulars</h3>
                                             <div class="table-responsive">
-                                                <table class="accounting-entry-table">
-                                                    <thead>
-                                                        <tr>
-                                                            <th colspan="3">Account Title</th>
-                                                            <th>Amount</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody id="accounting-table-body">
-                                                        <!-- First row -->
-                                                        <tr class="entry-row">
-                                                            <td colspan="3">
-                                                                <select class="form-control" name="account_id[]" required>
+                                               <!-- HTML Table Structure -->
+<table class="accounting-entry-table">
+    <thead>
+        <tr>
+            <th colspan="2">Account Title</th>
+            <th>Code</th>
+            <th>Amount</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody id="accounting-table-body">
+        <!-- First row -->
+        <tr class="entry-row">
+            <td colspan="2">
+            <select class="form-control" name="account_id[]" required>
                                                                     <option selected disabled>Select Account</option>
                                                                     <?php
                                                                     // Reset the result pointer
@@ -679,31 +749,41 @@ $ors_result = $connection->query($ors_query);
                                                                         echo "<option value='" . htmlspecialchars($row['account_id']) . "' 
                                                                             data-account_code='" . htmlspecialchars($row['account_code']) . "'
                                                                             data-oopap_id='" . htmlspecialchars($row['oopap_id']) . "'>"
-                                                                            . htmlspecialchars($row['account_title']) . " - " . htmlspecialchars($row['account_code']) .
+                                                                            . htmlspecialchars($row['account_title']) .
                                                                             "</option>";
                                                                     }
                                                                     ?>
-                                                                </select>
-                                                            </td>
-                                                            <td>
-                                                                <input type="number" class="form-control amount-input" name="amount[]" step="0.01" required>
-                                                            </td>
-                                                        </tr>
-                                                        <!-- Add Row button row -->
-                                                        <tr id="add-row-container">
-                                                            <td colspan="4" class="text-left">
-                                                                <button type="button" id="addAccountRow" class="btn btn-secondary">
-                                                                    <ion-icon name="add-outline"></ion-icon> Add Row
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                        <!-- Total Amount Row -->
-                                                        <tr>
-                                                            <td colspan="3" class="text-right font-weight-bold">Total Amount:</td>
-                                                            <td><input type="text" id="total_amount" class="form-control" name="total_amount" readonly></td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
+                </select>
+            </td>
+            <td>
+                <input type="text" class="form-control account-code" name="account_code[]" readonly>
+            </td>
+            <td>
+                <input type="number" class="form-control amount-input" name="amount[]" step="0.01" required>
+            </td>
+            <td>
+                <button type="button" class="btn btn-danger btn-sm delete-row">Delete</button>
+            </td>
+        </tr>
+        <!-- Add Row button row -->
+        <tr id="add-row-container">
+            <td colspan="4" class="text-left">
+                <button type="button" id="addAccountRow" class="btn btn-secondary">
+                    <ion-icon name="add-outline"></ion-icon> Add Row
+                </button>
+            </td>
+            <td></td>
+        </tr>
+        <!-- Total Amount Row -->
+        <tr>
+            <td colspan="3" class="text-right font-weight-bold">Total Amount:</td>
+            <td><input type="text" id="total_amount" class="form-control" name="total_amount" readonly></td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
+
+
                                             </div>
                                         </div>
 
@@ -765,6 +845,9 @@ $ors_result = $connection->query($ors_query);
 
     <!-- Template Main JS File -->
     <script src="../NiceAdmin/assets/js/main.js"></script>
+
+    <!-- Custom Accounting Entry JS -->
+    <script src="js/accounting-entry.js"></script>
 
     <script>
 
@@ -861,111 +944,207 @@ $ors_result = $connection->query($ors_query);
             calculateTaxes();
         });
 
-    </script>
-
-    <!-- add row and total amount calculation -->
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const tableBody = document.querySelector("#accounting-table-body");
+        <!-- JavaScript Code -->
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+    const tableBody = document.querySelector("#accounting-table-body");
             const addRowContainer = document.querySelector("#add-row-container");
 
             // Function to update total
             function updateTotal() {
                 let total = 0;
-                document.querySelectorAll(".amount-input").forEach(function (input) {
-                    total += parseFloat(input.value) || 0;
-                });
-                document.getElementById("total_amount").value = total.toFixed(2);
+            document.querySelectorAll(".amount-input").forEach(function (input) {
+                total += parseFloat(input.value) || 0;
+        });
+            document.getElementById("total_amount").value = total.toFixed(2);
+    }
+
+            // Function to create a new row
+            function createNewRow() {
+        const newRow = document.createElement("tr");
+            newRow.classList.add("entry-row");
+
+            // Clone the account select options
+            const accountSelect = document.querySelector('select[name="account_id[]"]').cloneNode(true);
+            accountSelect.name = "account_id[]";
+            accountSelect.className = "form-control account-select";
+            accountSelect.value = ""; // Reset selection
+
+            // Create account code input
+            const codeInput = document.createElement("input");
+            codeInput.type = "text";
+            codeInput.className = "form-control account-code";
+            codeInput.name = "account_code[]";
+            codeInput.readOnly = true;
+
+            // Create amount input
+            const amountInput = document.createElement("input");
+            amountInput.type = "number";
+            amountInput.className = "form-control amount-input";
+            amountInput.name = "amount[]";
+            amountInput.step = "0.01";
+            amountInput.required = true;
+
+            // Create delete button
+            const deleteButton = document.createElement("button");
+            deleteButton.type = "button";
+            deleteButton.className = "btn btn-danger btn-sm delete-row";
+            deleteButton.innerHTML = "Delete";
+            deleteButton.addEventListener("click", function() {
+                newRow.remove();
+            updateTotal();
+        });
+
+            // Create cells
+            const accountCell = document.createElement("td");
+            accountCell.colSpan = 2;
+            accountCell.appendChild(accountSelect);
+
+            const codeCell = document.createElement("td");
+            codeCell.appendChild(codeInput);
+
+            const amountCell = document.createElement("td");
+            amountCell.appendChild(amountInput);
+
+            const deleteCell = document.createElement("td");
+            deleteCell.appendChild(deleteButton);
+
+            newRow.appendChild(accountCell);
+            newRow.appendChild(codeCell);
+            newRow.appendChild(amountCell);
+            newRow.appendChild(deleteCell);
+
+            // Add event listeners
+            amountInput.addEventListener("input", updateTotal);
+
+            accountSelect.addEventListener("change", function() {
+            const selectedOption = this.options[this.selectedIndex];
+            if (selectedOption && selectedOption.dataset.account_code) {
+                codeInput.value = selectedOption.dataset.account_code;
+            } else {
+                codeInput.value = "";
             }
+        });
+
+            return newRow;
+    }
 
             // Add new row functionality
             document.getElementById("addAccountRow").addEventListener("click", function () {
-                const newRow = document.createElement("tr");
-                newRow.classList.add("entry-row");
+        const newRow = createNewRow();
+            tableBody.insertBefore(newRow, addRowContainer);
 
-                // Clone the account select options
-                const accountSelect = document.querySelector('select[name="account_id[]"]').cloneNode(true);
-                accountSelect.name = "account_id[]";
-                accountSelect.value = ""; // Reset selection
+            // Apply custom dropdown to the new select
+            setTimeout(function() {
+            const newSelect = newRow.querySelector('select[name="account_id[]"]');
+            if (newSelect && !newSelect.classList.contains('custom-dropdown-processed')) {
+                newSelect.classList.add('custom-dropdown-processed');
+            const container = window.convertToSearchableDropdown(newSelect);
+            window.dropdownContainers.push(container);
+            window.updateAccountOptions();
+            }
+        }, 100);
+    });
 
-                // Create amount input
-                const amountInput = document.createElement("input");
-                amountInput.type = "number";
-                amountInput.className = "form-control amount-input";
-                amountInput.name = "amount[]";
-                amountInput.step = "0.01";
-                amountInput.required = true;
+            // Add delete buttons to existing rows
+            function addDeleteButtonsToExistingRows() {
+        const existingRows = document.querySelectorAll("#accounting-table-body tr.entry-row");
+        
+        existingRows.forEach(row => {
+            if (!row.querySelector('.delete-row')) {
+                const deleteButton = document.createElement("button");
+            deleteButton.type = "button";
+            deleteButton.className = "btn btn-danger btn-sm delete-row";
+            deleteButton.innerHTML = "Delete";
 
-                // Create cells
-                const accountCell = document.createElement("td");
-                accountCell.colSpan = 3;
-                accountCell.appendChild(accountSelect);
+            deleteButton.addEventListener("click", function() {
+                row.remove();
+            updateTotal();
+                });
 
-                const amountCell = document.createElement("td");
-                amountCell.appendChild(amountInput);
+            const deleteCell = document.createElement("td");
+            deleteCell.appendChild(deleteButton);
 
-                // Add cells to row
-                newRow.appendChild(accountCell);
-                newRow.appendChild(amountCell);
-
-                // Insert before the add row container
-                tableBody.insertBefore(newRow, addRowContainer);
-
-                // Add event listener for amount changes
-                amountInput.addEventListener("input", updateTotal);
-            });
-
-            // Listen for input changes on all amount inputs
-            document.querySelectorAll(".amount-input").forEach(input => {
-                input.addEventListener("input", updateTotal);
-            });
+            row.appendChild(deleteCell);
+            }
         });
+    }
+
+            addDeleteButtonsToExistingRows();
+
+    // Set up event listeners for existing amount inputs
+    document.querySelectorAll(".amount-input").forEach(input => {
+                input.addEventListener("input", updateTotal);
+    });
+
+    // Set up event listeners for existing account selects
+    document.querySelectorAll(".account-select").forEach(select => {
+                select.addEventListener("change", function () {
+                    const selectedOption = this.options[this.selectedIndex];
+                    const row = this.closest("tr");
+                    const codeInput = row.querySelector(".account-code");
+
+                    if (selectedOption && selectedOption.dataset.account_code) {
+                        codeInput.value = selectedOption.dataset.account_code;
+                    } else {
+                        codeInput.value = "";
+                    }
+                });
+    });
+
+    // Initialize account codes for existing rows
+    document.querySelectorAll(".account-select").forEach(select => {
+        const selectedOption = select.options[select.selectedIndex];
+            const row = select.closest("tr");
+            const codeInput = row.querySelector(".account-code");
+
+            if (selectedOption && selectedOption.dataset.account_code) {
+                codeInput.value = selectedOption.dataset.account_code;
+        }
+    });
+});
     </script>
 
     <!-- approver -->
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
+            document.addEventListener("DOMContentLoaded", function () {
             const approverSelect = document.getElementById("approverSelect");
             const designationLabel = document.getElementById("designationLabel");
 
             approverSelect.addEventListener("change", function () {
-                // Get the selected option
+              
                 const selectedOption = approverSelect.options[approverSelect.selectedIndex];
-                const designation = selectedOption.getAttribute("data-designation") || "Designation";
+            const designation = selectedOption.getAttribute("data-designation") || "Designation";
 
-                // Update the label text
-                designationLabel.textContent = designation;
+            designationLabel.textContent = designation;
             });
         });
     </script>
 
     <!-- dv_number -->
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
+            document.addEventListener("DOMContentLoaded", function () {
             const fundClusterSelect = document.getElementById("fundCluster");
             const dvDateInput = document.getElementById("dvDate");
             const orsNumberInput = document.getElementById("orsNumber");
 
             function generateorsNumber() {
                 const selectedUACS = fundClusterSelect.value;
-                const selectedDate = dvDateInput.value;
+            const selectedDate = dvDateInput.value;
 
-                if (!selectedUACS || !selectedDate) {
-                    orsNumberInput.value = "";
-                    return;
+            if (!selectedUACS || !selectedDate) {
+                orsNumberInput.value = "";
+            return;
                 }
 
-                // Extract Year and Month from Date Input
-                const dateObj = new Date(selectedDate);
-                const year = dateObj.getFullYear();
-                const month = String(dateObj.getMonth() + 1).padStart(2, '0'); // Ensure two digits
+            const dateObj = new Date(selectedDate);
+            const year = dateObj.getFullYear();
+            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
 
-                // Retrieve the Last Sequence Number from PHP
-                const lastSequence = "<?php echo $new_sequence; ?>";
+            const lastSequence = "<?php echo $new_sequence; ?>";
 
-                // Format Disbursement Voucher No.
-                const orsNumber = `${selectedUACS}-${year}-${month}-${lastSequence}`;
+            const orsNumber = `${selectedUACS}-${year}-${month}-${lastSequence}`;
                 orsNumberInput.value = orsNumber;
             }
 
@@ -994,26 +1173,26 @@ $ors_result = $connection->query($ors_query);
 
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            function updateTotal() {
-                let total = 0;
-                document.querySelectorAll(".amount-input").forEach(function (input) {
-                    total += parseFloat(input.value) || 0;
-                });
-                document.getElementById("total_amount").value = total.toFixed(2);
-            }
+            document.addEventListener("DOMContentLoaded", function () {
+                function updateTotal() {
+                    let total = 0;
+                    document.querySelectorAll(".amount-input").forEach(function (input) {
+                        total += parseFloat(input.value) || 0;
+                    });
+                    document.getElementById("total_amount").value = total.toFixed(2);
+                }
 
             // Listen for input changes
             document.getElementById("accounting-table-body").addEventListener("input", function (event) {
                 if (event.target.classList.contains("amount-input")) {
-                    updateTotal();
+                updateTotal();
                 }
             });
         });
     </script>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
+            document.addEventListener("DOMContentLoaded", function () {
             const accountSelect = document.querySelector('select[name="account_id[]"]');
             const oopapSelect = document.querySelector('select[name="oopap_id"]');
             const amountInput = document.querySelector('.amount-input');
@@ -1028,22 +1207,22 @@ $ors_result = $connection->query($ors_query);
 
             async function checkAllotment() {
                 const accountId = accountSelect.value;
-                const oopapId = oopapSelect.value;
-                const amount = parseFloat(amountInput.value) || 0;
+            const oopapId = oopapSelect.value;
+            const amount = parseFloat(amountInput.value) || 0;
 
-                if (!accountId || !oopapId || amount === 0) {
-                    projectIdInput.value = '';
-                    warningMessage.style.display = 'none';
-                    return;
+            if (!accountId || !oopapId || amount === 0) {
+                projectIdInput.value = '';
+            warningMessage.style.display = 'none';
+            return;
                 }
 
-                try {
+            try {
                     const response = await fetch('check_allotment.php', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
+                method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
                         },
-                        body: `account_id=${accountId}&oopap_id=${oopapId}&amount=${amount}`
+            body: `account_id=${accountId}&oopap_id=${oopapId}&amount=${amount}`
                     });
 
                     const data = await response.json();
@@ -1073,94 +1252,92 @@ $ors_result = $connection->query($ors_query);
 
     <!-- services -->
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
+            document.addEventListener("DOMContentLoaded", function () {
             const oopapSelect = document.querySelector('select[name="oopap_id"]');
             const servicesSelect = document.getElementById('services');
             const dateInput = document.getElementById('dvDate');
             const orsNoInput = document.getElementById('ors_no');
 
-            // Function to update services dropdown
             function updateServices(oopapId) {
                 if (!oopapId) {
-                    servicesSelect.innerHTML = '<option selected disabled>Select Services</option>';
-                    return;
+                servicesSelect.innerHTML = '<option selected disabled>Select Services</option>';
+            return;
                 }
 
-                fetch('get_filtered_services.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
+            fetch('get_filtered_services.php', {
+                method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    body: `oopap_id=${oopapId}`
+            body: `oopap_id=${oopapId}`
                 })
                     .then(response => response.json())
                     .then(services => {
-                        servicesSelect.innerHTML = '<option selected disabled>Select Services</option>';
+                servicesSelect.innerHTML = '<option selected disabled>Select Services</option>';
                         services.forEach(service => {
                             const option = document.createElement('option');
-                            option.value = service.services_id;
-                            option.textContent = service.services_name;
-                            option.setAttribute('data-code', service.code);
-                            servicesSelect.appendChild(option);
+            option.value = service.services_id;
+            option.textContent = service.services_name;
+            option.setAttribute('data-code', service.code);
+            servicesSelect.appendChild(option);
                         });
                     })
                     .catch(error => {
-                        console.error('Error:', error);
-                        servicesSelect.innerHTML = '<option selected disabled>Error loading services</option>';
+                console.error('Error:', error);
+            servicesSelect.innerHTML = '<option selected disabled>Error loading services</option>';
                     });
             }
 
-            // Listen for OO/PAP selection changes
             oopapSelect.addEventListener('change', function () {
                 updateServices(this.value);
             });
 
             function generateORSNumber() {
                 const selectedService = servicesSelect.options[servicesSelect.selectedIndex];
-                const selectedDate = dateInput.value;
+            const selectedDate = dateInput.value;
 
-                if (!selectedService || selectedService.disabled || !selectedDate) {
+            if (!selectedService || selectedService.disabled || !selectedDate) {
                     return;
                 }
 
-                const serviceCode = selectedService.getAttribute('data-code');
-                const date = new Date(selectedDate);
-                const year = date.getFullYear().toString().substr(-2);
-                const month = String(date.getMonth() + 1).padStart(2, '0');
+            const serviceCode = selectedService.getAttribute('data-code');
+            const date = new Date(selectedDate);
+            const year = date.getFullYear().toString().substr(-2);
+            const month = String(date.getMonth() + 1).padStart(2, '0');
 
-                // Check if the service code is ADMIN&POLICY
-                if (serviceCode === 'ADMIN&POLICY') {
-                    fetch('get_next_ors_sequence.php', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                        body: `service_code=ADMIN&POLICY&year=${year}&month=${month}`
+            // Check if the service code is ADMIN&POLICY
+            if (serviceCode === 'ADMIN&POLICY') {
+                fetch('get_next_ors_sequence.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `service_code=ADMIN&POLICY&year=${year}&month=${month}`
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        const sequence = String(data.next_sequence).padStart(3, '0');
+                        orsNoInput.value = `ADMIN&POLICY-${year}-${month}-${sequence}`;
                     })
-                        .then(response => response.json())
-                        .then(data => {
-                            const sequence = String(data.next_sequence).padStart(3, '0');
-                            orsNoInput.value = `ADMIN&POLICY-${year}-${month}-${sequence}`;
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                        });
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
                 } else {
-                    fetch('get_next_ors_sequence.php', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                        body: `service_code=${serviceCode}&year=${year}&month=${month}`
+                fetch('get_next_ors_sequence.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `service_code=${serviceCode}&year=${year}&month=${month}`
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        const sequence = String(data.next_sequence).padStart(3, '0');
+                        orsNoInput.value = `${serviceCode}-${year}-${month}-${sequence}`;
                     })
-                        .then(response => response.json())
-                        .then(data => {
-                            const sequence = String(data.next_sequence).padStart(3, '0');
-                            orsNoInput.value = `${serviceCode}-${year}-${month}-${sequence}`;
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                        });
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
                 }
             }
 
@@ -1169,9 +1346,8 @@ $ors_result = $connection->query($ors_query);
         });
     </script>
 
-    <!-- Add this JavaScript before the closing </body> tag -->
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
+            document.addEventListener("DOMContentLoaded", function () {
             const oopapSelect = document.querySelector('select[name="oopap_id"]');
             const accountSelects = document.querySelectorAll('select[name="account_id[]"]');
 
@@ -1180,55 +1356,190 @@ $ors_result = $connection->query($ors_query);
 
                 accountSelects.forEach(select => {
                     const currentValue = select.value;
-                    const options = select.options;
-
-                    // Show/hide options based on selected OO/PAP
-                    for (let i = 0; i < options.length; i++) {
+            const options = select.options;
+            for (let i = 0; i < options.length; i++) {
                         const option = options[i];
-                        if (option.value === "") continue; // Skip the default "Select Account" option
+            if (option.value === "") continue;
 
-                        const optionOopapId = option.getAttribute('data-oopap_id');
-                        if (optionOopapId === selectedOopapId) {
-                            option.style.display = '';
+            const optionOopapId = option.getAttribute('data-oopap_id');
+            if (optionOopapId === selectedOopapId) {
+                option.style.display = '';
                         } else {
-                            option.style.display = 'none';
+                option.style.display = 'none';
                         }
                     }
 
-                    // Reset selection if current value is not in selected OO/PAP
-                    if (currentValue && options[select.selectedIndex].style.display === 'none') {
-                        select.value = "";
+            if (currentValue && options[select.selectedIndex].style.display === 'none') {
+                select.value = "";
+                    }
+                });
+            }
+            oopapSelect.addEventListener('change', updateAccountOptions);
+            updateAccountOptions();
+        });
+    </script>
+<script>
+            document.getElementById('yearFilter').addEventListener('change', applyFilter);
+            document.getElementById('monthFilter').addEventListener('change', applyFilter);
+            document.getElementById('servicesFilter').addEventListener('change', applyFilter);
+
+            function applyFilter() {
+        var year = document.getElementById('yearFilter').value;
+            var month = document.getElementById('monthFilter').value;
+            var service = document.getElementById('servicesFilter').value;
+            var newUrl = window.location.origin + window.location.pathname + '?year=' + year + '&month=' + month + '&service=' + service;
+            window.location.href = newUrl + '#orsList'; 
+    }
+</script>
+
+    <!-- Custom Searchable Dropdown Implementation -->
+    <script>
+            document.addEventListener("DOMContentLoaded", function() {
+            const dropdownContainers = [];
+
+            function convertToSearchableDropdown(selectElement) {
+                const dropdownContainer = document.createElement('div');
+            dropdownContainer.className = 'custom-dropdown';
+
+            const dropdownToggle = document.createElement('div');
+            dropdownToggle.className = 'dropdown-toggle';
+            dropdownToggle.textContent = selectElement.options[selectElement.selectedIndex]?.text || 'Select Account';
+
+            const dropdownMenu = document.createElement('div');
+            dropdownMenu.className = 'dropdown-menu';
+
+            const searchBox = document.createElement('div');
+            searchBox.className = 'search-box';
+            const searchInput = document.createElement('input');
+            searchInput.type = 'text';
+            searchInput.placeholder = 'Search...';
+            searchBox.appendChild(searchInput);
+            dropdownMenu.appendChild(searchBox);
+
+            const dropdownItems = document.createElement('div');
+            dropdownItems.className = 'dropdown-items';
+                
+                Array.from(selectElement.options).forEach(option => {
+                    if (option.value === '') return;
+            const dropdownItem = document.createElement('div');
+            dropdownItem.className = 'dropdown-item';
+            dropdownItem.dataset.value = option.value;
+            dropdownItem.dataset.oopapId = option.getAttribute('data-oopap_id');
+            dropdownItem.dataset.accountCode = option.getAttribute('data-account_code');
+
+            // Include account code in the display text
+            const accountCode = option.getAttribute('data-account_code') || '';
+            const displayText = accountCode ? `${option.text} (${accountCode})` : option.text;
+            dropdownItem.textContent = displayText;
+
+            dropdownItem.addEventListener('click', function() {
+                selectElement.value = this.dataset.value;
+            dropdownToggle.textContent = displayText;
+            dropdownMenu.classList.remove('show');
+                        
+                        dropdownItems.querySelectorAll('.dropdown-item').forEach(item => {
+                item.classList.remove('selected');
+                        });
+            this.classList.add('selected');
+
+            // Update the account code input
+            const row = selectElement.closest('tr');
+            const codeInput = row.querySelector('.account-code');
+            if (codeInput && this.dataset.accountCode) {
+                codeInput.value = this.dataset.accountCode;
+                        }
+
+            const event = new Event('change', {bubbles: true });
+            selectElement.dispatchEvent(event);
+                    });
+
+            dropdownItems.appendChild(dropdownItem);
+                });
+
+            dropdownMenu.appendChild(dropdownItems);
+            dropdownToggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+            dropdownMenu.classList.toggle('show');
+            if (dropdownMenu.classList.contains('show')) {
+                searchInput.focus();
+                    }
+                });
+
+            searchInput.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    dropdownItems.querySelectorAll('.dropdown-item').forEach(item => {
+                        const text = item.textContent.toLowerCase();
+            if (text.includes(searchTerm)) {
+                item.style.display = '';
+                        } else {
+                item.style.display = 'none';
+                        }
+                    });
+                });
+
+            document.addEventListener('click', function(e) {
+                    if (!dropdownContainer.contains(e.target)) {
+                dropdownMenu.classList.remove('show');
+                    }
+                });
+
+            selectElement.style.display = 'none';
+            dropdownContainer.appendChild(dropdownToggle);
+            dropdownContainer.appendChild(dropdownMenu);
+            selectElement.parentNode.insertBefore(dropdownContainer, selectElement);
+
+            return dropdownContainer;
+            }
+
+            const accountSelects = document.querySelectorAll('select[name="account_id[]"]');
+            
+            accountSelects.forEach(select => {
+                if (!select.classList.contains('custom-dropdown-processed')) {
+                select.classList.add('custom-dropdown-processed');
+            const container = convertToSearchableDropdown(select);
+            dropdownContainers.push(container);
+                }
+            });
+
+            const oopapSelect = document.querySelector('select[name="oopap_id"]');
+
+            function updateAccountOptions() {
+                const selectedOopapId = oopapSelect.value;
+                
+                dropdownContainers.forEach(container => {
+                    const dropdownItems = container.querySelectorAll('.dropdown-item');
+            const selectElement = container.nextElementSibling;
+                    
+                    dropdownItems.forEach(item => {
+                        const itemOopapId = item.dataset.oopapId;
+            if (selectedOopapId && itemOopapId !== selectedOopapId) {
+                item.style.display = 'none';
+                        } else {
+                item.style.display = '';
+                        }
+                    });
+
+            if (selectedOopapId) {
+                        const selectedItem = container.querySelector(`.dropdown-item[data-value="${selectElement.value}"]`);
+            if (selectedItem && selectedItem.dataset.oopapId !== selectedOopapId) {
+                selectElement.value = '';
+            container.querySelector('.dropdown-toggle').textContent = 'Select Account';
+                        }
                     }
                 });
             }
 
-            // Update account options when OO/PAP changes
-            oopapSelect.addEventListener('change', updateAccountOptions);
-
-            // Initial update
+            if (oopapSelect) {
+                oopapSelect.addEventListener('change', updateAccountOptions);
             updateAccountOptions();
+            }
+
+            // Make the convertToSearchableDropdown function available globally
+            window.convertToSearchableDropdown = convertToSearchableDropdown;
+            window.dropdownContainers = dropdownContainers;
+            window.updateAccountOptions = updateAccountOptions;
         });
     </script>
-
-<!-- Filter -->
-<script>
-    // JavaScript to handle filtering without the "Apply Filters" button
-    document.getElementById('yearFilter').addEventListener('change', applyFilter);
-    document.getElementById('monthFilter').addEventListener('change', applyFilter);
-    document.getElementById('servicesFilter').addEventListener('change', applyFilter);
-
-    function applyFilter() {
-        var year = document.getElementById('yearFilter').value;
-        var month = document.getElementById('monthFilter').value;
-        var service = document.getElementById('servicesFilter').value;
-
-        // Get the current URL and append the filters
-        var newUrl = window.location.origin + window.location.pathname + '?year=' + year + '&month=' + month + '&service=' + service;
-
-        // Update the URL with the selected filters, keeping the #orsList tab in the URL
-        window.location.href = newUrl + '#orsList'; // Keep the user in the orsList tab
-    }
-</script>
 
 </body>
 
