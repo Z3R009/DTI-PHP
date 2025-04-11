@@ -193,11 +193,13 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                                     <td><?php echo htmlspecialchars($row['payee_name']); ?></td>
                                     <td><?php echo htmlspecialchars($row['notes']); ?></td>
                                     <td><?php echo htmlspecialchars(number_format($row['total_amount'], 2)); ?></td>
-                                    <td><button type="button" class="btn btn-primary view-details"
+                                    <td>
+                                        <button type="button" class="btn btn-primary view-details"
                                             onclick="window.location.href='ors_form.php?ors_no=<?php echo $row['ors_no']; ?>'">
                                             <i class="bi bi-eye" data-bs-toggle="tooltip" data-bs-placement="top"
                                                 title="View Details"></i>
-                                        </button></td>
+                                        </button>
+                                    </td>
                                 </tr>
                             <?php } ?>
                         </tbody>

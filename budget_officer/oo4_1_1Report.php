@@ -181,7 +181,7 @@ $months = [
                                 </tr>
                                 <tr>
                                     <th class="text-end" style="background-color: #B8CCE4;">LAST MONTH</th>
-                                    <th class="text-end" style="background-color: #FCD5B4;">THIS MONTH</th>
+                                    <th class="text-end" style="background-color: #FCD5B4;">THIS MONTH <br><?php echo $months[$selected_month]?> </th>
                                     <th class="text-end" style="background-color: #E6B8B7;">TO DATE</th>
                                 </tr>
                             </thead>
