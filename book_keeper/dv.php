@@ -230,7 +230,8 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
     <link href="../NiceAdmin/assets/vendor/simple-datatables/style.css" rel="stylesheet">
     <!-- Select2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css"
+        rel="stylesheet" />
 
     <!-- Template Main CSS File -->
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
@@ -249,53 +250,53 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
         .select2-container--bootstrap-5 {
             width: 100% !important;
         }
-        
+
         .select2-container--bootstrap-5 .select2-selection {
             min-height: 38px;
             border: 1px solid #ddd;
             border-radius: 8px;
             background-color: #f8f9fa;
         }
-        
+
         .select2-container--bootstrap-5 .select2-selection--single {
             padding: 5px 10px;
         }
-        
+
         .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
             padding: 0;
             line-height: 28px;
         }
-        
+
         .select2-container--bootstrap-5 .select2-selection--single .select2-selection__arrow {
             height: 36px;
         }
-        
+
         .select2-container--bootstrap-5 .select2-dropdown {
             border: 1px solid #ddd;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        
+
         .select2-container--bootstrap-5 .select2-search__field {
             border: 1px solid #ddd;
             border-radius: 4px;
             padding: 8px;
         }
-        
+
         .select2-container--bootstrap-5 .select2-results__option--highlighted {
             background-color: #0077b6;
         }
-        
+
         .select2-container--bootstrap-5 .select2-results__option--selected {
             background-color: #e0f2fe;
             color: #0077b6;
         }
-        
+
         /* Fix for Select2 in tables */
         .accounting-entry-table .select2-container {
             z-index: 1000;
         }
-        
+
         .accounting-entry-table td {
             position: relative;
         }
@@ -1067,7 +1068,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                         </div>
                                         <!-- <div class="form-group">
                                         <label class="form-label">Amount</label>
-                                        <input type="number" class="form-control" id="amount" step="0.01">
+                                        <input type="number" class="form-control" id="amount" >
                                     </div> -->
                                     </div>
                                 </div>
@@ -1078,8 +1079,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                     <div class="form-row">
                                         <div class="form-group half-width">
                                             <label class="form-label">Gross Amount</label>
-                                            <input type="number" class="form-control" id="total_amount" step="0.01"
-                                                readonly>
+                                            <input type="number" class="form-control" id="total_amount" readonly>
                                         </div>
                                         <div class="form-group half-width">
                                             <div class="checkbox-item">
@@ -1098,31 +1098,31 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                         <div class="form-group half-width">
                                             <label class="form-label">VAT <input type="number" class="tax-percentage"
                                                     id="vat_percentage" name="vat" value="12" min="0" max="100"
-                                                    step="0.01" readonly>
+                                                    readonly>
                                                 %</label>
                                             <input type="number" class="form-control calculation-field" id="vat_amount"
-                                                name="vat_amount" step="0.01" readonly>
+                                                name="vat_amount" readonly>
                                         </div>
                                     </div>
                                     <div class="form-row">
                                         <div class="form-group">
                                             <label class="form-label">Tax Base</label>
                                             <input type="number" class="form-control calculation-field" id="tax_base"
-                                                name="tax_base" step="0.01">
+                                                name="tax_base">
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label">Less: <input type="number" class="tax-percentage"
-                                                    id="tax1_percentage" name="tax_1" value="5" min="0" max="100"
-                                                    step="0.01"> % Tax</label>
+                                                    id="tax1_percentage" name="tax_1" value="5" min="0" max="100"> %
+                                                Tax</label>
                                             <input type="number" class="form-control calculation-field" id="tax_1"
-                                                name="tax_1_amount" step="0.01">
+                                                name="tax_1_amount">
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label">Less: <input type="number" class="tax-percentage"
-                                                    id="tax2_percentage" name="tax_2" value="2" min="0" max="100"
-                                                    step="0.01"> % Tax</label>
+                                                    id="tax2_percentage" name="tax_2" value="2" min="0" max="100"> %
+                                                Tax</label>
                                             <input type="number" class="form-control calculation-field" id="tax_2"
-                                                name="tax_2_amount" step="0.01">
+                                                name="tax_2_amount">
                                         </div>
                                     </div>
                                 </div>
@@ -1131,7 +1131,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                     <div class="form-group">
                                         <label class="form-label">Net Amount</label>
                                         <input type="number" class="form-control calculation-field" id="net_amount"
-                                            name="net_amount" step="0.01" readonly>
+                                            name="net_amount" readonly>
                                     </div>
 
 
@@ -1164,9 +1164,9 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                                     </select>
                                                 </td>
                                                 <td><input type="number" class="form-control debit-amount"
-                                                        name="debit_amounts[]" step="0.01"></td>
+                                                        name="debit_amounts[]"></td>
                                                 <td><input type="number" class="form-control credit-amount"
-                                                        name="credit_amounts[]" step="0.01"></td>
+                                                        name="credit_amounts[]"></td>
                                             </tr>
                                         </tbody>
                                         <tfoot>
@@ -1184,9 +1184,9 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                                     </select>
                                                 </td>
                                                 <td><input type="number" class="form-control debit-amount"
-                                                        name="debit_amounts[]" step="0.01"></td>
+                                                        name="debit_amounts[]"></td>
                                                 <td><input type="number" class="form-control credit-amount"
-                                                        name="credit_amounts[]" step="0.01"></td>
+                                                        name="credit_amounts[]"></td>
                                             </tr>
                                             <tr>
                                                 <td>
@@ -1454,8 +1454,8 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                     } else {
                         // Without VAT - use 3% and 1% tax rates as default
                         // Set default tax percentages
-                        tax1PercentageInput.value = "3";
-                        tax2PercentageInput.value = "1";
+                        tax1PercentageInput.value = "0";
+                        tax2PercentageInput.value = "0";
 
                         // Calculate tax amounts based on percentages
                         const tax1Percentage = parseFloat(tax1PercentageInput.value);
@@ -1669,7 +1669,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                     });
 
                     // Update UACS code when selection changes
-                    $(accountSelect).on('change', function() {
+                    $(accountSelect).on('change', function () {
                         const selectedOption = $(this).find('option:selected');
                         if (uacsInput) {
                             uacsInput.value = selectedOption.data('uacs') || '';
@@ -1709,17 +1709,17 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                 // Function to filter account titles
                 function filterAccountTitles(select, selectedType) {
                     const currentValue = $(select).val();
-                    
+
                     // Get all options
                     const options = $(select).find('option');
-                    
+
                     // Filter options based on selected type
-                    options.each(function() {
+                    options.each(function () {
                         if ($(this).val() === "") return; // Skip the "Select Account" option
-                        
+
                         const accountTitle = $(this).data('title')?.toLowerCase() || '';
                         const accountCode = $(this).data('uacs') || '';
-                        
+
                         if (selectedType === "cash_advance") {
                             $(this).toggle(accountTitle.includes('advance'));
                         } else if (selectedType === "transfer_fund") {
@@ -1728,7 +1728,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                             $(this).show();
                         }
                     });
-                    
+
                     // Restore selection if it's still valid
                     if (currentValue && $(select).find(`option[value="${currentValue}"]`).length) {
                         $(select).val(currentValue).trigger('change');
@@ -1752,8 +1752,8 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                             ?>
                         </select>
                     </td>
-                    <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
-                    <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01"></td>
+                    <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" ></td>
+                    <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" ></td>
                 `;
 
                     tableBody.appendChild(newRow);
@@ -1801,9 +1801,9 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                 });
 
                 // Initialize Select2 on existing account selects when the page loads
-                document.addEventListener('DOMContentLoaded', function() {
+                document.addEventListener('DOMContentLoaded', function () {
                     // Initialize Select2 on all existing account selects
-                    $('.account-select').each(function() {
+                    $('.account-select').each(function () {
                         $(this).select2({
                             theme: 'bootstrap-5',
                             width: '100%',
@@ -1811,7 +1811,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                             allowClear: true
                         });
                     });
-                    
+
                     // Setup calculation listeners for existing rows
                     const existingRows = document.querySelectorAll('tbody tr');
                     existingRows.forEach(row => {
