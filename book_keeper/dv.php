@@ -1086,20 +1086,16 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                                 <input type="checkbox" class="apply_taxes" id="apply_taxes">
                                                 <label for="apply_taxes">With VAT</label>
                                             </div>
-
                                         </div>
                                     </div>
 
                                     <div id="tax_fields_container" class="tax-fields">
-                                        <div class="form-row">
-
-                                        </div>
+                                        <div class="form-row"></div>
 
                                         <div class="form-group half-width">
                                             <label class="form-label">VAT <input type="number" class="tax-percentage"
                                                     id="vat_percentage" name="vat" value="12" min="0" max="100"
-                                                    readonly>
-                                                %</label>
+                                                    readonly>%</label>
                                             <input type="number" class="form-control calculation-field" id="vat_amount"
                                                 name="vat_amount" readonly>
                                         </div>
@@ -1133,8 +1129,6 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                         <input type="number" class="form-control calculation-field" id="net_amount"
                                             name="net_amount" readonly>
                                     </div>
-
-
                                 </div>
                             </div>
 
