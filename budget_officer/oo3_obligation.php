@@ -12,11 +12,25 @@ $oopap_result = mysqli_query($connection, $oopap_query);
 $oopap_data = mysqli_fetch_assoc($oopap_result);
 $oopap_description = $oopap_data['description'];
 
-// Base query for filtering
-$where_clause = "WHERE oopap_id = $oopap_id AND YEAR(ors.date) = $selected_year";
+// Base query for filtering obligations in the table
+$table_where_clause = "WHERE oopap_id = $oopap_id AND YEAR(ors.date) = $selected_year";
 if ($selected_month > 0) {
-    $where_clause .= " AND MONTH(ors.date) = $selected_month";
+    $table_where_clause .= " AND MONTH(ors.date) = $selected_month";
 }
+
+// Query for total obligations up to selected month (for balance calculation)
+$balance_where_clause = "WHERE oopap_id = $oopap_id AND YEAR(ors.date) = $selected_year";
+if ($selected_month > 0) {
+    $balance_where_clause .= " AND MONTH(ors.date) <= $selected_month";
+}
+
+// Get total obligations for balance calculation
+$total_obligations_query = "SELECT COALESCE(SUM(ors.total_amount), 0) as total_amount 
+                           FROM obligation_history 
+                           LEFT JOIN ors ON obligation_history.ors_id = ors.ors_id 
+                           $balance_where_clause";
+$total_obligations_result = mysqli_query($connection, $total_obligations_query);
+$total_filtered_amount = mysqli_fetch_assoc($total_obligations_result)['total_amount'];
 
 $select = mysqli_query(
     $connection,
@@ -26,33 +40,28 @@ $select = mysqli_query(
             ors.payee_id, 
             ors.notes, 
             ors.total_amount,
+            ors.oopap_id,
             payee.payee_name 
      FROM obligation_history 
      LEFT JOIN ors ON obligation_history.ors_id = ors.ors_id 
      LEFT JOIN payee ON ors.payee_id = payee.payee_id
-     $where_clause
+     $table_where_clause
      ORDER BY ors.date ASC"
 );
 
-// Calculate total amount for the filtered data
-$total_filtered_amount = 0;
+// Prepare filtered data for table display
 $filtered_data = [];
 while ($row = mysqli_fetch_assoc($select)) {
     $filtered_data[] = $row;
-    $total_filtered_amount += $row['total_amount'];
 }
-// Reset the pointer for later use
-mysqli_data_seek($select, 0);
 
 // Fetch total allotment
 $total_allotment_query = "SELECT SUM(allotment) AS total_allotment FROM project WHERE oopap_id = $oopap_id";
 $total_allotment_result = mysqli_query($connection, $total_allotment_query);
 $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'];
 
-// Fetch total balances
-$total_balances_query = "SELECT SUM(balances) AS total_balances FROM project WHERE oopap_id = $oopap_id";
-$total_balances_result = mysqli_query($connection, $total_balances_query);
-$total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
+// Calculate total balances based on total allotment minus total amount from ORS
+$total_balances = $total_allotment - $total_filtered_amount;
 ?>
 
 <!DOCTYPE html>
@@ -183,19 +192,21 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                             </tr>
                         </thead>
                         <tbody>
-                            <?php while ($row = mysqli_fetch_assoc($select)) { ?>
+                            <?php foreach ($filtered_data as $row) { ?>
                                 <tr>
                                     <td><?php echo date("F-d-Y", strtotime($row['date'])); ?></td>
                                     <td><?php echo htmlspecialchars($row['ors_no']); ?></td>
                                     <td><?php echo htmlspecialchars($row['payee_name']); ?></td>
                                     <td><?php echo htmlspecialchars($row['notes']); ?></td>
                                     <td><?php echo htmlspecialchars(number_format($row['total_amount'], 2)); ?></td>
-                                    <td><button type="button" class="btn btn-primary view-details"
-                                            onclick="window.location.href='ors_form.php?ors_no=<?php echo $row['ors_no']; ?>'">
-                                            <i class="bi bi-eye" data-bs-toggle="tooltip" data-bs-placement="top"
-                                                title="View Details"></i>
-                                        </button></td>
-
+                                    <td>
+                                        <button type="button" class="btn btn-primary view-details" onclick="window.location.href='ors_form.php?ors_no=<?php echo $row['ors_no']; ?>'">
+                                            <i class="bi bi-eye" data-bs-toggle="tooltip" data-bs-placement="top" title="View Details"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-warning change-oopap" data-bs-toggle="modal" data-bs-target="#changeOopapModal" data-ors-id="<?php echo $row['ors_id']; ?>" data-current-oopap="<?php echo $row['oopap_id']; ?>">
+                                            <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top" title="Change OOPAP"></i>
+                                        </button>
+                                    </td>
                                 </tr>
                             <?php } ?>
                         </tbody>
@@ -271,6 +282,82 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
             }
             window.location.href = url;
         }
+
+        // Handle OOPAP change modal
+        document.addEventListener('DOMContentLoaded', function() {
+            const changeOopapModal = document.getElementById('changeOopapModal');
+            if (changeOopapModal) {
+                changeOopapModal.addEventListener('show.bs.modal', function(event) {
+                    const button = event.relatedTarget;
+                    const orsId = button.getAttribute('data-ors-id');
+                    const currentOopap = button.getAttribute('data-current-oopap');
+                    
+                    document.getElementById('orsId').value = orsId;
+                    document.getElementById('oopapSelect').value = currentOopap;
+                });
+            }
+
+            // Handle save button click
+            document.getElementById('saveOopapChange').addEventListener('click', function() {
+                const orsId = document.getElementById('orsId').value;
+                const newOopapId = document.getElementById('oopapSelect').value;
+
+                // Send AJAX request to update OOPAP
+                fetch('update_oopap.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `ors_id=${orsId}&oopap_id=${newOopapId}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('OOPAP updated successfully');
+                        location.reload();
+                    } else {
+                        alert('Error updating OOPAP: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    alert('Error updating OOPAP: ' + error);
+                });
+            });
+        });
+    </script>
+
+    <!-- Change OOPAP Modal -->
+    <div class="modal fade" id="changeOopapModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Change OOPAP</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="changeOopapForm">
+                        <input type="hidden" id="orsId" name="ors_id">
+                        <div class="mb-3">
+                            <label for="oopapSelect" class="form-label">Select OOPAP</label>
+                            <select class="form-select" id="oopapSelect" name="oopap_id" required>
+                                <?php
+                                $oopap_query = "SELECT oopap_id, oopap_name, description FROM oopap";
+                                $oopap_result = mysqli_query($connection, $oopap_query);
+                                while ($oopap = mysqli_fetch_assoc($oopap_result)) {
+                                    echo "<option value='" . $oopap['oopap_id'] . "'>" . htmlspecialchars($oopap['oopap_name']) ." - " . htmlspecialchars($oopap['description']) . "</option>";
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveOopapChange">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
     </script>
 
 </body>
