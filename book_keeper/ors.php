@@ -944,207 +944,209 @@ $ors_result = $connection->query($ors_query);
             calculateTaxes();
         });
 
+    </script>
+
         <!-- JavaScript Code -->
         <script>
             document.addEventListener("DOMContentLoaded", function () {
-    const tableBody = document.querySelector("#accounting-table-body");
-            const addRowContainer = document.querySelector("#add-row-container");
+                const tableBody = document.querySelector("#accounting-table-body");
+                const addRowContainer = document.querySelector("#add-row-container");
 
-            // Function to update total
-            function updateTotal() {
-                let total = 0;
-            document.querySelectorAll(".amount-input").forEach(function (input) {
-                total += parseFloat(input.value) || 0;
-        });
-            document.getElementById("total_amount").value = total.toFixed(2);
-    }
+                // Function to update total
+                function updateTotal() {
+                    let total = 0;
+                    document.querySelectorAll(".amount-input").forEach(function (input) {
+                        total += parseFloat(input.value) || 0;
+                    });
+                    document.getElementById("total_amount").value = total.toFixed(2);
+                }
 
-            // Function to create a new row
-            function createNewRow() {
-        const newRow = document.createElement("tr");
-            newRow.classList.add("entry-row");
+                // Function to create a new row
+                function createNewRow() {
+                    const newRow = document.createElement("tr");
+                    newRow.classList.add("entry-row");
 
-            // Clone the account select options
-            const accountSelect = document.querySelector('select[name="account_id[]"]').cloneNode(true);
-            accountSelect.name = "account_id[]";
-            accountSelect.className = "form-control account-select";
-            accountSelect.value = ""; // Reset selection
+                    // Clone the account select options
+                    const accountSelect = document.querySelector('select[name="account_id[]"]').cloneNode(true);
+                    accountSelect.name = "account_id[]";
+                    accountSelect.className = "form-control account-select";
+                    accountSelect.value = ""; // Reset selection
 
-            // Create account code input
-            const codeInput = document.createElement("input");
-            codeInput.type = "text";
-            codeInput.className = "form-control account-code";
-            codeInput.name = "account_code[]";
-            codeInput.readOnly = true;
+                    // Create account code input
+                    const codeInput = document.createElement("input");
+                    codeInput.type = "text";
+                    codeInput.className = "form-control account-code";
+                    codeInput.name = "account_code[]";
+                    codeInput.readOnly = true;
 
-            // Create amount input
-            const amountInput = document.createElement("input");
-            amountInput.type = "number";
-            amountInput.className = "form-control amount-input";
-            amountInput.name = "amount[]";
-            amountInput.step = "0.01";
-            amountInput.required = true;
+                    // Create amount input
+                    const amountInput = document.createElement("input");
+                    amountInput.type = "number";
+                    amountInput.className = "form-control amount-input";
+                    amountInput.name = "amount[]";
+                    amountInput.step = "0.01";
+                    amountInput.required = true;
 
-            // Create delete button
-            const deleteButton = document.createElement("button");
-            deleteButton.type = "button";
-            deleteButton.className = "btn btn-danger btn-sm delete-row";
-            deleteButton.innerHTML = "Delete";
-            deleteButton.addEventListener("click", function() {
-                newRow.remove();
-            updateTotal();
-        });
+                    // Create delete button
+                    const deleteButton = document.createElement("button");
+                    deleteButton.type = "button";
+                    deleteButton.className = "btn btn-danger btn-sm delete-row";
+                    deleteButton.innerHTML = "Delete";
+                    deleteButton.addEventListener("click", function () {
+                        newRow.remove();
+                        updateTotal();
+                    });
 
-            // Create cells
-            const accountCell = document.createElement("td");
-            accountCell.colSpan = 2;
-            accountCell.appendChild(accountSelect);
+                    // Create cells
+                    const accountCell = document.createElement("td");
+                    accountCell.colSpan = 2;
+                    accountCell.appendChild(accountSelect);
 
-            const codeCell = document.createElement("td");
-            codeCell.appendChild(codeInput);
+                    const codeCell = document.createElement("td");
+                    codeCell.appendChild(codeInput);
 
-            const amountCell = document.createElement("td");
-            amountCell.appendChild(amountInput);
+                    const amountCell = document.createElement("td");
+                    amountCell.appendChild(amountInput);
 
-            const deleteCell = document.createElement("td");
-            deleteCell.appendChild(deleteButton);
+                    const deleteCell = document.createElement("td");
+                    deleteCell.appendChild(deleteButton);
 
-            newRow.appendChild(accountCell);
-            newRow.appendChild(codeCell);
-            newRow.appendChild(amountCell);
-            newRow.appendChild(deleteCell);
+                    newRow.appendChild(accountCell);
+                    newRow.appendChild(codeCell);
+                    newRow.appendChild(amountCell);
+                    newRow.appendChild(deleteCell);
 
-            // Add event listeners
-            amountInput.addEventListener("input", updateTotal);
+                    // Add event listeners
+                    amountInput.addEventListener("input", updateTotal);
 
-            accountSelect.addEventListener("change", function() {
-            const selectedOption = this.options[this.selectedIndex];
-            if (selectedOption && selectedOption.dataset.account_code) {
-                codeInput.value = selectedOption.dataset.account_code;
-            } else {
-                codeInput.value = "";
-            }
-        });
+                    accountSelect.addEventListener("change", function () {
+                        const selectedOption = this.options[this.selectedIndex];
+                        if (selectedOption && selectedOption.dataset.account_code) {
+                            codeInput.value = selectedOption.dataset.account_code;
+                        } else {
+                            codeInput.value = "";
+                        }
+                    });
 
-            return newRow;
-    }
+                    return newRow;
+                }
 
-            // Add new row functionality
-            document.getElementById("addAccountRow").addEventListener("click", function () {
-        const newRow = createNewRow();
-            tableBody.insertBefore(newRow, addRowContainer);
+                // Add new row functionality
+                document.getElementById("addAccountRow").addEventListener("click", function () {
+                    const newRow = createNewRow();
+                    tableBody.insertBefore(newRow, addRowContainer);
 
-            // Apply custom dropdown to the new select
-            setTimeout(function() {
-            const newSelect = newRow.querySelector('select[name="account_id[]"]');
-            if (newSelect && !newSelect.classList.contains('custom-dropdown-processed')) {
-                newSelect.classList.add('custom-dropdown-processed');
-            const container = window.convertToSearchableDropdown(newSelect);
-            window.dropdownContainers.push(container);
-            window.updateAccountOptions();
-            }
-        }, 100);
-    });
-
-            // Add delete buttons to existing rows
-            function addDeleteButtonsToExistingRows() {
-        const existingRows = document.querySelectorAll("#accounting-table-body tr.entry-row");
-        
-        existingRows.forEach(row => {
-            if (!row.querySelector('.delete-row')) {
-                const deleteButton = document.createElement("button");
-            deleteButton.type = "button";
-            deleteButton.className = "btn btn-danger btn-sm delete-row";
-            deleteButton.innerHTML = "Delete";
-
-            deleteButton.addEventListener("click", function() {
-                row.remove();
-            updateTotal();
+                    // Apply custom dropdown to the new select
+                    setTimeout(function () {
+                        const newSelect = newRow.querySelector('select[name="account_id[]"]');
+                        if (newSelect && !newSelect.classList.contains('custom-dropdown-processed')) {
+                            newSelect.classList.add('custom-dropdown-processed');
+                            const container = window.convertToSearchableDropdown(newSelect);
+                            window.dropdownContainers.push(container);
+                            window.updateAccountOptions();
+                        }
+                    }, 100);
                 });
 
-            const deleteCell = document.createElement("td");
-            deleteCell.appendChild(deleteButton);
+                // Add delete buttons to existing rows
+                function addDeleteButtonsToExistingRows() {
+                    const existingRows = document.querySelectorAll("#accounting-table-body tr.entry-row");
 
-            row.appendChild(deleteCell);
-            }
-        });
-    }
+                    existingRows.forEach(row => {
+                        if (!row.querySelector('.delete-row')) {
+                            const deleteButton = document.createElement("button");
+                            deleteButton.type = "button";
+                            deleteButton.className = "btn btn-danger btn-sm delete-row";
+                            deleteButton.innerHTML = "Delete";
 
-            addDeleteButtonsToExistingRows();
+                            deleteButton.addEventListener("click", function () {
+                                row.remove();
+                                updateTotal();
+                            });
 
-    // Set up event listeners for existing amount inputs
-    document.querySelectorAll(".amount-input").forEach(input => {
-                input.addEventListener("input", updateTotal);
-    });
+                            const deleteCell = document.createElement("td");
+                            deleteCell.appendChild(deleteButton);
 
-    // Set up event listeners for existing account selects
-    document.querySelectorAll(".account-select").forEach(select => {
-                select.addEventListener("change", function () {
-                    const selectedOption = this.options[this.selectedIndex];
-                    const row = this.closest("tr");
+                            row.appendChild(deleteCell);
+                        }
+                    });
+                }
+
+                addDeleteButtonsToExistingRows();
+
+                // Set up event listeners for existing amount inputs
+                document.querySelectorAll(".amount-input").forEach(input => {
+                    input.addEventListener("input", updateTotal);
+                });
+
+                // Set up event listeners for existing account selects
+                document.querySelectorAll(".account-select").forEach(select => {
+                    select.addEventListener("change", function () {
+                        const selectedOption = this.options[this.selectedIndex];
+                        const row = this.closest("tr");
+                        const codeInput = row.querySelector(".account-code");
+
+                        if (selectedOption && selectedOption.dataset.account_code) {
+                            codeInput.value = selectedOption.dataset.account_code;
+                        } else {
+                            codeInput.value = "";
+                        }
+                    });
+                });
+
+                // Initialize account codes for existing rows
+                document.querySelectorAll(".account-select").forEach(select => {
+                    const selectedOption = select.options[select.selectedIndex];
+                    const row = select.closest("tr");
                     const codeInput = row.querySelector(".account-code");
 
                     if (selectedOption && selectedOption.dataset.account_code) {
                         codeInput.value = selectedOption.dataset.account_code;
-                    } else {
-                        codeInput.value = "";
                     }
                 });
-    });
-
-    // Initialize account codes for existing rows
-    document.querySelectorAll(".account-select").forEach(select => {
-        const selectedOption = select.options[select.selectedIndex];
-            const row = select.closest("tr");
-            const codeInput = row.querySelector(".account-code");
-
-            if (selectedOption && selectedOption.dataset.account_code) {
-                codeInput.value = selectedOption.dataset.account_code;
-        }
-    });
-});
-    </script>
+            });
+        </script>
 
     <!-- approver -->
 
     <script>
-            document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", function () {
             const approverSelect = document.getElementById("approverSelect");
             const designationLabel = document.getElementById("designationLabel");
 
             approverSelect.addEventListener("change", function () {
-              
-                const selectedOption = approverSelect.options[approverSelect.selectedIndex];
-            const designation = selectedOption.getAttribute("data-designation") || "Designation";
 
-            designationLabel.textContent = designation;
+                const selectedOption = approverSelect.options[approverSelect.selectedIndex];
+                const designation = selectedOption.getAttribute("data-designation") || "Designation";
+
+                designationLabel.textContent = designation;
             });
         });
     </script>
 
     <!-- dv_number -->
     <script>
-            document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", function () {
             const fundClusterSelect = document.getElementById("fundCluster");
             const dvDateInput = document.getElementById("dvDate");
             const orsNumberInput = document.getElementById("orsNumber");
 
             function generateorsNumber() {
                 const selectedUACS = fundClusterSelect.value;
-            const selectedDate = dvDateInput.value;
+                const selectedDate = dvDateInput.value;
 
-            if (!selectedUACS || !selectedDate) {
-                orsNumberInput.value = "";
-            return;
+                if (!selectedUACS || !selectedDate) {
+                    orsNumberInput.value = "";
+                    return;
                 }
 
-            const dateObj = new Date(selectedDate);
-            const year = dateObj.getFullYear();
-            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                const dateObj = new Date(selectedDate);
+                const year = dateObj.getFullYear();
+                const month = String(dateObj.getMonth() + 1).padStart(2, '0');
 
-            const lastSequence = "<?php echo $new_sequence; ?>";
+                const lastSequence = "<?php echo $new_sequence; ?>";
 
-            const orsNumber = `${selectedUACS}-${year}-${month}-${lastSequence}`;
+                const orsNumber = `${selectedUACS}-${year}-${month}-${lastSequence}`;
                 orsNumberInput.value = orsNumber;
             }
 
@@ -1173,26 +1175,26 @@ $ors_result = $connection->query($ors_query);
 
 
     <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                function updateTotal() {
-                    let total = 0;
-                    document.querySelectorAll(".amount-input").forEach(function (input) {
-                        total += parseFloat(input.value) || 0;
-                    });
-                    document.getElementById("total_amount").value = total.toFixed(2);
-                }
+        document.addEventListener("DOMContentLoaded", function () {
+            function updateTotal() {
+                let total = 0;
+                document.querySelectorAll(".amount-input").forEach(function (input) {
+                    total += parseFloat(input.value) || 0;
+                });
+                document.getElementById("total_amount").value = total.toFixed(2);
+            }
 
             // Listen for input changes
             document.getElementById("accounting-table-body").addEventListener("input", function (event) {
                 if (event.target.classList.contains("amount-input")) {
-                updateTotal();
+                    updateTotal();
                 }
             });
         });
     </script>
 
     <script>
-            document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", function () {
             const accountSelect = document.querySelector('select[name="account_id[]"]');
             const oopapSelect = document.querySelector('select[name="oopap_id"]');
             const amountInput = document.querySelector('.amount-input');
@@ -1207,22 +1209,22 @@ $ors_result = $connection->query($ors_query);
 
             async function checkAllotment() {
                 const accountId = accountSelect.value;
-            const oopapId = oopapSelect.value;
-            const amount = parseFloat(amountInput.value) || 0;
+                const oopapId = oopapSelect.value;
+                const amount = parseFloat(amountInput.value) || 0;
 
-            if (!accountId || !oopapId || amount === 0) {
-                projectIdInput.value = '';
-            warningMessage.style.display = 'none';
-            return;
+                if (!accountId || !oopapId || amount === 0) {
+                    projectIdInput.value = '';
+                    warningMessage.style.display = 'none';
+                    return;
                 }
 
-            try {
+                try {
                     const response = await fetch('check_allotment.php', {
-                method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
                         },
-            body: `account_id=${accountId}&oopap_id=${oopapId}&amount=${amount}`
+                        body: `account_id=${accountId}&oopap_id=${oopapId}&amount=${amount}`
                     });
 
                     const data = await response.json();
@@ -1252,7 +1254,7 @@ $ors_result = $connection->query($ors_query);
 
     <!-- services -->
     <script>
-            document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", function () {
             const oopapSelect = document.querySelector('select[name="oopap_id"]');
             const servicesSelect = document.getElementById('services');
             const dateInput = document.getElementById('dvDate');
@@ -1260,31 +1262,31 @@ $ors_result = $connection->query($ors_query);
 
             function updateServices(oopapId) {
                 if (!oopapId) {
-                servicesSelect.innerHTML = '<option selected disabled>Select Services</option>';
-            return;
+                    servicesSelect.innerHTML = '<option selected disabled>Select Services</option>';
+                    return;
                 }
 
-            fetch('get_filtered_services.php', {
-                method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
+                fetch('get_filtered_services.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
                     },
-            body: `oopap_id=${oopapId}`
+                    body: `oopap_id=${oopapId}`
                 })
                     .then(response => response.json())
                     .then(services => {
-                servicesSelect.innerHTML = '<option selected disabled>Select Services</option>';
+                        servicesSelect.innerHTML = '<option selected disabled>Select Services</option>';
                         services.forEach(service => {
                             const option = document.createElement('option');
-            option.value = service.services_id;
-            option.textContent = service.services_name;
-            option.setAttribute('data-code', service.code);
-            servicesSelect.appendChild(option);
+                            option.value = service.services_id;
+                            option.textContent = service.services_name;
+                            option.setAttribute('data-code', service.code);
+                            servicesSelect.appendChild(option);
                         });
                     })
                     .catch(error => {
-                console.error('Error:', error);
-            servicesSelect.innerHTML = '<option selected disabled>Error loading services</option>';
+                        console.error('Error:', error);
+                        servicesSelect.innerHTML = '<option selected disabled>Error loading services</option>';
                     });
             }
 
@@ -1294,50 +1296,50 @@ $ors_result = $connection->query($ors_query);
 
             function generateORSNumber() {
                 const selectedService = servicesSelect.options[servicesSelect.selectedIndex];
-            const selectedDate = dateInput.value;
+                const selectedDate = dateInput.value;
 
-            if (!selectedService || selectedService.disabled || !selectedDate) {
+                if (!selectedService || selectedService.disabled || !selectedDate) {
                     return;
                 }
 
-            const serviceCode = selectedService.getAttribute('data-code');
-            const date = new Date(selectedDate);
-            const year = date.getFullYear().toString().substr(-2);
-            const month = String(date.getMonth() + 1).padStart(2, '0');
+                const serviceCode = selectedService.getAttribute('data-code');
+                const date = new Date(selectedDate);
+                const year = date.getFullYear().toString().substr(-2);
+                const month = String(date.getMonth() + 1).padStart(2, '0');
 
-            // Check if the service code is ADMIN&POLICY
-            if (serviceCode === 'ADMIN&POLICY') {
-                fetch('get_next_ors_sequence.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `service_code=ADMIN&POLICY&year=${year}&month=${month}`
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        const sequence = String(data.next_sequence).padStart(3, '0');
-                        orsNoInput.value = `ADMIN&POLICY-${year}-${month}-${sequence}`;
+                // Check if the service code is ADMIN&POLICY
+                if (serviceCode === 'ADMIN&POLICY') {
+                    fetch('get_next_ors_sequence.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `service_code=ADMIN&POLICY&year=${year}&month=${month}`
                     })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
+                        .then(response => response.json())
+                        .then(data => {
+                            const sequence = String(data.next_sequence).padStart(3, '0');
+                            orsNoInput.value = `ADMIN&POLICY-${year}-${month}-${sequence}`;
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
                 } else {
-                fetch('get_next_ors_sequence.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `service_code=${serviceCode}&year=${year}&month=${month}`
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        const sequence = String(data.next_sequence).padStart(3, '0');
-                        orsNoInput.value = `${serviceCode}-${year}-${month}-${sequence}`;
+                    fetch('get_next_ors_sequence.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `service_code=${serviceCode}&year=${year}&month=${month}`
                     })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
+                        .then(response => response.json())
+                        .then(data => {
+                            const sequence = String(data.next_sequence).padStart(3, '0');
+                            orsNoInput.value = `${serviceCode}-${year}-${month}-${sequence}`;
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
                 }
             }
 
@@ -1347,7 +1349,7 @@ $ors_result = $connection->query($ors_query);
     </script>
 
     <script>
-            document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", function () {
             const oopapSelect = document.querySelector('select[name="oopap_id"]');
             const accountSelects = document.querySelectorAll('select[name="account_id[]"]');
 
@@ -1356,21 +1358,21 @@ $ors_result = $connection->query($ors_query);
 
                 accountSelects.forEach(select => {
                     const currentValue = select.value;
-            const options = select.options;
-            for (let i = 0; i < options.length; i++) {
+                    const options = select.options;
+                    for (let i = 0; i < options.length; i++) {
                         const option = options[i];
-            if (option.value === "") continue;
+                        if (option.value === "") continue;
 
-            const optionOopapId = option.getAttribute('data-oopap_id');
-            if (optionOopapId === selectedOopapId) {
-                option.style.display = '';
+                        const optionOopapId = option.getAttribute('data-oopap_id');
+                        if (optionOopapId === selectedOopapId) {
+                            option.style.display = '';
                         } else {
-                option.style.display = 'none';
+                            option.style.display = 'none';
                         }
                     }
 
-            if (currentValue && options[select.selectedIndex].style.display === 'none') {
-                select.value = "";
+                    if (currentValue && options[select.selectedIndex].style.display === 'none') {
+                        select.value = "";
                     }
                 });
             }
@@ -1379,125 +1381,125 @@ $ors_result = $connection->query($ors_query);
         });
     </script>
 <script>
-            document.getElementById('yearFilter').addEventListener('change', applyFilter);
-            document.getElementById('monthFilter').addEventListener('change', applyFilter);
-            document.getElementById('servicesFilter').addEventListener('change', applyFilter);
+    document.getElementById('yearFilter').addEventListener('change', applyFilter);
+    document.getElementById('monthFilter').addEventListener('change', applyFilter);
+    document.getElementById('servicesFilter').addEventListener('change', applyFilter);
 
-            function applyFilter() {
+    function applyFilter() {
         var year = document.getElementById('yearFilter').value;
-            var month = document.getElementById('monthFilter').value;
-            var service = document.getElementById('servicesFilter').value;
-            var newUrl = window.location.origin + window.location.pathname + '?year=' + year + '&month=' + month + '&service=' + service;
-            window.location.href = newUrl + '#orsList'; 
+        var month = document.getElementById('monthFilter').value;
+        var service = document.getElementById('servicesFilter').value;
+        var newUrl = window.location.origin + window.location.pathname + '?year=' + year + '&month=' + month + '&service=' + service;
+        window.location.href = newUrl + '#orsList';
     }
 </script>
 
     <!-- Custom Searchable Dropdown Implementation -->
     <script>
-            document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             const dropdownContainers = [];
 
             function convertToSearchableDropdown(selectElement) {
                 const dropdownContainer = document.createElement('div');
-            dropdownContainer.className = 'custom-dropdown';
+                dropdownContainer.className = 'custom-dropdown';
 
-            const dropdownToggle = document.createElement('div');
-            dropdownToggle.className = 'dropdown-toggle';
-            dropdownToggle.textContent = selectElement.options[selectElement.selectedIndex]?.text || 'Select Account';
+                const dropdownToggle = document.createElement('div');
+                dropdownToggle.className = 'dropdown-toggle';
+                dropdownToggle.textContent = selectElement.options[selectElement.selectedIndex]?.text || 'Select Account';
 
-            const dropdownMenu = document.createElement('div');
-            dropdownMenu.className = 'dropdown-menu';
+                const dropdownMenu = document.createElement('div');
+                dropdownMenu.className = 'dropdown-menu';
 
-            const searchBox = document.createElement('div');
-            searchBox.className = 'search-box';
-            const searchInput = document.createElement('input');
-            searchInput.type = 'text';
-            searchInput.placeholder = 'Search...';
-            searchBox.appendChild(searchInput);
-            dropdownMenu.appendChild(searchBox);
+                const searchBox = document.createElement('div');
+                searchBox.className = 'search-box';
+                const searchInput = document.createElement('input');
+                searchInput.type = 'text';
+                searchInput.placeholder = 'Search...';
+                searchBox.appendChild(searchInput);
+                dropdownMenu.appendChild(searchBox);
 
-            const dropdownItems = document.createElement('div');
-            dropdownItems.className = 'dropdown-items';
-                
+                const dropdownItems = document.createElement('div');
+                dropdownItems.className = 'dropdown-items';
+
                 Array.from(selectElement.options).forEach(option => {
                     if (option.value === '') return;
-            const dropdownItem = document.createElement('div');
-            dropdownItem.className = 'dropdown-item';
-            dropdownItem.dataset.value = option.value;
-            dropdownItem.dataset.oopapId = option.getAttribute('data-oopap_id');
-            dropdownItem.dataset.accountCode = option.getAttribute('data-account_code');
+                    const dropdownItem = document.createElement('div');
+                    dropdownItem.className = 'dropdown-item';
+                    dropdownItem.dataset.value = option.value;
+                    dropdownItem.dataset.oopapId = option.getAttribute('data-oopap_id');
+                    dropdownItem.dataset.accountCode = option.getAttribute('data-account_code');
 
-            // Include account code in the display text
-            const accountCode = option.getAttribute('data-account_code') || '';
-            const displayText = accountCode ? `${option.text} (${accountCode})` : option.text;
-            dropdownItem.textContent = displayText;
+                    // Include account code in the display text
+                    const accountCode = option.getAttribute('data-account_code') || '';
+                    const displayText = accountCode ? `${option.text} (${accountCode})` : option.text;
+                    dropdownItem.textContent = displayText;
 
-            dropdownItem.addEventListener('click', function() {
-                selectElement.value = this.dataset.value;
-            dropdownToggle.textContent = displayText;
-            dropdownMenu.classList.remove('show');
-                        
+                    dropdownItem.addEventListener('click', function () {
+                        selectElement.value = this.dataset.value;
+                        dropdownToggle.textContent = displayText;
+                        dropdownMenu.classList.remove('show');
+
                         dropdownItems.querySelectorAll('.dropdown-item').forEach(item => {
-                item.classList.remove('selected');
+                            item.classList.remove('selected');
                         });
-            this.classList.add('selected');
+                        this.classList.add('selected');
 
-            // Update the account code input
-            const row = selectElement.closest('tr');
-            const codeInput = row.querySelector('.account-code');
-            if (codeInput && this.dataset.accountCode) {
-                codeInput.value = this.dataset.accountCode;
+                        // Update the account code input
+                        const row = selectElement.closest('tr');
+                        const codeInput = row.querySelector('.account-code');
+                        if (codeInput && this.dataset.accountCode) {
+                            codeInput.value = this.dataset.accountCode;
                         }
 
-            const event = new Event('change', {bubbles: true });
-            selectElement.dispatchEvent(event);
+                        const event = new Event('change', { bubbles: true });
+                        selectElement.dispatchEvent(event);
                     });
 
-            dropdownItems.appendChild(dropdownItem);
+                    dropdownItems.appendChild(dropdownItem);
                 });
 
-            dropdownMenu.appendChild(dropdownItems);
-            dropdownToggle.addEventListener('click', function(e) {
-                e.stopPropagation();
-            dropdownMenu.classList.toggle('show');
-            if (dropdownMenu.classList.contains('show')) {
-                searchInput.focus();
+                dropdownMenu.appendChild(dropdownItems);
+                dropdownToggle.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    dropdownMenu.classList.toggle('show');
+                    if (dropdownMenu.classList.contains('show')) {
+                        searchInput.focus();
                     }
                 });
 
-            searchInput.addEventListener('input', function() {
+                searchInput.addEventListener('input', function () {
                     const searchTerm = this.value.toLowerCase();
                     dropdownItems.querySelectorAll('.dropdown-item').forEach(item => {
                         const text = item.textContent.toLowerCase();
-            if (text.includes(searchTerm)) {
-                item.style.display = '';
+                        if (text.includes(searchTerm)) {
+                            item.style.display = '';
                         } else {
-                item.style.display = 'none';
+                            item.style.display = 'none';
                         }
                     });
                 });
 
-            document.addEventListener('click', function(e) {
+                document.addEventListener('click', function (e) {
                     if (!dropdownContainer.contains(e.target)) {
-                dropdownMenu.classList.remove('show');
+                        dropdownMenu.classList.remove('show');
                     }
                 });
 
-            selectElement.style.display = 'none';
-            dropdownContainer.appendChild(dropdownToggle);
-            dropdownContainer.appendChild(dropdownMenu);
-            selectElement.parentNode.insertBefore(dropdownContainer, selectElement);
+                selectElement.style.display = 'none';
+                dropdownContainer.appendChild(dropdownToggle);
+                dropdownContainer.appendChild(dropdownMenu);
+                selectElement.parentNode.insertBefore(dropdownContainer, selectElement);
 
-            return dropdownContainer;
+                return dropdownContainer;
             }
 
             const accountSelects = document.querySelectorAll('select[name="account_id[]"]');
-            
+
             accountSelects.forEach(select => {
                 if (!select.classList.contains('custom-dropdown-processed')) {
-                select.classList.add('custom-dropdown-processed');
-            const container = convertToSearchableDropdown(select);
-            dropdownContainers.push(container);
+                    select.classList.add('custom-dropdown-processed');
+                    const container = convertToSearchableDropdown(select);
+                    dropdownContainers.push(container);
                 }
             });
 
@@ -1505,25 +1507,25 @@ $ors_result = $connection->query($ors_query);
 
             function updateAccountOptions() {
                 const selectedOopapId = oopapSelect.value;
-                
+
                 dropdownContainers.forEach(container => {
                     const dropdownItems = container.querySelectorAll('.dropdown-item');
-            const selectElement = container.nextElementSibling;
-                    
+                    const selectElement = container.nextElementSibling;
+
                     dropdownItems.forEach(item => {
                         const itemOopapId = item.dataset.oopapId;
-            if (selectedOopapId && itemOopapId !== selectedOopapId) {
-                item.style.display = 'none';
+                        if (selectedOopapId && itemOopapId !== selectedOopapId) {
+                            item.style.display = 'none';
                         } else {
-                item.style.display = '';
+                            item.style.display = '';
                         }
                     });
 
-            if (selectedOopapId) {
+                    if (selectedOopapId) {
                         const selectedItem = container.querySelector(`.dropdown-item[data-value="${selectElement.value}"]`);
-            if (selectedItem && selectedItem.dataset.oopapId !== selectedOopapId) {
-                selectElement.value = '';
-            container.querySelector('.dropdown-toggle').textContent = 'Select Account';
+                        if (selectedItem && selectedItem.dataset.oopapId !== selectedOopapId) {
+                            selectElement.value = '';
+                            container.querySelector('.dropdown-toggle').textContent = 'Select Account';
                         }
                     }
                 });
@@ -1531,7 +1533,7 @@ $ors_result = $connection->query($ors_query);
 
             if (oopapSelect) {
                 oopapSelect.addEventListener('change', updateAccountOptions);
-            updateAccountOptions();
+                updateAccountOptions();
             }
 
             // Make the convertToSearchableDropdown function available globally
