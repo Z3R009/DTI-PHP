@@ -97,7 +97,7 @@
         </li>
 
         <li class="nav-item">
-            <a class="nav-link collapsed" href="reports_copy.php">
+            <a class="nav-link collapsed" href="reports.php">
                 <i class="bi bi-journal-text"></i>
                 <span>Reports</span>
             </a>
