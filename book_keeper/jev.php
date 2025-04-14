@@ -843,6 +843,7 @@ WHERE dv.status = 'Pending'
                                                     echo htmlspecialchars($date->format('F j, Y')); // Example: "April 7, 2025"
                                                     ?>
                                                 </td>
+                                                <td><?php echo htmlspecialchars($row['fund_cluster']); ?></td>
                                                 <td><?php echo htmlspecialchars($row['payee_name']); ?></td>
                                                 <td><?php echo htmlspecialchars($row['account_title']); ?></td>
                                                 <td><?php echo htmlspecialchars($row['ors_total_amount']); ?></td>
@@ -883,6 +884,10 @@ WHERE dv.status = 'Pending'
                         <div class="form-section">
                             <div class="form-row">
                                 <div class="form-group">
+                                    <label class="form-label">Fund Cluster</label>
+                                    <input type="text" class="form-control" id="fund_cluster" name="fund_cluster">
+                                </div>
+                                <div class="form-group">
                                     <label class="form-label">Date</label>
                                     <input type="date" class="form-control" id="date" name="date">
                                 </div>
@@ -896,7 +901,8 @@ WHERE dv.status = 'Pending'
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">JEV No.</label>
-                                    <input type="text" class="form-control" name="jev_no" autocomplete="off">
+                                    <input type="text" class="form-control" name="jev_no" id="jev_no"
+                                        autocomplete="off">
                                 </div>
                             </div>
                         </div>
@@ -998,6 +1004,7 @@ WHERE dv.status = 'Pending'
                                 document.getElementById('ors_no').value = data.ors_no;
                                 document.getElementById('dv_no').value = data.dv_no;
                                 document.getElementById('payee_name').value = data.payee_name;
+                                document.getElementById('fund_cluster').value = data.fund_cluster;
 
                                 // Populate the accounts table dynamically
                                 const tableBody = document.querySelector('#dvFormModal table tbody');
@@ -1291,18 +1298,18 @@ WHERE dv.status = 'Pending'
                     formData.append("date", dateInput.value);
                 }
 
-                fetch("fetch_dv_number.php", {
+                fetch("fetch_jev_no.php", {
                     method: "POST",
                     body: formData,
                 })
                     .then(response => response.json())
                     .then(data => {
                         console.log("Fetched DV Data:", data); // Debugging
-                        let dvNoInput = document.getElementById("dv_no");
+                        let dvNoInput = document.getElementById("jev_no");
 
                         if (dvNoInput) {
                             if (data.success) {
-                                dvNoInput.value = data.dv_no;
+                                dvNoInput.value = data.jev_no;
                                 console.log("DV No Set:", dvNoInput.value);
                             } else {
                                 console.error("Error fetching DV number:", data.error);

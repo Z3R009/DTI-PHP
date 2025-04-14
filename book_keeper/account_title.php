@@ -101,31 +101,36 @@ $select = mysqli_query($connection, "SELECT * FROM account_title $where ORDER BY
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h5 class="card-title mb-0">Account Titles List</h5>
-                        <button type="button" class="btn btn-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                        <button type="button" class="btn btn-primary rounded-pill" data-bs-toggle="modal"
+                            data-bs-target="#addUserModal">
                             <i class="bi bi-plus-circle me-1"></i> Add Account Title
                         </button>
                     </div>
 
                     <!-- Modal for Add User Form -->
-                    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+                    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel"
+                        aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content border-0 shadow">
                                 <div class="modal-header border-0 pb-0">
                                     <h5 class="modal-title fw-bold" id="addUserModalLabel">Add New Account Title</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body pt-0">
                                     <form method="post" id="addUserForm" class="needs-validation" novalidate>
                                         <div class="mb-3">
                                             <label for="account_title" class="form-label">Account Title</label>
-                                            <input type="text" class="form-control" id="account_title" name="account_title" 
-                                                placeholder="Enter Account Title" required autocomplete="off">
+                                            <input type="text" class="form-control" id="account_title"
+                                                name="account_title" placeholder="Enter Account Title" required
+                                                autocomplete="off">
                                             <div class="invalid-feedback">Please enter an account title.</div>
                                         </div>
                                         <div class="mb-3">
                                             <label for="account_code" class="form-label">Account Code</label>
-                                            <input type="number" class="form-control" id="account_code" name="account_code" 
-                                                placeholder="Enter Account Code" required autocomplete="off">
+                                            <input type="number" class="form-control" id="account_code"
+                                                name="account_code" placeholder="Enter Account Code" required
+                                                autocomplete="off">
                                             <div class="invalid-feedback">Please enter an account code.</div>
                                         </div>
                                         <div class="modal-footer border-0 pt-0">
@@ -159,16 +164,18 @@ $select = mysqli_query($connection, "SELECT * FROM account_title $where ORDER BY
                                         <td><?php echo htmlspecialchars($row['account_code']); ?></td>
                                         <td class="text-end">
                                             <div class="btn-group" role="group">
-                                                <button type="button" class="btn btn-sm btn-outline-primary edit-btn" 
-                                                    data-bs-toggle="modal" data-bs-target="#editModal" 
+                                                <button type="button" class="btn btn-sm btn-outline-primary edit-btn"
+                                                    data-bs-toggle="modal" data-bs-target="#editModal"
                                                     data-id="<?php echo $row['account_id']; ?>"
                                                     data-account_title="<?php echo htmlspecialchars($row['account_title']); ?>"
                                                     data-account_code="<?php echo htmlspecialchars($row['account_code']); ?>">
-                                                    <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"></i>
+                                                    <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top"
+                                                        title="Edit"></i>
                                                 </button>
-                                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                <button type="button" class="btn btn-sm btn-outline-danger"
                                                     onclick="deleteUser(<?php echo $row['account_id']; ?>)">
-                                                    <i class="bi bi-trash" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"></i>
+                                                    <i class="bi bi-trash" data-bs-toggle="tooltip" data-bs-placement="top"
+                                                        title="Delete"></i>
                                                 </button>
                                             </div>
                                         </td>
@@ -191,16 +198,19 @@ $select = mysqli_query($connection, "SELECT * FROM account_title $where ORDER BY
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body mb-4">
-                    <form method="post" id="editUserForm" action="update_account.php" class="needs-validation" novalidate>
+                    <form method="post" id="editUserForm" action="update_account.php" class="needs-validation"
+                        novalidate>
                         <input type="hidden" id="edit_account_id" name="account_id">
                         <div class="mb-4">
                             <label for="edit_account_title" class="form-label">Account Title</label>
-                            <input type="text" class="form-control" id="edit_account_title" name="account_title" required autocomplete="off">
+                            <input type="text" class="form-control" id="edit_account_title" name="account_title"
+                                required autocomplete="off">
                             <div class="invalid-feedback">Please enter an account title.</div>
                         </div>
                         <div class="mb-4">
                             <label for="edit_account_code" class="form-label">Account Code</label>
-                            <input type="number" class="form-control" id="edit_account_code" name="account_code" required autocomplete="off">
+                            <input type="number" class="form-control" id="edit_account_code" name="account_code"
+                                required autocomplete="off">
                             <div class="invalid-feedback">Please enter an account code.</div>
                         </div>
                         <div class="modal-footer border-0 pt-0">
