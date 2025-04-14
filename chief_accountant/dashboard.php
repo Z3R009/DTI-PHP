@@ -66,8 +66,8 @@ $endorsed_dv_count = $endorsed_row['endorsed_count'];
 
     
 
-    <?php include "Includes/header.php";?>
-    <?php include "Includes/sidebar.php";?>
+    <?php include "Includes/header.php"; ?>
+    <?php include "Includes/sidebar.php"; ?>
 
  <main id="main" class="main">
 <div class="pagetitle">
