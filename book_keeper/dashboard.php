@@ -6,7 +6,7 @@ $ors_query = "SELECT COUNT(*) as total_ors, SUM(total_amount) as total_amount FR
 $ors_result = $connection->query($ors_query);
 $ors_data = $ors_result->fetch_assoc();
 
-$dv_query = "SELECT COUNT(*) as total_dv, SUM(total_amount) as total_amount FROM dv";
+$dv_query = "SELECT COUNT(*) as total_dv, SUM(total_amount) as total_amount FROM dv ";
 $dv_result = $connection->query($dv_query);
 $dv_data = $dv_result->fetch_assoc();
 

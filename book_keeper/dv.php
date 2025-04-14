@@ -24,6 +24,7 @@ if (isset($_POST['submit'])) {
     $net_amount = $_POST['net_amount'];
     $chief_accountant = $_POST['chief_accountant'];
     $regional_director = $_POST['regional_director'];
+    $total_amount = $_POST['total_amount'];
 
     // Get the account titles and amounts arrays
     $account_titles = $_POST['account_titles'];
@@ -53,8 +54,8 @@ if (isset($_POST['submit'])) {
         $ors_stmt->close();
 
         // Insert the main DV record
-        $sql = "INSERT INTO dv (date, dv_no, ors_id, vat, vat_amount, tax_base, tax_1, tax_1_amount, tax_2, tax_2_amount, net_amount, chief_accountant, regional_director) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO dv (date, dv_no, ors_id, vat, vat_amount, tax_base, tax_1,  tax_1_amount, tax_2, tax_2_amount, net_amount, chief_accountant, regional_director,total_amount) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?)";
 
         $stmt = $connection->prepare($sql);
         if ($stmt === false) {
@@ -62,7 +63,7 @@ if (isset($_POST['submit'])) {
         }
 
         $stmt->bind_param(
-            "ssiddddddddss",
+            "ssiddddddddssd",
             $date,
             $dv_no,
             $ors_id,
@@ -75,7 +76,8 @@ if (isset($_POST['submit'])) {
             $tax_2_amount,
             $net_amount,
             $chief_accountant,
-            $regional_director
+            $regional_director,
+            $total_amount,
         );
 
         if (!$stmt->execute()) {
@@ -1354,7 +1356,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                     <div class="form-row">
                                         <div class="form-group half-width">
                                             <label class="form-label">Gross Amount</label>
-                                            <input type="number" class="form-control" id="total_amount" step="0.01"
+                                            <input type="number" class="form-control" name="total_amount" id="total_amount" step="0.01"
                                                 readonly>
                                         </div>
                                         <div class="form-group half-width">
