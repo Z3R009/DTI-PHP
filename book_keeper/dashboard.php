@@ -374,7 +374,7 @@ $monthly_amounts = array_reverse($monthly_amounts);
             <div class="row">
                 <!-- ORS Card -->
                 <div class="col-xxl-4 col-md-6">
-                    <div class="card info-card sales-card">
+                    <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">ORS <span>| Total</span></h5>
                             <div class="d-flex align-items-center">
@@ -392,7 +392,7 @@ $monthly_amounts = array_reverse($monthly_amounts);
 
                 <!-- DV Card -->
                 <div class="col-xxl-4 col-md-6">
-                    <div class="card info-card revenue-card">
+                    <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">DV <span>| Total</span></h5>
                             <div class="d-flex align-items-center">
@@ -410,7 +410,7 @@ $monthly_amounts = array_reverse($monthly_amounts);
 
                 <!-- JEV Card -->
                 <div class="col-xxl-4 col-md-6">
-                    <div class="card info-card customers-card">
+                    <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">JEV <span>| Total</span></h5>
                             <div class="d-flex align-items-center">
@@ -428,7 +428,7 @@ $monthly_amounts = array_reverse($monthly_amounts);
 
                 <!-- Pending ORS Card -->
                 <div class="col-xxl-4 col-md-6">
-                    <div class="card info-card sales-card">
+                    <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">Pending ORS <span>| For Processing</span></h5>
                             <div class="d-flex align-items-center">
@@ -449,6 +449,16 @@ $monthly_amounts = array_reverse($monthly_amounts);
                 <!-- Monthly ORS Chart -->
                 <div class="col-12">
                     <div class="card">
+                        <div class="filter">
+                            <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                                <li class="dropdown-header text-start">
+                                    <h6>Filter</h6>
+                                </li>
+                                <li><a class="dropdown-item" href="#">This Month</a></li>
+                                <li><a class="dropdown-item" href="#">This Year</a></li>
+                            </ul>
+                        </div>
                         <div class="card-body">
                             <h5 class="card-title">Monthly ORS Overview</h5>
                             <div class="chart-container">
@@ -462,12 +472,18 @@ $monthly_amounts = array_reverse($monthly_amounts);
             <div class="row">
                 <!-- Recent ORS -->
                 <div class="col-12">
-                    <div class="card recent-sales overflow-auto">
+                    <div class="card">
+                        <div class="filter">
+                            <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                                <li class="dropdown-header text-start">
+                                    <h6>Filter</h6>
+                                </li>
+                                <li><a class="dropdown-item" href="ors.php">View All</a></li>
+                            </ul>
+                        </div>
                         <div class="card-body">
-                            <div class="table-title">
-                                <h5 class="card-title">Recent ORS</h5>
-                                <a href="ors.php" class="view-all">View All <i class="bi bi-arrow-right"></i></a>
-                            </div>
+                            <h5 class="card-title">Recent ORS</h5>
                             <div class="table-responsive">
                                 <table class="table table-borderless datatable">
                                     <thead>
@@ -510,12 +526,18 @@ $monthly_amounts = array_reverse($monthly_amounts);
             <div class="row">
                 <!-- Recent DV -->
                 <div class="col-12">
-                    <div class="card recent-sales overflow-auto">
+                    <div class="card">
+                        <div class="filter">
+                            <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                                <li class="dropdown-header text-start">
+                                    <h6>Filter</h6>
+                                </li>
+                                <li><a class="dropdown-item" href="dv.php">View All</a></li>
+                            </ul>
+                        </div>
                         <div class="card-body">
-                            <div class="table-title">
-                                <h5 class="card-title">Recent DV</h5>
-                                <a href="dv.php" class="view-all">View All <i class="bi bi-arrow-right"></i></a>
-                            </div>
+                            <h5 class="card-title">Recent DV</h5>
                             <div class="table-responsive">
                                 <table class="table table-borderless datatable">
                                     <thead>
@@ -556,12 +578,18 @@ $monthly_amounts = array_reverse($monthly_amounts);
             <div class="row">
                 <!-- Recent JEV -->
                 <div class="col-12">
-                    <div class="card recent-sales overflow-auto">
+                    <div class="card">
+                        <div class="filter">
+                            <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                                <li class="dropdown-header text-start">
+                                    <h6>Filter</h6>
+                                </li>
+                                <li><a class="dropdown-item" href="jev.php">View All</a></li>
+                            </ul>
+                        </div>
                         <div class="card-body">
-                            <div class="table-title">
-                                <h5 class="card-title">Recent JEV</h5>
-                                <a href="jev.php" class="view-all">View All <i class="bi bi-arrow-right"></i></a>
-                            </div>
+                            <h5 class="card-title">Recent JEV</h5>
                             <div class="table-responsive">
                                 <table class="table table-borderless datatable">
                                     <thead>

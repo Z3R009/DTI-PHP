@@ -32,7 +32,7 @@
             <li>
                 <ul id="status-nav" class="nav-content collapse" data-bs-parent="#status-nav">
                     <li>
-                        <a href="#">
+                        <a href="rapidGOP.php">
                             <i class="bi bi-circle"></i><span>RAPID GOP</span>
                         </a>
                     </li>
