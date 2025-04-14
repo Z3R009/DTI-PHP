@@ -6,7 +6,7 @@ $ors_query = "SELECT COUNT(*) as total_ors, SUM(total_amount) as total_amount FR
 $ors_result = $connection->query($ors_query);
 $ors_data = $ors_result->fetch_assoc();
 
-$dv_query = "SELECT COUNT(*) as total_dv, SUM(total_amount) as total_amount FROM dv";
+$dv_query = "SELECT COUNT(*) as total_dv, SUM(total_amount) as total_amount FROM dv ";
 $dv_result = $connection->query($dv_query);
 $dv_data = $dv_result->fetch_assoc();
 
@@ -78,8 +78,8 @@ $monthly_amounts = array_reverse($monthly_amounts);
     <meta content="" name="description">
     <meta content="" name="keywords">
 
-    <!-- Favicons -->
-    <link href="../NiceAdmin/assets/img/favicon.png" rel="icon">
+    <!-- Favicons -->    
+    <link href="img/dti_logo.png" rel="icon">
     <link href="../NiceAdmin/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
     <!-- Google Fonts -->
@@ -337,7 +337,8 @@ $monthly_amounts = array_reverse($monthly_amounts);
 </head>
 
 <body>
-    <?php include "Includes/header.php"; ?>
+    <?php include "Includes/header.php"; ?>'
+
 
     <?php include "Includes/sidebar.php"; ?>
 

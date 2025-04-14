@@ -24,6 +24,7 @@ if (isset($_POST['submit'])) {
     $net_amount = $_POST['net_amount'];
     $chief_accountant = $_POST['chief_accountant'];
     $regional_director = $_POST['regional_director'];
+    $total_amount = $_POST['total_amount'];
 
     // Get the account titles and amounts arrays
     $account_titles = $_POST['account_titles'];
@@ -53,8 +54,8 @@ if (isset($_POST['submit'])) {
         $ors_stmt->close();
 
         // Insert the main DV record
-        $sql = "INSERT INTO dv (date, dv_no, ors_id, vat, vat_amount, tax_base, tax_1, tax_1_amount, tax_2, tax_2_amount, net_amount, chief_accountant, regional_director) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO dv (date, dv_no, ors_id, vat, vat_amount, tax_base, tax_1,  tax_1_amount, tax_2, tax_2_amount, net_amount, chief_accountant, regional_director,total_amount) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?)";
 
         $stmt = $connection->prepare($sql);
         if ($stmt === false) {
@@ -62,7 +63,7 @@ if (isset($_POST['submit'])) {
         }
 
         $stmt->bind_param(
-            "ssiddddddddss",
+            "ssiddddddddssd",
             $date,
             $dv_no,
             $ors_id,
@@ -75,7 +76,8 @@ if (isset($_POST['submit'])) {
             $tax_2_amount,
             $net_amount,
             $chief_accountant,
-            $regional_director
+            $regional_director,
+            $total_amount,
         );
 
         if (!$stmt->execute()) {
@@ -211,7 +213,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
     <meta content="" name="keywords">
 
     <!-- Favicons -->
-    <link href="../NiceAdmin/assets/img/favicon.png" rel="icon">
+    <link href="img/dti_logo.png" rel="icon">
     <link href="../NiceAdmin/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
     <!-- Google Fonts -->
@@ -881,6 +883,247 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
             background-color: #e0f2fe;
             color: #0369a1;
         }
+        /* Enhanced button design */
+.btn-create-dv {
+    padding: 8px 15px;
+    background-color: #0077b6;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-create-dv:hover {
+    background-color: #023e8a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-create-dv:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.btn-create-dv i {
+    font-size: 1rem;
+}
+
+/* Add animation for focus state */
+.btn-create-dv:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 119, 182, 0.3);
+}
+/* Enhanced Table Design */
+.enhanced-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 10px;
+    overflow: hidden;
+    font-size: 0.95rem;
+}
+
+/* Table header */
+.enhanced-table thead th {
+    background-color: #0077b6;
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    padding: 16px 20px;
+    position: relative;
+    text-align: left;
+    border: none;
+    vertical-align: middle;
+}
+
+.enhanced-table thead th:after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 3px;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Table body */
+.enhanced-table tbody td {
+    padding: 16px 20px;
+    vertical-align: middle;
+    border-bottom: 1px solid #e9ecef;
+    color: #343a40;
+    transition: all 0.2s ease;
+}
+
+/* Hover effect on rows */
+.enhanced-table tbody tr:hover {
+    background-color: #e0f2fe;
+    transform: translateY(-1px);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Zebra striping */
+.enhanced-table tbody tr:nth-child(even) {
+    background-color: #f8fafc;
+}
+
+.enhanced-table tbody tr:nth-child(even):hover {
+    background-color: #e0f2fe;
+}
+
+/* Last row */
+.enhanced-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* First and last cells in rows */
+.enhanced-table td:first-child,
+.enhanced-table th:first-child {
+    padding-left: 24px;
+}
+
+.enhanced-table td:last-child,
+.enhanced-table th:last-child {
+    padding-right: 24px;
+}
+
+/* Money/amount column styling */
+.enhanced-table .amount-column {
+    font-family: 'Roboto Mono', monospace;
+    text-align: right;
+    font-weight: 500;
+}
+
+/* Status indicators */
+.enhanced-table .status-pending {
+    color: #f59e0b;
+    background-color: #fffbeb;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.enhanced-table .status-approved {
+    color: #10b981;
+    background-color: #ecfdf5;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+/* Responsive design */
+@media (max-width: 992px) {
+    .enhanced-table thead {
+        display: none;
+    }
+    
+    .enhanced-table, 
+    .enhanced-table tbody, 
+    .enhanced-table tr, 
+    .enhanced-table td {
+        display: block;
+        width: 100%;
+    }
+    
+    .enhanced-table tr {
+        margin-bottom: 20px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+    
+    .enhanced-table td {
+        text-align: right;
+        padding: 12px 15px;
+        position: relative;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .enhanced-table td:before {
+        content: attr(data-label);
+        position: absolute;
+        left: 15px;
+        width: 50%;
+        font-weight: 600;
+        text-align: left;
+        color: #6c757d;
+    }
+    
+    .enhanced-table td:last-child {
+        border-bottom: none;
+        text-align: center;
+    }
+}
+
+/* Empty state styling */
+.enhanced-table-empty {
+    padding: 40px;
+    text-align: center;
+    color: #6c757d;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.enhanced-table-empty i {
+    font-size: 3rem;
+    color: #ced4da;
+    margin-bottom: 15px;
+    display: block;
+}
+
+/* Pagination styling */
+.enhanced-pagination {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.enhanced-pagination .page-item .page-link {
+    color: #0077b6;
+    border-color: #e2e8f0;
+    padding: 8px 16px;
+    transition: all 0.2s;
+}
+
+.enhanced-pagination .page-item.active .page-link {
+    background-color: #0077b6;
+    border-color: #0077b6;
+}
+
+.enhanced-pagination .page-item .page-link:hover {
+    background-color: #e0f2fe;
+    color: #023e8a;
+}
+
+/* Add a pulse animation for new entries */
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(0, 119, 182, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(0, 119, 182, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(0, 119, 182, 0);
+    }
+}
+
+.btn-create-dv.new-entry {
+    animation: pulse 1.5s infinite;
+}
 
         /* Responsive adjustments */
         @media (max-width: 768px) {
@@ -899,6 +1142,28 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
             margin-top: 20px;
             margin-bottom: 30px;
             color: #03045e;
+        }
+
+        /* Button styles */
+        .btn-danger.btn-sm {
+            padding: 5px 10px;
+            font-size: 0.75rem;
+            background-color: #dc3545;
+            border-color: #dc3545;
+            color: white;
+            border-radius: 4px;
+        }
+
+        .btn-danger.btn-sm:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+        }
+
+        /* Make the action column narrow */
+        .accounting-entry-table th:nth-child(5),
+        .accounting-entry-table td:nth-child(5) {
+            width: 10%;
+            text-align: center;
         }
     </style>
 </head>
@@ -936,43 +1201,55 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                         <div class="card">
                             <div class="card-body">
                                 <!-- Table with stripped rows -->
-                                <table class="table datatable">
-                                    <thead>
-                                        <tr>
-                                            <th>ORS No.</th>
-                                            <th>Date</th>
-                                            <th>Payee Name</th>
-                                            <th>Account Title</th>
-                                            <th>Amount</th>
-                                            <th>Approver</th>
-                                            <th></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php while ($row = mysqli_fetch_assoc($select_ors)) { ?>
-                                            <tr>
-                                                <td><?php echo htmlspecialchars($row['ors_no']); ?></td>
-                                                <td>
-                                                    <?php
-                                                    $date = new DateTime($row['date']);
-                                                    echo htmlspecialchars($date->format('F j, Y')); // Example: "April 7, 2025"
-                                                    ?>
-                                                </td>
-                                                <td><?php echo htmlspecialchars($row['payee_name']); ?></td>
-                                                <td><?php echo htmlspecialchars($row['account_title']); ?></td>
-                                                <td><?php echo htmlspecialchars($row['total_amount']); ?></td>
-                                                <td><?php echo htmlspecialchars($row['approver_name']); ?></td>
-                                                <td>
-                                                    <button type="button" class="btn btn-primary view-details"
-                                                        data-id="<?php echo $row['ors_id']; ?>">
-                                                        <i data-bs-toggle="tooltip" data-bs-placement="top"
-                                                            title="View Details">Create DV</i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        <?php } ?>
-                                    </tbody>
-                                </table>
+<!-- Table with enhanced styling -->
+<table class="enhanced-table datatable">
+    <thead>
+        <tr>
+            <th>ORS No.</th>
+            <th>Date</th>
+            <th>Payee Name</th>
+            <th>Account Title</th>
+            <th class="amount-column">Amount</th>
+            <th>Approver</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php 
+        if (mysqli_num_rows($select_ors) > 0) {
+            while ($row = mysqli_fetch_assoc($select_ors)) { 
+        ?>
+            <tr>
+                <td data-label="ORS No."><?php echo htmlspecialchars($row['ors_no']); ?></td>
+                <td data-label="Date">
+                    <?php
+                    $date = new DateTime($row['date']);
+                    echo htmlspecialchars($date->format('F j, Y')); 
+                    ?>
+                </td>
+                <td data-label="Payee Name"><?php echo htmlspecialchars($row['payee_name']); ?></td>
+                <td data-label="Account Title"><?php echo htmlspecialchars($row['account_title']); ?></td>
+                <td data-label="Amount" class="amount-column">₱<?php echo number_format($row['total_amount'], 2); ?></td>
+                <td data-label="Approver"><?php echo htmlspecialchars($row['approver_name']); ?></td>
+                <td>
+                    <button type="button" class="btn-create-dv view-details" data-id="<?php echo $row['ors_id']; ?>">
+                        <i class="bi bi-file-earmark-plus"></i> Create DV
+                    </button>
+                </td>
+            </tr>
+        <?php 
+            } 
+        } else {
+        ?>
+            <tr>
+                <td colspan="7" class="enhanced-table-empty">
+                    <i class="bi bi-inbox"></i>
+                    <p>No records found</p>
+                </td>
+            </tr>
+        <?php } ?>
+    </tbody>
+</table>
                             </div>
                         </div>
                     </div>
@@ -1079,7 +1356,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                     <div class="form-row">
                                         <div class="form-group half-width">
                                             <label class="form-label">Gross Amount</label>
-                                            <input type="number" class="form-control" id="total_amount" step="0.01"
+                                            <input type="number" class="form-control" name="total_amount" id="total_amount" step="0.01"
                                                 readonly>
                                         </div>
                                         <div class="form-group half-width">
@@ -1142,6 +1419,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                                 <th colspan="2">Account Title</th>
                                                 <th>Debit Amount</th>
                                                 <th>Credit Amount</th>
+                                                <th>Action</th>
                                             </tr>
                                         </thead>
                                         <tbody id="accountingTableBody">
@@ -1162,6 +1440,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                                         name="debit_amounts[]" step="0.01"></td>
                                                 <td><input type="number" class="form-control credit-amount"
                                                         name="credit_amounts[]" step="0.01"></td>
+                                                <td><button type="button" class="btn btn-danger btn-sm delete-row"><i class="bi bi-trash"></i></button></td>
                                             </tr>
                                         </tbody>
                                         <tfoot>
@@ -1187,6 +1466,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                                         name="debit_amounts[]" step="0.01" readonly></td>
                                                 <td><input type="number" class="form-control credit-amount"
                                                         name="credit_amounts[]" step="0.01" readonly></td>
+                                                <td><button type="button" class="btn btn-danger btn-sm delete-row"><i class="bi bi-trash"></i></button></td>
                                             </tr>
                                             <tr>
                                                 <td>
@@ -1768,6 +2048,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                     </td>
                     <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
                     <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01"></td>
+                    <td><button type="button" class="btn btn-danger btn-sm delete-row"><i class="bi bi-trash"></i></button></td>
                 `;
 
                     tableBody.appendChild(newRow);
@@ -1784,6 +2065,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                 function setupCalculationListeners(row) {
                     const debitInput = row.querySelector('.debit-amount');
                     const creditInput = row.querySelector('.credit-amount');
+                    const deleteButton = row.querySelector('.delete-row');
 
                     debitInput.addEventListener('input', function () {
                         if (this.value && parseFloat(this.value) > 0) {
@@ -1798,6 +2080,18 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                         }
                         calculateTotals();
                     });
+
+                    if (deleteButton) {
+                        deleteButton.addEventListener('click', function() {
+                            // Don't delete if it's the only row in tbody
+                            if (tableBody.querySelectorAll('tr').length > 1) {
+                                row.remove();
+                                calculateTotals();
+                            } else {
+                                alert("Cannot delete the last row. At least one account entry is required.");
+                            }
+                        });
+                    }
                 }
 
                 // Setup initial row
@@ -1847,6 +2141,20 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                 const tax2PercentageInput = document.getElementById('tax2_percentage');
                 const tax1Input = document.getElementById('tax_1');
                 const tax2Input = document.getElementById('tax_2');
+
+                // Add event delegation for delete row buttons
+                tableBody.addEventListener('click', function(e) {
+                    if (e.target.closest('.delete-row')) {
+                        const row = e.target.closest('tr');
+                        // Don't delete if it's the only row in tbody
+                        if (tableBody.querySelectorAll('tr').length > 1) {
+                            row.remove();
+                            calculateTotals();
+                        } else {
+                            alert("Cannot delete the last row. At least one account entry is required.");
+                        }
+                    }
+                });
 
                 // Function to set the main account in the first row
                 function setMainAccount(orsData) {

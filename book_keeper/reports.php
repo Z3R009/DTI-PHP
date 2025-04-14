@@ -342,148 +342,7 @@ $jsData = [
             <p>Loading data...</p>
         </div>
 
-        <section class="section">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Financial Reports</h5>
-                            <p>Generate and view various financial reports for the Department of Trade & Industry.</p>
-                            
-                            <div class="row mt-4">
-                                <!-- ORS Reports -->
-                                <div class="col-md-4 mb-4">
-                                    <div class="card h-100">
-                                        <div class="card-body">
-                                            <h5 class="card-title">ORS Reports</h5>
-                                            <div class="list-group">
-                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#orsSummaryModal">
-                                                    <i class="bi bi-file-earmark-text me-2"></i>ORS Summary Report
-                                                </a>
-                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#orsByPayeeModal">
-                                                    <i class="bi bi-file-earmark-text me-2"></i>ORS by Payee
-                                                </a>
-                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#orsByFundClusterModal">
-                                                    <i class="bi bi-file-earmark-text me-2"></i>ORS by Fund Cluster
-                                                </a>
-                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#orsByServiceModal">
-                                                    <i class="bi bi-file-earmark-text me-2"></i>ORS by Service
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- DV Reports -->
-                                <div class="col-md-4 mb-4">
-                                    <div class="card h-100">
-                                        <div class="card-body">
-                                            <h5 class="card-title">DV Reports</h5>
-                                            <div class="list-group">
-                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#dvSummaryModal">
-                                                    <i class="bi bi-file-earmark-text me-2"></i>DV Summary Report
-                                                </a>
-                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#dvByPayeeModal">
-                                                    <i class="bi bi-file-earmark-text me-2"></i>DV by Payee
-                                                </a>
-                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#dvByFundClusterModal">
-                                                    <i class="bi bi-file-earmark-text me-2"></i>DV by Fund Cluster
-                                                </a>
-                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#dvByServiceModal">
-                                                    <i class="bi bi-file-earmark-text me-2"></i>DV by Service
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- JEV Reports -->
-                                <div class="col-md-4 mb-4">
-                                    <div class="card h-100">
-                                        <div class="card-body">
-                                            <h5 class="card-title">JEV Reports</h5>
-                                            <div class="list-group">
-                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#jevSummaryModal">
-                                                    <i class="bi bi-file-earmark-text me-2"></i>JEV Summary Report
-                                                </a>
-                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#jevByAccountModal">
-                                                    <i class="bi bi-file-earmark-text me-2"></i>JEV by Account Title
-                                                </a>
-                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#jevByFundClusterModal">
-                                                    <i class="bi bi-file-earmark-text me-2"></i>JEV by Fund Cluster
-                                                </a>
-                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#jevByServiceModal">
-                                                    <i class="bi bi-file-earmark-text me-2"></i>JEV by Service
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="row mt-4">
-                                <!-- Consolidated Reports -->
-                                <div class="col-md-4 mb-4">
-                                    <div class="card h-100">
-                                        <div class="card-body">
-                                            <h5 class="card-title">Consolidated Reports</h5>
-                                            <div class="list-group">
-                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#monthlySummaryModal">
-                                                    <i class="bi bi-file-earmark-text me-2"></i>Monthly Summary
-                                                </a>
-                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#quarterlySummaryModal">
-                                                    <i class="bi bi-file-earmark-text me-2"></i>Quarterly Summary
-                                                </a>
-                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#annualSummaryModal">
-                                                    <i class="bi bi-file-earmark-text me-2"></i>Annual Summary
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Budget Reports -->
-                                <div class="col-md-4 mb-4">
-                                    <div class="card h-100">
-                                        <div class="card-body">
-                                            <h5 class="card-title">Budget Reports</h5>
-                                            <div class="list-group">
-                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#budgetUtilizationModal">
-                                                    <i class="bi bi-file-earmark-text me-2"></i>Budget Utilization
-                                                </a>
-                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#budgetVsActualModal">
-                                                    <i class="bi bi-file-earmark-text me-2"></i>Budget vs. Actual
-                                                </a>
-                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#remainingBudgetModal">
-                                                    <i class="bi bi-file-earmark-text me-2"></i>Remaining Budget
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Custom Reports -->
-                                <div class="col-md-4 mb-4">
-                                    <div class="card h-100">
-                                        <div class="card-body">
-                                            <h5 class="card-title">Custom Reports</h5>
-                                            <div class="list-group">
-                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#customReportModal">
-                                                    <i class="bi bi-file-earmark-text me-2"></i>Create Custom Report
-                                                </a>
-                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#savedReportsModal">
-                                                    <i class="bi bi-file-earmark-text me-2"></i>Saved Reports
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
+       
             <!-- Analytical Dashboard Section -->
             <div class="row mt-4">
                 <div class="col-12">
@@ -770,6 +629,148 @@ $jsData = [
                 </div>
             </div>
         </div>
+        <section class="section">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Financial Reports</h5>
+                            <p>Generate and view various financial reports for the Department of Trade & Industry.</p>
+                            
+                            <div class="row mt-4">
+                                <!-- ORS Reports -->
+                                <div class="col-md-4 mb-4">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <h5 class="card-title">ORS Reports</h5>
+                                            <div class="list-group">
+                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#orsSummaryModal">
+                                                    <i class="bi bi-file-earmark-text me-2"></i>ORS Summary Report
+                                                </a>
+                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#orsByPayeeModal">
+                                                    <i class="bi bi-file-earmark-text me-2"></i>ORS by Payee
+                                                </a>
+                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#orsByFundClusterModal">
+                                                    <i class="bi bi-file-earmark-text me-2"></i>ORS by Fund Cluster
+                                                </a>
+                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#orsByServiceModal">
+                                                    <i class="bi bi-file-earmark-text me-2"></i>ORS by Service
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- DV Reports -->
+                                <div class="col-md-4 mb-4">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <h5 class="card-title">DV Reports</h5>
+                                            <div class="list-group">
+                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#dvSummaryModal">
+                                                    <i class="bi bi-file-earmark-text me-2"></i>DV Summary Report
+                                                </a>
+                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#dvByPayeeModal">
+                                                    <i class="bi bi-file-earmark-text me-2"></i>DV by Payee
+                                                </a>
+                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#dvByFundClusterModal">
+                                                    <i class="bi bi-file-earmark-text me-2"></i>DV by Fund Cluster
+                                                </a>
+                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#dvByServiceModal">
+                                                    <i class="bi bi-file-earmark-text me-2"></i>DV by Service
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- JEV Reports -->
+                                <div class="col-md-4 mb-4">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <h5 class="card-title">JEV Reports</h5>
+                                            <div class="list-group">
+                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#jevSummaryModal">
+                                                    <i class="bi bi-file-earmark-text me-2"></i>JEV Summary Report
+                                                </a>
+                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#jevByAccountModal">
+                                                    <i class="bi bi-file-earmark-text me-2"></i>JEV by Account Title
+                                                </a>
+                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#jevByFundClusterModal">
+                                                    <i class="bi bi-file-earmark-text me-2"></i>JEV by Fund Cluster
+                                                </a>
+                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#jevByServiceModal">
+                                                    <i class="bi bi-file-earmark-text me-2"></i>JEV by Service
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row mt-4">
+                                <!-- Consolidated Reports -->
+                                <div class="col-md-4 mb-4">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Consolidated Reports</h5>
+                                            <div class="list-group">
+                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#monthlySummaryModal">
+                                                    <i class="bi bi-file-earmark-text me-2"></i>Monthly Summary
+                                                </a>
+                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#quarterlySummaryModal">
+                                                    <i class="bi bi-file-earmark-text me-2"></i>Quarterly Summary
+                                                </a>
+                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#annualSummaryModal">
+                                                    <i class="bi bi-file-earmark-text me-2"></i>Annual Summary
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Budget Reports -->
+                                <div class="col-md-4 mb-4">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Budget Reports</h5>
+                                            <div class="list-group">
+                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#budgetUtilizationModal">
+                                                    <i class="bi bi-file-earmark-text me-2"></i>Budget Utilization
+                                                </a>
+                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#budgetVsActualModal">
+                                                    <i class="bi bi-file-earmark-text me-2"></i>Budget vs. Actual
+                                                </a>
+                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#remainingBudgetModal">
+                                                    <i class="bi bi-file-earmark-text me-2"></i>Remaining Budget
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Custom Reports -->
+                                <div class="col-md-4 mb-4">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Custom Reports</h5>
+                                            <div class="list-group">
+                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#customReportModal">
+                                                    <i class="bi bi-file-earmark-text me-2"></i>Create Custom Report
+                                                </a>
+                                                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#savedReportsModal">
+                                                    <i class="bi bi-file-earmark-text me-2"></i>Saved Reports
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
         
         <!-- Other modals would be similar in structure -->
         
