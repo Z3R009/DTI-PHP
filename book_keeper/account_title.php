@@ -78,6 +78,9 @@ $select = mysqli_query($connection, "SELECT * FROM account_title $where ORDER BY
     <!-- SimpleDatatables CSS -->
     <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet"
         type="text/css">
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </head>
 
 <body>
