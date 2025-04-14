@@ -8,17 +8,19 @@ $column_result = mysqli_query($connection, $check_column_query);
 $column_exists = (mysqli_num_rows($column_result) > 0);
 
 // Calculate pending DVs (where chief_accountant is NULL or status is 'pending_endorsement')
-$pending_query = "SELECT COUNT(*) as pending_count FROM dv WHERE (chief_accountant IS NULL OR status = 'pending_endorsement')";
+$pending_query = "SELECT COUNT(*) as pending_count FROM dv WHERE (chief_accountant IS NULL OR status = 'Pending')";
 $pending_result = mysqli_query($connection, $pending_query);
 $pending_row = mysqli_fetch_assoc($pending_result);
 $pending_dv_count = $pending_row['pending_count'];
 
 // Calculate endorsed DVs (where chief_accountant is NOT NULL or status is 'endorsed')
-$endorsed_query = "SELECT COUNT(*) as endorsed_count FROM dv WHERE (chief_accountant IS NOT NULL OR status = 'endorsed')";
+$endorsed_query = "SELECT COUNT(*) as endorsed_count FROM dv WHERE (chief_accountant IS NOT NULL OR status = 'Endorsed')";
 $endorsed_result = mysqli_query($connection, $endorsed_query);
 $endorsed_row = mysqli_fetch_assoc($endorsed_result);
 $endorsed_dv_count = $endorsed_row['endorsed_count'];
 ?>
+
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -64,8 +66,8 @@ $endorsed_dv_count = $endorsed_row['endorsed_count'];
 
     
 
-    <?php include "Includes/header.php";?>
-    <?php include "Includes/sidebar.php";?>
+    <?php include "Includes/header.php"; ?>
+    <?php include "Includes/sidebar.php"; ?>
 
  <main id="main" class="main">
 <div class="pagetitle">
@@ -167,10 +169,10 @@ $endorsed_dv_count = $endorsed_row['endorsed_count'];
                                     $status_class = '';
                                     
                                     if ($column_exists) {
-                                        if ($dv['status'] == 'pending_endorsement') {
+                                        if ($dv['status'] == 'Pending') {
                                             $status = 'Pending';
                                             $status_class = 'warning';
-                                        } else if ($dv['status'] == 'endorsed') {
+                                        } else if ($dv['status'] == 'Endorsed') {
                                             $status = 'Endorsed';
                                             $status_class = 'success';
                                         }
@@ -211,7 +213,7 @@ $endorsed_dv_count = $endorsed_row['endorsed_count'];
     </div>
 </section>
 
-                        </main>
+</main>
      <script src="../NiceAdmin/assets/vendor/apexcharts/apexcharts.min.js"></script>
     <script src="../NiceAdmin/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="../NiceAdmin/assets/vendor/chart.js/chart.umd.js"></script>
@@ -219,4 +221,7 @@ $endorsed_dv_count = $endorsed_row['endorsed_count'];
     <script src="../NiceAdmin/assets/vendor/quill/quill.js"></script>
     <script src="../NiceAdmin/assets/vendor/simple-datatables/simple-datatables.js"></script>
     <script src="../NiceAdmin/assets/vendor/tinymce/tinymce.min.js"></script>
-    <script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
+    <script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>s
+
+</body>
+</html>
