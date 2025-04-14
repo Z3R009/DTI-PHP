@@ -29,25 +29,22 @@
             <a class="nav-link collapsed" data-bs-target="#status-nav" data-bs-toggle="collapse" href="#">
                 <i class="bi bi-bar-chart"></i><span>CASH ALLOTMENT</span><i class="bi bi-chevron-down ms-auto"></i>
             </a>
+            <li>
+                <ul id="status-nav" class="nav-content collapse" data-bs-parent="#status-nav">
+                    <li>
+                        <a href="#">
+                            <i class="bi bi-circle"></i><span>N/A</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="bi bi-circle"></i><span>N/A</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            
             <ul id="status-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
-                <!-- Personnel Services Submenu -->
-                <li>
-                    <a class="nav-link collapsed" data-bs-target="#personal-nav" data-bs-toggle="collapse" href="#">
-                        <i class="bi bi-bar-chart"></i><span>Draft</span><i class="bi bi-chevron-down ms-auto"></i>
-                    </a>
-                    <ul id="personal-nav" class="nav-content collapse" data-bs-parent="#status-nav">
-                        <li>
-                            <a href="#">
-                                <i class="bi bi-circle"></i><span>N/A</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#">
-                                <i class="bi bi-circle"></i><span>N/A</span>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
             </ul>
         </li>
 
