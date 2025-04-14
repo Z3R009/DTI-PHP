@@ -187,7 +187,7 @@ if (isset($_GET['ors_no'])) {
         .signature-line {
             border-top: 1px solid black;
             width: 80%;
-            margin: 20px auto 5px;
+            margin: 0px auto 5px;
         }
 
         .signature-container {
@@ -325,7 +325,7 @@ if (isset($_GET['ors_no'])) {
         <table>
             <tr>
                 <th colspan="5" class="centered header-cell">
-                    <div style="display: flex; align-items: center; gap: 80px;">
+                    <div style="display: flex; align-items: center; gap: 50px;">
                         <img src="../img/dtilogo.jpg" alt="DTI Logo"
                             style="width: 80px; height: 80px; text-align: left;">
                         <div>
@@ -400,7 +400,7 @@ if (isset($_GET['ors_no'])) {
                 </td>
                 <td style="text-align: right; padding-top: 33px;" rowspan="2" colspan="2">
                     <?php foreach ($obligation_entries as $entry): ?>
-                        <p><?php echo number_format((float) $entry['net'], 2, '.', ','); ?></p>
+                        <p>(<?php echo number_format((float) $entry['net'], 2, '.', ','); ?>)</p>
                     <?php endforeach; ?>
                 </td>
             </tr>
@@ -417,7 +417,7 @@ if (isset($_GET['ors_no'])) {
                 <td></td>
                 <td></td>
                 <td colspan="2" class="amount-cell">
-                    <strong>₱<?php echo number_format((float) $ors_form['total_amount'], 2, '.', ','); ?></strong>
+                    <strong>₱(<?php echo number_format((float) $ors_form['total_amount'], 2, '.', ','); ?>)</strong>
                 </td>
             </tr>
             <tr>
@@ -434,7 +434,7 @@ if (isset($_GET['ors_no'])) {
                         <p class="signature-title">
                             <?php echo !empty($ors_form['sub_title']) ? htmlspecialchars($ors_form['sub_title']) : "&nbsp"; ?>
                         </p>
-                    </div><br>
+                    </div>
                     <p>Date:</p>
                     <div class="signature-line"></div>
                 </td>
@@ -454,9 +454,10 @@ if (isset($_GET['ors_no'])) {
                         </p>
                         <p class="signature-title">Budget Officer</p>
                         <p class="signature-title">Head, Budget Division/Unit/Authorized Representative</p>
-                    </div><br>
-                    <p>Date:</p>
-                    <div class="signature-line"></div>
+                        <p style="text-align: left;"> Date:</p>
+                        <div class="signature-line"></div>
+                    </div>
+
                 </td>
             </tr>
 
