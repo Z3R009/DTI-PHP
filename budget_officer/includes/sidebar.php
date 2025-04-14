@@ -15,9 +15,6 @@
     </div>
 
     <ul class="sidebar-nav" id="sidebar-nav">
-        
-      
-        
         <li class="nav-item">
             <a class="nav-link " href="dashboard.php">
                 <i class="bi bi-grid"></i>
@@ -366,7 +363,7 @@
                 </li>
             </ul>
         </li> 
-        </ul>
+    </ul>
     </li>
 </ul>
 
