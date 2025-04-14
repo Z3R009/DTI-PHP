@@ -921,6 +921,7 @@ $result_services = $connection->query($sql_services);
                                                         <th colspan="2">Account Title</th>
                                                         <th>Debit Amount</th>
                                                         <th>Credit Amount</th>
+                                                        <th>Action</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="accountingTableBody">
@@ -939,18 +940,41 @@ $result_services = $connection->query($sql_services);
                                                             </select>
                                                         </td>
                                                         <td><input type="number" class="form-control debit-amount"
-                                                                name="debit_amounts[]"></td>
+                                                                name="debit_amounts[]" step="0.01"></td>
                                                         <td><input type="number" class="form-control credit-amount"
-                                                                name="credit_amounts[]"></td>
+                                                                name="credit_amounts[]" step="0.01"></td>
+                                                        <td><button type="button"
+                                                                class="btn btn-danger btn-sm delete-row"><i
+                                                                    class="bi bi-trash"></i></button></td>
                                                     </tr>
                                                 </tbody>
                                                 <tfoot>
                                                     <tr>
-                                                        <td colspan="2"></td>
+                                                        <td colspan="2">
+                                                            <select class="form-control account-select"
+                                                                name="account_titles[]">
+                                                                <option selected disabled>Select Cash Account</option>
+                                                                <?php
+                                                                // Define the specific account codes we want to show
+                                                                $cashAccountCodes = ['1010404000', '1010405000', '1010406000'];
+
+                                                                // Query only the specific cash accounts
+                                                                $cash_account_query = "SELECT * FROM account_title WHERE account_code IN ('1010404000', '1010405000', '1010406000') ORDER BY account_title ASC";
+                                                                $cash_account_result = $connection->query($cash_account_query);
+
+                                                                while ($account = $cash_account_result->fetch_assoc()) {
+                                                                    echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
+                                                                }
+                                                                ?>
+                                                            </select>
+                                                        </td>
                                                         <td><input type="number" class="form-control debit-amount"
-                                                                name="debit_amounts[]" readonly></td>
+                                                                name="debit_amounts[]" step="0.01" readonly></td>
                                                         <td><input type="number" class="form-control credit-amount"
-                                                                name="credit_amounts[]" readonly></td>
+                                                                name="credit_amounts[]" step="0.01" readonly></td>
+                                                        <td><button type="button"
+                                                                class="btn btn-danger btn-sm delete-row"><i
+                                                                    class="bi bi-trash"></i></button></td>
                                                     </tr>
                                                     <tr>
                                                         <td>
@@ -964,6 +988,67 @@ $result_services = $connection->query($sql_services);
                                                     </tr>
                                                 </tfoot>
                                             </table>
+                                        </div>
+                                    </div>
+
+                                    <!-- tax -->
+                                    <div class="form-section">
+                                        <h3>Breakdown of Expenses</h3>
+                                        <div class="form-row">
+                                            <div class="form-group half-width">
+                                                <label class="form-label">Gross Amount</label>
+                                                <input type="number" class="form-control" name="total_amount"
+                                                    id="total_amount" step="0.01" readonly>
+                                            </div>
+                                            <div class="form-group half-width">
+                                                <div class="checkbox-item">
+                                                    <input type="checkbox" class="apply_taxes" id="apply_taxes">
+                                                    <label for="apply_taxes">With VAT</label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div id="tax_fields_container" class="tax-fields">
+                                            <div class="form-row"></div>
+
+                                            <div class="form-group half-width">
+                                                <label class="form-label">VAT <input type="number"
+                                                        class="tax-percentage" id="vat_percentage" name="vat" value="12"
+                                                        min="0" max="100" readonly>%</label>
+                                                <input type="number" class="form-control calculation-field"
+                                                    id="vat_amount" name="vat_amount" step="0.01" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-group">
+                                                <label class="form-label">Tax Base</label>
+                                                <input type="number" class="form-control calculation-field"
+                                                    id="tax_base" name="tax_base" step="0.01">
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="form-label">Less: <input type="number"
+                                                        class="tax-percentage" id="tax1_percentage" name="tax_1"
+                                                        value="5" min="0" max="100"> %
+                                                    Tax</label>
+                                                <input type="number" class="form-control calculation-field" id="tax_1"
+                                                    name="tax_1_amount" step="0.01">
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="form-label">Less: <input type="number"
+                                                        class="tax-percentage" id="tax2_percentage" name="tax_2"
+                                                        value="2" min="0" max="100"> %
+                                                    Tax</label>
+                                                <input type="number" class="form-control calculation-field" id="tax_2"
+                                                    name="tax_2_amount" step="0.01">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label">Net Amount</label>
+                                            <input type="number" class="form-control calculation-field" id="net_amount"
+                                                name="net_amount" step="0.01" readonly>
                                         </div>
                                     </div>
 
@@ -1211,6 +1296,7 @@ $result_services = $connection->query($sql_services);
                     </td>
                     <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
                     <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01"></td>
+                    <td><button type="button" class="btn btn-danger btn-sm delete-row"><i class="bi bi-trash"></i></button></td>
                 `;
 
                 tableBody.appendChild(newRow);
@@ -1227,6 +1313,7 @@ $result_services = $connection->query($sql_services);
             function setupCalculationListeners(row) {
                 const debitInput = row.querySelector('.debit-amount');
                 const creditInput = row.querySelector('.credit-amount');
+                const deleteButton = row.querySelector('.delete-row');
 
                 debitInput.addEventListener('input', function () {
                     if (this.value && parseFloat(this.value) > 0) {
@@ -1332,6 +1419,136 @@ $result_services = $connection->query($sql_services);
 
 
     </script>
+
+    <!-- due to bir -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Get references to key elements
+            const tableBody = document.getElementById('accountingTableBody');
+            const applyTaxesCheckbox = document.getElementById('apply_taxes');
+            const tax1PercentageInput = document.getElementById('tax1_percentage');
+            const tax2PercentageInput = document.getElementById('tax2_percentage');
+            const tax1Input = document.getElementById('tax_1');
+            const tax2Input = document.getElementById('tax_2');
+
+            // Add event delegation for delete row buttons
+            tableBody.addEventListener('click', function (e) {
+                if (e.target.closest('.delete-row')) {
+                    const row = e.target.closest('tr');
+                    // Don't delete if it's the only row in tbody
+                    if (tableBody.querySelectorAll('tr').length > 1) {
+                        row.remove();
+                        calculateTotals();
+                    } else {
+                        alert("Cannot delete the last row. At least one account entry is required.");
+                    }
+                }
+            });
+
+            // Function to set the main account in the first row
+            function setMainAccount(orsData) {
+                if (!orsData || !orsData.account_id) return;
+
+                // Get the first row's account select
+                const firstRow = tableBody.querySelector('tr');
+                if (!firstRow) return;
+
+                const accountSelect = firstRow.querySelector('.account-select');
+                const debitInput = firstRow.querySelector('.debit-amount');
+
+                if (accountSelect && debitInput) {
+                    // Set the account selection
+                    $(accountSelect).val(orsData.account_id).trigger('change');
+
+                    // Set the amount and make it readonly
+                    debitInput.value = orsData.total_amount;
+                    debitInput.readOnly = true;
+                    debitInput.style.backgroundColor = "#f0f0f0";
+                }
+            }
+
+            // Function to calculate totals - handles the tfoot values
+            function calculateTotals() {
+                let totalDebit = 0;
+                let totalCredit = 0;
+
+                // Get all debit and credit inputs except the footer row
+                const debitInputs = document.querySelectorAll('tbody .debit-amount');
+                const creditInputs = document.querySelectorAll('tbody .credit-amount');
+
+                // Sum up debit amounts
+                debitInputs.forEach(input => {
+                    totalDebit += parseFloat(input.value || 0);
+                });
+
+                // Sum up credit amounts
+                creditInputs.forEach(input => {
+                    totalCredit += parseFloat(input.value || 0);
+                });
+
+                // Calculate the difference (total debit - total credit)
+                const difference = totalDebit - totalCredit;
+
+                // Update the footer row's credit field with the difference if positive, 
+                // or debit field if negative
+                const footerDebitInput = document.querySelector('tfoot .debit-amount');
+                const footerCreditInput = document.querySelector('tfoot .credit-amount');
+
+                if (footerDebitInput && footerCreditInput) {
+                    if (difference > 0) {
+                        footerCreditInput.value = difference.toFixed(2);
+                        footerDebitInput.value = "";
+                    } else if (difference < 0) {
+                        footerDebitInput.value = Math.abs(difference).toFixed(2);
+                        footerCreditInput.value = "";
+                    } else {
+                        footerCreditInput.value = "";
+                        footerDebitInput.value = "";
+                    }
+                }
+            }
+
+            // Add event listeners for tax changes
+            applyTaxesCheckbox.addEventListener('change', function () {
+                calculate(); // Assume this function exists in your main code
+                setTimeout(calculateTotals, 100);
+            });
+
+            tax1PercentageInput.addEventListener('input', function () {
+                calculate();
+                setTimeout(calculateTotals, 100);
+            });
+
+            tax2PercentageInput.addEventListener('input', function () {
+                calculate();
+                setTimeout(calculateTotals, 100);
+            });
+
+            // Hook into existing view details event
+            const viewDetailsButtons = document.querySelectorAll('.view-details');
+            viewDetailsButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const orsId = this.getAttribute('data-id');
+                    fetch(`get_ors_details.php?id=${orsId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            // Wait a moment to ensure the DOM and Select2 are ready
+                            setTimeout(() => {
+                                setMainAccount(data);
+                                calculate(); // Trigger tax calculation
+                                calculateTotals(); // Update totals
+                            }, 300);
+                        })
+                        .catch(error => console.error('Error fetching ORS details:', error));
+                });
+            });
+
+            // Override the global calculateTotals function
+            window.calculateTotals = calculateTotals;
+        });
+    </script>
+
 
 </body>
 
