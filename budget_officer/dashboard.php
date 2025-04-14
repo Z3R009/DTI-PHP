@@ -169,214 +169,13 @@ $recent_transactions = getRecentTransactions($connection, 5);
     <!-- Template Main CSS File -->
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
 
-    <style>
-        .main {
-            background-color: #f8f9fa;
-            overflow-x: hidden;
-        }
-        /* Enhanced financial card styles */
-        #monthlyTrendChart {
-        /* Remove the height: 100px; */
-        flex-grow: 1;
-        }
-        .financial-card {
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            border: none;
-        }
-        .financial-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
-        }
-        .card-icon {
-            width: 56px;
-            height: 56px;
-            background-color: rgba(13, 110, 253, 0.15);
-            color: #0d6efd;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            transition: all 0.3s ease;
-        }
-        .card-icon i {
-            transition: transform 0.3s ease;
-        }
-        .financial-card:hover .card-icon i {
-            transform: scale(1.2);
-        }
-        .utilization-progress {
-            height: 12px;
-            border-radius: 10px;
-            background-color: rgba(0, 0, 0, 0.05);
-            overflow: hidden;
-        }
-        .utilization-progress .progress-bar {
-            border-radius: 10px;
-            transition: width 1s ease-in-out;
-        }
-        .summary-card {
-            background: linear-gradient(135deg, #0d6efd, #0a58ca);
-            color: white;
-        }
-        .summary-card .card-icon {
-            background-color: rgba(255, 255, 255, 0.2);
-            color: white;
-        }
-        .trend-indicator {
-            font-size: 0.875rem;
-            display: flex;
-            align-items: center;
-        }
-        .trend-up {
-            color: #10b981;
-        }
-        .trend-down {
-            color: #ef4444;
-        }
-        .filter-section {
-            background-color: #f8f9fa;
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 30px;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-        }
-        .report-section {
-            margin-bottom: 40px;
-        }
-        .report-title {
-            border-bottom: 2px solid #e9ecef;
-            padding-bottom: 15px;
-            margin-bottom: 25px;
-            font-weight: 600;
-            color: #344767;
-            position: relative;
-        }
-        .report-title::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 60px;
-            height: 2px;
-            background-color: #0d6efd;
-        }
-        
-        /* Transaction list styles */
-        .transaction-list {
-            max-height: 500px;
-            overflow-y: auto;
-        }
-        .transaction-item {
-            border-left: 4px solid transparent;
-            transition: all 0.2s ease;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            background-color: white;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-        }
-        .transaction-item:hover {
-            border-left-color: #0d6efd;
-            transform: translateX(5px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-        .transaction-item.type-ors {
-            border-left-color: #10b981;
-        }
-        .transaction-item.type-dv {
-            border-left-color: #6366f1;
-        }
-        .transaction-badge {
-            font-size: 0.7rem;
-            padding: 0.25rem 0.5rem;
-            border-radius: 20px;
-            text-transform: uppercase;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-        .badge-ors {
-            background-color: rgba(16, 185, 129, 0.1);
-            color: #10b981;
-        }
-        .badge-dv {
-            background-color: rgba(99, 102, 241, 0.1);
-            color: #6366f1;
-        }
-        
-        /* Animation styles */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-            animation: fadeIn 0.5s ease forwards;
-        }
-        .animate-delay-1 { animation-delay: 0.1s; }
-        .animate-delay-2 { animation-delay: 0.2s; }
-        .animate-delay-3 { animation-delay: 0.3s; }
-        .animate-delay-4 { animation-delay: 0.4s; }
-        
-        /* Enhanced card slider styles */
-        .swipe-container {
-            position: relative;
-            overflow: hidden;
-            padding: 15px 0;
-            border-radius: 12px;
-        }
-        .transition-all {
-            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .budget-card-item {
-            padding: 0 10px;
-            position: relative;
-        }
-        .indicator-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: #e0e0e0;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .indicator-dot.active {
-            width: 24px;
-            border-radius: 4px;
-            background-color: #0d6efd;
-        }
-        .swipe-container {
-            touch-action: pan-y;
-        }
-        .category-tab {
-            cursor: pointer;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: 500;
-            font-size: 0.85rem;
-            transition: all 0.2s ease;
-            margin-right: 8px;
-            margin-bottom: 8px;
-            border: 1px solid #e0e0e0;
-        }
-        .category-tab.active {
-            background-color: #0d6efd;
-            color: white;
-            border-color: #0d6efd;
-        }
-        .col-lg-5.report-section .card.financial-card {
-        height: calc(100% - 40px); /* 40px accounts for the header space */
-        }
-        .col-lg-5.report-section .card-body {
-   display: flex;
-   flex-direction: column;
-   height: 100%;
-}
-.report-section .card {
-   margin-bottom: 0;
-}
-    </style>
+    <!-- =======================================================
+  * Template Name: NiceAdmin
+  * Template URL: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/
+  * Updated: Apr 20 2024 with Bootstrap v5.3.3
+  * Author: BootstrapMade.com
+  * License: https://bootstrapmade.com/license/
+  ======================================================== -->
 </head>
 
 <body>
@@ -384,129 +183,69 @@ $recent_transactions = getRecentTransactions($connection, 5);
     <?php include "Includes/sidebar.php"; ?>
 
     <main id="main" class="main">
-        <div class="pagetitle d-flex justify-content-between align-items-center">
-            <div>
-                <h1>Dashboard</h1>
-                <nav>
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                        <li class="breadcrumb-item active">Dashboard</li>
-                    </ol>
-                </nav>
-            </div>
-            <div>
-                <div class="dropdown">
-                    <!-- <button class="btn btn-outline-primary dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-download me-1"></i> Export
-                    </button> -->
-                    <ul class="dropdown-menu" aria-labelledby="exportDropdown">
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-file-earmark-pdf me-2"></i>PDF Report</a></li>
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-file-earmark-excel me-2"></i>Excel Data</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-printer me-2"></i>Print Dashboard</a></li>
-                    </ul>
-                </div>
-            </div>
+        <div class="pagetitle">
+            <h1>Dashboard</h1>
+            <nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
+                    <li class="breadcrumb-item active">Dashboard</li>
+                </ol>
+            </nav>
         </div>
 
         <section class="section dashboard">
-            <!-- Filter Section -->
-            <!-- <div class="filter-section mb-4 animate-fade-in">
-                <form method="post" class="row g-3">
-                    <div class="col-md-4">
-                        <label for="year" class="form-label fw-semibold"><i class="bi bi-calendar-event me-1"></i>Fiscal Year</label>
-                        <select class="form-select shadow-sm" id="year" name="year" required>
-                            <?php foreach ($years as $year): ?>
-                                <option value="<?php echo $year; ?>" <?php echo $selected_year == $year ? 'selected' : ''; ?>>
-                                    <?php echo $year; ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="month" class="form-label fw-semibold"><i class="bi bi-calendar-month me-1"></i>Month</label>
-                        <select class="form-select shadow-sm" id="month" name="month" required>
-                            <?php foreach ($months as $value => $label): ?>
-                                <option value="<?php echo $value; ?>" <?php echo $selected_month == $value ? 'selected' : ''; ?>>
-                                    <?php echo $label; ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="col-md-4 d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary w-100 d-flex align-items-center justify-content-center">
-                            <i class="bi bi-funnel-fill me-2"></i>Apply Filter
-                        </button>
-                    </div>
-                </form>
-            </div> -->
-
             <!-- Summary Cards -->
             <div class="row">
-                <div class="col-12 col-md-6 col-lg-3 animate-fade-in animate-delay-1">
-                    <div class="card summary-card financial-card">
+                <div class="col-xxl-4 col-md-6">
+                    <div class="card info-card sales-card">
+            
                         <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="card-title mb-0" style="color: #ffffff;">Total Budget</h6>
-                                    <h2 class="mt-2 mb-0">₱<?php echo number_format($total_allotment, 2); ?></h2>
-                                    <p class="text-white-50 mb-0">Year <?php echo $selected_year; ?></p>
-                                </div>
+                            <h5 class="card-title">Total Budget</h5>
+                            <div class="d-flex align-items-center">
                                 <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
                                     <i class="bi bi-cash-stack"></i>
                                 </div>
+                                <div class="ps-3">
+                                    <h6>₱<?php echo number_format($total_allotment, 2); ?></h6>
+                                    <span class="text-muted small pt-2">Year <?php echo $selected_year; ?></span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-12 col-md-6 col-lg-3 animate-fade-in animate-delay-2">
-                    <div class="card summary-card financial-card">
+                <div class="col-xxl-4 col-md-6">
+                    <div class="card info-card revenue-card">
+                   
                         <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="card-title mb-0" style="color: #ffffff;">Available Balance</h6>
-                                    <h2 class="mt-2 mb-0">₱<?php echo number_format($total_balances, 2); ?></h2>
-                                    <p class="text-white-50 mb-0">As of <?php echo $months[$selected_month]; ?></p>
-                                </div>
+                            <h5 class="card-title">Available Balance</h5>
+                            <div class="d-flex align-items-center">
                                 <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
                                     <i class="bi bi-wallet2"></i>
                                 </div>
+                                <div class="ps-3">
+                                    <h6>₱<?php echo number_format($total_balances, 2); ?></h6>
+                                    <span class="text-muted small pt-2">As of <?php echo $months[$selected_month]; ?></span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-12 col-md-6 col-lg-3 animate-fade-in animate-delay-3">
-                    <div class="card summary-card financial-card">
+                <div class="col-xxl-4 col-md-6">
+                    <div class="card info-card customers-card">
+                        
                         <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="card-title mb-0" style="color: #ffffff;">Utilization Rate</h6>
-                                    <h2 class="mt-2 mb-0"><?php echo number_format($utilization_percentage, 1); ?>%</h2>
-                                    <div class="progress utilization-progress mt-2">
-                                        <div class="progress-bar" role="progressbar" style="width: <?php echo $utilization_percentage; ?>%"></div>
-                                    </div>
-                                </div>
+                            <h5 class="card-title">Utilization Rate</h5>
+                            <div class="d-flex align-items-center">
                                 <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
                                     <i class="bi bi-graph-up"></i>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12 col-md-6 col-lg-3 animate-fade-in animate-delay-4">
-                    <div class="card summary-card financial-card">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="card-title mb-0" style="color: #ffffff;">Remaining Budget</h6>
-                                    <h2 class="mt-2 mb-0">₱<?php echo number_format($total_allotment - $total_balances, 2); ?></h2>
-                                    <p class="text-white-50 mb-0">For remaining months</p>
-                                </div>
-                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                                    <i class="bi bi-piggy-bank"></i>
+                                <div class="ps-3">
+                                    <h6><?php echo number_format($utilization_percentage, 1); ?>%</h6>
+                                    <div class="progress mt-2" style="height: 10px;">
+                                        <div class="progress-bar" role="progressbar" style="width: <?php echo $utilization_percentage; ?>%"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -516,31 +255,25 @@ $recent_transactions = getRecentTransactions($connection, 5);
 
             <div class="row mt-4">
                 <!-- Budget Allocation by Category -->
-                <div class="col-lg-7     report-section animate-fade-in">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h4 class="report-title">Budget Allocation by Category</h4>
-                        <div class="d-flex">
-                            <!-- <button type="button" class="btn btn-sm btn-outline-primary me-2">
-                                <i class="bi bi-grid me-1"></i> Grid View
-                            </button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary">
-                                <i class="bi bi-list me-1"></i> List View
-                            </button> -->
+                <div class="col-12">
+                    <div class="card">
+                        <div class="filter">
+                            <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                                <li class="dropdown-header text-start">
+                                    <h6>Filter</h6>
+                                </li>
+                                <li><a class="dropdown-item" href="#">All Categories</a></li>
+                                <li><a class="dropdown-item" href="#">General Administration</a></li>
+                                <li><a class="dropdown-item" href="#">Operations</a></li>
+                            </ul>
                         </div>
-                    </div>
-                    
-                    <div class="card financial-card">
                         <div class="card-body">
-                            <!-- Category tabs for navigation (optional)
-                            <div class="d-flex flex-wrap mb-3">
-                                <div class="category-tab active" data-type="all">All Categories</div>
-                                <div class="category-tab" data-type="general">General Administration</div>
-                                <div class="category-tab" data-type="operations">Operations</div>
-                            </div> -->
+                            <h5 class="card-title">Budget Allocation by Category</h5>
                             
                             <!-- Swipeable navigation indicators -->
                             <div class="text-center mb-3">
-                                <div class="d-flex justify-content-between align-items-center" style="margin-top: 20px;">
+                                <div class="d-flex justify-content-between align-items-center">
                                     <button id="prev-card" class="btn btn-sm btn-outline-secondary rounded-circle">
                                         <i class="bi bi-chevron-left"></i>
                                     </button>
@@ -808,98 +541,92 @@ $recent_transactions = getRecentTransactions($connection, 5);
                 </div>
 
                 <!-- Monthly Budget Chart -->
-                    <div class="col-lg-5 report-section animate-fade-in animate-delay-2">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h4 class="report-title">Budget Utilization</h4>
-                            <div class="dropdown">
-                                <!-- <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="chartViewDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-bar-chart-fill me-1"></i> View As
-                                </button> -->
-                                <ul class="dropdown-menu" aria-labelledby="chartViewDropdown">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="filter">
+                                <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                                    <li class="dropdown-header text-start">
+                                        <h6>View As</h6>
+                                    </li>
                                     <li><a class="dropdown-item" href="#" data-chart-type="bar">Bar Chart</a></li>
                                     <li><a class="dropdown-item" href="#" data-chart-type="pie">Pie Chart</a></li>
                                     <li><a class="dropdown-item" href="#" data-chart-type="line">Line Chart</a></li>
                                 </ul>
                             </div>
-                        </div>
-                        <div class="card financial-card h-100" >
-                            <div class="card-body d-flex flex-column" >
-                                <div id="monthlyTrendChart"   ></div>
+                            <div class="card-body">
+                                <h5 class="card-title">Budget Utilization</h5>
+                                <div id="monthlyTrendChart" style="min-height: 350px;"></div>
                             </div>
                         </div>
                     </div>
-            </div>
+                </div>
 
-            <!-- Recent Transactions Section -->
-            <div class="row mt-4">
-                <div class="col-12 report-section animate-fade-in">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h4 class="report-title">Recent Transactions</h4>
-                        <a href="#" class="btn btn-sm btn-primary">
-                            <i class="bi bi-eye me-1"></i>View All Transactions
-                        </a>
-                    </div>
-                    
-                    <div class="card financial-card">
-                        <div class="card-body">
-                            <?php if (empty($recent_transactions)): ?>
-                                <div class="text-center py-5">
-                                    <i class="bi bi-receipt text-muted" style="font-size: 3rem;"></i>
-                                    <h5 class="mt-3">No Recent Transactions</h5>
-                                    <p class="text-muted">Transactions will appear here once processed.</p>
-                                </div>
-                            <?php else: ?>
-                                <div class="transaction-list" style="margin-top: 25px;">
-                                    <?php foreach ($recent_transactions as $transaction): ?>
-                                        <div class="transaction-item type-<?php echo $transaction['type']; ?> animate-fade-in">
-                                            <div class="row align-items-center">
-                                                <div class="col-md-6">
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="me-3">
-                                                            <?php if ($transaction['type'] == 'ors'): ?>
-                                                                <div class="card-icon bg-light rounded-circle" style="width: 40px; height: 40px;">
-                                                                    <i class="bi bi-file-earmark-text text-success"></i>
-                                                                </div>
-                                                            <?php else: ?>
-                                                                <div class="card-icon bg-light rounded-circle" style="width: 40px; height: 40px;">
-                                                                    <i class="bi bi-credit-card text-primary"></i>
-                                                                </div>
-                                                            <?php endif; ?>
-                                                        </div>
-                                                        <div>
-                                                            <div class="d-flex align-items-center">
-                                                                <h6 class="mb-0"><?php echo htmlspecialchars($transaction['payee']); ?></h6>
-                                                                <span class="ms-2 transaction-badge <?php echo $transaction['type'] == 'ors' ? 'badge-ors' : 'badge-dv'; ?>">
-                                                                    <?php echo strtoupper($transaction['type']); ?>
-                                                                </span>
-                                                            </div>
-                                                            <p class="text-muted small mb-0"><?php echo htmlspecialchars($transaction['document_no']); ?></p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-3">
-                                                    <div class="small text-muted">Category</div>
-                                                    <div class="fw-semibold"><?php echo htmlspecialchars($transaction['category']); ?></div>
-                                                </div>
-                                                <div class="col-md-2">
-                                                    <div class="small text-muted">Amount</div>
-                                                    <div class="fw-bold">₱<?php echo number_format($transaction['amount'], 2); ?></div>
-                                                </div>
-                                                <div class="col-md-1 text-end">
-                                                    <?php 
-                                                    $url = $transaction['type'] == 'ors' 
-                                                        ? "ors_form.php?ors_no=" . urlencode($transaction['document_no']) 
-                                                        : "dv_form.php?dv_no=" . urlencode($transaction['document_no']); 
-                                                    ?>
-                                                    <a href="<?php echo $url; ?>" class="btn btn-sm btn-outline-secondary">
-                                                        <i class="bi bi-box-arrow-up-right"></i>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    <?php endforeach; ?>
-                                </div>
-                            <?php endif; ?>
+                <!-- Recent Transactions Section -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card recent-sales overflow-auto">
+                            <div class="filter">
+                                <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                                    <li class="dropdown-header text-start">
+                                        <h6>Filter</h6>
+                                    </li>
+                                    <li><a class="dropdown-item" href="#">ORS Only</a></li>
+                                    <li><a class="dropdown-item" href="#">DV Only</a></li>
+                                    <li><a class="dropdown-item" href="#">All Transactions</a></li>
+                                </ul>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">Recent Transactions</h5>
+                                
+                                <?php if (empty($recent_transactions)): ?>
+                                    <div class="text-center py-5">
+                                        <i class="bi bi-receipt text-muted" style="font-size: 3rem;"></i>
+                                        <h5 class="mt-3">No Recent Transactions</h5>
+                                        <p class="text-muted">Transactions will appear here once processed.</p>
+                                    </div>
+                                <?php else: ?>
+                                    <table class="table table-borderless datatable">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Type</th>
+                                                <th scope="col">Document No.</th>
+                                                <th scope="col">Payee</th>
+                                                <th scope="col">Category</th>
+                                                <th scope="col">Amount</th>
+                                                <th scope="col">Date</th>
+                                                <th scope="col">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($recent_transactions as $transaction): ?>
+                                                <tr>
+                                                    <td>
+                                                        <span class="badge bg-<?php echo $transaction['type'] == 'ors' ? 'success' : 'primary'; ?>">
+                                                            <?php echo strtoupper($transaction['type']); ?>
+                                                        </span>
+                                                    </td>
+                                                    <td><?php echo htmlspecialchars($transaction['document_no']); ?></td>
+                                                    <td><?php echo htmlspecialchars($transaction['payee']); ?></td>
+                                                    <td><?php echo htmlspecialchars($transaction['category']); ?></td>
+                                                    <td>₱<?php echo number_format($transaction['amount'], 2); ?></td>
+                                                    <td><?php echo date('M d, Y', strtotime($transaction['transaction_date'])); ?></td>
+                                                    <td>
+                                                        <?php 
+                                                        $url = $transaction['type'] == 'ors' 
+                                                            ? "ors_form.php?ors_no=" . urlencode($transaction['document_no']) 
+                                                            : "dv_form.php?dv_no=" . urlencode($transaction['document_no']); 
+                                                        ?>
+                                                        <a href="<?php echo $url; ?>" class="btn btn-sm btn-primary">View</a>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     </div>
                 </div>
