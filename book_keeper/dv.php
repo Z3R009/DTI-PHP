@@ -86,7 +86,7 @@ if (isset($_POST['submit'])) {
         $stmt->close();
 
         // Update the ORS status to 'Processed'
-        $update_status_sql = "UPDATE ors SET status = 'Processed' WHERE ors_id = ?";
+        $update_status_sql = "UPDATE ors SET status = 'Endorsed' WHERE ors_id = ?";
         $update_status_stmt = $connection->prepare($update_status_sql);
         if ($update_status_stmt === false) {
             throw new Exception('Prepare failed (ORS update): ' . htmlspecialchars($connection->error));
@@ -965,8 +965,8 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                                 <td>
                                                     <button type="button" class="btn btn-primary view-details"
                                                         data-id="<?php echo $row['ors_id']; ?>">
-                                                        <i class="bi bi-eye" data-bs-toggle="tooltip"
-                                                            data-bs-placement="top" title="View Details"></i>
+                                                        <i data-bs-toggle="tooltip" data-bs-placement="top"
+                                                            title="View Details">Create DV</i>
                                                     </button>
                                                 </td>
                                             </tr>
@@ -1079,7 +1079,8 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                     <div class="form-row">
                                         <div class="form-group half-width">
                                             <label class="form-label">Gross Amount</label>
-                                            <input type="number" class="form-control" id="total_amount" readonly>
+                                            <input type="number" class="form-control" id="total_amount" step="0.01"
+                                                readonly>
                                         </div>
                                         <div class="form-group half-width">
                                             <div class="checkbox-item">
@@ -1097,28 +1098,28 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                                     id="vat_percentage" name="vat" value="12" min="0" max="100"
                                                     readonly>%</label>
                                             <input type="number" class="form-control calculation-field" id="vat_amount"
-                                                name="vat_amount" readonly>
+                                                name="vat_amount" step="0.01" readonly>
                                         </div>
                                     </div>
                                     <div class="form-row">
                                         <div class="form-group">
                                             <label class="form-label">Tax Base</label>
                                             <input type="number" class="form-control calculation-field" id="tax_base"
-                                                name="tax_base">
+                                                name="tax_base" step="0.01">
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label">Less: <input type="number" class="tax-percentage"
                                                     id="tax1_percentage" name="tax_1" value="5" min="0" max="100"> %
                                                 Tax</label>
                                             <input type="number" class="form-control calculation-field" id="tax_1"
-                                                name="tax_1_amount">
+                                                name="tax_1_amount" step="0.01">
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label">Less: <input type="number" class="tax-percentage"
                                                     id="tax2_percentage" name="tax_2" value="2" min="0" max="100"> %
                                                 Tax</label>
                                             <input type="number" class="form-control calculation-field" id="tax_2"
-                                                name="tax_2_amount">
+                                                name="tax_2_amount" step="0.01">
                                         </div>
                                     </div>
                                 </div>
@@ -1127,7 +1128,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                     <div class="form-group">
                                         <label class="form-label">Net Amount</label>
                                         <input type="number" class="form-control calculation-field" id="net_amount"
-                                            name="net_amount" readonly>
+                                            name="net_amount" step="0.01" readonly>
                                     </div>
                                 </div>
                             </div>
@@ -1158,29 +1159,34 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                                     </select>
                                                 </td>
                                                 <td><input type="number" class="form-control debit-amount"
-                                                        name="debit_amounts[]"></td>
+                                                        name="debit_amounts[]" step="0.01"></td>
                                                 <td><input type="number" class="form-control credit-amount"
-                                                        name="credit_amounts[]"></td>
+                                                        name="credit_amounts[]" step="0.01"></td>
                                             </tr>
                                         </tbody>
                                         <tfoot>
                                             <tr>
                                                 <td colspan="2">
                                                     <select class="form-control account-select" name="account_titles[]">
-                                                        <option selected disabled>Select Account</option>
+                                                        <option selected disabled>Select Cash Account</option>
                                                         <?php
-                                                        $account_query = "SELECT * FROM account_title ORDER BY account_title ASC";
-                                                        $account_result = $connection->query($account_query);
-                                                        while ($account = $account_result->fetch_assoc()) {
+                                                        // Define the specific account codes we want to show
+                                                        $cashAccountCodes = ['1010404000', '1010405000', '1010406000'];
+
+                                                        // Query only the specific cash accounts
+                                                        $cash_account_query = "SELECT * FROM account_title WHERE account_code IN ('1010404000', '1010405000', '1010406000') ORDER BY account_title ASC";
+                                                        $cash_account_result = $connection->query($cash_account_query);
+
+                                                        while ($account = $cash_account_result->fetch_assoc()) {
                                                             echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
                                                         }
                                                         ?>
                                                     </select>
                                                 </td>
                                                 <td><input type="number" class="form-control debit-amount"
-                                                        name="debit_amounts[]"></td>
+                                                        name="debit_amounts[]" step="0.01" readonly></td>
                                                 <td><input type="number" class="form-control credit-amount"
-                                                        name="credit_amounts[]"></td>
+                                                        name="credit_amounts[]" step="0.01" readonly></td>
                                             </tr>
                                             <tr>
                                                 <td>
@@ -1409,11 +1415,22 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
 
                     // Update net amount field
                     netAmountInput.value = netAmount.toFixed(2);
+
+                    // Debug output to help troubleshoot
+                    console.log("Net amount calculation:", {
+                        grossAmount,
+                        tax1Amount,
+                        tax2Amount,
+                        totalTaxes,
+                        netAmount
+                    });
                 }
 
                 // Main calculation function
-                function calculate() {
+                window.calculate = function () {
                     const grossAmount = parseFloat(amountInput.value) || 0;
+
+                    console.log("Running calculate() with gross amount:", grossAmount);
 
                     if (applyTaxesCheckbox.checked) {
                         // With VAT calculation
@@ -1446,7 +1463,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                         // Show tax fields
                         document.getElementById('tax_fields_container').style.display = 'block';
                     } else {
-                        // Without VAT - use 3% and 1% tax rates as default
+                        // Without VAT - use 0% tax rates as default
                         // Set default tax percentages
                         tax1PercentageInput.value = "0";
                         tax2PercentageInput.value = "0";
@@ -1475,7 +1492,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
 
                     // Set fields editability based on VAT checkbox
                     setTaxFieldsEditability();
-                }
+                };
 
                 // Add event listeners
                 amountInput.addEventListener("input", calculate);
@@ -1507,8 +1524,11 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                     }
                 });
 
-                // Initial calculation - trigger calculation as soon as the page loads
-                calculate();
+                // Don't call calculate() here - it will be called by the modal code when data is loaded
+                // Only call it if this isn't a modal situation
+                if (!document.getElementById('dvFormModal')) {
+                    calculate();
+                }
             });
         </script>
 
@@ -1746,8 +1766,8 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                             ?>
                         </select>
                     </td>
-                    <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" ></td>
-                    <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" ></td>
+                    <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
+                    <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01"></td>
                 `;
 
                     tableBody.appendChild(newRow);
@@ -1814,6 +1834,123 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                 });
             });
         </script>
+
+
+        <!-- due to bir -->
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // Get references to key elements
+                const tableBody = document.getElementById('accountingTableBody');
+                const applyTaxesCheckbox = document.getElementById('apply_taxes');
+                const tax1PercentageInput = document.getElementById('tax1_percentage');
+                const tax2PercentageInput = document.getElementById('tax2_percentage');
+                const tax1Input = document.getElementById('tax_1');
+                const tax2Input = document.getElementById('tax_2');
+
+                // Function to set the main account in the first row
+                function setMainAccount(orsData) {
+                    if (!orsData || !orsData.account_id) return;
+
+                    // Get the first row's account select
+                    const firstRow = tableBody.querySelector('tr');
+                    if (!firstRow) return;
+
+                    const accountSelect = firstRow.querySelector('.account-select');
+                    const debitInput = firstRow.querySelector('.debit-amount');
+
+                    if (accountSelect && debitInput) {
+                        // Set the account selection
+                        $(accountSelect).val(orsData.account_id).trigger('change');
+
+                        // Set the amount and make it readonly
+                        debitInput.value = orsData.total_amount;
+                        debitInput.readOnly = true;
+                        debitInput.style.backgroundColor = "#f0f0f0";
+                    }
+                }
+
+                // Function to calculate totals - handles the tfoot values
+                function calculateTotals() {
+                    let totalDebit = 0;
+                    let totalCredit = 0;
+
+                    // Get all debit and credit inputs except the footer row
+                    const debitInputs = document.querySelectorAll('tbody .debit-amount');
+                    const creditInputs = document.querySelectorAll('tbody .credit-amount');
+
+                    // Sum up debit amounts
+                    debitInputs.forEach(input => {
+                        totalDebit += parseFloat(input.value || 0);
+                    });
+
+                    // Sum up credit amounts
+                    creditInputs.forEach(input => {
+                        totalCredit += parseFloat(input.value || 0);
+                    });
+
+                    // Calculate the difference (total debit - total credit)
+                    const difference = totalDebit - totalCredit;
+
+                    // Update the footer row's credit field with the difference if positive, 
+                    // or debit field if negative
+                    const footerDebitInput = document.querySelector('tfoot .debit-amount');
+                    const footerCreditInput = document.querySelector('tfoot .credit-amount');
+
+                    if (footerDebitInput && footerCreditInput) {
+                        if (difference > 0) {
+                            footerCreditInput.value = difference.toFixed(2);
+                            footerDebitInput.value = "";
+                        } else if (difference < 0) {
+                            footerDebitInput.value = Math.abs(difference).toFixed(2);
+                            footerCreditInput.value = "";
+                        } else {
+                            footerCreditInput.value = "";
+                            footerDebitInput.value = "";
+                        }
+                    }
+                }
+
+                // Add event listeners for tax changes
+                applyTaxesCheckbox.addEventListener('change', function () {
+                    calculate(); // Assume this function exists in your main code
+                    setTimeout(calculateTotals, 100);
+                });
+
+                tax1PercentageInput.addEventListener('input', function () {
+                    calculate();
+                    setTimeout(calculateTotals, 100);
+                });
+
+                tax2PercentageInput.addEventListener('input', function () {
+                    calculate();
+                    setTimeout(calculateTotals, 100);
+                });
+
+                // Hook into existing view details event
+                const viewDetailsButtons = document.querySelectorAll('.view-details');
+                viewDetailsButtons.forEach(button => {
+                    button.addEventListener('click', function () {
+                        const orsId = this.getAttribute('data-id');
+                        fetch(`get_ors_details.php?id=${orsId}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                // Wait a moment to ensure the DOM and Select2 are ready
+                                setTimeout(() => {
+                                    setMainAccount(data);
+                                    calculate(); // Trigger tax calculation
+                                    calculateTotals(); // Update totals
+                                }, 300);
+                            })
+                            .catch(error => console.error('Error fetching ORS details:', error));
+                    });
+                });
+
+                // Override the global calculateTotals function
+                window.calculateTotals = calculateTotals;
+            });
+        </script>
+
 
 </body>
 
