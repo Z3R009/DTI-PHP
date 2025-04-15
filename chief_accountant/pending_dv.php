@@ -150,5 +150,3 @@ if (isset($_GET['success']) && $_GET['success'] == 1) {
         </div>
     </section>
 </main>
-
-<?php include 'includes/footer.php'; ?>
