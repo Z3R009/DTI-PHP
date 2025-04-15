@@ -256,6 +256,13 @@
                 <i class="bi bi-bar-chart"></i><span>REPORTS</span><i class="bi bi-chevron-down ms-auto"></i>
             </a>
             <ul id="reports-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+                <!-- Summary Report (NEW) -->
+                <li>
+                    <a href="budgetOfficerSummaryReport.php">
+                        <i class="bi bi-file-earmark-bar-graph"></i><span>SUMMARY REPORT</span>
+                    </a>
+                </li>
+
                 <!-- Personnel Services Submenu -->
                 <li>
                     <a class="nav-link collapsed" data-bs-target="#personal-obligation-nav" data-bs-toggle="collapse" href="#">
