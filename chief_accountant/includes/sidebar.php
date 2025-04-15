@@ -24,10 +24,10 @@
             </a>
         </li>
 
-        <li class="nav-heading mt-3">Cash Allotment</li>
+        <li class="nav-heading mt-3">CASH ALLOTMENT</li>
         <li class="nav-item">
             <a class="nav-link collapsed" data-bs-target="#status-nav" data-bs-toggle="collapse" href="#">
-                <i class="bi bi-bar-chart"></i><span>Draft</span><i class="bi bi-chevron-down ms-auto"></i>
+                <i class="bi bi-bar-chart"></i><span>DRAFT</span><i class="bi bi-chevron-down ms-auto"></i>
             </a>
             <li>
                 <ul id="status-nav" class="nav-content collapse" data-bs-parent="#status-nav">
@@ -37,7 +37,7 @@
                         </a>
                     </li>
 
-                    <li>
+                    <li>    
                         <a href="yamanGensan.php">
                             <i class="bi bi-circle"></i><span>YAMAN GENSAN</span>
                         </a>
