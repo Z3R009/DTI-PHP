@@ -27,6 +27,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $check_no = $_POST['check_no'] ?? null;
     $bank_acc_no = $_POST['bank_acc_no'] ?? null;
     
+    // Get a valid account_id from account_name table
+    $account_id = 1; // Using account ID 1 (DTI RO XI) as default
+    
     // Validate required fields
     if (!$date || !$dv_no || !$payee_name) {
         echo json_encode([
@@ -43,8 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 rc_id, oopap_id, amount, gross_amount, 
                 vat, tax_1, tax_2, net_amount, 
                 approver_id, budget_officer, chief_accountant, 
-                regional_director, check_no, bank_acc_no
-              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                regional_director, check_no, bank_acc_no, account_id
+              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     
     $stmt = $connection->prepare($query);
     
@@ -57,13 +60,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     $stmt->bind_param(
-        "isssssssssdddddsssss",
+        "isssssssssdddddssssssi",
         $fund_cluster_id, $date, $dv_no, $mode_payment,
         $payee_name, $tin_no, $address, $notes,
         $rc_id, $oopap_id, $amount, $gross_amount,
         $vat, $tax_1, $tax_2, $net_amount,
         $approver_id, $budget_officer, $chief_accountant,
-        $regional_director, $check_no, $bank_acc_no
+        $regional_director, $check_no, $bank_acc_no, $account_id
     );
     
     if ($stmt->execute()) {
