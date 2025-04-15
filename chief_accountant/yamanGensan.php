@@ -63,7 +63,7 @@ $select = mysqli_query(
             an.type
      FROM draft_project dp
      LEFT JOIN account_name an ON dp.accountN_id = an.accountN_id
-     WHERE dp.accountN_id = 2
+     WHERE dp.accountN_id = 6
      AND MONTH(dp.created_at) = $selected_month
      AND YEAR(dp.created_at) = $selected_year
      ORDER BY an.account_name ASC"
@@ -71,13 +71,13 @@ $select = mysqli_query(
 
 $query_account = "SELECT accountN_id, account_name, account_number, type 
                  FROM account_name 
-                 WHERE accountN_id = 2 
+                 WHERE accountN_id = 6 
                  ORDER BY account_name ASC";
 $result_account = $connection->query($query_account);
 
 $total_Cashallotment_query = "SELECT SUM(cash_allotment) AS total_Cashallotment 
                              FROM draft_project 
-                             WHERE accountN_id = 2
+                             WHERE accountN_id = 6 
                              AND MONTH(created_at) = $selected_month 
                              AND YEAR(created_at) = $selected_year";
 $total_Cashallotment_result = mysqli_query($connection, $total_Cashallotment_query);
@@ -93,14 +93,14 @@ $update_balances_query = "UPDATE draft_project dp
                              AND MONTH(d.date) = $selected_month
                              AND YEAR(d.date) = $selected_year
                          )
-                         WHERE dp.accountN_id = 2
+                         WHERE dp.accountN_id = 6
                          AND MONTH(dp.created_at) = $selected_month
                          AND YEAR(dp.created_at) = $selected_year";
 mysqli_query($connection, $update_balances_query);
 
 $total_balances_query = "SELECT SUM(balances) AS total_balances 
                         FROM draft_project 
-                        WHERE accountN_id = 2 
+                        WHERE accountN_id = 6 
                         AND MONTH(created_at) = $selected_month 
                         AND YEAR(created_at) = $selected_year";
 $total_balances_result = mysqli_query($connection, $total_balances_query);
@@ -114,7 +114,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>RAPID GOP</title>
+    <title>Yaman Gensan</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
@@ -411,11 +411,11 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
 
         <div class="pagetitle page-header d-flex justify-content-between align-items-center">
             <div>
-                <h1>Rapid GOP <?php echo date('Y'); ?></h1>
+                <h1>Yaman Gensan <?php echo date('Y'); ?></h1>
                 <nav>
                     <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="index.php">Home</a></li>
-                        <li class="breadcrumb-item"><a href="index.php">Rapid GOP</a></li>
+                        <li class="breadcrumb-item"><a href="index.php">Yaman Gensan</a></li>
                     </ol>
                 </nav>
             </div>
