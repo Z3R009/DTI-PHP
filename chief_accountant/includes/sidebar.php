@@ -38,7 +38,7 @@
                     </li>
 
                     <li>
-                        <a href="#">
+                        <a href="yamanGensan.php">
                             <i class="bi bi-circle"></i><span>YAMAN GENSAN</span>
                         </a>
                     </li>
