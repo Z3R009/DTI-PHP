@@ -6,87 +6,90 @@ $account_id = isset($_GET['account_id']) ? $_GET['account_id'] : '';
 $from_date = isset($_GET['from_date']) ? $_GET['from_date'] : date('Y-m-01');
 $to_date = isset($_GET['to_date']) ? $_GET['to_date'] : date('Y-m-d');
 
-if (empty($account_id)) {
-    echo "<script>alert('No account selected. Please select an account.'); window.close();</script>";
-    exit;
-}
+// Initialize variables for results
+$account_details = null;
+$transactions = null;
+$starting_balance = 0;
+$total_amount = 0;
+$ending_balance = 0;
 
-// Get account details
-$account_details_query = "SELECT a.*, d.cash_allotment, d.balances 
-                        FROM account_name a 
-                        LEFT JOIN draft_project d ON a.account_id = d.account_id 
-                        WHERE a.account_id = '$account_id' 
-                        ORDER BY d.created_at DESC LIMIT 1";
-$account_details_result = mysqli_query($conn, $account_details_query);
-
-$account_name = '';
-$account_number = '';
-$cash_allotment = 0;
-$current_balance = 0;
-
-if (mysqli_num_rows($account_details_result) > 0) {
-    $account_details = mysqli_fetch_assoc($account_details_result);
-    $account_name = $account_details['account_name'];
-    $account_number = $account_details['account_number'];
-    $cash_allotment = $account_details['cash_allotment'] ?? 0;
-    $current_balance = $account_details['balances'] ?? 0;
-}
-
-// Get payment data
-$payment_query = "SELECT p.*, a.account_name, a.account_number, d.cash_allotment, d.balances 
-                FROM payments p 
-                INNER JOIN draft_project d ON p.draft_id = d.draft_id 
-                INNER JOIN account_name a ON d.account_id = a.account_id 
-                WHERE d.account_id = '$account_id'";
-
-if (!empty($from_date)) {
-    $payment_query .= " AND DATE(p.date_created) >= '$from_date'";
-}
-if (!empty($to_date)) {
-    $payment_query .= " AND DATE(p.date_created) <= '$to_date'";
-}
-
-$payment_query .= " ORDER BY p.date_created ASC";
-$payment_result = mysqli_query($conn, $payment_query);
-
-// Calculate transaction totals
-$total_check = 0;
-$total_ada = 0;
-$total_payments = 0;
-
-if (mysqli_num_rows($payment_result) > 0) {
-    mysqli_data_seek($payment_result, 0);
-    while ($row = mysqli_fetch_assoc($payment_result)) {
-        if ($row['payment_type'] == 'Check') {
-            $total_check += $row['amount'];
-        } else if ($row['payment_type'] == 'ADA') {
-            $total_ada += $row['amount'];
-        }
-        $total_payments += $row['amount'];
+// If account is selected, fetch its details and related transactions
+if (!empty($account_id)) {
+    // Fetch account details
+    $account_query = "SELECT * FROM account_name WHERE account_id = ?";
+    $stmt = $connection->prepare($account_query);
+    $stmt->bind_param("i", $account_id);
+    $stmt->execute();
+    $account_result = $stmt->get_result();
+    $account_details = $account_result->fetch_assoc();
+    
+    // Get draft project (budget allocation) for this account
+    $draft_query = "SELECT * FROM draft_project 
+                   WHERE account_id = ? 
+                   AND created_at <= ?
+                   ORDER BY created_at DESC
+                   LIMIT 1";
+    $stmt = $connection->prepare($draft_query);
+    $stmt->bind_param("is", $account_id, $to_date);
+    $stmt->execute();
+    $draft_result = $stmt->get_result();
+    $draft_project = $draft_result->fetch_assoc();
+    
+    // Calculate starting balance from the draft project
+    if ($draft_project) {
+        $starting_balance = $draft_project['cash_allotment'];
+        
+        // Get all payments before from_date (to calculate starting balance)
+        $previous_payments_query = "SELECT COALESCE(SUM(p.amount), 0) as total
+                                   FROM payment p
+                                   JOIN dv d ON p.dv_id = d.dv_id
+                                   WHERE d.account_id = ?
+                                   AND p.payment_date < ?
+                                   AND p.status = 'Completed'";
+        $stmt = $connection->prepare($previous_payments_query);
+        $stmt->bind_param("is", $account_id, $from_date);
+        $stmt->execute();
+        $previous_result = $stmt->get_result();
+        $previous_payments = $previous_result->fetch_assoc();
+        
+        // Adjust starting balance by subtracting previous payments
+        $starting_balance = $draft_project['cash_allotment'] - ($previous_payments['total'] ?? 0);
     }
-    mysqli_data_seek($payment_result, 0);
+    
+    // Get all transactions within the date range
+    $transactions_query = "SELECT p.payment_id, p.payment_date, p.payment_type, p.reference_no, 
+                          p.amount, p.remarks, p.status, d.dv_no, 
+                          o.ors_no, pa.payee_name, o.purpose
+                          FROM payment p
+                          JOIN dv d ON p.dv_id = d.dv_id
+                          JOIN ors o ON d.ors_id = o.ors_id
+                          JOIN payee pa ON o.payee_id = pa.payee_id
+                          WHERE d.account_id = ?
+                          AND p.payment_date BETWEEN ? AND ?
+                          AND p.status = 'Completed'
+                          ORDER BY p.payment_date ASC";
+    $stmt = $connection->prepare($transactions_query);
+    $stmt->bind_param("iss", $account_id, $from_date, $to_date);
+    $stmt->execute();
+    $transactions = $stmt->get_result();
+    
+    // Calculate total amount spent
+    $total_query = "SELECT COALESCE(SUM(p.amount), 0) as total
+                   FROM payment p
+                   JOIN dv d ON p.dv_id = d.dv_id
+                   WHERE d.account_id = ?
+                   AND p.payment_date BETWEEN ? AND ?
+                   AND p.status = 'Completed'";
+    $stmt = $connection->prepare($total_query);
+    $stmt->bind_param("iss", $account_id, $from_date, $to_date);
+    $stmt->execute();
+    $total_result = $stmt->get_result();
+    $total_row = $total_result->fetch_assoc();
+    $total_amount = $total_row['total'];
+    
+    // Calculate ending balance
+    $ending_balance = $starting_balance - $total_amount;
 }
-
-// Calculate starting balance
-$starting_balance = $cash_allotment;
-if (!empty($from_date)) {
-    $prior_payments_query = "SELECT SUM(p.amount) as total_prior 
-                            FROM payments p 
-                            INNER JOIN draft_project d ON p.draft_id = d.draft_id 
-                            WHERE d.account_id = '$account_id' 
-                            AND DATE(p.date_created) < '$from_date'";
-    $prior_payments_result = mysqli_query($conn, $prior_payments_query);
-    $prior_payments = mysqli_fetch_assoc($prior_payments_result);
-    $total_prior = $prior_payments['total_prior'] ?? 0;
-    $starting_balance = $cash_allotment - $total_prior;
-}
-
-// Calculate ending balance
-$ending_balance = $starting_balance - $total_payments;
-
-// Get current date and time for the report header
-$report_date = date('F d, Y');
-$report_time = date('h:i A');
 ?>
 
 <!DOCTYPE html>
@@ -94,7 +97,7 @@ $report_time = date('h:i A');
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cash Budget Report - <?php echo $account_name; ?></title>
+    <title>Budget Report - <?php echo $account_details ? $account_details['account_name'] : 'Print'; ?></title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -107,83 +110,56 @@ $report_time = date('h:i A');
             margin-bottom: 20px;
         }
         .report-header h1 {
-            font-size: 18px;
-            margin: 0;
-            padding: 0;
-        }
-        .report-header h2 {
-            font-size: 16px;
             margin: 5px 0;
-            padding: 0;
+            font-size: 18px;
         }
         .report-header p {
             margin: 5px 0;
-            padding: 0;
+            font-size: 14px;
         }
-        .report-details {
+        .account-details {
             margin-bottom: 20px;
         }
-        .report-details table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .report-details td {
-            padding: 5px;
-        }
-        .report-details .label {
-            font-weight: bold;
-            width: 150px;
-        }
-        .report-summary {
+        .budget-summary {
             margin-bottom: 20px;
-            width: 100%;
+            display: flex;
+            justify-content: space-between;
         }
-        .report-summary table {
+        .summary-item {
+            width: 30%;
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        table {
             width: 100%;
             border-collapse: collapse;
+            margin-bottom: 20px;
         }
-        .report-summary th, .report-summary td {
-            border: 1px solid #000;
-            padding: 5px;
-        }
-        .report-summary th {
-            background-color: #f0f0f0;
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
             text-align: left;
         }
-        .transactions table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        .transactions th, .transactions td {
-            border: 1px solid #000;
-            padding: 5px;
-            text-align: left;
-        }
-        .transactions th {
-            background-color: #f0f0f0;
+        th {
+            background-color: #f2f2f2;
         }
         .text-end {
             text-align: right;
         }
-        .text-center {
-            text-align: center;
-        }
         .signature-section {
+            display: flex;
+            justify-content: space-between;
             margin-top: 50px;
         }
-        .signature-section .signature-line {
+        .signature-box {
+            width: 30%;
+            text-align: center;
+        }
+        .signature-line {
             border-top: 1px solid #000;
-            width: 200px;
             margin-top: 50px;
-            display: inline-block;
-            text-align: center;
-            margin-right: 50px;
-        }
-        .footer {
-            margin-top: 30px;
-            font-size: 10px;
-            text-align: center;
+            padding-top: 5px;
         }
         @media print {
             body {
@@ -193,154 +169,113 @@ $report_time = date('h:i A');
             .no-print {
                 display: none;
             }
+            @page {
+                margin: 10mm;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="no-print" style="text-align: right; margin-bottom: 20px;">
+    <div class="no-print" style="margin-bottom: 20px;">
         <button onclick="window.print()">Print Report</button>
         <button onclick="window.close()">Close</button>
     </div>
-
+    
+    <?php if ($account_details): ?>
     <div class="report-header">
         <h1>DEPARTMENT OF TRADE AND INDUSTRY</h1>
-        <h2>CASH BUDGET REPORT</h2>
-        <p>For the period of <?php echo date('F d, Y', strtotime($from_date)); ?> to <?php echo date('F d, Y', strtotime($to_date)); ?></p>
-        <p>Generated on: <?php echo $report_date; ?> at <?php echo $report_time; ?></p>
+        <p>Region XII</p>
+        <h2>BUDGET REPORT</h2>
+        <p>Period: <?php echo date('F d, Y', strtotime($from_date)); ?> to <?php echo date('F d, Y', strtotime($to_date)); ?></p>
     </div>
-
-    <div class="report-details">
-        <table>
-            <tr>
-                <td class="label">Account:</td>
-                <td><?php echo $account_name; ?></td>
-            </tr>
-            <tr>
-                <td class="label">Account Number:</td>
-                <td><?php echo $account_number; ?></td>
-            </tr>
-            <tr>
-                <td class="label">Cash Allotment:</td>
-                <td>₱<?php echo number_format($cash_allotment, 2); ?></td>
-            </tr>
-            <tr>
-                <td class="label">Current Balance:</td>
-                <td>₱<?php echo number_format($current_balance, 2); ?></td>
-            </tr>
-        </table>
+    
+    <div class="account-details">
+        <p><strong>Account Name:</strong> <?php echo $account_details['account_name']; ?></p>
+        <p><strong>Account Number:</strong> <?php echo $account_details['account_number']; ?></p>
+        <p><strong>Type:</strong> <?php echo $account_details['type']; ?></p>
+        <p><strong>Date Generated:</strong> <?php echo date('F d, Y'); ?></p>
     </div>
-
-    <div class="report-summary">
-        <table>
-            <tr>
-                <th colspan="2">Budget Summary</th>
-            </tr>
-            <tr>
-                <td class="label">Starting Balance (<?php echo date('M d, Y', strtotime($from_date)); ?>):</td>
-                <td class="text-end">₱<?php echo number_format($starting_balance, 2); ?></td>
-            </tr>
-            <tr>
-                <td class="label">Total Check Payments:</td>
-                <td class="text-end">₱<?php echo number_format($total_check, 2); ?></td>
-            </tr>
-            <tr>
-                <td class="label">Total ADA Payments:</td>
-                <td class="text-end">₱<?php echo number_format($total_ada, 2); ?></td>
-            </tr>
-            <tr>
-                <td class="label">Total Payments:</td>
-                <td class="text-end">₱<?php echo number_format($total_payments, 2); ?></td>
-            </tr>
-            <tr>
-                <td class="label">Ending Balance (<?php echo date('M d, Y', strtotime($to_date)); ?>):</td>
-                <td class="text-end">₱<?php echo number_format($ending_balance, 2); ?></td>
-            </tr>
-        </table>
+    
+    <div class="budget-summary">
+        <div class="summary-item">
+            <h3>Starting Balance</h3>
+            <p>PHP <?php echo number_format($starting_balance, 2); ?></p>
+        </div>
+        <div class="summary-item">
+            <h3>Total Spent</h3>
+            <p>PHP <?php echo number_format($total_amount, 2); ?></p>
+        </div>
+        <div class="summary-item">
+            <h3>Ending Balance</h3>
+            <p>PHP <?php echo number_format($ending_balance, 2); ?></p>
+        </div>
     </div>
-
-    <div class="transactions">
-        <h3>Transaction Details</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>DV #</th>
-                    <th>Payee</th>
-                    <th>Particular</th>
-                    <th>Payment Type</th>
-                    <th>Status</th>
-                    <th class="text-end">Amount</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (mysqli_num_rows($payment_result) > 0) : ?>
-                    <?php while ($payment = mysqli_fetch_assoc($payment_result)) : ?>
-                        <tr>
-                            <td><?php echo date('m/d/Y', strtotime($payment['date_created'])); ?></td>
-                            <td><?php echo $payment['dv_number']; ?></td>
-                            <td><?php echo $payment['payee']; ?></td>
-                            <td><?php echo $payment['particular']; ?></td>
-                            <td><?php echo $payment['payment_type']; ?></td>
-                            <td>
-                                <?php 
-                                if ($payment['status'] == 0) {
-                                    echo 'Pending';
-                                } elseif ($payment['status'] == 1) {
-                                    echo 'Processed';
-                                } elseif ($payment['status'] == 2) {
-                                    echo 'Rejected';
-                                }
-                                ?>
-                            </td>
-                            <td class="text-end">₱<?php echo number_format($payment['amount'], 2); ?></td>
-                        </tr>
-                    <?php endwhile; ?>
-                <?php else : ?>
-                    <tr>
-                        <td colspan="7" class="text-center">No transactions found for the selected period.</td>
-                    </tr>
-                <?php endif; ?>
-            </tbody>
-            <tfoot>
-                <tr>
-                    <th colspan="6" class="text-end">Total:</th>
-                    <th class="text-end">₱<?php echo number_format($total_payments, 2); ?></th>
-                </tr>
-            </tfoot>
-        </table>
-    </div>
-
+    
+    <h3>Transaction Details</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>DV No</th>
+                <th>ORS No</th>
+                <th>Payee</th>
+                <th>Purpose</th>
+                <th>Payment Type</th>
+                <th>Reference No</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php 
+            if ($transactions && mysqli_num_rows($transactions) > 0): 
+                while ($row = mysqli_fetch_assoc($transactions)): 
+            ?>
+            <tr>
+                <td><?php echo date('M d, Y', strtotime($row['payment_date'])); ?></td>
+                <td><?php echo $row['dv_no']; ?></td>
+                <td><?php echo $row['ors_no']; ?></td>
+                <td><?php echo $row['payee_name']; ?></td>
+                <td><?php echo substr($row['purpose'], 0, 50) . (strlen($row['purpose']) > 50 ? '...' : ''); ?></td>
+                <td><?php echo $row['payment_type']; ?></td>
+                <td><?php echo $row['reference_no']; ?></td>
+                <td class="text-end">PHP <?php echo number_format($row['amount'], 2); ?></td>
+            </tr>
+            <?php 
+                endwhile; 
+            else: 
+            ?>
+            <tr>
+                <td colspan="8" style="text-align:center;">No transactions found for the selected period</td>
+            </tr>
+            <?php endif; ?>
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="7" class="text-end">Total:</th>
+                <th class="text-end">PHP <?php echo number_format($total_amount, 2); ?></th>
+            </tr>
+        </tfoot>
+    </table>
+    
     <div class="signature-section">
-        <div class="signature-line">
-            <p>Prepared by:</p>
-            <p>____________________</p>
+        <div class="signature-box">
+            <div class="signature-line">Prepared by</div>
             <p>Cashier</p>
         </div>
-        
-        <div class="signature-line">
-            <p>Verified by:</p>
-            <p>____________________</p>
-            <p>Accounting Officer</p>
+        <div class="signature-box">
+            <div class="signature-line">Verified by</div>
+            <p>Chief Accountant</p>
         </div>
-        
-        <div class="signature-line">
-            <p>Approved by:</p>
-            <p>____________________</p>
-            <p>Department Head</p>
+        <div class="signature-box">
+            <div class="signature-line">Approved by</div>
+            <p>Regional Director</p>
         </div>
     </div>
-
-    <div class="footer">
-        <p>This is a computer-generated report. No signature is required.</p>
+    <?php else: ?>
+    <div style="text-align:center; margin-top:50px;">
+        <h3>No account selected or data not found</h3>
+        <p>Please go back and select an account to generate the report.</p>
     </div>
-
-    <script>
-        window.onload = function() {
-            // Auto print when the page loads
-            window.setTimeout(function() {
-                window.print();
-            }, 500);
-        };
-    </script>
+    <?php endif; ?>
 </body>
 </html> 

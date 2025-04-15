@@ -1,13 +1,11 @@
 <?php
 include '../DBConnection.php';
 
-// Set headers for Excel download
 header("Content-Type: application/vnd.ms-excel");
 header("Content-Disposition: attachment; filename=payment_report_" . date('Y-m-d') . ".xls");
 header("Pragma: no-cache");
 header("Expires: 0");
 
-// Initialize filter variables
 $from_date = isset($_GET['from_date']) ? $_GET['from_date'] : date('Y-m-01');
 $to_date = isset($_GET['to_date']) ? $_GET['to_date'] : date('Y-m-d');
 $fund_cluster = isset($_GET['fund_cluster']) ? $_GET['fund_cluster'] : 'all';

@@ -45,6 +45,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $endorsement_date = date('Y-m-d H:i:s');
         $remarks = $_POST['remarks'];
         $chief_accountant = "NEIL ANTHONY T. MORALA"; // This should come from the logged-in user's session
+        $check_no = $_POST['check_no'] ?? '';
+        $ada_no = $_POST['ada_no'] ?? '';
+        $payment_type = '';
+        
+        // Determine payment type based on what was filled
+        if (!empty($check_no) && empty($ada_no)) {
+            $payment_type = 'Check';
+        } elseif (empty($check_no) && !empty($ada_no)) {
+            $payment_type = 'ADA';
+        } elseif (!empty($check_no) && !empty($ada_no)) {
+            $payment_type = 'Both'; // Or handle this case as needed
+        }
         
         // Update DV based on whether status column exists
         if ($column_exists) {
@@ -52,24 +64,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             status = 'Endorsed',
                             endorsement_date = ?,
                             endorsement_remarks = ?,
-                            chief_accountant = ?
+                            chief_accountant = ?,
+                            check_no = ?,
+                            ada_no = ?,
+                            payment_type = ?
                             WHERE dv_id = ?";
+            
+            $update_stmt = $connection->prepare($update_query);
+            $update_stmt->bind_param("ssssssi", $endorsement_date, $remarks, $chief_accountant, $check_no, $ada_no, $payment_type, $dv_id);
         } else {
             $update_query = "UPDATE dv SET 
                             endorsement_date = ?,
                             endorsement_remarks = ?,
-                            chief_accountant = ?
+                            chief_accountant = ?,
+                            check_no = ?,
+                            ada_no = ?,
+                            payment_type = ?
                             WHERE dv_id = ?";
+            
+            $update_stmt = $connection->prepare($update_query);
+            $update_stmt->bind_param("ssssssi", $endorsement_date, $remarks, $chief_accountant, $check_no, $ada_no, $payment_type, $dv_id);
         }
-        
-        $update_stmt = $connection->prepare($update_query);
-        $update_stmt->bind_param("sssi", $endorsement_date, $remarks, $chief_accountant, $dv_id);
         
         if ($update_stmt->execute()) {
             header('Location: pending_dv.php?success=1');
             exit();
         } else {
-            $error_message = "Error updating record: " . $conn->error;
+            $error_message = "Error updating record: " . $connection->error;
         }
     }
 }
@@ -80,8 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-
-    <title>Dashboard - NiceAdmin Bootstrap Template</title>
+    <title>Chief Accountant - DTI PHP</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
@@ -228,6 +248,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
 
                             <div class="row mb-3">
+                                <div class="col-12 mb-3">
+                                    <h5>Payment Information</h5>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="check_no" class="form-label">Check No.</label>
+                                                <input type="text" class="form-control" name="check_no" id="check_no" placeholder="Enter Check Number (if applicable)">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="ada_no" class="form-label">ADA No.</label>
+                                                <input type="text" class="form-control" name="ada_no" id="ada_no" placeholder="Enter ADA Number (if applicable)">
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mt-2">
+                                            <div class="alert alert-info">
+                                                <i class="bi bi-info-circle me-1"></i>
+                                                You can enter either a Check Number, ADA Number, or both depending on the payment method.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="col-12">
                                     <h5>Chief Accountant's Endorsement</h5>
                                     <div class="form-group">

@@ -11,10 +11,20 @@ if (isset($_POST['submit'])) {
     print_r($_POST);
     echo "</pre>";
 
+
+    $fund_cluster_id = $_POST['fund_cluster_id'];
+    $oopap_id = $_POST['oopap_id'];
+    $services_id = $_POST['services_id'];
     $date = $_POST['date'];
     $dv_no = $_POST['dv_no'];
-    $ors_no = $_POST['ors_id']; // This is actually the ORS number
-    $payment_mode = $_POST['payment_mode'];
+    $payee_id = $_POST['payee_id'];
+    $purpose = $_POST['purpose'];
+    $notes = $_POST['notes'];
+    $rc_id = $_POST['rc_id'];
+    $account_id = $_POST['account_id'];
+    $amount = $_POST['amount'];
+    $type = $_POST['type'];
+    $total_amount = $_POST['total_amount'];
     $vat = $_POST['vat'];
     $vat_amount = $_POST['vat_amount'];
     $tax_base = $_POST['tax_base'];
@@ -23,8 +33,10 @@ if (isset($_POST['submit'])) {
     $tax_2 = $_POST['tax_2'];
     $tax_2_amount = $_POST['tax_2_amount'];
     $net_amount = $_POST['net_amount'];
+    $approver_id = $_POST['approver_id'];
     $chief_accountant = $_POST['chief_accountant'];
     $regional_director = $_POST['regional_director'];
+    $status = $_POST['status'];
 
     // Get the account titles and amounts arrays
     $account_titles = $_POST['account_titles'];
@@ -35,27 +47,10 @@ if (isset($_POST['submit'])) {
     $connection->begin_transaction();
 
     try {
-        // First, get the ors_id from the ors_no
-        $ors_query = "SELECT ors_id FROM ors WHERE ors_no = ?";
-        $ors_stmt = $connection->prepare($ors_query);
-        if ($ors_stmt === false) {
-            throw new Exception('Prepare failed: ' . htmlspecialchars($connection->error));
-        }
-        $ors_stmt->bind_param("s", $ors_no);
-        if (!$ors_stmt->execute()) {
-            throw new Exception("Error getting ORS ID: " . $ors_stmt->error);
-        }
-        $ors_result = $ors_stmt->get_result();
-        if ($ors_result->num_rows === 0) {
-            throw new Exception("ORS number not found: " . $ors_no);
-        }
-        $ors_row = $ors_result->fetch_assoc();
-        $ors_id = $ors_row['ors_id'];
-        $ors_stmt->close();
 
         // Insert the main DV record
-        $sql = "INSERT INTO dv (date, dv_no, ors_id, payment_mode, vat, vat_amount, tax_base, tax_1, tax_1_amount, tax_2, tax_2_amount, net_amount, chief_accountant, regional_director) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO dv_non_ors (fund_cluster, oopap_id, services_id, date, dv_no, payee_id, purpose, notes, rc_id, account_id, amount, type, total_amount, vat, vat_amount, tax_base, tax_1, tax_1_amount, tax_2, tax_2_amount, net_amount, approver_id, chief_accountant, regional_director) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         $stmt = $connection->prepare($sql);
         if ($stmt === false) {
@@ -63,11 +58,20 @@ if (isset($_POST['submit'])) {
         }
 
         $stmt->bind_param(
-            "ssisddddddddss",
+            "iiississiidsdiddididdisss",
+            $fund_cluster,
+            $oopap_id,
+            $services_id,
             $date,
             $dv_no,
-            $ors_id,
-            $payment_mode,
+            $payee_id,
+            $purpose,
+            $notes,
+            $rc_id,
+            $account_id,
+            $amount,
+            $type,
+            $total_amount,
             $vat,
             $vat_amount,
             $tax_base,
@@ -76,8 +80,10 @@ if (isset($_POST['submit'])) {
             $tax_2,
             $tax_2_amount,
             $net_amount,
+            $approver_id,
             $chief_accountant,
-            $regional_director
+            $regional_director,
+            $status
         );
 
         if (!$stmt->execute()) {
@@ -822,7 +828,7 @@ while ($row = $result_approvers->fetch_assoc()) {
                                     <div class="form-row">
                                         <div class="form-group">
                                             <label class="form-label">Fund Cluster</label>
-                                            <select class="form-control" name="fund_cluster_id">
+                                            <select class="form-control" name="fund_cluster_id" id="fund_cluster">
                                                 <option selected disabled>Select Fund Cluster</option>
                                                 <?php
                                                 while ($row = $result_fund_cluster->fetch_assoc()) {
@@ -1414,73 +1420,41 @@ while ($row = $result_approvers->fetch_assoc()) {
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            generateDVNumber(); // Call function when page loads
+            const fundClusterInput = document.getElementById("fund_cluster");
+            const dateInput = document.getElementById("date");
 
-            // Re-fetch DV number when fund cluster input changes
-            let fundClusterInput = document.getElementById("fund_cluster");
-            if (fundClusterInput) {
-                fundClusterInput.addEventListener("input", generateDVNumber);
-            } else {
-                console.error("Fund cluster input field not found!");
-            }
-
-            // Re-fetch DV number when date input changes
-            let dateInput = document.getElementById("date");
-            if (dateInput) {
-                dateInput.addEventListener("change", generateDVNumber);
-            } else {
-                console.error("Date input field not found!");
-            }
+            // Attach listeners
+            fundClusterInput.addEventListener("change", checkAndGenerateDV);
+            dateInput.addEventListener("change", checkAndGenerateDV);
         });
 
-        function generateDVNumber() {
-            let fundClusterInput = document.getElementById("fund_cluster");
-            let dateInput = document.getElementById("date");
+        function checkAndGenerateDV() {
+            const fundCluster = document.getElementById("fund_cluster").value;
+            const date = document.getElementById("date").value;
 
-            if (!fundClusterInput) {
-                console.error("Fund cluster input field not found!");
-                return;
-            }
+            if (fundCluster && date) {
+                const formData = new FormData();
+                formData.append("fund_cluster_id", fundCluster);
+                formData.append("date", date);
 
-            let fundClusterValue = fundClusterInput.value.trim();
-            let fundClusterNumber = fundClusterValue.match(/^\d+/); // Extract only the leading number
-
-            if (!fundClusterNumber) {
-                console.error("Fund cluster ID is missing or invalid!");
-                return;
-            }
-
-            let formData = new FormData();
-            formData.append("fund_cluster_id", fundClusterNumber[0]); // Send only the number
-
-            // Add date parameter if available
-            if (dateInput && dateInput.value) {
-                formData.append("date", dateInput.value);
-            }
-
-            fetch("fetch_dv_number.php", {
-                method: "POST",
-                body: formData,
-            })
-                .then(response => response.json())
-                .then(data => {
-                    console.log("Fetched DV Data:", data); // Debugging
-                    let dvNoInput = document.getElementById("dv_no");
-
-                    if (dvNoInput) {
-                        if (data.success) {
-                            dvNoInput.value = data.dv_no;
-                            console.log("DV No Set:", dvNoInput.value);
-                        } else {
-                            console.error("Error fetching DV number:", data.error);
-                        }
-                    } else {
-                        console.error("DV Number input field not found!");
-                    }
+                fetch("../fetch_dv_number.php", {
+                    method: "POST",
+                    body: formData,
                 })
-                .catch(error => console.error("Fetch error:", error));
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById("dv_no").value = data.dv_no;
+                        } else {
+                            document.getElementById("dv_no").value = "";
+                            console.error("Error:", data.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Fetch error:", error);
+                    });
+            }
         }
-
 
     </script>
 

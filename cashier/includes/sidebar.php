@@ -133,7 +133,7 @@
 
 .user-profile {
     padding: 20px;
-    background-color: rgba(247, 247, 247, 0.5);
+    background: rgba(10, 111, 253, 0.42);
     border-radius: 10px;
     margin-bottom: 20px;
     border: 1px solid rgba(0, 0, 0, 0.05);

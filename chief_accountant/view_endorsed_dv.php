@@ -47,8 +47,7 @@ if (!$dv) {
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-
-    <title>Dashboard - NiceAdmin Bootstrap Template</title>
+    <title>Chief Accountant - DTI PHP</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
@@ -137,6 +136,17 @@ if (!$dv) {
                                     <th>Net Amount</th>
                                     <td>₱<?php echo number_format($dv['net_amount'], 2); ?></td>
                                 </tr>
+                                <tr> 
+                                <th>Payment Type</th>
+                                <td>
+                                    <?php echo htmlspecialchars($dv['payment_type']); ?>
+                                    <?php if ($dv['payment_type'] == 'Check') { ?>
+                                        (Check No: <?php echo htmlspecialchars($dv['check_no']); ?>)
+                                    <?php } elseif ($dv['payment_type'] == 'ADA') { ?>
+                                        (ADA No: <?php echo htmlspecialchars($dv['ada_no']); ?>)
+                                    <?php } ?>
+                                </td>
+                            </tr>
                             </table>
                         </div>
                     </div>
@@ -147,7 +157,7 @@ if (!$dv) {
                             <table class="table table-bordered">
                                 <tr>
                                     <th>Endorsement Date</th>
-                                    <td><?php echo date('M d, Y', strtotime($dv['date'])); ?></td>
+                                    <td><?php echo date('M d, Y', strtotime($dv['endorsement_date'])); ?></td>
                                 </tr>
                                 <tr>
                                     <th>Chief Accountant</th>

@@ -1,7 +1,5 @@
 <?php
 include '../DBConnection.php';
-
-// Count all endorsed DVs (which are pending for payment)
 $pending_query = "SELECT COUNT(*) as pending_count, SUM(net_amount) as pending_amount 
                  FROM dv 
                  WHERE status = 'Endorsed' 
@@ -10,8 +8,6 @@ $pending_result = mysqli_query($connection, $pending_query);
 $pending_data = mysqli_fetch_assoc($pending_result);
 $pending_count = $pending_data['pending_count'] ?? 0;
 $pending_amount = $pending_data['pending_amount'] ?? 0;
-
-// Count all completed payments
 $completed_query = "SELECT COUNT(*) as completed_count, SUM(amount) as completed_amount 
                    FROM payment 
                    WHERE status = 'Completed'";
@@ -20,7 +16,6 @@ $completed_data = mysqli_fetch_assoc($completed_result);
 $completed_count = $completed_data['completed_count'] ?? 0;
 $completed_amount = $completed_data['completed_amount'] ?? 0;
 
-// Count payments by type
 $payment_types_query = "SELECT payment_type, COUNT(*) as type_count 
                        FROM payment 
                        GROUP BY payment_type";
@@ -32,7 +27,6 @@ while ($row = mysqli_fetch_assoc($payment_types_result)) {
 $check_count = $payment_types['Check'] ?? 0;
 $ada_count = $payment_types['ADA'] ?? 0;
 
-// Recent payments
 $recent_payments_query = "SELECT p.*, d.dv_no 
                          FROM payment p
                          JOIN dv d ON p.dv_id = d.dv_id
@@ -57,8 +51,7 @@ $recent_payments_result = mysqli_query($connection, $recent_payments_query);
                 <li class="breadcrumb-item active">Dashboard</li>
             </ol>
         </nav>
-    </div><!-- End Page Title -->
-
+    </div>
     <section class="section dashboard">
         <div class="row">
             <div class="col-lg-12">
@@ -123,6 +116,7 @@ $recent_payments_result = mysqli_query($connection, $recent_payments_query);
                                 </div>
                             </div>
                         </div>
+                        
                     </div>
                 </div>
             </div>

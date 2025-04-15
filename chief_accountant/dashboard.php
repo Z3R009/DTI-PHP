@@ -2,18 +2,15 @@
 <?php
 include '../DBConnection.php';
 
-// Check if status column exists in dv table
 $check_column_query = "SHOW COLUMNS FROM dv LIKE 'status'";
 $column_result = mysqli_query($connection, $check_column_query);
 $column_exists = (mysqli_num_rows($column_result) > 0);
 
-// Calculate pending DVs (where chief_accountant is NULL or status is 'pending_endorsement')
 $pending_query = "SELECT COUNT(*) as pending_count FROM dv WHERE (chief_accountant IS NULL OR status = 'Pending')";
 $pending_result = mysqli_query($connection, $pending_query);
 $pending_row = mysqli_fetch_assoc($pending_result);
 $pending_dv_count = $pending_row['pending_count'];
 
-// Calculate endorsed DVs (where chief_accountant is NOT NULL or status is 'endorsed')
 $endorsed_query = "SELECT COUNT(*) as endorsed_count FROM dv WHERE (chief_accountant IS NOT NULL OR status = 'Endorsed')";
 $endorsed_result = mysqli_query($connection, $endorsed_query);
 $endorsed_row = mysqli_fetch_assoc($endorsed_result);
@@ -27,7 +24,7 @@ $endorsed_dv_count = $endorsed_row['endorsed_count'];
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Dashboard - NiceAdmin Bootstrap Template</title>
+    <title>Chief Accountant - DTI PHP</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
