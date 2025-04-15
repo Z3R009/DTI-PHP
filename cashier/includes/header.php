@@ -35,8 +35,8 @@
 
         <div class="d-flex align-items-center justify-content-between">
             <a href="dashboard.php" class="logo d-flex align-items-center">
-                <img src="../img/DTI-LOGO-4.png" alt="">
-                <span class="d-none d-lg-block">DTI-Cashier Module</span>
+            <img src="../img/DTI_short.png" alt="DTI Logo">
+                <span class="d-none d-lg-block">DTI-Cashier</span>
             </a>
             <i class="bi bi-list toggle-sidebar-btn"></i>
         </div><!-- End Logo -->

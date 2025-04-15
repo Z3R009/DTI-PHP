@@ -27,7 +27,7 @@ if ($column_exists) {
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Dashboard - NiceAdmin Bootstrap Template</title>
+    <title>Chief Accountant - DTI PHP</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
@@ -317,6 +317,15 @@ if ($column_exists) {
 <?php include "Includes/sidebar.php"; ?>
 
  <main id="main" class="main">
+ <div class="pagetitle">
+        <h1>Endorsed Disbursement Vouchers</h1>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
+                <li class="breadcrumb-item active">Endorsed Disbursement Vouchers</li>
+            </ol>
+        </nav>
+    </div>
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">

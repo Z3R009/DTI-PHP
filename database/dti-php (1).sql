@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 14, 2025 at 10:15 AM
+-- Generation Time: Apr 15, 2025 at 09:52 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -283,8 +283,23 @@ CREATE TABLE `dv` (
   `total_amount` double(40,2) NOT NULL,
   `chief_accountant` varchar(255) DEFAULT NULL,
   `regional_director` varchar(255) DEFAULT NULL,
-  `status` enum('Pending','Endorsed') NOT NULL
+  `status` enum('Pending','Endorsed') NOT NULL,
+  `endorsement_date` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `endorsement_remarks` varchar(123) NOT NULL,
+  `check_no` varchar(123) NOT NULL,
+  `ada_no` varchar(123) NOT NULL,
+  `payment_type` varchar(123) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `dv`
+--
+
+INSERT INTO `dv` (`dv_id`, `date`, `ors_id`, `account_id`, `dv_no`, `vat`, `vat_amount`, `tax_base`, `tax_1`, `tax_1_amount`, `tax_2`, `tax_2_amount`, `net_amount`, `total_amount`, `chief_accountant`, `regional_director`, `status`, `endorsement_date`, `endorsement_remarks`, `check_no`, `ada_no`, `payment_type`) VALUES
+(60, '2025-04-15', 68, 1, '2-25-04-001', 12.00, 0.00, 12.00, 0.00, 0.00, 0.00, 0.00, 12.00, 12.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', 'Endorsed', '2025-04-15 04:12:26', '', '', '', ''),
+(61, '2025-04-15', 69, 1, '2-25-04-002', 12.00, 0.00, 12.00, 0.00, 0.00, 0.00, 0.00, 12.00, 12.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', '', '2025-04-15 04:59:04', 'Test1', '', '', ''),
+(62, '2025-03-15', 70, 1, '2-25-04-003', 12.00, 0.00, 12.00, 0.00, 0.00, 0.00, 0.00, 12.00, 12.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', 'Endorsed', '2025-04-15 07:08:08', 'lkjh', '23456', '', 'Check'),
+(63, '2025-04-15', 71, 1, '2-25-04-004', 12.00, 0.00, 12.00, 0.00, 0.00, 0.00, 0.00, 12.00, 12.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', 'Pending', '2025-04-15 07:08:24', '', '', '', '');
 
 -- --------------------------------------------------------
 
@@ -299,6 +314,16 @@ CREATE TABLE `dv_history` (
   `type` enum('debit','credit') NOT NULL,
   `amount` double(40,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `dv_history`
+--
+
+INSERT INTO `dv_history` (`dvhis_id`, `dv_id`, `account_id`, `type`, `amount`) VALUES
+(25, 60, 313, 'debit', 12.00),
+(26, 61, 379, 'debit', 12.00),
+(27, 62, 379, 'debit', 12.00),
+(28, 63, 311, 'debit', 12.00);
 
 -- --------------------------------------------------------
 
@@ -342,6 +367,13 @@ CREATE TABLE `jev` (
   `accountant` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `jev`
+--
+
+INSERT INTO `jev` (`jev_id`, `date`, `dv_id`, `ors_id`, `jev_no`, `administrative_aide`, `accountant`) VALUES
+(17, '2025-04-15', 60, 68, '2-25-04-001', 'JINNARD B. LUBATON', 'NEIL ANTHONY T. MORALA');
+
 -- --------------------------------------------------------
 
 --
@@ -365,7 +397,11 @@ INSERT INTO `obligation_history` (`id`, `ors_id`, `project_id`, `net`) VALUES
 (29, 63, 61, 100.00),
 (30, 64, 56, 750.00),
 (31, 66, 378, 1000.00),
-(32, 67, 56, 1000.00);
+(32, 67, 56, 1000.00),
+(33, 68, 57, 12.00),
+(34, 69, 378, 12.00),
+(35, 70, 378, 12.00),
+(36, 71, 56, 12.00);
 
 -- --------------------------------------------------------
 
@@ -432,7 +468,11 @@ INSERT INTO `ors` (`ors_id`, `fund_cluster_id`, `services_id`, `date`, `ors_no`,
 (63, 6, 4, '2025-04-08', 'OS-25-04-001', 18, 'Payment', 'To Payment of', 3, 317, 2, 100.00, 4, 'CONNIE M. BARNACHEA', ''),
 (64, 3, 11, '2025-04-08', 'ADMINPOLICY-25-04-001', 25, 'Conduct of pre-procurement activities and market scoping for various requests and activities on Mar 5, 2025', 'To Payment of', 1, 311, 2, 750.00, 1, 'CONNIE M. BARNACHEA', ''),
 (66, 4, 3, '2025-04-02', 'ONETIME-25-04-002', 18, 'asea', 'To Payment of', 8, 379, 2, 1000.00, 3, 'CONNIE M. BARNACHEA', ''),
-(67, 3, 2, '2025-04-08', 'RM-25-04-001', 17, 'akjsabx', 'To Payment of', 1, 311, 13, 1000.00, 1, 'CONNIE M. BARNACHEA', '');
+(67, 3, 2, '2025-04-08', 'RM-25-04-001', 17, 'akjsabx', 'To Payment of', 1, 311, 13, 1000.00, 1, 'CONNIE M. BARNACHEA', ''),
+(68, 4, 4, '2025-04-15', 'OS-25-04-002', 17, 'af a,s', 'To Payment of', 10, 313, 1, 12.00, 1, 'CONNIE M. BARNACHEA', 'Endorsed'),
+(69, 4, 8, '2025-04-15', 'PMS-25-04-001', 23, 'asfa', 'To Payment of', 8, 379, 1, 12.00, 4, 'CONNIE M. BARNACHEA', 'Endorsed'),
+(70, 4, 4, '2025-04-15', 'OS-25-04-003', 21, 'asfasf', 'To Payment of', 5, 379, 1, 12.00, 3, 'CONNIE M. BARNACHEA', 'Endorsed'),
+(71, 4, 11, '2025-04-15', 'ADMINPOLICY-25-04-002', 17, 'asgasg', 'To Payment of', 10, 311, 1, 12.00, 2, 'CONNIE M. BARNACHEA', 'Endorsed');
 
 -- --------------------------------------------------------
 
@@ -469,6 +509,33 @@ INSERT INTO `payee` (`payee_id`, `payee_name`, `tin_no`, `bank_acc_no`, `address
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `payment`
+--
+
+CREATE TABLE `payment` (
+  `payment_id` int(11) NOT NULL,
+  `dv_id` int(11) NOT NULL,
+  `payment_date` date NOT NULL,
+  `payment_type` enum('Check','ADA') NOT NULL,
+  `reference_no` varchar(100) NOT NULL,
+  `amount` double(40,2) NOT NULL,
+  `remarks` text DEFAULT NULL,
+  `created_by` varchar(255) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `status` enum('Pending','Completed','Returned') NOT NULL DEFAULT 'Pending'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `payment`
+--
+
+INSERT INTO `payment` (`payment_id`, `dv_id`, `payment_date`, `payment_type`, `reference_no`, `amount`, `remarks`, `created_by`, `created_at`, `status`) VALUES
+(1, 60, '2025-04-15', 'ADA', 'kl ,', 12.00, 'lm;', 'Cashier', '2025-04-15 03:57:22', 'Returned'),
+(2, 61, '2025-04-15', 'ADA', '21323124124124213', 12.00, 'SANKLASF', 'Cashier', '2025-04-15 04:59:04', 'Completed');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `project`
 --
 
@@ -486,8 +553,8 @@ CREATE TABLE `project` (
 --
 
 INSERT INTO `project` (`project_id`, `oopap_id`, `account_id`, `allotment`, `balances`, `created_at`) VALUES
-(56, 1, 311, 1562000.00, 1560250.00, '2025-03-31'),
-(57, 1, 313, 800000.00, 800000.00, '2025-03-31'),
+(56, 1, 311, 1562000.00, 1560238.00, '2025-03-31'),
+(57, 1, 313, 800000.00, 799988.00, '2025-03-31'),
 (58, 1, 314, 196000.00, 196000.00, '2025-03-31'),
 (59, 1, 315, 21000.00, 21000.00, '2025-03-31'),
 (60, 1, 355, 130000.00, 130000.00, '2025-03-31'),
@@ -761,7 +828,7 @@ INSERT INTO `project` (`project_id`, `oopap_id`, `account_id`, `allotment`, `bal
 (374, 9, 364, 0.00, 0.00, '2025-03-31'),
 (375, 9, 314, 50000.00, 50000.00, '2025-03-31'),
 (376, 9, 346, 50000.00, 50000.00, '2025-03-31'),
-(378, 1, 379, 100000.00, 99000.00, '2025-04-02'),
+(378, 1, 379, 100000.00, 98976.00, '2025-04-02'),
 (379, 1, 380, 100000.00, 94900.00, '2025-04-02'),
 (380, 1, 381, 0.00, 0.00, '2025-04-02'),
 (381, 11, 295, 3817000.00, 3817000.00, '2025-04-06'),
@@ -906,7 +973,7 @@ CREATE TABLE `users` (
   `fullname` varchar(255) NOT NULL,
   `username` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `role` enum('Admin','Budget Officer','Chief Accountant','Bookkeeper','Guest') NOT NULL,
+  `role` enum('Admin','Budget Officer','Chief Accountant','Bookkeeper','Guest','Cashier') NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -916,6 +983,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `fullname`, `username`, `password`, `role`, `created_at`, `updated_at`) VALUES
+(114537886, 'Cashier User', 'cashier', '$2y$10$ivzvPS6kkArxRq0iUc5bDOZ9wiZwdIeqsC8THY.2Ghl47AU4WhzN2', 'Cashier', '2025-04-15 03:36:17', '2025-04-15 03:36:17'),
 (175710936, 'f', '', '$2y$10$A/PawVthwn7iKveGnxdNoOCuWZU4ZVUSD.8NNKPjc6rD0dsOA0NEy', '', NULL, NULL),
 (194886581, '', '', '$2y$10$mfLfGhypXKIWT3EFzlYiaOBFVnMLQkJNYcGyEDLI8aCJM9rTCTzde', '', NULL, NULL),
 (355348792, 'admin', 'admin', '$2y$10$9leHAHoC6pYrDImgzPc19uJJqHmYHfVE5OMLSjYmQDo9Jrg6ViOem', 'Admin', NULL, NULL),
@@ -1023,6 +1091,13 @@ ALTER TABLE `payee`
   ADD PRIMARY KEY (`payee_id`);
 
 --
+-- Indexes for table `payment`
+--
+ALTER TABLE `payment`
+  ADD PRIMARY KEY (`payment_id`),
+  ADD KEY `dv_id` (`dv_id`);
+
+--
 -- Indexes for table `project`
 --
 ALTER TABLE `project`
@@ -1081,13 +1156,13 @@ ALTER TABLE `draft_project`
 -- AUTO_INCREMENT for table `dv`
 --
 ALTER TABLE `dv`
-  MODIFY `dv_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
+  MODIFY `dv_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=64;
 
 --
 -- AUTO_INCREMENT for table `dv_history`
 --
 ALTER TABLE `dv_history`
-  MODIFY `dvhis_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `dvhis_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT for table `fund_cluster`
@@ -1099,13 +1174,13 @@ ALTER TABLE `fund_cluster`
 -- AUTO_INCREMENT for table `jev`
 --
 ALTER TABLE `jev`
-  MODIFY `jev_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `jev_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `obligation_history`
 --
 ALTER TABLE `obligation_history`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
 
 --
 -- AUTO_INCREMENT for table `oopap`
@@ -1117,13 +1192,19 @@ ALTER TABLE `oopap`
 -- AUTO_INCREMENT for table `ors`
 --
 ALTER TABLE `ors`
-  MODIFY `ors_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=68;
+  MODIFY `ors_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=72;
 
 --
 -- AUTO_INCREMENT for table `payee`
 --
 ALTER TABLE `payee`
   MODIFY `payee_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+
+--
+-- AUTO_INCREMENT for table `payment`
+--
+ALTER TABLE `payment`
+  MODIFY `payment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `project`
@@ -1147,7 +1228,7 @@ ALTER TABLE `services`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=941568986;
+  MODIFY `user_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=969649707;
 
 --
 -- Constraints for dumped tables
@@ -1198,6 +1279,12 @@ ALTER TABLE `ors`
   ADD CONSTRAINT `ors_ibfk_7` FOREIGN KEY (`payee_id`) REFERENCES `payee` (`payee_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `ors_ibfk_8` FOREIGN KEY (`account_id`) REFERENCES `account_title` (`account_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `ors_ibfk_9` FOREIGN KEY (`services_id`) REFERENCES `services` (`services_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `payment`
+--
+ALTER TABLE `payment`
+  ADD CONSTRAINT `payment_ibfk_1` FOREIGN KEY (`dv_id`) REFERENCES `dv` (`dv_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `project`

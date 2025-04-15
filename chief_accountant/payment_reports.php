@@ -1,7 +1,5 @@
 <?php
 include '../DBConnection.php';
-
-// Get all payments that have been returned by the cashier
 $payments_query = "SELECT p.*, d.dv_no, o.ors_no, pa.payee_name
                   FROM payment p
                   JOIN dv d ON p.dv_id = d.dv_id
@@ -10,8 +8,6 @@ $payments_query = "SELECT p.*, d.dv_no, o.ors_no, pa.payee_name
                   WHERE p.status = 'Returned'
                   ORDER BY p.created_at DESC";
 $payments_result = mysqli_query($connection, $payments_query);
-
-// Get completed payments for reporting
 $completed_query = "SELECT p.*, d.dv_no, o.ors_no, pa.payee_name
                    FROM payment p
                    JOIN dv d ON p.dv_id = d.dv_id
@@ -36,6 +32,7 @@ $stats = mysqli_fetch_assoc($stats_result);
 
 <!DOCTYPE html>
 <html lang="en">
+<title>Chief Accountant - DTI PHP</title>
       <!-- Favicons -->
       <link href="../NiceAdmin/assets/img/favicon.png" rel="icon">
     <link href="../NiceAdmin/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
