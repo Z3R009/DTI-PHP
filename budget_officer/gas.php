@@ -483,131 +483,129 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
             </div>
         </div>
 
-            <div class="card">
-                <div class="card-body p-4">
-                    <?php if (isset($error_message)): ?>
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <i class="bi bi-exclamation-octagon me-1"></i>
-                        <?php echo $error_message; ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    <?php endif; ?>
-                    
-                    <div class="d-flex justify-content-end">
-                    <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#addUserModal" style="width: 200px; background-color:#023e8a;" data-bs-toggle="tooltip" data-bs-placement="top" title="Add new project/program/activities">
-                        <i class="bi bi-plus-circle me-1"></i> Add Project
-                    </button>
+        <div class="card">
+            <div class="card-body p-4">
+                <?php if (isset($error_message)): ?>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-octagon me-1"></i>
+                    <?php echo $error_message; ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-
-                    <div class="table-meta-container mb-3">
-                        <!-- <div class="table-search">
-                            <div class="input-group">
-                                <span class="input-group-text bg-primary text-white">
-                                    <i class="bi bi-search"></i>
-                                </span>
-                                <input type="text" id="tableSearch" class="form-control" placeholder="Search projects...">
-                            </div>
-                        </div> -->
-                        <div>
-                            <!-- <button class="btn btn-outline-primary btn-sm" id="refreshTable">
-                                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
-                            </button> -->
-                        </div>
-                    </div>
-                    
-                    <div class="table-container">
-                        <table class="table datatable table-striped table-hover">
-                            <thead>
-                                <tr>
-                                    <th width="30%">
-                                        <i class="bi bi-briefcase me-2 text-primary"></i>
-                                        Project/Activities/Program
-                                    </th>
-                                    <th width="15%">
-                                        <i class="bi bi-upc me-2 text-primary"></i>
-                                        Code
-                                    </th>
-                                    <th class="text-end" width="15%">
-                                        <i class="bi bi-cash me-2 text-primary"></i>
-                                        Allotment
-                                    </th>
-                                    <th class="text-end" width="15%">
-                                        <i class="bi bi-wallet2 me-2 text-primary"></i>
-                                        Balances
-                                    </th>
-                                    <th width="15%">
-                                        <i class="bi bi-calendar-date me-2 text-primary"></i>
-                                        Date
-                                    </th>
-                                    <th class="text-center" width="10%">
-                                        <i class="bi bi-sliders me-2 text-primary"></i>
-                                        Actions
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php while ($row = mysqli_fetch_assoc($select)) { ?>
-                                    <tr>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div class="icon-box rounded-circle bg-light me-3 p-2">
-                                                    <i class="bi bi-folder text-primary"></i>
-                                                </div>
-                                                <span class="fw-medium"><?php echo htmlspecialchars($row['account_title']); ?></span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span class="badge badge-code blue-badge"><?php echo htmlspecialchars($row['account_code']); ?></span>
-                                        </td>
-                                        <td class="text-end amount-cell">₱<?php echo htmlspecialchars(number_format($row['allotment'], 2)); ?></td>
-                                        <td class="text-end amount-cell">
-                                            <span class="badge badge-code green-badge">
-                                                ₱<?php echo htmlspecialchars(number_format($row['balances'], 2)); ?>
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <i class="bi bi-calendar3 me-2 text-muted"></i>
-                                                <?php echo date("M d, Y", strtotime($row['created_at'])); ?>
-                                            </div>
-                                        </td>
-                                        <td class="text-center">
-                                            <button type="button" class="btn btn-primary action-btn edit-btn" data-bs-toggle="tooltip" title="Edit project"
-                                                data-bs-target="#editModal" data-id="<?php echo $row['project_id']; ?>"
-                                                data-account_id="<?php echo htmlspecialchars($row['account_id']); ?>"
-                                                data-account_title="<?php echo htmlspecialchars($row['account_title']); ?>"
-                                                data-allotment="<?php echo htmlspecialchars($row['allotment']); ?>">
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
-
-                                            <button type="button" class="btn btn-danger action-btn" data-bs-toggle="tooltip" title="Delete project"
-                                                onclick="deleteUser(<?php echo $row['project_id']; ?>)">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                <?php } ?>
-                            </tbody>
-                            </table>
-                            <div class="table-footer">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="text-muted small">
-                                        <i class="bi bi-info-circle me-1"></i> Showing all projects for current fiscal year
-                                    </div>
-                                    <div>
-                                        <span class="fw-medium text-primary">Total Records: <?php echo mysqli_num_rows($select); ?></span>
-                                    </div>
-                                </div>
-                            </div>
-                              
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <?php endif; ?>
+                
+                <div class="d-flex justify-content-end">
+                <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#addUserModal" style="width: 200px; background-color:#023e8a;" data-bs-toggle="tooltip" data-bs-placement="top" title="Add new project/program/activities">
+                    <i class="bi bi-plus-circle me-1"></i> Add Project
+                </button>
             </div>
 
-        </section>
+                <div class="table-meta-container mb-3">
+                    <!-- <div class="table-search">
+                        <div class="input-group">
+                            <span class="input-group-text bg-primary text-white">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text" id="tableSearch" class="form-control" placeholder="Search projects...">
+                        </div>
+                    </div> -->
+                    <div>
+                        <!-- <button class="btn btn-outline-primary btn-sm" id="refreshTable">
+                            <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                        </button> -->
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table class="table datatable table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th width="30%">
+                                    <i class="bi bi-briefcase me-2 text-primary"></i>
+                                    Project/Activities/Program
+                                </th>
+                                <th width="15%">
+                                    <i class="bi bi-upc me-2 text-primary"></i>
+                                    Code
+                                </th>
+                                <th class="text-end" width="15%">
+                                    <i class="bi bi-cash me-2 text-primary"></i>
+                                    Allotment
+                                </th>
+                                <th class="text-end" width="15%">
+                                    <i class="bi bi-wallet2 me-2 text-primary"></i>
+                                    Balances
+                                </th>
+                                <th width="15%">
+                                    <i class="bi bi-calendar-date me-2 text-primary"></i>
+                                    Date
+                                </th>
+                                <th class="text-center" width="10%">
+                                    <i class="bi bi-sliders me-2 text-primary"></i>
+                                    Actions
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php while ($row = mysqli_fetch_assoc($select)) { ?>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="icon-box rounded-circle bg-light me-3 p-2">
+                                                <i class="bi bi-folder text-primary"></i>
+                                            </div>
+                                            <span class="fw-medium"><?php echo htmlspecialchars($row['account_title']); ?></span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-code blue-badge"><?php echo htmlspecialchars($row['account_code']); ?></span>
+                                    </td>
+                                    <td class="text-end amount-cell">₱<?php echo htmlspecialchars(number_format($row['allotment'], 2)); ?></td>
+                                    <td class="text-end amount-cell">
+                                        <span class="badge badge-code green-badge">
+                                            ₱<?php echo htmlspecialchars(number_format($row['balances'], 2)); ?>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <i class="bi bi-calendar3 me-2 text-muted"></i>
+                                            <?php echo date("M d, Y", strtotime($row['created_at'])); ?>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-primary action-btn edit-btn" data-bs-toggle="tooltip" title="Edit project"
+                                            data-bs-target="#editModal" data-id="<?php echo $row['project_id']; ?>"
+                                            data-account_id="<?php echo htmlspecialchars($row['account_id']); ?>"
+                                            data-account_title="<?php echo htmlspecialchars($row['account_title']); ?>"
+                                            data-allotment="<?php echo htmlspecialchars($row['allotment']); ?>">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
 
+                                        <button type="button" class="btn btn-danger action-btn" data-bs-toggle="tooltip" title="Delete project"
+                                            onclick="deleteUser(<?php echo $row['project_id']; ?>)">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            <?php } ?>
+                        </tbody>
+                        </table>
+                        <div class="table-footer">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="text-muted small">
+                                    <i class="bi bi-info-circle me-1"></i> Showing all projects for current fiscal year
+                                </div>
+                                <div>
+                                    <span class="fw-medium text-primary">Total Records: <?php echo mysqli_num_rows($select); ?></span>
+                                </div>
+                            </div>
+                        </div>
+                            
+                    </div>
+                </div>
+            </div>        
+         </div>
+        </div>
+        </section>
     </main>
 
     <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">

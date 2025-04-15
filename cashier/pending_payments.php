@@ -198,7 +198,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_payment'])) {
                                                                     </select>
                                                                 </div>
                                                                 <div class="col-md-6">
-                                                                    <label for="reference_no" class="form-label">Reference/Check No</label>
+                                                                    <label for="reference_no" class="form-label">Check/ADA No:</label>
                                                                     <input type="text" class="form-control" name="reference_no" required>
                                                                 </div>
                                                             </div>
