@@ -116,6 +116,13 @@
                 <span>DV REPORTS</span>
             </a>
         </li>
+
+        <li class="nav-item">
+            <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'payment_reports.php' ? 'active' : ''; ?>" href="payment_reports.php">
+                <i class="bi bi-cash"></i>
+                <span>PAYMENT REPORTS</span>
+            </a>
+        </li>
     </ul>
 </aside>
 
