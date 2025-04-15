@@ -44,31 +44,31 @@
                     </li>
 
                     <li>
-                        <a href="#">
+                        <a href="roxii.php">
                             <i class="bi bi-circle"></i><span>101 REG</span>
                         </a>
                     </li>
 
                     <li>
-                        <a href="#">
+                        <a href="bsmed.php">
                             <i class="bi bi-circle"></i><span>BSMED CFIDP LCCA</span>
                         </a>
                     </li>
 
                     <li>
-                        <a href="#">
+                        <a href="msmedc.php">
                             <i class="bi bi-circle"></i><span>MSMED</span>
                         </a>
                     </li>
                     
                     <li>
-                        <a href="#">
+                        <a href="trust_fund.php">
                             <i class="bi bi-circle"></i><span>TRUST FUND</span>
                         </a>
                     </li>
 
                     <li>
-                        <a href="#">
+                        <a href="coconut.php">
                             <i class="bi bi-circle"></i><span>COCOLEVY</span>
                         </a>
                     </li>

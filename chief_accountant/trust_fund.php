@@ -14,11 +14,11 @@ if (isset($_GET['draft_id']) && $_GET['confirm'] == 'yes') {
 
     if ($stmtUser->execute()) {
         $_SESSION['success_message'] = "Draft Project deleted successfully!";
-        header('Location: yamanGensan.php');
+        header('Location: trust_fund.php');
         exit();
     } else {
         $_SESSION['error_message'] = "Error deleting Draft project: " . $connection->error;
-        header('Location: yamanGensan.php');
+        header('Location: trust_fund.php');
         exit();
     }
 }
@@ -45,7 +45,7 @@ if (isset($_POST['submit'])) {
 
         if ($stmt->execute()) {
             $_SESSION['success_message'] = "Draft Project added successfully!";
-            header('Location: yamanGensan.php');
+            header('Location: trust_fund.php');
             exit();
         } else {
             $error_message = "Error saving data: " . $stmt->error;
@@ -62,7 +62,7 @@ $select = mysqli_query(
             an.type
      FROM draft_project dp
      LEFT JOIN account_name an ON dp.accountN_id = an.accountN_id
-     WHERE dp.accountN_id = 6
+     WHERE dp.accountN_id = 5
      AND MONTH(dp.created_at) = $selected_month
      AND YEAR(dp.created_at) = $selected_year
      ORDER BY an.account_name ASC"
@@ -70,13 +70,13 @@ $select = mysqli_query(
 
 $query_account = "SELECT accountN_id, account_name, account_number, type 
                  FROM account_name 
-                 WHERE accountN_id = 6
+                 WHERE accountN_id = 5 
                  ORDER BY account_name ASC";
 $result_account = $connection->query($query_account);
 
 $total_Cashallotment_query = "SELECT SUM(cash_allotment) AS total_Cashallotment 
                              FROM draft_project 
-                             WHERE accountN_id = 6
+                             WHERE accountN_id = 5
                              AND MONTH(created_at) = $selected_month 
                              AND YEAR(created_at) = $selected_year";
 $total_Cashallotment_result = mysqli_query($connection, $total_Cashallotment_query);
@@ -86,7 +86,7 @@ $total_Cashallotment = mysqli_fetch_assoc($total_Cashallotment_result)['total_Ca
 // Fetch total cash allotment
 $total_balances_query = "SELECT SUM(balances) AS total_balances 
                         FROM draft_project 
-                        WHERE accountN_id = 6
+                        WHERE accountN_id = 5
                         AND MONTH(created_at) = $selected_month 
                         AND YEAR(created_at) = $selected_year";
 $total_balances_result = mysqli_query($connection, $total_balances_query);
@@ -100,7 +100,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>YAMAN GENSAN</title>
+    <title>TRUST FUND</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
@@ -397,17 +397,17 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
 
         <div class="pagetitle page-header d-flex justify-content-between align-items-center">
             <div>
-                <h1>YAMAN GENSAN <?php echo date('Y'); ?></h1>
+                <h1>TRUST FUND<?php echo date('Y'); ?></h1>
                 <nav>
                     <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="#">Home</a></li>
-                        <li class="breadcrumb-item"><a href="#">Yaman Gensan</a></li>
+                    <li class="breadcrumb-item"><a href="index.php">Home</a></li>
+                        <li class="breadcrumb-item"><a href="index.php">Trust Fund</a></li>
                     </ol>
                 </nav>
             </div>
             <div class="d-flex align-items-center">
            
-                <form method="get" action="yamanGensan.php" class="d-flex align-items-center me-3 filter-form">
+                <form method="get" action="trust_fund.php" class="d-flex align-items-center me-3 filter-form">
                     <div class="input-group input-group-sm me-2 <?php echo ($selected_year != date('Y')) ? 'filter-active' : ''; ?>" data-bs-toggle="tooltip" data-bs-placement="top" title="Select year for total allotment">
                         <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
                         <select class="form-select form-select-sm" id="year" name="year" style="width: 80px;">
@@ -439,7 +439,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
                     <button type="submit" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Apply selected filters">
                         <i class="bi bi-funnel me-1"></i>Filter 
                     </button>
-                    <a href="yamanGensan.php" class="btn btn-sm btn-outline-secondary ms-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Reset to current month and year" id="resetFilter">
+                    <a href="trust_fund.php" class="btn btn-sm btn-outline-secondary ms-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Reset to current month and year" id="resetFilter">
                         <i class="bi bi-arrow-counterclockwise me-1"></i>Reset
                     </a>
                 </form>
@@ -634,7 +634,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
                     <form method="post" id="addUserForm">
                         <div class="mb-3">
                             <input type="hidden" class="form-control" id="accountN_id" name="accountN_id"
-                                value="6" readonly required>
+                                value="5" readonly required>
                         </div>
 
                         <div class="mb-3">
@@ -644,7 +644,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
 
                         <div class="mb-3">
                             <label for="account_display" class="form-label">Account Name <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="account_display" value="DTI YAMAN GENSAN" readonly>
+                            <input type="text" class="form-control" id="account_display" value="DTI XII (TRUST)" readonly>
                         </div>
 
                         <div class="mb-3">
@@ -696,7 +696,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
                         <input type="hidden" id="edit_accountN_id" name="accountN_id">
 
                         <!-- Add this hidden redirect field -->
-                        <input type="hidden" name="redirect" value="yamanGensan.php"> <!-- change value to current page -->
+                        <input type="hidden" name="redirect" value="trust_fund.php"> <!-- change value to current page -->
 
                         <div class="mb-3">
                             <label for="edit_payee" class="form-label">Reference</label>
@@ -860,7 +860,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
                             Swal.showLoading();
                         }
                     });
-                    window.location.href = 'yamanGensan.php?draft_id=' + draft_id + '&confirm=yes';
+                    window.location.href = 'trust_fund.php?draft_id=' + draft_id + '&confirm=yes';
                 }
             });
         }
