@@ -13,11 +13,11 @@ if (isset($_GET['draft_id']) && $_GET['confirm'] == 'yes') {
 
     if ($stmtUser->execute()) {
         $_SESSION['success_message'] = "Draft Project deleted successfully!";
-        header('Location: yamanGensan.php');
+        header('Location: rapidGOP.php');
         exit();
     } else {
         $_SESSION['error_message'] = "Error deleting Draft project: " . $connection->error;
-        header('Location: yamanGensan.php');
+        header('Location: rapidGOP.php');
         exit();
     }
 } else {
@@ -46,7 +46,7 @@ if (isset($_POST['submit'])) {
 
         if ($stmt->execute()) {
             $_SESSION['success_message'] = "Draft Project added successfully!";
-            header('Location: yamanGensan.php');
+            header('Location: rapidGOP.php');
             exit();
         } else {
             $error_message = "Error saving data: " . $stmt->error;
@@ -421,7 +421,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
             </div>
             <div class="d-flex align-items-center">
            
-                <form method="get" action="yamanGensan.php" class="d-flex align-items-center me-3 filter-form">
+                <form method="get" action="rapidGOP.php" class="d-flex align-items-center me-3 filter-form">
                     <div class="input-group input-group-sm me-2 <?php echo ($selected_year != date('Y')) ? 'filter-active' : ''; ?>" data-bs-toggle="tooltip" data-bs-placement="top" title="Select year for total allotment">
                         <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
                         <select class="form-select form-select-sm" id="year" name="year" style="width: 80px;">
@@ -453,7 +453,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
                     <button type="submit" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Apply selected filters">
                         <i class="bi bi-funnel me-1"></i>Filter 
                     </button>
-                    <a href="yamanGensan.php" class="btn btn-sm btn-outline-secondary ms-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Reset to current month and year" id="resetFilter">
+                    <a href="rapidGOP.php" class="btn btn-sm btn-outline-secondary ms-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Reset to current month and year" id="resetFilter">
                         <i class="bi bi-arrow-counterclockwise me-1"></i>Reset
                     </a>
                 </form>
@@ -649,7 +649,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
                     <form method="post" id="addUserForm">
                         <div class="mb-3">
                             <input type="hidden" class="form-control" id="accountN_id" name="accountN_id"
-                                value="6" readonly required>
+                                value="2" readonly required>
                         </div>
 
                         <div class="mb-3">
@@ -854,7 +854,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
         });
     </script>
     <script>
-        function deleteUser(yamanGensanID) {
+        function deleteUser(rapidGOPID) {
             Swal.fire({
                 title: 'Are you sure?',
                 text: "You won't be able to revert this!",
@@ -874,7 +874,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
                             Swal.showLoading();
                         }
                     });
-                    window.location.href = 'yamanGensan.php?project_id=' + yamanGensanID + '&confirm=yes';
+                    window.location.href = 'rapidGOP.php?project_id=' + rapidGOPID + '&confirm=yes';
                 }
             });
         }
