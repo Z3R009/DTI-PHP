@@ -149,6 +149,7 @@ $select = mysqli_query($connection, "SELECT * FROM users WHERE role IN ($roles_s
                                                 <option value="Budget Officer">Budget Officer</option>
                                                 <option value="Chief Accountant">Chief Accountant</option>
                                                 <option value="Bookkeeper">Bookkeeper</option>
+                                                <option value="Cashier">Cashier</option>
                                                 <option value="Guest">Guest</option>
                                             </select>
                                         </div>

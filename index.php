@@ -31,7 +31,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 header('Location: chief_accountant/dashboard.php');
             } elseif ($_SESSION['role'] == 'Guest') {
                 header('Location: guest/dashboard.php');
-            } else {
+            } elseif ($_SESSION['role'] == 'Cashier') {
+                header('Location: cashier/dashboard.php');
+            } {
                 echo "<script>alert('Invalid user type value');</script>";
             }
             exit();
