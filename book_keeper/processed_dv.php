@@ -53,9 +53,28 @@ if (isset($_POST['submit'])) {
         $ors_id = $ors_row['ors_id'];
         $ors_stmt->close();
 
+        // Get a valid account_id from account_name table
+        $account_id = 1; // Using account ID 1 (DTI RO XI) as default
+
+        // If you need to check if account_id exists
+        $account_query = "SELECT account_id FROM account_name WHERE account_id = ?";
+        $account_stmt = $connection->prepare($account_query);
+        if ($account_stmt === false) {
+            throw new Exception('Prepare failed: ' . htmlspecialchars($connection->error));
+        }
+        $account_stmt->bind_param("i", $account_id);
+        if (!$account_stmt->execute()) {
+            throw new Exception("Error checking account ID: " . $account_stmt->error);
+        }
+        $account_result = $account_stmt->get_result();
+        if ($account_result->num_rows === 0) {
+            throw new Exception("Account ID not found in account_name table");
+        }
+        $account_stmt->close();
+
         // Insert the main DV record
-        $sql = "INSERT INTO dv (date, dv_no, ors_id, payment_mode, vat, vat_amount, tax_base, tax_1, tax_1_amount, tax_2, tax_2_amount, net_amount, chief_accountant, regional_director) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO dv (date, dv_no, ors_id, account_id, payment_mode, vat, vat_amount, tax_base, tax_1, tax_1_amount, tax_2, tax_2_amount, net_amount, chief_accountant, regional_director) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         $stmt = $connection->prepare($sql);
         if ($stmt === false) {
@@ -63,10 +82,11 @@ if (isset($_POST['submit'])) {
         }
 
         $stmt->bind_param(
-            "ssisddddddddss",
+            "ssiisddddddddss",
             $date,
             $dv_no,
             $ors_id,
+            $account_id,
             $payment_mode,
             $vat,
             $vat_amount,

@@ -35,7 +35,7 @@ if (isset($_POST['submit'])) {
     $connection->begin_transaction();
 
     try {
-        // First, get the ors_id from the ors_no
+        // First, get the ors_id and account_id from the ors_no
         $ors_query = "SELECT ors_id FROM ors WHERE ors_no = ?";
         $ors_stmt = $connection->prepare($ors_query);
         if ($ors_stmt === false) {
@@ -52,10 +52,29 @@ if (isset($_POST['submit'])) {
         $ors_row = $ors_result->fetch_assoc();
         $ors_id = $ors_row['ors_id'];
         $ors_stmt->close();
+        
+        // Get a valid account_id from account_name table (using ID 1 as default - you can change this)
+        $account_id = 1; // Using account ID 1 (DTI RO XI) as default
+        
+        // If you need to check if account_id exists
+        $account_query = "SELECT account_id FROM account_name WHERE account_id = ?";
+        $account_stmt = $connection->prepare($account_query);
+        if ($account_stmt === false) {
+            throw new Exception('Prepare failed: ' . htmlspecialchars($connection->error));
+        }
+        $account_stmt->bind_param("i", $account_id);
+        if (!$account_stmt->execute()) {
+            throw new Exception("Error checking account ID: " . $account_stmt->error);
+        }
+        $account_result = $account_stmt->get_result();
+        if ($account_result->num_rows === 0) {
+            throw new Exception("Account ID not found in account_name table");
+        }
+        $account_stmt->close();
 
         // Insert the main DV record
-        $sql = "INSERT INTO dv (date, dv_no, ors_id, vat, vat_amount, tax_base, tax_1,  tax_1_amount, tax_2, tax_2_amount, net_amount, chief_accountant, regional_director,total_amount) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?)";
+        $sql = "INSERT INTO dv (date, dv_no, ors_id, account_id, vat, vat_amount, tax_base, tax_1, tax_1_amount, tax_2, tax_2_amount, net_amount, chief_accountant, regional_director, total_amount) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         $stmt = $connection->prepare($sql);
         if ($stmt === false) {
@@ -63,10 +82,11 @@ if (isset($_POST['submit'])) {
         }
 
         $stmt->bind_param(
-            "ssiddddddddssd",
+            "ssiiddddddddssd",
             $date,
             $dv_no,
             $ors_id,
+            $account_id,
             $vat,
             $vat_amount,
             $tax_base,
@@ -77,7 +97,7 @@ if (isset($_POST['submit'])) {
             $net_amount,
             $chief_accountant,
             $regional_director,
-            $total_amount,
+            $total_amount
         );
 
         if (!$stmt->execute()) {
@@ -147,7 +167,7 @@ if (isset($_POST['submit'])) {
         echo "Error: " . $e->getMessage();
     }
 
-    $connection->close();
+    // $connection->close(); // Remove this line from the try-catch block
 }
 
 // retrieve ors
