@@ -123,6 +123,19 @@ $result_oopap = $connection->query($sql_oopap);
 // retrieve services
 $sql_services = "SELECT services_id, services_name, code FROM services";
 $result_services = $connection->query($sql_services);
+
+// Fetch Approvers Data
+$sql_approvers = "SELECT approver_id, approver_name, designation FROM approver";
+$result_approvers = $connection->query($sql_approvers);
+
+// Store Approver Data for JavaScript
+$approverData = [];
+while ($row = $result_approvers->fetch_assoc()) {
+    $approverData[$row['approver_id']] = [
+        'name' => $row['approver_name'],
+        'designation' => $row['designation']
+    ];
+}
 ?>
 
 <!DOCTYPE html>
@@ -359,7 +372,7 @@ $result_services = $connection->query($sql_services);
         }
 
         .accounting-entry-table tfoot tr:first-child {
-            border-top: 2px solid #cbd5e1;
+            border-top: 5px solid #cbd5e1;
             font-weight: bold;
         }
 
@@ -1055,6 +1068,18 @@ $result_services = $connection->query($sql_services);
                                     <div class="form-section">
                                         <h3>Approver Details</h3>
                                         <div class="form-row">
+
+                                            <div class="form-group">
+                                                <label class="form-label" id="designationLabel">Designation</label>
+                                                <select class="form-control" id="approverSelect" name="approver_id">
+                                                    <option value="">Select Approver</option>
+                                                    <?php
+                                                    foreach ($approverData as $approver_id => $data) {
+                                                        echo "<option value='" . htmlspecialchars($approver_id) . "' data-designation='" . htmlspecialchars($data['designation']) . "'>" . htmlspecialchars($data['name']) . "</option>";
+                                                    }
+                                                    ?>
+                                                </select>
+                                            </div>
                                             <div class="form-group">
                                                 <label class="form-label">Chief Accountant</label>
                                                 <select class="form-control" name="chief_accountant">
@@ -1096,6 +1121,32 @@ $result_services = $connection->query($sql_services);
 
     <!-- Template Main JS File -->
     <script src="../NiceAdmin/assets/js/main.js"></script>
+
+    <script>
+        document.querySelectorAll('tfoot .credit-amount').forEach(function (input) {
+            input.addEventListener('input', function () {
+                document.getElementById('total_amount').value = this.value;
+            });
+        });
+
+    </script>
+
+    <!-- approver -->
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const approverSelect = document.getElementById("approverSelect");
+            const designationLabel = document.getElementById("designationLabel");
+
+            approverSelect.addEventListener("change", function () {
+
+                const selectedOption = approverSelect.options[approverSelect.selectedIndex];
+                const designation = selectedOption.getAttribute("data-designation") || "Designation";
+
+                designationLabel.textContent = designation;
+            });
+        });
+    </script>
 
     <!-- services -->
     <script>
@@ -1235,6 +1286,8 @@ $result_services = $connection->query($sql_services);
                 // Get all debit and credit inputs except the footer row
                 const debitInputs = document.querySelectorAll('tbody .debit-amount');
                 const creditInputs = document.querySelectorAll('tbody .credit-amount');
+                const totalAmountInput = document.getElementById('total_amount');
+                const taxBaseInput = document.getElementById('tax_base');
 
                 // Sum up debit amounts
                 debitInputs.forEach(input => {
@@ -1254,6 +1307,17 @@ $result_services = $connection->query($sql_services);
                 if (footerCreditInput) {
                     footerCreditInput.value = difference.toFixed(2);
                 }
+
+                if (totalAmountInput) {
+                    totalAmountInput.value = difference.toFixed(2); // Update the total_amount field
+                }
+
+
+                if (taxBaseInput) {
+                    taxBaseInput.value = difference.toFixed(2); // Update the total_amount field
+                }
+
+
             }
 
             // Function to filter account titles
@@ -1420,134 +1484,289 @@ $result_services = $connection->query($sql_services);
 
     </script>
 
-    <!-- due to bir -->
+    <!-- tax calculation -->
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Get references to key elements
-            const tableBody = document.getElementById('accountingTableBody');
-            const applyTaxesCheckbox = document.getElementById('apply_taxes');
-            const tax1PercentageInput = document.getElementById('tax1_percentage');
-            const tax2PercentageInput = document.getElementById('tax2_percentage');
-            const tax1Input = document.getElementById('tax_1');
-            const tax2Input = document.getElementById('tax_2');
+        document.addEventListener("DOMContentLoaded", function () {
+            const amountInput = document.getElementById("total_amount");
+            const applyTaxesCheckbox = document.getElementById("apply_taxes");
+            const vatPercentageInput = document.getElementById("vat_percentage");
+            const tax1PercentageInput = document.getElementById("tax1_percentage");
+            const tax2PercentageInput = document.getElementById("tax2_percentage");
 
-            // Add event delegation for delete row buttons
-            tableBody.addEventListener('click', function (e) {
-                if (e.target.closest('.delete-row')) {
-                    const row = e.target.closest('tr');
-                    // Don't delete if it's the only row in tbody
-                    if (tableBody.querySelectorAll('tr').length > 1) {
-                        row.remove();
-                        calculateTotals();
-                    } else {
-                        alert("Cannot delete the last row. At least one account entry is required.");
-                    }
+            const vatAmountInput = document.getElementById("vat_amount");
+            const taxBaseInput = document.getElementById("tax_base");
+            const tax1Input = document.getElementById("tax_1");
+            const tax2Input = document.getElementById("tax_2");
+            const netAmountInput = document.getElementById("net_amount");
+
+            // Make tax fields editable or readonly based on VAT checkbox
+            function setTaxFieldsEditability() {
+                const isVatChecked = applyTaxesCheckbox.checked;
+                console.log("Setting editability, VAT checked:", isVatChecked);
+
+                // Explicitly set or remove readonly attribute
+                if (isVatChecked) {
+                    tax1PercentageInput.setAttribute("readonly", "readonly");
+                    tax2PercentageInput.setAttribute("readonly", "readonly");
+                    tax1Input.setAttribute("readonly", "readonly");
+                    tax2Input.setAttribute("readonly", "readonly");
+                } else {
+                    tax1PercentageInput.removeAttribute("readonly");
+                    tax2PercentageInput.removeAttribute("readonly");
+                    tax1Input.removeAttribute("readonly");
+                    tax2Input.removeAttribute("readonly");
                 }
-            });
 
-            // Function to set the main account in the first row
-            function setMainAccount(orsData) {
-                if (!orsData || !orsData.account_id) return;
+                // Update style to visually indicate if editable or not
+                tax1PercentageInput.style.backgroundColor = isVatChecked ? "#f0f0f0" : "white";
+                tax2PercentageInput.style.backgroundColor = isVatChecked ? "#f0f0f0" : "white";
+                tax1Input.style.backgroundColor = isVatChecked ? "#f0f0f0" : "white";
+                tax2Input.style.backgroundColor = isVatChecked ? "#f0f0f0" : "white";
 
-                // Get the first row's account select
-                const firstRow = tableBody.querySelector('tr');
-                if (!firstRow) return;
-
-                const accountSelect = firstRow.querySelector('.account-select');
-                const debitInput = firstRow.querySelector('.debit-amount');
-
-                if (accountSelect && debitInput) {
-                    // Set the account selection
-                    $(accountSelect).val(orsData.account_id).trigger('change');
-
-                    // Set the amount and make it readonly
-                    debitInput.value = orsData.total_amount;
-                    debitInput.readOnly = true;
-                    debitInput.style.backgroundColor = "#f0f0f0";
-                }
+                console.log("Tax1 input readonly:", tax1Input.readOnly);
+                console.log("Tax1 percentage readonly:", tax1PercentageInput.readOnly);
             }
 
-            // Function to calculate totals - handles the tfoot values
-            function calculateTotals() {
-                let totalDebit = 0;
-                let totalCredit = 0;
-
-                // Get all debit and credit inputs except the footer row
-                const debitInputs = document.querySelectorAll('tbody .debit-amount');
-                const creditInputs = document.querySelectorAll('tbody .credit-amount');
-
-                // Sum up debit amounts
-                debitInputs.forEach(input => {
-                    totalDebit += parseFloat(input.value || 0);
-                });
-
-                // Sum up credit amounts
-                creditInputs.forEach(input => {
-                    totalCredit += parseFloat(input.value || 0);
-                });
-
-                // Calculate the difference (total debit - total credit)
-                const difference = totalDebit - totalCredit;
-
-                // Update the footer row's credit field with the difference if positive, 
-                // or debit field if negative
-                const footerDebitInput = document.querySelector('tfoot .debit-amount');
-                const footerCreditInput = document.querySelector('tfoot .credit-amount');
-
-                if (footerDebitInput && footerCreditInput) {
-                    if (difference > 0) {
-                        footerCreditInput.value = difference.toFixed(2);
-                        footerDebitInput.value = "";
-                    } else if (difference < 0) {
-                        footerDebitInput.value = Math.abs(difference).toFixed(2);
-                        footerCreditInput.value = "";
-                    } else {
-                        footerCreditInput.value = "";
-                        footerDebitInput.value = "";
-                    }
+            // Recalculate tax amounts when tax percentages change
+            function recalculateTaxAmounts() {
+                if (applyTaxesCheckbox.checked) {
+                    return; // Don't manually recalculate if VAT is checked
                 }
+
+                const grossAmount = parseFloat(taxBaseInput.value) || 0;
+                const tax1Percentage = parseFloat(tax1PercentageInput.value) || 0;
+                const tax2Percentage = parseFloat(tax2PercentageInput.value) || 0;
+
+                // Calculate tax amounts based on percentages
+                const tax1Amount = grossAmount * (tax1Percentage / 100);
+                const tax2Amount = grossAmount * (tax2Percentage / 100);
+
+                // Update tax amount fields
+                tax1Input.value = tax1Amount.toFixed(2);
+                tax2Input.value = tax2Amount.toFixed(2);
+
+                // Recalculate net amount
+                recalculateNetAmount();
             }
 
-            // Add event listeners for tax changes
-            applyTaxesCheckbox.addEventListener('change', function () {
-                calculate(); // Assume this function exists in your main code
-                setTimeout(calculateTotals, 100);
-            });
+            // Recalculate net amount when tax amounts are manually edited
+            function recalculateNetAmount() {
+                const grossAmount = parseFloat(amountInput.value) || 0;
+                const tax1Amount = parseFloat(tax1Input.value) || 0;
+                const tax2Amount = parseFloat(tax2Input.value) || 0;
 
-            tax1PercentageInput.addEventListener('input', function () {
-                calculate();
-                setTimeout(calculateTotals, 100);
-            });
+                // Calculate net amount
+                const totalTaxes = tax1Amount + tax2Amount;
+                const netAmount = grossAmount - totalTaxes;
 
-            tax2PercentageInput.addEventListener('input', function () {
-                calculate();
-                setTimeout(calculateTotals, 100);
-            });
+                // Update net amount field
+                netAmountInput.value = netAmount.toFixed(2);
 
-            // Hook into existing view details event
-            const viewDetailsButtons = document.querySelectorAll('.view-details');
-            viewDetailsButtons.forEach(button => {
-                button.addEventListener('click', function () {
-                    const orsId = this.getAttribute('data-id');
-                    fetch(`get_ors_details.php?id=${orsId}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            // Wait a moment to ensure the DOM and Select2 are ready
-                            setTimeout(() => {
-                                setMainAccount(data);
-                                calculate(); // Trigger tax calculation
-                                calculateTotals(); // Update totals
-                            }, 300);
-                        })
-                        .catch(error => console.error('Error fetching ORS details:', error));
+                // Debug output to help troubleshoot
+                console.log("Net amount calculation:", {
+                    grossAmount,
+                    tax1Amount,
+                    tax2Amount,
+                    totalTaxes,
+                    netAmount
                 });
+            }
+
+            // Main calculation function
+            window.calculate = function () {
+                const grossAmount = parseFloat(amountInput.value) || 0;
+
+                console.log("Running calculate() with gross amount:", grossAmount);
+
+                if (applyTaxesCheckbox.checked) {
+                    // With VAT calculation
+                    // VAT calculation (12% of gross)
+                    const vatPercentage = 12;
+                    const vatAmount = (grossAmount * vatPercentage) / (100 + vatPercentage);
+
+                    // Tax base is gross minus VAT
+                    const taxBase = grossAmount - vatAmount;
+
+                    // Calculate 5% and 2% from tax base
+                    const tax1Amount = taxBase * 0.05; // 5% with VAT
+                    const tax2Amount = taxBase * 0.02; // 2% with VAT
+
+                    // Update tax percentage displays
+                    tax1PercentageInput.value = "5";
+                    tax2PercentageInput.value = "2";
+
+                    // Net amount is gross amount minus the sum of taxes
+                    const totalTaxes = tax1Amount + tax2Amount;
+                    const netAmount = grossAmount - totalTaxes;
+
+                    // Update form fields
+                    vatAmountInput.value = vatAmount.toFixed(2);
+                    taxBaseInput.value = taxBase.toFixed(2);
+                    tax1Input.value = tax1Amount.toFixed(2);
+                    tax2Input.value = tax2Amount.toFixed(2);
+                    netAmountInput.value = netAmount.toFixed(2);
+
+                    // Show tax fields
+                    document.getElementById('tax_fields_container').style.display = 'block';
+                } else {
+                    // Without VAT - use 0% tax rates as default
+                    if (tax1PercentageInput.value === "" || tax1PercentageInput.value === "5") {
+                        tax1PercentageInput.value = "0";
+                    }
+                    if (tax2PercentageInput.value === "" || tax2PercentageInput.value === "2") {
+                        tax2PercentageInput.value = "0";
+                    }
+
+                    // Calculate tax amounts based on percentages
+                    const tax1Percentage = parseFloat(tax1PercentageInput.value) || 0;
+                    const tax2Percentage = parseFloat(tax2PercentageInput.value) || 0;
+
+                    const tax1Amount = grossAmount * (tax1Percentage / 100);
+                    const tax2Amount = grossAmount * (tax2Percentage / 100);
+
+                    // Net amount is gross amount minus the sum of taxes
+                    const totalTaxes = tax1Amount + tax2Amount;
+                    const netAmount = grossAmount - totalTaxes;
+
+                    // Update form fields
+                    vatAmountInput.value = "0.00";
+                    taxBaseInput.value = grossAmount.toFixed(2);
+                    tax1Input.value = tax1Amount.toFixed(2);
+                    tax2Input.value = tax2Amount.toFixed(2);
+                    netAmountInput.value = netAmount.toFixed(2);
+
+                    // Hide VAT fields
+                    document.getElementById('tax_fields_container').style.display = 'none';
+                }
+
+                // Set fields editability based on VAT checkbox
+                setTaxFieldsEditability();
+            };
+
+            // Add event listeners
+            amountInput.addEventListener("input", calculate);
+
+            // Special handling for checkbox to ensure it triggers editability changes
+            applyTaxesCheckbox.addEventListener("change", function () {
+                console.log("VAT checkbox changed to:", this.checked);
+                setTaxFieldsEditability();
+                calculate();
             });
 
-            // Override the global calculateTotals function
-            window.calculateTotals = calculateTotals;
+            // Add event listeners for tax percentage fields
+            tax1PercentageInput.addEventListener("input", function () {
+                console.log("Tax1 percentage changed to:", this.value);
+                if (!applyTaxesCheckbox.checked) {
+                    recalculateTaxAmounts();
+                }
+            });
+
+            tax2PercentageInput.addEventListener("input", function () {
+                console.log("Tax2 percentage changed to:", this.value);
+                if (!applyTaxesCheckbox.checked) {
+                    recalculateTaxAmounts();
+                }
+            });
+
+            // Add event listeners for tax amount fields (when editable)
+            tax1Input.addEventListener("input", function () {
+                console.log("Tax1 amount changed to:", this.value);
+                if (!applyTaxesCheckbox.checked) {
+                    recalculateNetAmount();
+                }
+            });
+
+            tax2Input.addEventListener("input", function () {
+                console.log("Tax2 amount changed to:", this.value);
+                if (!applyTaxesCheckbox.checked) {
+                    recalculateNetAmount();
+                }
+            });
+
+            // Initial setup
+            console.log("Initial setup - setting field editability");
+            setTaxFieldsEditability();
+
+            // Only call calculate() if this isn't a modal situation
+            if (!document.getElementById('dvFormModal')) {
+                console.log("Running initial calculation");
+                calculate();
+            }
         });
     </script>
+
+    <!-- <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            function updateTotals() {
+                let totalAmount = 0;
+
+                // Include all debit and credit amounts (including those in tfoot)
+                document.querySelectorAll('.debit-amount, .credit-amount').forEach(input => {
+                    let val = parseFloat(input.value) || 0;
+                    totalAmount += val;
+                });
+
+                // Update total_amount field
+                document.getElementById('total_amount').value = totalAmount.toFixed(2);
+
+                // If tax base is empty, set it to total_amount
+                let taxBaseInput = document.getElementById('tax_base');
+                if (!taxBaseInput.value) {
+                    taxBaseInput.value = totalAmount.toFixed(2);
+                }
+
+                updateTaxes();
+            }
+
+            function updateTaxes() {
+                let taxBase = parseFloat(document.getElementById('tax_base').value) || 0;
+
+                // VAT calculation
+                let vatPercentage = parseFloat(document.getElementById('vat_percentage').value) || 0;
+                let vatAmount = document.getElementById('apply_taxes').checked ? taxBase * (vatPercentage / 100) : 0;
+                document.getElementById('vat_amount').value = vatAmount.toFixed(2);
+
+                // Tax 1
+                let tax1Percentage = parseFloat(document.getElementById('tax1_percentage').value) || 0;
+                let tax1Amount = taxBase * (tax1Percentage / 100);
+                document.getElementById('tax_1').value = tax1Amount.toFixed(2);
+
+                // Tax 2
+                let tax2Percentage = parseFloat(document.getElementById('tax2_percentage').value) || 0;
+                let tax2Amount = taxBase * (tax2Percentage / 100);
+                document.getElementById('tax_2').value = tax2Amount.toFixed(2);
+
+                // Net Amount
+                let totalAmount = parseFloat(document.getElementById('total_amount').value) || 0;
+                let netAmount = totalAmount + vatAmount - tax1Amount - tax2Amount;
+                document.getElementById('net_amount').value = netAmount.toFixed(2);
+            }
+
+            // Listen to changes on debit, credit fields, tax base, tax percentages, and VAT toggle
+            document.addEventListener('input', function (e) {
+                if (
+                    e.target.classList.contains('debit-amount') ||
+                    e.target.classList.contains('credit-amount') ||
+                    e.target.id === 'tax_base' ||
+                    e.target.id === 'tax1_percentage' ||
+                    e.target.id === 'tax2_percentage'
+                ) {
+                    if (e.target.classList.contains('debit-amount') || e.target.classList.contains('credit-amount')) {
+                        updateTotals();
+                    } else {
+                        updateTaxes();
+                    }
+                }
+            });
+
+            // VAT toggle listener
+            document.getElementById('apply_taxes').addEventListener('change', function () {
+                updateTaxes();
+            });
+        });
+
+    </script> -->
 
 
 </body>

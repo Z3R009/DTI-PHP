@@ -339,12 +339,12 @@ $connection->close();
                     </td>
                 </tr>
 
-                <td style="text-align: center; width: 53%;" colspan="3" class="name"><strong
-                        style="font-size:18px;"><?php echo $jev_form['administrative_aide']; ?></strong> <br>
+                <td style="text-align: center; width: 53%; " colspan="3" class="name"><strong style="font-size:18px; ">
+                        <br><br><?php echo $jev_form['administrative_aide']; ?></strong> <br>
                     <p>Administrative Aide VI</p>
                 </td>
                 <td style="text-align: center;" colspan="5" class="name"><strong
-                        style="font-size:18px;"><?php echo $jev_form['accountant']; ?></strong>
+                        style="font-size:18px;"><br><br><?php echo $jev_form['accountant']; ?></strong>
                     <br>
                     <p>Accountant III</p>
                 </td>

@@ -432,7 +432,7 @@ if (isset($_GET['ors_no'])) {
                         <p class=" signature-name"><?php echo $ors_form['approver_name']; ?></p>
                         <p class="signature-title"><?php echo $ors_form['designation']; ?></p>
                         <p class="signature-title">
-                            <?php echo !empty($ors_form['sub_title']) ? htmlspecialchars($ors_form['sub_title']) : "&nbsp"; ?>
+                            Head, Requesting Office/Authorized Representative
                         </p>
                     </div>
                     <p>Date:</p>

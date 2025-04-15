@@ -121,7 +121,7 @@ echo "</pre>";
 function numberToWords($number)
 {
     $ones = array(
-        0 => "",
+        0 => "ZERO",
         1 => "ONE",
         2 => "TWO",
         3 => "THREE",
@@ -152,58 +152,103 @@ function numberToWords($number)
         8 => "EIGHTY",
         9 => "NINETY"
     );
-    $hundreds = array(
-        "HUNDRED",
-        "THOUSAND",
-        "MILLION",
-        "BILLION",
-        "TRILLION"
+    $scales = array(
+        0 => "",
+        1 => "THOUSAND",
+        2 => "MILLION",
+        3 => "BILLION",
+        4 => "TRILLION"
     );
 
-    $number = number_format($number, 2, '.', ',');
-    $num_arr = explode(".", $number);
-    $wholenum = $num_arr[0];
-    $decnum = $num_arr[1];
-    $whole_arr = array_reverse(explode(",", $wholenum));
-    krsort($whole_arr, 1);
-    $rettxt = "";
+    // Format the number to ensure it has exactly 2 decimal places
+    $number = floatval($number);
+    $formatted = number_format($number, 2, '.', ',');
 
-    foreach ($whole_arr as $key => $i) {
-        while (substr($i, 0, 1) == "0")
-            $i = substr($i, 1, 5);
-        if ($i < 20) {
-            $rettxt .= $ones[$i];
-        } elseif ($i < 100) {
-            if (substr($i, 0, 1) != "0")
-                $rettxt .= $tens[substr($i, 0, 1)];
-            if (substr($i, 1, 1) != "0")
-                $rettxt .= " " . $ones[substr($i, 1, 1)];
-        } else {
-            if (substr($i, 0, 1) != "0")
-                $rettxt .= $ones[substr($i, 0, 1)] . " " . $hundreds[0];
-            if (substr($i, 1, 1) != "0")
-                $rettxt .= " " . $tens[substr($i, 1, 1)];
-            if (substr($i, 2, 1) != "0")
-                $rettxt .= " " . $ones[substr($i, 2, 1)];
-        }
-        if ($key > 0) {
-            $rettxt .= " " . $hundreds[$key] . " ";
-        }
+    // Split number into whole and decimal parts
+    $parts = explode('.', $formatted);
+    $wholeNumber = $parts[0];
+    $decimal = $parts[1];
+
+    // Return 'ZERO PESOS ONLY' if the number is 0
+    if ($wholeNumber == '0' && $decimal == '00') {
+        return "ZERO PESOS ONLY";
     }
 
-    if ($decnum > 0) {
-        $rettxt .= " AND ";
-        if ($decnum < 20) {
-            $rettxt .= $ones[$decnum];
-        } elseif ($decnum < 100) {
-            $rettxt .= $tens[substr($decnum, 0, 1)];
-            if (substr($decnum, 1, 1) != "0") {
-                $rettxt .= " " . $ones[substr($decnum, 1, 1)];
+    $result = '';
+
+    // Process whole number part
+    if ($wholeNumber > 0) {
+        // Split the number by commas to get groups of thousands, millions, etc.
+        $numGroups = explode(',', $wholeNumber);
+        $numGroupsCount = count($numGroups);
+
+        // Process each group
+        for ($i = 0; $i < $numGroupsCount; $i++) {
+            $groupNumber = (int) $numGroups[$i];
+
+            if ($groupNumber > 0) {
+                $groupText = '';
+
+                // Handle hundreds
+                $hundreds = floor($groupNumber / 100);
+                if ($hundreds > 0) {
+                    $groupText .= $ones[$hundreds] . " HUNDRED";
+                    if ($groupNumber % 100 > 0) {
+                        $groupText .= " ";
+                    }
+                }
+
+                // Handle tens and ones
+                $tensAndOnes = $groupNumber % 100;
+                if ($tensAndOnes > 0) {
+                    if ($tensAndOnes < 20) {
+                        $groupText .= $ones[$tensAndOnes];
+                    } else {
+                        $groupText .= $tens[floor($tensAndOnes / 10)];
+                        if ($tensAndOnes % 10 > 0) {
+                            $groupText .= " " . $ones[$tensAndOnes % 10];
+                        }
+                    }
+                }
+
+                // Add scale (thousand, million, etc.)
+                $scaleIndex = $numGroupsCount - $i - 1;
+                if ($scaleIndex > 0 && isset($scales[$scaleIndex])) {
+                    $groupText .= " " . $scales[$scaleIndex];
+                }
+
+                // Add to result with proper spacing
+                if ($result != '') {
+                    $result .= " " . $groupText;
+                } else {
+                    $result = $groupText;
+                }
             }
         }
-        $rettxt .= " CENTAVOS";
+
+        $result .= " PESOS";
     }
-    return $rettxt;
+
+    // Process decimal part
+    if ($decimal != '00') {
+        if ($result != '') {
+            $result .= " AND ";
+        }
+
+        $decimalValue = (int) $decimal;
+        if ($decimalValue < 20) {
+            $result .= $ones[$decimalValue];
+        } else {
+            $result .= $tens[floor($decimalValue / 10)];
+            if ($decimalValue % 10 > 0) {
+                $result .= " " . $ones[$decimalValue % 10];
+            }
+        }
+
+        $result .= " CENTAVOS";
+    }
+
+    return $result . " ONLY";
 }
 ?>
 
@@ -320,7 +365,7 @@ function numberToWords($number)
         .signature-line {
             border-top: 1px solid black;
             width: 80%;
-            margin: 20px auto 5px;
+            margin: 0px auto 5px;
         }
 
         .signature-container {
@@ -670,7 +715,7 @@ function numberToWords($number)
                 <td colspan="6"><strong>A. Certified: Expenses/Cash Advance necessary, lawful and incurred under my
                         direct
                         supervision.</strong>
-                    <div style="text-align: center; margin-top: 20px;">
+                    <div style="text-align: center; margin-top: 50px;">
                         <p style="margin-bottom: 0;"><?php echo $ors_form['approver_name']; ?></p>
                         <div style="width: 250px; border-top: 1px solid black; margin: 0 auto;"></div>
                         <p style="margin-top: 3px;"><?php echo $ors_form['designation']; ?></p>
@@ -728,7 +773,7 @@ function numberToWords($number)
                         <b>***<?php
                         $last_account = end($dv_accounts);
                         echo numberToWords($last_account ? $last_account['amount'] : 0);
-                        ?> PESOS ONLY***</b>
+                        ?>***</b>
                     </p>
                 </td>
             </tr>
