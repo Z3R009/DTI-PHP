@@ -1,5 +1,6 @@
 <?php
 include '../DBConnection.php';
+
 $selected_month = isset($_GET['month']) ? intval($_GET['month']) : date('n');
 $selected_year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
 
@@ -20,8 +21,6 @@ if (isset($_GET['draft_id']) && $_GET['confirm'] == 'yes') {
         header('Location: yamanGensan.php');
         exit();
     }
-} else {
-    echo "Invalid request.";
 }
 
 //Add
@@ -29,7 +28,7 @@ if (isset($_POST['submit'])) {
     $draft_id_query = "SELECT MAX(draft_id) as max_id FROM draft_project";
     $draft_id_result = mysqli_query($connection, $draft_id_query);
     $draft_id_row = mysqli_fetch_assoc($draft_id_result);
-    $draft_id = ($draft_id_row['max_id'] ?? 0) + 1;  
+    $draft_id = ($draft_id_row['max_id'] ?? 0) + 1; 
     $accountN_id = $_POST['accountN_id'];
     $payee = $_POST['reference'];
     $cash_allotment = $_POST['allotment'];
@@ -71,36 +70,23 @@ $select = mysqli_query(
 
 $query_account = "SELECT accountN_id, account_name, account_number, type 
                  FROM account_name 
-                 WHERE accountN_id = 6 
+                 WHERE accountN_id = 6
                  ORDER BY account_name ASC";
 $result_account = $connection->query($query_account);
 
 $total_Cashallotment_query = "SELECT SUM(cash_allotment) AS total_Cashallotment 
                              FROM draft_project 
-                             WHERE accountN_id = 6 
+                             WHERE accountN_id = 6
                              AND MONTH(created_at) = $selected_month 
                              AND YEAR(created_at) = $selected_year";
 $total_Cashallotment_result = mysqli_query($connection, $total_Cashallotment_query);
 $total_Cashallotment = mysqli_fetch_assoc($total_Cashallotment_result)['total_Cashallotment'] ?? 0;
 
-// Update balances based on DV history
-$update_balances_query = "UPDATE draft_project dp 
-                         SET dp.balances = dp.cash_allotment - (
-                             SELECT COALESCE(SUM(dh.amount), 0) 
-                             FROM dv_history dh
-                             JOIN dv d ON dh.dv_id = d.dv_id
-                             WHERE dh.accountN_id = dp.accountN_id
-                             AND MONTH(d.date) = $selected_month
-                             AND YEAR(d.date) = $selected_year
-                         )
-                         WHERE dp.accountN_id = 6
-                         AND MONTH(dp.created_at) = $selected_month
-                         AND YEAR(dp.created_at) = $selected_year";
-mysqli_query($connection, $update_balances_query);
 
+// Fetch total cash allotment
 $total_balances_query = "SELECT SUM(balances) AS total_balances 
                         FROM draft_project 
-                        WHERE accountN_id = 6 
+                        WHERE accountN_id = 6
                         AND MONTH(created_at) = $selected_month 
                         AND YEAR(created_at) = $selected_year";
 $total_balances_result = mysqli_query($connection, $total_balances_query);
@@ -114,7 +100,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Yaman Gensan</title>
+    <title>YAMAN GENSAN</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
@@ -411,11 +397,11 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
 
         <div class="pagetitle page-header d-flex justify-content-between align-items-center">
             <div>
-                <h1>Yaman Gensan <?php echo date('Y'); ?></h1>
+                <h1>YAMAN GENSAN <?php echo date('Y'); ?></h1>
                 <nav>
                     <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="index.php">Home</a></li>
-                        <li class="breadcrumb-item"><a href="index.php">Yaman Gensan</a></li>
+                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                        <li class="breadcrumb-item"><a href="#">Yaman Gensan</a></li>
                     </ol>
                 </nav>
             </div>
@@ -479,7 +465,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
                 </div>
             </div>
             
-    <!-- Total Balances Card -->
+        <!-- Total Balances Card -->
             <div class="col-md-6">
                 <div class="card summary-card">
                     <div class="card-body p-4">
@@ -600,6 +586,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
                                         <td class="text-center">
                                             <button type="button" class="btn btn-primary action-btn edit-btn" data-bs-toggle="tooltip" title="Edit project"
                                                 data-bs-target="#editModal" data-id="<?php echo $row['draft_id']; ?>"
+                                                data-payee="<?php echo htmlspecialchars($row['payee']); ?>"
                                                 data-accountN_id="<?php echo htmlspecialchars($row['accountN_id']); ?>"
                                                 data-account_title="<?php echo htmlspecialchars($row['account_name']); ?>"
                                                 data-allotment="<?php echo htmlspecialchars($row['cash_allotment']); ?>">
@@ -631,9 +618,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
                     </div>
                 </div>
             </div>
-
         </section>
-
     </main>
 
     <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
@@ -649,7 +634,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
                     <form method="post" id="addUserForm">
                         <div class="mb-3">
                             <input type="hidden" class="form-control" id="accountN_id" name="accountN_id"
-                                value="6" readonly required>
+                                value="2" readonly required>
                         </div>
 
                         <div class="mb-3">
@@ -671,6 +656,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
                                     oninput="updateBalances()">
                             </div>
                         </div>
+
                         <div class="mb-3">
                             <input type="hidden" class="form-control" id="balances" name="balances"
                                 placeholder="Balances" readonly>
@@ -700,26 +686,33 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title" id="editModalLabel">
-                        <i class="bi bi-pencil-square me-2"></i>Edit Account Name
+                        <i class="bi bi-pencil-square me-2"></i>Edit Draft
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form method="post" id="editUserForm" action="update_gas.php">
-                        <input type="hidden" id="edit_project_id" name="project_id">
-                        <input type="hidden" id="edit_account_id" name="edit_account_id">
+                    <form method="post" id="editUserForm" action="update_draft.php">
+                        <input type="hidden" id="edit_draft_id" name="draft_id">
+                        <input type="hidden" id="edit_accountN_id" name="accountN_id">
+
+                        <!-- Add this hidden redirect field -->
+                        <input type="hidden" name="redirect" value="yamanGensan.php"> <!-- change value to current page -->
+
+                        <div class="mb-3">
+                            <label for="edit_payee" class="form-label">Reference</label>
+                            <input type="text" class="form-control" id="edit_payee" name="payee" required>
+                        </div>
 
                         <div class="mb-3">
                             <label for="edit_account_title" class="form-label">Account Name</label>
-                            <input type="text" class="form-control" id="edit_account_title" name="accountN_id" required
-                                autocomplete="off" readonly>
+                            <input type="text" class="form-control" id="edit_account_title" readonly>
                         </div>
 
                         <div class="mb-3">
                             <label for="edit_allotment" class="form-label">Cash Allotment</label>
                             <div class="input-group">
                                 <span class="input-group-text">₱</span>
-                                <input type="number" class="form-control" id="edit_allotment" name="allotment" step="0.01"
+                                <input type="number" class="form-control" id="edit_allotment" name="cash_allotment" step="0.01"
                                     required autocomplete="off">
                             </div>
                         </div>
@@ -728,7 +721,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
                             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                                 <i class="bi bi-x-circle me-1"></i>Close
                             </button>
-                            <button type="submit" id="update" name="update" class="btn btn-primary">
+                            <button type="submit" name="update" class="btn btn-primary" onclick="return confirmUpdate()">
                                 <i class="bi bi-check-circle me-1"></i>Update
                             </button>
                         </div>
@@ -820,6 +813,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
             }
         });
     </script>
+
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const editButtons = document.querySelectorAll(".edit-btn");
@@ -827,34 +821,26 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
             editButtons.forEach(button => {
                 button.addEventListener("click", function () {
                     const id = this.getAttribute("data-id");
+                    const payee = this.getAttribute("data-payee");
                     const accountN_id = this.getAttribute("data-accountN_id");
                     const account_title = this.getAttribute("data-account_title");
                     const allotment = this.getAttribute("data-allotment");
 
-                    document.getElementById("edit_project_id").value = id;
-                    document.getElementById("edit_account_id").value = accountN_id;
+                    document.getElementById("edit_draft_id").value = id;
+                    document.getElementById("edit_payee").value = payee;
+                    document.getElementById("edit_accountN_id").value = accountN_id;
                     document.getElementById("edit_account_title").value = account_title;
                     document.getElementById("edit_allotment").value = allotment;
+
                     const editModal = new bootstrap.Modal(document.getElementById('editModal'));
                     editModal.show();
-                    const Toast = Swal.mixin({
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 2000,
-                        timerProgressBar: true
-                    });
-                    
-                    Toast.fire({
-                        icon: 'info',
-                        title: 'Editing project...'
-                    });
                 });
             });
         });
     </script>
+
     <script>
-        function deleteUser(yamanGensanID) {
+        function deleteUser(draft_id) {
             Swal.fire({
                 title: 'Are you sure?',
                 text: "You won't be able to revert this!",
@@ -874,7 +860,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
                             Swal.showLoading();
                         }
                     });
-                    window.location.href = 'yamanGensan.php?project_id=' + yamanGensanID + '&confirm=yes';
+                    window.location.href = 'yamanGensan.php?draft_id=' + draft_id + '&confirm=yes';
                 }
             });
         }
@@ -883,8 +869,8 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
             event.preventDefault();
             
             Swal.fire({
-                title: 'Update Project',
-                text: "Are you sure you want to update this project?",
+                title: 'Update Draft',
+                text: "Are you sure you want to update this draft?",
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
@@ -907,6 +893,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
             return false;
         }
     </script>
+
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -915,12 +902,14 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
             });
         });
     </script>
+
     <script>
         function updateBalances() {
             var allotmentValue = document.getElementById('allotment').value;
             document.getElementById('balances').value = allotmentValue;
         }
     </script>
+    
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <script>
