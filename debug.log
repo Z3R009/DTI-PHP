@@ -10,3 +10,60 @@
 2025-04-07 07:34:23 - Project ID: 59, Allotment: 21000.00
 2025-04-07 07:34:23 - Direct SQL: UPDATE project SET allotment = 21000.00 WHERE project_id = 59
 2025-04-07 07:34:23 - Direct update successful
+2025-04-15 05:04:29 - Update request received
+2025-04-15 05:04:29 - Project ID: 59, Allotment: 20000.00
+2025-04-15 05:04:29 - Direct SQL: UPDATE project SET allotment = 20000.00 WHERE project_id = 59
+2025-04-15 05:04:29 - Direct update successful
+2025-04-15 05:05:08 - Update request received
+2025-04-15 05:05:08 - Project ID: 59, Allotment: 21000.00
+2025-04-15 05:05:08 - Direct SQL: UPDATE project SET allotment = 21000.00 WHERE project_id = 59
+2025-04-15 05:05:08 - Direct update successful
+2025-04-15 06:27:28 - Update request received
+2025-04-15 06:27:28 - Project ID: 59, Allotment: 20000.00
+2025-04-15 06:27:28 - Direct SQL: UPDATE project SET allotment = 20000.00 WHERE project_id = 59
+2025-04-15 06:27:28 - Direct update successful
+2025-04-15 07:39:47 - Update request received
+2025-04-15 07:39:47 - Draft ID: 10, Payee: heheh,Allotment: 
+2025-04-15 07:39:47 - Direct SQL: UPDATE draft_project SET payee = heheh, cash_allotment = 500 WHERE draft_id = 10
+2025-04-15 07:40:10 - Update request received
+2025-04-15 07:40:10 - Draft ID: 14, Payee: asd,Allotment: 
+2025-04-15 07:40:10 - Direct SQL: UPDATE draft_project SET payee = asd, cash_allotment = 1000 WHERE draft_id = 14
+2025-04-15 07:40:33 - Update request received
+2025-04-15 07:40:33 - Draft ID: 14, Payee: asd,Cash_Allotment: 1000
+2025-04-15 07:40:33 - Direct SQL: UPDATE draft_project SET payee = asd, cash_allotment = 1000 WHERE draft_id = 14
+2025-04-15 07:42:53 - Update request received
+2025-04-15 07:42:53 - Draft ID: 14, Payee: asd, Cash_Allotment: 1000
+2025-04-15 07:42:53 - Direct SQL: UPDATE draft_project SET payee = asd, cash_allotment = 1000 WHERE draft_id = 14
+2025-04-15 07:46:02 - Update request received
+2025-04-15 07:46:02 - Draft ID: 14, Payee: asd, Cash_Allotment: 1000
+2025-04-15 07:46:02 - Update successful
+2025-04-15 07:46:19 - Update request received
+2025-04-15 07:46:19 - Draft ID: 14, Payee: HAHAHA, Cash_Allotment: 1100.00
+2025-04-15 07:46:19 - Update successful
+2025-04-15 08:01:48 - Update request received
+2025-04-15 08:01:48 - Draft ID: 4, Payee: qwertyui, Cash_Allotment: 9999
+2025-04-15 08:01:48 - Update successful
+2025-04-15 08:03:51 - Update request received
+2025-04-15 08:03:51 - Draft ID: 14, Payee: HAHAHA, Cash_Allotment: 1000.00
+2025-04-15 08:03:51 - Update successful
+2025-04-15 08:24:11 - Update request received
+2025-04-15 08:24:11 - Draft ID: 14, Payee: HAHAHA, Cash_Allotment: 999
+2025-04-15 08:24:11 - Update successful
+2025-04-15 08:24:28 - Update request received
+2025-04-15 08:24:28 - Draft ID: 4, Payee: qwertyui, Cash_Allotment: 10000
+2025-04-15 08:24:28 - Update successful
+2025-04-15 08:42:51 - Update request received
+2025-04-15 08:42:51 - Draft ID: 18, Payee: bsmed, Cash_Allotment: 900
+2025-04-15 08:42:51 - Update successful
+2025-04-15 08:51:06 - Update request received
+2025-04-15 08:51:06 - Draft ID: 20, Payee: tetete, Cash_Allotment: 12000
+2025-04-15 08:51:06 - Update successful
+2025-04-15 08:57:17 - Update request received
+2025-04-15 08:57:17 - Draft ID: 22, Payee: TrustFund, Cash_Allotment: 9999
+2025-04-15 08:57:17 - Update successful
+2025-04-15 09:03:50 - Update request received
+2025-04-15 09:03:50 - Draft ID: 23, Payee: coconut, Cash_Allotment: 9999
+2025-04-15 09:03:50 - Update successful
+2025-04-15 09:14:23 - Update request received
+2025-04-15 09:14:23 - Draft ID: 24, Payee: DTI RO XII, Cash_Allotment: 500
+2025-04-15 09:14:23 - Update successful
