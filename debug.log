@@ -67,6 +67,7 @@
 2025-04-15 09:14:23 - Update request received
 2025-04-15 09:14:23 - Draft ID: 24, Payee: DTI RO XII, Cash_Allotment: 500
 2025-04-15 09:14:23 - Update successful
+<<<<<<< HEAD
 2025-04-15 10:19:04 - Update request received
 2025-04-15 10:19:04 - Draft ID: 3, Payee: thank that, Cash_Allotment: 500
 2025-04-15 10:19:04 - Update successful
@@ -75,3 +76,15 @@
 2025-04-15 10:21:12 - Current values: Allotment: 1000, Balance: 800
 2025-04-15 10:21:12 - Calculated new balance: 600
 2025-04-15 10:21:12 - Update successful
+=======
+2025-04-15 10:03:24 - Update request received
+2025-04-15 10:03:24 - Draft ID: 25, Payee: YAMAN, New Cash_Allotment: 8000.00
+2025-04-15 10:03:24 - Current values: Allotment: 10000, Balance: 8000
+2025-04-15 10:03:24 - Calculated new balance: 6000
+2025-04-15 10:03:24 - Update successful
+2025-04-15 10:03:40 - Update request received
+2025-04-15 10:03:40 - Draft ID: 25, Payee: YAMAN, New Cash_Allotment: 12000
+2025-04-15 10:03:40 - Current values: Allotment: 8000, Balance: 6000
+2025-04-15 10:03:40 - Calculated new balance: 10000
+2025-04-15 10:03:40 - Update successful
+>>>>>>> fb499dfc1a3a8d054b6d9ff123699ff1b747c265
