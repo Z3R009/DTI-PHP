@@ -67,3 +67,11 @@
 2025-04-15 09:14:23 - Update request received
 2025-04-15 09:14:23 - Draft ID: 24, Payee: DTI RO XII, Cash_Allotment: 500
 2025-04-15 09:14:23 - Update successful
+2025-04-15 10:19:04 - Update request received
+2025-04-15 10:19:04 - Draft ID: 3, Payee: thank that, Cash_Allotment: 500
+2025-04-15 10:19:04 - Update successful
+2025-04-15 10:21:12 - Update request received
+2025-04-15 10:21:12 - Draft ID: 1, Payee: sdaaewad, New Cash_Allotment: 800
+2025-04-15 10:21:12 - Current values: Allotment: 1000, Balance: 800
+2025-04-15 10:21:12 - Calculated new balance: 600
+2025-04-15 10:21:12 - Update successful

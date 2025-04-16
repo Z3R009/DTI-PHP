@@ -52,10 +52,10 @@ if (isset($_POST['submit'])) {
         $ors_row = $ors_result->fetch_assoc();
         $ors_id = $ors_row['ors_id'];
         $ors_stmt->close();
-        
+
         // Get a valid account_id from account_name table (using ID 1 as default - you can change this)
         $account_id = 1; // Using account ID 1 (DTI RO XI) as default
-        
+
         // If you need to check if account_id exists
         $account_query = "SELECT account_id FROM account_name WHERE account_id = ?";
         $account_stmt = $connection->prepare($account_query);
@@ -1253,13 +1253,16 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                                         ?>
                                                     </td>
                                                     <td data-label="Payee Name">
-                                                        <?php echo htmlspecialchars($row['payee_name']); ?></td>
+                                                        <?php echo htmlspecialchars($row['payee_name']); ?>
+                                                    </td>
                                                     <td data-label="Account Title">
-                                                        <?php echo htmlspecialchars($row['account_title']); ?></td>
+                                                        <?php echo htmlspecialchars($row['account_title']); ?>
+                                                    </td>
                                                     <td data-label="Amount" class="amount-column">
                                                         ₱<?php echo number_format($row['total_amount'], 2); ?></td>
                                                     <td data-label="Approver">
-                                                        <?php echo htmlspecialchars($row['approver_name']); ?></td>
+                                                        <?php echo htmlspecialchars($row['approver_name']); ?>
+                                                    </td>
                                                     <td>
                                                         <button type="button" class="btn-create-dv view-details"
                                                             data-id="<?php echo $row['ors_id']; ?>">
@@ -1267,7 +1270,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                                         </button>
                                                     </td>
                                                 </tr>
-                                            <?php
+                                                <?php
                                             }
                                         } else {
                                             ?>
@@ -2189,135 +2192,6 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
             });
         </script>
 
-
-        <!-- due to bir -->
-
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                // Get references to key elements
-                const tableBody = document.getElementById('accountingTableBody');
-                const applyTaxesCheckbox = document.getElementById('apply_taxes');
-                const tax1PercentageInput = document.getElementById('tax1_percentage');
-                const tax2PercentageInput = document.getElementById('tax2_percentage');
-                const tax1Input = document.getElementById('tax_1');
-                const tax2Input = document.getElementById('tax_2');
-
-                // Add event delegation for delete row buttons
-                tableBody.addEventListener('click', function (e) {
-                    if (e.target.closest('.delete-row')) {
-                        const row = e.target.closest('tr');
-                        // Don't delete if it's the only row in tbody
-                        if (tableBody.querySelectorAll('tr').length > 1) {
-                            row.remove();
-                            calculateTotals();
-                        } else {
-                            alert("Cannot delete the last row. At least one account entry is required.");
-                        }
-                    }
-                });
-
-                // Function to set the main account in the first row
-                function setMainAccount(orsData) {
-                    if (!orsData || !orsData.account_id) return;
-
-                    // Get the first row's account select
-                    const firstRow = tableBody.querySelector('tr');
-                    if (!firstRow) return;
-
-                    const accountSelect = firstRow.querySelector('.account-select');
-                    const debitInput = firstRow.querySelector('.debit-amount');
-
-                    if (accountSelect && debitInput) {
-                        // Set the account selection
-                        $(accountSelect).val(orsData.account_id).trigger('change');
-
-                        // Set the amount and make it readonly
-                        debitInput.value = orsData.total_amount;
-                        debitInput.readOnly = true;
-                        debitInput.style.backgroundColor = "#f0f0f0";
-                    }
-                }
-
-                // Function to calculate totals - handles the tfoot values
-                function calculateTotals() {
-                    let totalDebit = 0;
-                    let totalCredit = 0;
-
-                    // Get all debit and credit inputs except the footer row
-                    const debitInputs = document.querySelectorAll('tbody .debit-amount');
-                    const creditInputs = document.querySelectorAll('tbody .credit-amount');
-
-                    // Sum up debit amounts
-                    debitInputs.forEach(input => {
-                        totalDebit += parseFloat(input.value || 0);
-                    });
-
-                    // Sum up credit amounts
-                    creditInputs.forEach(input => {
-                        totalCredit += parseFloat(input.value || 0);
-                    });
-
-                    // Calculate the difference (total debit - total credit)
-                    const difference = totalDebit - totalCredit;
-
-                    // Update the footer row's credit field with the difference if positive, 
-                    // or debit field if negative
-                    const footerDebitInput = document.querySelector('tfoot .debit-amount');
-                    const footerCreditInput = document.querySelector('tfoot .credit-amount');
-
-                    if (footerDebitInput && footerCreditInput) {
-                        if (difference > 0) {
-                            footerCreditInput.value = difference.toFixed(2);
-                            footerDebitInput.value = "";
-                        } else if (difference < 0) {
-                            footerDebitInput.value = Math.abs(difference).toFixed(2);
-                            footerCreditInput.value = "";
-                        } else {
-                            footerCreditInput.value = "";
-                            footerDebitInput.value = "";
-                        }
-                    }
-                }
-
-                // Add event listeners for tax changes
-                applyTaxesCheckbox.addEventListener('change', function () {
-                    calculate(); // Assume this function exists in your main code
-                    setTimeout(calculateTotals, 100);
-                });
-
-                tax1PercentageInput.addEventListener('input', function () {
-                    calculate();
-                    setTimeout(calculateTotals, 100);
-                });
-
-                tax2PercentageInput.addEventListener('input', function () {
-                    calculate();
-                    setTimeout(calculateTotals, 100);
-                });
-
-                // Hook into existing view details event
-                const viewDetailsButtons = document.querySelectorAll('.view-details');
-                viewDetailsButtons.forEach(button => {
-                    button.addEventListener('click', function () {
-                        const orsId = this.getAttribute('data-id');
-                        fetch(`get_ors_details.php?id=${orsId}`)
-                            .then(response => response.json())
-                            .then(data => {
-                                // Wait a moment to ensure the DOM and Select2 are ready
-                                setTimeout(() => {
-                                    setMainAccount(data);
-                                    calculate(); // Trigger tax calculation
-                                    calculateTotals(); // Update totals
-                                }, 300);
-                            })
-                            .catch(error => console.error('Error fetching ORS details:', error));
-                    });
-                });
-
-                // Override the global calculateTotals function
-                window.calculateTotals = calculateTotals;
-            });
-        </script>
 
 
 </body>
