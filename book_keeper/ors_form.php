@@ -325,13 +325,13 @@ if (isset($_GET['ors_no'])) {
         <table>
             <tr>
                 <th colspan="5" class="centered header-cell">
-                    <div style="display: flex; align-items: center; gap: 50px;">
+                    <div style="display: flex; align-items: center; gap: 20px;">
                         <img src="../img/dtilogo.jpg" alt="DTI Logo"
                             style="width: 80px; height: 80px; text-align: left;">
                         <div>
-                            <h3>OBLIGATION REQUEST AND STATUS</h3>
-                            <h3>DEPARTMENT OF TRADE AND INDUSTRY 12</h3>
-                            <h5>Entity Name</h5>
+                            <h2>OBLIGATION REQUEST AND STATUS</h2>
+                            <h2>DEPARTMENT OF TRADE AND INDUSTRY 12</h2>
+                            <h4>Entity Name</h4>
                         </div>
                     </div>
                 </th>
@@ -349,16 +349,16 @@ if (isset($_GET['ors_no'])) {
             </tr>
 
             <tr>
-                <td><strong>Payee</strong></td>
-                <td colspan="7"><strong><?php echo $ors_form['payee_name']; ?></strong></td>
+                <td style="text-align: center;"><strong>Payee</strong></td>
+                <td style="font-size: small;" colspan="7"><strong><?php echo $ors_form['payee_name']; ?></strong></td>
             </tr>
             <tr>
-                <td><strong>Office</strong></td>
-                <td colspan="7">DTI-XII</td>
+                <td style="text-align: center;"><strong>Office</strong></td>
+                <td style="font-size: 12px;" colspan="7">DTI-XII</td>
             </tr>
             <tr>
-                <td><strong>Address</strong></td>
-                <td colspan="7"><strong><?php echo $ors_form['address']; ?></strong></td>
+                <td style="text-align: center;"><strong>Address</strong></td>
+                <td style="font-size: 12px;" colspan="7"><?php echo $ors_form['address']; ?></td>
             </tr>
             <colgroup>
                 <col style="width: 10%;"> <!-- Responsibility Center -->
@@ -379,33 +379,34 @@ if (isset($_GET['ors_no'])) {
                 <th colspan="2" style="text-align: center;">Amount</th>
             </tr>
             <tr>
-                <td rowspan="3" colspan="2" class="res">
+                <td rowspan="3" colspan="2" class="res" style="height: 300px;">
                     <p><?php echo $ors_form['parent_code']; ?></p>
                 </td>
                 <td style="border-bottom: none;" colspan="2">
-                    <p style="margin-bottom: 15px;"><?php echo $ors_form['purpose']; ?>:</p>
+                    <p style="margin-bottom: 15px; "><?php echo $ors_form['purpose']; ?>:</p>
                     <?php foreach ($obligation_entries as $entry): ?>
                         <p style="padding-left: 50px; margin: 8px 0 ;">
                             <strong><?php echo $entry['account_title']; ?></strong>
                         </p>
                     <?php endforeach; ?>
                 </td>
-                <td style="vertical-align: top; text-align: center; padding-top: 33px;" rowspan="2">
+                <td style="vertical-align: top; text-align: center; padding-top: 33px;" rowspan="3">
                     <p><?php echo $ors_form['oopap_name']; ?></p>
                 </td>
-                <td rowspan="2" style="text-align: center; padding-top: 33px;">
+                <td rowspan="3" style="text-align: center; padding-top: 33px;">
                     <?php foreach ($obligation_entries as $entry): ?>
                         <p><?php echo $entry['account_code']; ?></p>
                     <?php endforeach; ?>
                 </td>
-                <td style="text-align: right; padding-top: 33px;" rowspan="2" colspan="2">
+                <td style="text-align: right; padding-top: 33px; border-top: none;  border-bottom: none;" rowspan="2"
+                    colspan="2">
                     <?php foreach ($obligation_entries as $entry): ?>
                         <p>(<?php echo number_format((float) $entry['net'], 2, '.', ','); ?>)</p>
                     <?php endforeach; ?>
                 </td>
             </tr>
             <tr>
-                <td colspan="2" style="border-top: none;">
+                <td colspan="2" style="border-top: none; border-bottom: none;">
                     <p style="padding-left: 35px;"><b>
                             <?php echo $ors_form['notes']; ?></b></p>
                 </td>
@@ -413,10 +414,12 @@ if (isset($_GET['ors_no'])) {
 
 
             <tr>
-                <td colspan="2" style="text-align: right;"><strong>Total</strong></td>
-                <td></td>
-                <td></td>
-                <td colspan="2" class="amount-cell">
+                <td colspan="2"
+                    style="vertical-align: bottom; text-align: right; border-top: none;  border-bottom: none;">
+                    <strong>Total</strong>
+                </td>
+                <td style="border-top: none;  border-bottom: none;vertical-align: bottom; text-align: right;" colspan="
+                    2" class="amount-cell">
                     <strong>₱(<?php echo number_format((float) $ors_form['total_amount'], 2, '.', ','); ?>)</strong>
                 </td>
             </tr>
@@ -493,10 +496,10 @@ if (isset($_GET['ors_no'])) {
             </tr>
 
             <tr>
-                <td><?php $date = new DateTime($ors_form['date']);
+                <td style=" text-align: center;"><?php $date = new DateTime($ors_form['date']);
                 echo $date->format('F j, Y'); ?></td>
-                <td><?php echo $ors_form['account_title']; ?></td>
-                <td><?php echo $ors_form['ors_no']; ?></td>
+                <td style=" text-align: center;"><?php echo $ors_form['account_title']; ?></td>
+                <td style=" text-align: center;"><?php echo $ors_form['ors_no']; ?></td>
                 <td style="text-align: right;">
                     <?php echo number_format((float) $ors_form['total_amount'], 2, '.', ','); ?>
                 </td>

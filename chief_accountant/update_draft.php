@@ -22,26 +22,26 @@ if (isset($_POST['draft_id']) && isset($_POST['cash_allotment']) && isset($_POST
     $stmt_get->bind_param("i", $draft_id);
     $stmt_get->execute();
     $result = $stmt_get->get_result();
-    
+
     if ($row = $result->fetch_assoc()) {
         $current_allotment = $row['cash_allotment'];
         $current_balance = $row['balances'];
-        
+
         file_put_contents('../debug.log', date('Y-m-d H:i:s') . " - Current values: Allotment: $current_allotment, Balance: $current_balance\n", FILE_APPEND);
-        
+
         // Calculate the difference between allotments
         $allotment_difference = $new_cash_allotment - $current_allotment;
-        
+
         // Calculate new balance based on your rules
         $new_balance = $current_balance + $allotment_difference;
-        
+
         // If balance would go negative, set it to 0
         if ($new_balance < 0) {
             $new_balance = 0;
         }
-        
+
         file_put_contents('../debug.log', date('Y-m-d H:i:s') . " - Calculated new balance: $new_balance\n", FILE_APPEND);
-        
+
         // Update both values
         $sql = "UPDATE draft_project SET payee = ?, cash_allotment = ?, balances = ? WHERE draft_id = ?";
         $stmt = $connection->prepare($sql);
@@ -66,7 +66,7 @@ if (isset($_POST['draft_id']) && isset($_POST['cash_allotment']) && isset($_POST
     $redirect_url = isset($_POST['redirect']) ? $_POST['redirect'] : 'rapidGOP.php';
     header("Location: $redirect_url");
     exit();
-    
+
 } else {
     file_put_contents('../debug.log', date('Y-m-d H:i:s') . " - Required fields missing\n", FILE_APPEND);
     $_SESSION['error_message'] = "Required fields missing";

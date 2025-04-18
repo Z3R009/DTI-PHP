@@ -52,10 +52,10 @@ if (isset($_POST['submit'])) {
         $ors_row = $ors_result->fetch_assoc();
         $ors_id = $ors_row['ors_id'];
         $ors_stmt->close();
-        
+
         // Get a valid account_id from account_name table (using ID 1 as default - you can change this)
         $account_id = 1; // Using account ID 1 (DTI RO XI) as default
-        
+
         // If you need to check if account_id exists
         $account_query = "SELECT account_id FROM account_name WHERE account_id = ?";
         $account_stmt = $connection->prepare($account_query);
@@ -1253,13 +1253,16 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                                         ?>
                                                     </td>
                                                     <td data-label="Payee Name">
-                                                        <?php echo htmlspecialchars($row['payee_name']); ?></td>
+                                                        <?php echo htmlspecialchars($row['payee_name']); ?>
+                                                    </td>
                                                     <td data-label="Account Title">
-                                                        <?php echo htmlspecialchars($row['account_title']); ?></td>
+                                                        <?php echo htmlspecialchars($row['account_title']); ?>
+                                                    </td>
                                                     <td data-label="Amount" class="amount-column">
                                                         ₱<?php echo number_format($row['total_amount'], 2); ?></td>
                                                     <td data-label="Approver">
-                                                        <?php echo htmlspecialchars($row['approver_name']); ?></td>
+                                                        <?php echo htmlspecialchars($row['approver_name']); ?>
+                                                    </td>
                                                     <td>
                                                         <button type="button" class="btn-create-dv view-details"
                                                             data-id="<?php echo $row['ors_id']; ?>">
@@ -1267,7 +1270,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                                         </button>
                                                     </td>
                                                 </tr>
-                                            <?php
+                                                <?php
                                             }
                                         } else {
                                             ?>
@@ -2190,9 +2193,9 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
         </script>
 
 
-        <!-- due to bir -->
+        <!-- set the main account in the first row -->
 
-        <script>
+        <!-- <script>
             document.addEventListener('DOMContentLoaded', function () {
                 // Get references to key elements
                 const tableBody = document.getElementById('accountingTableBody');
@@ -2317,8 +2320,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                 // Override the global calculateTotals function
                 window.calculateTotals = calculateTotals;
             });
-        </script>
-
+        </script> -->
 
 </body>
 
