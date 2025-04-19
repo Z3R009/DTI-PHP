@@ -37,7 +37,7 @@ $recent_payments_result = mysqli_query($connection, $recent_payments_query);
 
 <!DOCTYPE html>
 <html lang="en">
-
+<link rel="stylesheet" href="css/table.css">
 <?php include 'includes/header.php'; ?>
 <?php include 'includes/sidebar.php'; ?>
 
@@ -127,7 +127,7 @@ $recent_payments_result = mysqli_query($connection, $recent_payments_query);
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Recent Payments</h5>
-                        <table class="table table-borderless datatable">
+                        <table class="datatable">
                             <thead>
                                 <tr>
                                     <th>DV No</th>
