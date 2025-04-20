@@ -1686,13 +1686,9 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
 
                     // Explicitly set or remove readonly attribute
                     if (isVatChecked) {
-                        tax1PercentageInput.setAttribute("readonly", "readonly");
-                        tax2PercentageInput.setAttribute("readonly", "readonly");
                         tax1Input.setAttribute("readonly", "readonly");
                         tax2Input.setAttribute("readonly", "readonly");
                     } else {
-                        tax1PercentageInput.removeAttribute("readonly");
-                        tax2PercentageInput.removeAttribute("readonly");
                         tax1Input.removeAttribute("readonly");
                         tax2Input.removeAttribute("readonly");
                     }
@@ -1709,10 +1705,6 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
 
                 // Recalculate tax amounts when tax percentages change
                 function recalculateTaxAmounts() {
-                    if (applyTaxesCheckbox.checked) {
-                        return; // Don't manually recalculate if VAT is checked
-                    }
-
                     const grossAmount = parseFloat(taxBaseInput.value) || 0;
                     const tax1Percentage = parseFloat(tax1PercentageInput.value) || 0;
                     const tax2Percentage = parseFloat(tax2PercentageInput.value) || 0;
@@ -1728,6 +1720,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                     // Recalculate net amount
                     recalculateNetAmount();
                 }
+
 
                 // Recalculate net amount when tax amounts are manually edited
                 function recalculateNetAmount() {
@@ -1823,30 +1816,36 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                     setTaxFieldsEditability();
                 };
 
+                // Function to set tax percentages when the checkbox is checked and calculate
+                function toggleTaxes() {
+                    if (applyTaxesCheckbox.checked) {
+                        tax1PercentageInput.value = 5;
+                        tax2PercentageInput.value = 2;
+                    }
+                    calculate();
+                }
+
                 // Add event listeners
                 amountInput.addEventListener("input", calculate);
 
-                // Special handling for checkbox to ensure it triggers editability changes
+                // Special handling for checkbox to ensure it triggers editability changes and calculation
                 applyTaxesCheckbox.addEventListener("change", function () {
                     console.log("VAT checkbox changed to:", this.checked);
+                    toggleTaxes();
                     setTaxFieldsEditability();
-                    calculate();
                 });
 
                 // Add event listeners for tax percentage fields
                 tax1PercentageInput.addEventListener("input", function () {
                     console.log("Tax1 percentage changed to:", this.value);
-                    if (!applyTaxesCheckbox.checked) {
-                        recalculateTaxAmounts();
-                    }
+                    recalculateTaxAmounts();
                 });
 
                 tax2PercentageInput.addEventListener("input", function () {
                     console.log("Tax2 percentage changed to:", this.value);
-                    if (!applyTaxesCheckbox.checked) {
-                        recalculateTaxAmounts();
-                    }
+                    recalculateTaxAmounts();
                 });
+
 
                 // Add event listeners for tax amount fields (when editable)
                 tax1Input.addEventListener("input", function () {
@@ -1863,6 +1862,14 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                     }
                 });
 
+                // Add event listener for tax base changes
+                taxBaseInput.addEventListener("input", function () {
+                    console.log("Tax base changed to:", this.value);
+                    if (!applyTaxesCheckbox.checked) {
+                        recalculateTaxAmounts();
+                    }
+                });
+
                 // Initial setup
                 console.log("Initial setup - setting field editability");
                 setTaxFieldsEditability();
@@ -1874,6 +1881,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                 }
             });
         </script>
+
 
         <!-- dv number -->
 
@@ -2321,6 +2329,27 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                 window.calculateTotals = calculateTotals;
             });
         </script> -->
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const form = document.querySelector('form');
+                const netAmountInput = document.getElementById('net_amount');
+                const footerDebitInput = document.querySelector('tfoot .debit-amount');
+                const footerCreditInput = document.querySelector('tfoot .credit-amount');
+
+                form.addEventListener('submit', function (event) {
+                    const netAmount = parseFloat(netAmountInput.value) || 0;
+                    const footerDebit = parseFloat(footerDebitInput.value) || 0;
+                    const footerCredit = parseFloat(footerCreditInput.value) || 0;
+
+                    // Check if the net amount matches the footer value
+                    if (netAmount !== footerDebit && netAmount !== footerCredit) {
+                        event.preventDefault(); // Prevent form submission
+                        alert('The net amount does not match the total in the accounting entries. Please correct the values.');
+                    }
+                });
+            });
+        </script>
 
 </body>
 
