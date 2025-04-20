@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LDDAP-ADA Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            font-size: 12px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            border: 2px solid #000;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        table, th, td {
+            border: 1px solid #000;
+        }
+        
+        th, td {
+            padding: 5px;
+            text-align: left;
+            vertical-align: top;
+        }
+        
+        .center {
+            text-align: center;
+        }
+        
+        .right {
+            text-align: right;
+        }
+        
+        .header {
+            font-weight: bold;
+            text-align: right;
+            padding-right: 10px;
+        }
+        
+        .annex {
+            text-align: right;
+            font-weight: bold;
+            padding: 5px;
+        }
+        
+        .title {
+            font-weight: bold;
+            text-align: center;
+            padding: 5px;
+        }
+        
+        .department-info td {
+            border: none;
+            padding: 2px 5px;
+        }
+        
+        .signature-line {
+            border-top: 1px solid #000;
+            width: 80%;
+            display: inline-block;
+            margin-top: 50px;
+            margin-bottom: 5px;
+        }
+        
+        .small-text {
+            font-size: 10px;
+        }
+        
+        .numbered-item {
+            margin-left: 10px;
+            text-indent: -10px;
+        }
+        
+        .amount-cell {
+            min-width: 80px;
+        }
+        
+        @media print {
+            body {
+                padding: 0;
+            }
+            
+            .container {
+                width: 100%;
+                max-width: none;
+                border: none;
+            }
+            
+            @page {
+                margin: 0.5cm;
+            }
+            
+            #printButton {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div style="text-align: center; margin: 10px 0;">
+        <button id="printButton" onclick="window.print();" style="padding: 8px 16px; font-size: 14px; background-color: #0d6efd; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            <i class="bi bi-printer"></i> Print LDDAP-ADA Form
+        </button>
+    </div>
+    
+    <div class="container">
+        <table>
+            <tr>
+                <td colspan="9" class="annex">ANNEX A</td>
+            </tr>
+            <tr>
+                <td colspan="9" class="title">LIST OF DUE AND DEMANDABLE ACCOUNTS PAYABLE - ADVICE TO DEBIT ACCOUNTS (LDDAP-ADA)</td>
+            </tr>
+            <tr>
+                <td colspan="9" style="padding: 0;">
+                    <table class="department-info" style="border: none;">
+                        <tr>
+                            <td style="width: 120px;">DEPARTMENT :</td>
+                            <td colspan="7">DEPARTMENT OF TRADE AND INDUSTRY (22)</td>
+                        </tr>
+                        <tr>
+                            <td>AGENCY :</td>
+                            <td colspan="7">OFFICE OF THE SECRETARY (001)</td>
+                        </tr>
+                        <tr>
+                            <td>OPERATING UNIT :</td>
+                            <td colspan="7">REGIONAL OFFICE XII (03-0012)</td>
+                        </tr>
+                        <tr>
+                            <td>FUND CODE :</td>
+                            <td colspan="7">01101101</td>
+                        </tr>
+                        <tr>
+                            <td colspan="9">LAND BANK OF THE PHILIPPINES- KORONADAL BRANCH- 2075-9006-81</td>
+                            <td colspan="9"></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="9" class="center" style=" padding-top: 0; padding-bottom: 0;background-color: rgba(158, 158, 158, 0.334);">CREDITOR</td>
+                
+            </tr>
+            <tr>
+                <td colspan="3" class="center" style=" padding-top: 0; padding-bottom: 0;">CREDITOR</td>
+
+                <td rowspan="2">Obligation <br>Request NO.</td>
+              
+                <td colspan="3" class="left">in peso</td>
+            </tr>
+            <tr>
+                <td rowspan="2"  class="center"> ADA</td>
+                <td rowspan="2" class="center">NAME</td>
+                <td rowspan="2" class="center">PREFERRED SERVICING<br>BANK/SAVINGS/CURRENT<br>ACCT. NO</td>
+                <td class="center">GROSS AMOUNT</td>
+                <td class="center">WITHHOLDING<br>TAX</td>
+                <td class="center">NET AMOUNT</td>
+            </tr>
+            <tr>
+                <!-- <td class="small-text center">FOR MDS-GSB USE<br>ONLY</td> -->
+            </tr>
+            <tr>
+                <td colspan="8" class="left">I. Current Year A/Ps</td>
+            </tr>
+            
+            <!-- DV rows will be inserted here -->
+            <tbody id="dvRows">
+                <!-- Placeholder row that will be replaced -->
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td class="right">-</td>
+                    <td class="right">-</td>
+                    <td class="right">-</td>
+                </tr>
+            </tbody>
+            
+            <tr>
+                <td colspan="5" class="left">TOTAL</td>
+                <td class="right" id="totalGross">0.00</td>
+                <td class="right" id="totalWithholding">0.00</td>
+                <td class="right" id="totalNet">0.00</td>
+            </tr>
+            <tr>
+                <td colspan="4" style="vertical-align: top;">
+                    <p>I hereby warrant that the above List of Due and Demandable A/Ps was prepared in accordance with existing budgeting, accounting and auditing rules and regulations.</p>
+                    <p class="center">Certified Correct:</p>
+                    <div class="center">
+                        <span class="signature-line"></span><br>
+                        <strong>NEIL ANTHONY T. MORALA</strong><br>
+                        Accountant III
+                    </div>
+                </td>
+                <td colspan="5" style="vertical-align: top;">
+                    <p>I hereby assume full responsibility for the veracity and accuracy of the listed claims, and the authenticity of the supporting documents as submitted by the claimants.</p>
+                    <p class="center">Approved:</p>
+                    <div class="center">
+                        <span class="signature-line"></span><br>
+                        <strong>HAZEL E. HAUTEA</strong><br>
+                        Chief Admin Officer
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="9" class="left" style="padding: 0; background-color: rgba(158, 158, 158, 0.334);"><strong>II. ADVICE TO DEBIT ACCOUNT (ADA)</strong></td>
+            </tr>
+            <tr>
+                <td colspan="9">
+                    <p style="margin-top: 0; margin-bottom: 0;">TO MDS-GSB of the Agency&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LAND BANK OF THE PHILIPPINES- KORONADAL BRANCH</p>
+                    <p style="margin-bottom: 0;margin-top: 0;">Please debit MDS Sub-Account Number: 2075-9006-81</p>
+                    <p style="margin-top: 0;">Please credit the account of the above listed creditors to cover payment of accounts payable (A/Ps).</p>
+                    <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+                        <div style="width: 65%; ">
+                            <p style="border-bottom: 1px solid #000; padding-bottom: 5px;">
+                                <strong id="amountInWords">**Amount in Words**</strong>
+                            </p>
+                        </div>
+                        <div style="width: 30%; text-align: right;">
+                            <p>Php <span style="border-bottom: 1px solid #000; padding: 0 10px; text-decoration: underline; " id="totalAmountNumeric"><strong>0.00</strong></span></p>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 30px;">
+                        <div style="width: 20%;">
+                            <p style="border-bottom: 1px solid #000; margin-bottom: 0;"><strong>1. HAZEL E. HAUTEA</strong></p>
+                            <p style="border-bottom: 1px solid #000; margin-bottom: 0;">Chief Admin Officer</p>
+                        </div>
+                        <div style="width: 30%;">
+                            <p style="border-bottom: 1px solid #000; margin-bottom: 0;"><strong>2. NEIL ANTHONY T. MORALA</strong></p>
+                            <p>Accountant III</p>
+                        </div>
+                        <div style="width: 30%;">
+                           
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <td colspan="9">
+                <p><strong>FOR MDS-GSB USE ONLY:</strong></p>
+                <p><u>Instructions:</u></p>
+                <p class="numbered-item">1. Agency shall arrange the creditors on "first-in, first-out" basis, that is according to the date of receipt of supplier/creditor's billing duly supported with complete documents.</p>
+                <p class="numbered-item">2. MDS-GSB branch concerned shall indicate to the agency any non-payments made to concerned creditors due to inconsistency in information (creditor account name, number) between LDDAP-ADA and bank records.</p>
+               
+                <p><strong>NOTES:</strong></p>
+                <p>The LDDAP-ADA is an an accountable form</p>
+                <p>*indicate the description/name and UACS code</p>
+                <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                    <div style="width: 48%; text-align: right;">
+                       
+                    </div>
+                    <div style="width: 48%; text-align: right;">
+                        <p>ADA No.: <span id="adaReferenceNo">______</span></p>
+                            <p>Date: <span id="adaDate">______</span></p>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>
+        </table>
+    </div>
+    
+    <script>
+        // Listen for messages from the parent window
+        window.addEventListener('message', function(event) {
+            // Make sure the message is from our domain
+            if (event.origin !== window.location.origin) return;
+            
+            const data = event.data;
+            if (!data) return;
+            
+            // Populate the form with the received data
+            populateForm(data);
+        });
+        
+        function populateForm(data) {
+            // Set the ADA reference number and date
+            document.getElementById('adaReferenceNo').textContent = data.referenceNo;
+            document.getElementById('adaDate').textContent = formatDate(data.paymentDate);
+            
+            // Format the total amounts
+            document.getElementById('totalGross').textContent = formatCurrency(data.totalGross);
+            document.getElementById('totalWithholding').textContent = formatCurrency(data.totalWithholding);
+            document.getElementById('totalNet').textContent = formatCurrency(data.totalNet);
+            document.getElementById('totalAmountNumeric').textContent = formatCurrency(data.totalNet);
+            
+            // Set the amount in words
+            document.getElementById('amountInWords').textContent = '**' + data.amountInWords + '**';
+            
+            // Generate the DV rows
+            const dvRowsContainer = document.getElementById('dvRows');
+            dvRowsContainer.innerHTML = ''; // Clear existing rows
+            
+            // Add rows for each DV
+            data.dvs.forEach((dv, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${dv.payee_name}</td>
+                    <td>${dv.bank_account}</td>
+                    <td>${dv.ors_no}</td>
+                    <td>${dv.dv_no}</td>
+                    <td class="right">${formatCurrency(dv.gross_amount)}</td>
+                    <td class="right">${formatCurrency(dv.withholding_tax)}</td>
+                    <td class="right">${formatCurrency(dv.net_amount)}</td>
+                `;
+                dvRowsContainer.appendChild(row);
+            });
+            
+            // Add empty rows to keep the form layout consistent
+            const emptyRowsNeeded = Math.max(0, 10 - data.dvs.length);
+            for (let i = 0; i < emptyRowsNeeded; i++) {
+                const emptyRow = document.createElement('tr');
+                emptyRow.innerHTML = `
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td class="right">-</td>
+                    <td class="right">-</td>
+                    <td class="right">-</td>
+                `;
+                dvRowsContainer.appendChild(emptyRow);
+            }
+        }
+        
+        // Helper function to format currency
+        function formatCurrency(amount) {
+            return parseFloat(amount).toLocaleString('en-PH', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+        
+        // Helper function to format date
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return date.toLocaleDateString('en-US', options);
+        }
+        
+        // Get reference from URL parameters
+        function getParameterByName(name, url = window.location.href) {
+            name = name.replace(/[\[\]]/g, '\\$&');
+            var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, ' '));
+        }
+        
+        // On page load, check if we have a reference in URL
+        document.addEventListener('DOMContentLoaded', function() {
+            const ref = getParameterByName('ref');
+            if (ref) {
+                // Try to get data from localStorage
+                const savedData = localStorage.getItem('lddap_' + ref);
+                if (savedData) {
+                    try {
+                        const data = JSON.parse(savedData);
+                        populateForm(data);
+                        
+                        // Set page title with reference number
+                        document.title = 'LDDAP-ADA Form: ' + ref;
+                    } catch (e) {
+                        console.error('Error parsing saved data:', e);
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

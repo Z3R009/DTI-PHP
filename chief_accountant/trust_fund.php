@@ -29,7 +29,7 @@ if (isset($_POST['submit'])) {
     $draft_id_result = mysqli_query($connection, $draft_id_query);
     $draft_id_row = mysqli_fetch_assoc($draft_id_result);
     $draft_id = ($draft_id_row['max_id'] ?? 0) + 1; 
-    $accountN_id = $_POST['accountN_id'];
+    $account_id = $_POST['account_id'];
     $payee = $_POST['reference'];
     $cash_allotment = $_POST['allotment'];
     $created_at = $_POST['year'];   
@@ -37,11 +37,11 @@ if (isset($_POST['submit'])) {
     if (empty($payee) || empty($cash_allotment) || empty($created_at)) {
         $error_message = "Please fill in all required fields";
     } else {
-        $sql = "INSERT INTO draft_project (draft_id, accountN_id, payee, cash_allotment, balances, created_at) 
+        $sql = "INSERT INTO draft_project (draft_id, account_id, payee, cash_allotment, balances, created_at) 
                 VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $connection->prepare($sql);
         $balances = $cash_allotment; // Initial balance equals cash allotment
-        $stmt->bind_param("iisdss", $draft_id, $accountN_id, $payee, $cash_allotment, $balances, $created_at);
+        $stmt->bind_param("iisdss", $draft_id, $account_id, $payee, $cash_allotment, $balances, $created_at);
 
         if ($stmt->execute()) {
             $_SESSION['success_message'] = "Draft Project added successfully!";
@@ -61,22 +61,22 @@ $select = mysqli_query(
             an.account_number,
             an.type
      FROM draft_project dp
-     LEFT JOIN account_name an ON dp.accountN_id = an.accountN_id
-     WHERE dp.accountN_id = 5
+     LEFT JOIN account_name an ON dp.account_id = an.account_id
+     WHERE dp.account_id = 5
      AND MONTH(dp.created_at) = $selected_month
      AND YEAR(dp.created_at) = $selected_year
      ORDER BY an.account_name ASC"
 );
 
-$query_account = "SELECT accountN_id, account_name, account_number, type 
+$query_account = "SELECT account_id, account_name, account_number, type 
                  FROM account_name 
-                 WHERE accountN_id = 5 
+                 WHERE account_id = 5 
                  ORDER BY account_name ASC";
 $result_account = $connection->query($query_account);
 
 $total_Cashallotment_query = "SELECT SUM(cash_allotment) AS total_Cashallotment 
                              FROM draft_project 
-                             WHERE accountN_id = 5
+                             WHERE account_id = 5
                              AND MONTH(created_at) = $selected_month 
                              AND YEAR(created_at) = $selected_year";
 $total_Cashallotment_result = mysqli_query($connection, $total_Cashallotment_query);
@@ -86,7 +86,7 @@ $total_Cashallotment = mysqli_fetch_assoc($total_Cashallotment_result)['total_Ca
 // Fetch total cash allotment
 $total_balances_query = "SELECT SUM(balances) AS total_balances 
                         FROM draft_project 
-                        WHERE accountN_id = 5
+                        WHERE account_id = 5
                         AND MONTH(created_at) = $selected_month 
                         AND YEAR(created_at) = $selected_year";
 $total_balances_result = mysqli_query($connection, $total_balances_query);
@@ -587,7 +587,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
                                             <button type="button" class="btn btn-primary action-btn edit-btn" data-bs-toggle="tooltip" title="Edit project"
                                                 data-bs-target="#editModal" data-id="<?php echo $row['draft_id']; ?>"
                                                 data-payee="<?php echo htmlspecialchars($row['payee']); ?>"
-                                                data-accountN_id="<?php echo htmlspecialchars($row['accountN_id']); ?>"
+                                                data-account_id="<?php echo htmlspecialchars($row['account_id']); ?>"
                                                 data-account_title="<?php echo htmlspecialchars($row['account_name']); ?>"
                                                 data-allotment="<?php echo htmlspecialchars($row['cash_allotment']); ?>">
                                                 <i class="bi bi-pencil"></i>
@@ -633,7 +633,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
                 <div class="modal-body">
                     <form method="post" id="addUserForm">
                         <div class="mb-3">
-                            <input type="hidden" class="form-control" id="accountN_id" name="accountN_id"
+                            <input type="hidden" class="form-control" id="account_id" name="account_id"
                                 value="5" readonly required>
                         </div>
 
@@ -693,7 +693,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
                 <div class="modal-body">
                     <form method="post" id="editUserForm" action="update_draft.php">
                         <input type="hidden" id="edit_draft_id" name="draft_id">
-                        <input type="hidden" id="edit_accountN_id" name="accountN_id">
+                        <input type="hidden" id="edit_account_id" name="account_id">
 
                         <!-- Add this hidden redirect field -->
                         <input type="hidden" name="redirect" value="trust_fund.php"> <!-- change value to current page -->
@@ -822,13 +822,13 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
                 button.addEventListener("click", function () {
                     const id = this.getAttribute("data-id");
                     const payee = this.getAttribute("data-payee");
-                    const accountN_id = this.getAttribute("data-accountN_id");
+                    const account_id = this.getAttribute("data-account_id");
                     const account_title = this.getAttribute("data-account_title");
                     const allotment = this.getAttribute("data-allotment");
 
                     document.getElementById("edit_draft_id").value = id;
                     document.getElementById("edit_payee").value = payee;
-                    document.getElementById("edit_accountN_id").value = accountN_id;
+                    document.getElementById("edit_account_id").value = account_id;
                     document.getElementById("edit_account_title").value = account_title;
                     document.getElementById("edit_allotment").value = allotment;
 

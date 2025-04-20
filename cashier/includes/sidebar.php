@@ -38,6 +38,13 @@
             </a>
         </li>
 
+        <li class="nav-item">
+            <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'ada_records.php' ? 'active' : ''; ?>" href="ada_records.php">
+                <i class="bi bi-bank"></i>
+                <span>ADA RECORDS</span>
+            </a>
+        </li>
+
         <li class="nav-heading mt-3">Reports</li>
 
         <li class="nav-item">
@@ -47,12 +54,12 @@
             </a>
         </li>
         
-        <li class="nav-item">
+        <!-- <li class="nav-item">
             <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'budget_report.php' ? 'active' : ''; ?>" href="budget_report.php">
                 <i class="bi bi-cash-coin"></i>
                 <span>CASH BUDGET REPORT</span>
             </a>
-        </li>
+        </li> -->
     </ul>
 </aside>
 

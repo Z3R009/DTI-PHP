@@ -688,7 +688,7 @@ function numberToWords($number)
 
                         <div class="amount-row" style="justify-content: flex-end;">
                             <span class="amount-value"
-                                style="margin-right: 20px;"><?php echo number_format(($dv_form['vat_amount'] + $dv_form['tax_1_amount'] + $dv_form['tax_2_amount']), 2, '.', ','); ?></span>
+                                style="margin-right: 20px;"><?php echo number_format(( $dv_form['tax_1_amount'] + $dv_form['tax_2_amount']), 2, '.', ','); ?></span>
                         </div>
                         <div class="amount-line"></div>
 
