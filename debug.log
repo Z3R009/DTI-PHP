@@ -77,3 +77,8 @@
 2025-04-15 10:03:40 - Current values: Allotment: 8000, Balance: 6000
 2025-04-15 10:03:40 - Calculated new balance: 10000
 2025-04-15 10:03:40 - Update successful
+2025-04-15 10:24:55 - Update request received
+2025-04-15 10:24:55 - Draft ID: 26, Payee: hasda, New Cash_Allotment: 4000
+2025-04-15 10:24:55 - Current values: Allotment: 5000, Balance: 4500
+2025-04-15 10:24:55 - Calculated new balance: 3500
+2025-04-15 10:24:55 - Update successful
