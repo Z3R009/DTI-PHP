@@ -264,45 +264,103 @@ $ors_result = $connection->query($ors_query);
     <!-- Template Main CSS File -->
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1e40af;
+            --primary-light: #dbeafe;
+            --secondary-color: #475569;
+            --accent-color: #f59e0b;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --danger: #ef4444;
+            --success: #10b981;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            color: var(--text-dark);
+            background-color: var(--bg-light);
+        }
+
         .form-container {
             max-width: 1200px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 2rem auto;
+            background-color: var(--bg-white);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
         }
 
         .form-title {
             text-align: center;
-            margin-bottom: 30px;
-            color: #03045e;
+            margin-bottom: 2rem;
+            color: var(--primary-dark);
+            font-weight: 700;
+            font-size: 1.75rem;
+            position: relative;
+            padding-bottom: 0.75rem;
+        }
+
+        .form-title:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 4px;
+            background-color: var(--primary-color);
+            border-radius: 2px;
         }
 
         .form-section {
-            margin-bottom: 30px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 20px;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1.5rem;
         }
 
         .form-section h3 {
-            color: #0077b6;
-            margin-bottom: 15px;
-            font-size: 1.2rem;
+            color: var(--primary-color);
+            margin-bottom: 1.25rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-section h3:before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 18px;
+            background-color: var(--primary-color);
+            margin-right: 0.75rem;
+            border-radius: 2px;
         }
 
         .form-row {
             display: flex;
             flex-wrap: wrap;
-            margin: 0 -10px;
-            margin-bottom: 15px;
+            margin: 0 -12px;
+            margin-bottom: 1.25rem;
         }
 
         .form-group {
             flex: 1;
             min-width: 250px;
-            padding: 0 10px;
-            margin-bottom: 15px;
+            padding: 0 12px;
+            margin-bottom: 1.25rem;
         }
 
         .form-group.full-width {
@@ -315,79 +373,117 @@ $ors_result = $connection->query($ors_query);
 
         .form-label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #2B2D42;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.875rem;
         }
 
         .form-control {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background-color: #f8f9fa;
-            transition: all 0.3s ease;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background-color: var(--bg-white);
+            transition: var(--transition);
+            font-size: 0.95rem;
         }
 
         .form-control:focus {
             outline: none;
-            border-color: #0077b6;
-            box-shadow: 0 0 0 2px rgba(0, 119, 182, 0.2);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px var(--primary-light);
         }
 
         textarea.form-control {
-            min-height: 100px;
+            min-height: 120px;
             resize: vertical;
+        }
+
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%232563eb'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1rem;
+            padding-right: 2.5rem;
         }
 
         .checkbox-group {
             display: flex;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 1rem;
         }
 
         .checkbox-item {
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 0.5rem;
         }
 
         .btn-container {
             display: flex;
             justify-content: flex-end;
-            gap: 10px;
-            margin-top: 30px;
+            gap: 1rem;
+            margin-top: 2rem;
         }
 
         .btn {
-            padding: 12px 20px;
+            padding: 0.75rem 1.5rem;
             border: none;
-            border-radius: 8px;
+            border-radius: var(--radius-md);
             cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s ease;
+            font-weight: 600;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            letter-spacing: 0.01em;
+        }
+
+        .btn i {
+            font-size: 1.1rem;
         }
 
         .btn-primary {
-            background-color: #0077b6;
+            background-color: var(--primary-color);
             color: white;
         }
 
         .btn-primary:hover {
-            background-color: #03045e;
+            background-color: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
         }
 
         .btn-secondary {
-            background-color: #8d99ae;
+            background-color: var(--secondary-color);
             color: white;
         }
 
         .btn-secondary:hover {
-            background-color: #2B2D42;
+            background-color: #334155;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-accent {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .btn-accent:hover {
+            background-color: #d97706;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
         }
 
         .table-responsive {
             overflow-x: auto;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 1.5rem;
         }
 
         table {
@@ -397,31 +493,44 @@ $ors_result = $connection->query($ors_query);
 
         table th,
         table td {
-            padding: 12px;
+            padding: 1rem;
             text-align: left;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--border-color);
         }
 
         table th {
-            background-color: #0077b6;
+            background-color: var(--primary-color);
             color: white;
-            font-weight: 500;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+        }
+
+        table tr:last-child td {
+            border-bottom: none;
+        }
+
+        table tr:hover td {
+            background-color: #f8fafc;
         }
 
         .signature-box {
-            border: 1px dashed #ddd;
+            border: 2px dashed var(--border-color);
             height: 100px;
-            border-radius: 8px;
-            margin-top: 10px;
+            border-radius: var(--radius-md);
+            margin-top: 0.75rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #aaa;
+            color: var(--text-light);
             cursor: pointer;
+            transition: var(--transition);
         }
 
         .signature-box:hover {
-            background-color: #f8f9fa;
+            background-color: var(--primary-light);
+            border-color: var(--primary-color);
         }
 
         @media (max-width: 992px) {
@@ -440,7 +549,8 @@ $ors_result = $connection->query($ors_query);
             }
 
             .form-container {
-                padding: 20px;
+                padding: 1.5rem;
+                margin: 1rem;
             }
 
             .form-row {
@@ -450,6 +560,15 @@ $ors_result = $connection->query($ors_query);
             .form-group {
                 min-width: 100%;
             }
+
+            .btn {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+
+            .btn-container {
+                flex-direction: column;
+            }
         }
 
         @media print {
@@ -458,7 +577,8 @@ $ors_result = $connection->query($ors_query);
             }
 
             .sidebar,
-            .btn-container {
+            .btn-container,
+            .header {
                 display: none;
             }
 
@@ -469,13 +589,37 @@ $ors_result = $connection->query($ors_query);
             .form-container {
                 box-shadow: none;
                 padding: 0;
+                margin: 0;
+            }
+
+            .table-responsive {
+                overflow: visible;
+                box-shadow: none;
             }
         }
 
+        /* Input with Icons */
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-with-icon .form-control {
+            padding-left: 2.5rem;
+        }
+
+        .input-with-icon i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+        }
 
         .calculation-field {
-            background-color: #edf2f7;
+            background-color: #f1f5f9;
             cursor: not-allowed;
+            font-weight: 600;
+            color: var(--primary-dark);
         }
 
         .accounting-entry-table th:nth-child(1),
@@ -495,9 +639,25 @@ $ors_result = $connection->query($ors_query);
             width: 20%;
         }
 
+        .accounting-entry-table .btn-danger {
+            background-color: var(--danger);
+            color: white;
+            padding: 0.5rem;
+            border-radius: var(--radius-sm);
+        }
+
+        .accounting-entry-table .btn-danger:hover {
+            background-color: #b91c1c;
+        }
+
         .tax-fields {
             width: 100%;
-            transition: all 0.3s ease;
+            transition: var(--transition);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            background-color: #f8fafc;
+            border: 1px solid var(--border-color);
+            margin-top: 1rem;
         }
 
         .tax-fields.hidden {
@@ -512,69 +672,258 @@ $ors_result = $connection->query($ors_query);
 
         .custom-dropdown .dropdown-toggle {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background-color: #f8f9fa;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background-color: var(--bg-white);
             text-align: left;
             cursor: pointer;
             position: relative;
+            transition: var(--transition);
+        }
+
+        .custom-dropdown .dropdown-toggle:hover {
+            border-color: var(--primary-color);
         }
 
         .custom-dropdown .dropdown-toggle:after {
             content: '';
             position: absolute;
-            right: 10px;
+            right: 1rem;
             top: 50%;
             transform: translateY(-50%);
             border-left: 5px solid transparent;
             border-right: 5px solid transparent;
-            border-top: 5px solid #333;
+            border-top: 5px solid var(--primary-color);
+            transition: var(--transition);
+        }
+
+        .custom-dropdown.show .dropdown-toggle:after {
+            transform: translateY(-50%) rotate(180deg);
         }
 
         .custom-dropdown .dropdown-menu {
             position: absolute;
-            top: 100%;
+            top: calc(100% + 5px);
             left: 0;
             width: 100%;
             max-height: 300px;
             overflow-y: auto;
-            background-color: white;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background-color: var(--bg-white);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
             z-index: 1000;
             display: none;
+            padding: 0.5rem 0;
         }
 
         .custom-dropdown .dropdown-menu.show {
             display: block;
+            animation: fadeIn 0.2s ease;
         }
 
         .custom-dropdown .search-box {
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .custom-dropdown .search-box input {
             width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+        }
+
+        .custom-dropdown .search-box input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px var(--primary-light);
         }
 
         .custom-dropdown .dropdown-item {
-            padding: 8px 10px;
+            padding: 0.75rem 1rem;
             cursor: pointer;
+            transition: var(--transition);
         }
 
         .custom-dropdown .dropdown-item:hover {
-            background-color: #f8f9fa;
+            background-color: var(--primary-light);
         }
 
         .custom-dropdown .dropdown-item.selected {
-            background-color: #0077b6;
+            background-color: var(--primary-color);
             color: white;
+        }
+
+        /* Badge styles */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-primary {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+        }
+
+        .badge-secondary {
+            background-color: #e2e8f0;
+            color: var(--secondary-color);
+        }
+
+        .badge-success {
+            background-color: #dcfce7;
+            color: var(--success);
+        }
+
+        .badge-danger {
+            background-color: #fee2e2;
+            color: var(--danger);
+        }
+
+        /* Card styles for summary information */
+        .info-card {
+            background-color: var(--bg-white);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: var(--transition);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .info-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .info-card h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .info-card p {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Button with icon styles */
+        .btn-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            transition: var(--transition);
+        }
+
+        .btn-icon:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        /* Add account entry button style */
+        #add-entry-button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            transition: var(--transition);
+        }
+
+        #add-entry-button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Total summary row style */
+        .total-row {
+            background-color: #f1f5f9;
+            font-weight: 700;
+        }
+
+        .total-row td {
+            border-top: 2px solid var(--primary-color);
+        }
+
+        /* Animation styles */
+        .highlight-effect {
+            animation: highlight-pulse 1s ease;
+        }
+        
+        @keyframes highlight-pulse {
+            0% { background-color: var(--bg-white); }
+            50% { background-color: var(--primary-light); }
+            100% { background-color: var(--bg-white); }
+        }
+        
+        .shake-effect {
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+        
+        .error-tooltip {
+            position: absolute;
+            background-color: var(--danger);
+            color: white;
+            padding: 5px 10px;
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            margin-top: 5px;
+            z-index: 100;
+            animation: fade-in 0.3s ease;
+        }
+        
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .is-invalid {
+            border-color: var(--danger) !important;
+        }
+        
+        .invalid-feedback {
+            color: var(--danger);
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
         }
     </style>
 </head>
@@ -590,7 +939,7 @@ $ors_result = $connection->query($ors_query);
         <div class="pagetitle d-flex justify-content-between align-items-center">
             <h1 class="mb-0">Obligation Request and Status</h1>
             <button class="btn btn-primary" onclick="window.location.href='processed_ors.php'">
-                View Processed ORS
+                <i class="bi bi-list-check"></i> View Processed ORS
             </button>
 
         </div><!-- End Page Title -->
@@ -601,14 +950,13 @@ $ors_result = $connection->query($ors_query);
             <div class="form-container">
                 <h2 class="form-title">Obligation Request And Status</h2>
 
-
                 <!-- General Information Section -->
                 <div class="tab-content">
                     <div>
                         <div id="ors_form">
                             <form method="post">
                                 <div class="form-section">
-                                    <h3>General Information</h3>
+                                    <h3><i class="bi bi-info-circle me-2"></i>General Information</h3>
                                     <div class="form-row">
                                         <div class="form-group">
                                             <label class="form-label">Fund Cluster</label>
@@ -653,7 +1001,7 @@ $ors_result = $connection->query($ors_query);
 
                                 <!-- Payee Details Section -->
                                 <div class="form-section">
-                                    <h3> Payee Details</h3>
+                                    <h3><i class="bi bi-person me-2"></i>Payee Details</h3>
                                     <div class="form-row">
                                         <div class="form-group">
                                             <label class="form-label">Payee Name</label>
@@ -687,8 +1035,7 @@ $ors_result = $connection->query($ors_query);
 
                                 <!-- Payment Details Section -->
                                 <div class="form-section">
-                                    <h3></h3>
-
+                                    <h3><i class="bi bi-cash-coin me-2"></i>Payment Details</h3>
 
                                     <label class="form-label">Purpose</label>
                                     <div class="form-row">
@@ -724,7 +1071,7 @@ $ors_result = $connection->query($ors_query);
 
                                         <!-- Accounting Entry Section -->
                                         <div class="form-section">
-                                            <h3>Particulars</h3>
+                                    <h3><i class="bi bi-journal-text me-2"></i>Particulars</h3>
                                             <div class="table-responsive">
                                                <!-- HTML Table Structure -->
 <table class="accounting-entry-table">
@@ -747,41 +1094,34 @@ $ors_result = $connection->query($ors_query);
                                                                     $result_account->data_seek(0);
                                                                     while ($row = $result_account->fetch_assoc()) {
                                                                         echo "<option value='" . htmlspecialchars($row['account_id']) . "' 
-                                                                            data-account_code='" . htmlspecialchars($row['account_code']) . "'
-                                                                            data-oopap_id='" . htmlspecialchars($row['oopap_id']) . "'>"
-                                                                            . htmlspecialchars($row['account_title']) .
-                                                                            "</option>";
+                              data-code='" . htmlspecialchars($row['account_code']) . "' 
+                              data-oopap='" . htmlspecialchars($row['oopap_id']) . "'>" 
+                              . htmlspecialchars($row['account_title']) . "</option>";
                                                                     }
                                                                     ?>
                 </select>
             </td>
+            <td class="account-code"></td>
             <td>
-                <input type="text" class="form-control account-code" name="account_code[]" readonly>
+                <input type="number" step="0.01" class="form-control amount-input" name="amount[]" required>
             </td>
-            <td>
-                <input type="number" class="form-control amount-input" name="amount[]" step="0.01" required>
-            </td>
-            <td>
-                <button type="button" class="btn btn-danger btn-sm delete-row">Delete</button>
-            </td>
+          
         </tr>
-        <!-- Add Row button row -->
-        <tr id="add-row-container">
-            <td colspan="4" class="text-left">
-                <button type="button" id="addAccountRow" class="btn btn-secondary">
-                    <ion-icon name="add-outline"></ion-icon> Add Row
-                </button>
-            </td>
-            <td></td>
-        </tr>
-        <!-- Total Amount Row -->
-        <tr>
-            <td colspan="3" class="text-right font-weight-bold">Total Amount:</td>
-            <td><input type="text" id="total_amount" class="form-control" name="total_amount" readonly></td>
-            <td></td>
-        </tr>
+        <!-- Total row will be added dynamically -->
     </tbody>
+    <tfoot>
+        <tr class="total-row">
+            <td colspan="3" class="text-end fw-bold">Total Amount</td>
+            <td>
+                <input type="number" step="0.01" class="form-control calculation-field" id="total_amount" name="total_amount" readonly>
+            </td>
+            <td></td>
+        </tr>
+    </tfoot>
 </table>
+<button type="button" id="add-entry-button" class="btn btn-sm">
+    <i class="bi bi-plus-circle"></i> Add Entry
+</button>
 
 
                                             </div>
@@ -790,39 +1130,49 @@ $ors_result = $connection->query($ors_query);
                                         <input type="hidden" class="form-control" id="project_id" name="project_id" readonly placeholder="Project ID">
 
 
-                                        <!-- Receipt Section -->
-                                        <div class="form-section">
-                                            <div class="form-row">
-                                                <div class="form-group">
-                                                    <label class="form-label" id="designationLabel">Designation</label>
-                                                    <select class="form-control" id="approverSelect" name="approver_id">
-                                                        <option value="">Select Approver</option>
-                                                        <?php
-                                                        foreach ($approverData as $approver_id => $data) {
-                                                            echo "<option value='" . htmlspecialchars($approver_id) . "' data-designation='" . htmlspecialchars($data['designation']) . "'>" . htmlspecialchars($data['name']) . "</option>";
-                                                        }
-                                                        ?>
-                                                    </select>
-                                                </div>
-                                                <div class="form-group">
+                                     
+
+                                        </div>
+
+                                <!-- Submit Button Section -->
+                                <div class="form-section">
+                                    <h3><i class="bi bi-check-circle me-2"></i>Confirmation</h3>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label">Approver</label>
+                                            <select class="form-control" name="approver_id" id="approver">
+                                                <option selected disabled>Select Approver</option>
+                                                <?php
+                                                // Reset the result pointer
+                                                $result_approvers->data_seek(0);
+                                                while ($row = $result_approvers->fetch_assoc()) {
+                                                    echo "<option value='" . htmlspecialchars($row['approver_id']) . "'>"
+                                                        . htmlspecialchars($row['approver_name']) . " - " . htmlspecialchars($row['designation']) .
+                                                        "</option>";
+                                                }
+                                                ?>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
                                                     <label class="form-label">Budget Officer</label>
                                                     <select class="form-control" name="budget_officer">
                                                         <option>CONNIE M. BARNACHEA</option>
 
                                                     </select>
                                                 </div>
-
-                                            </div>
-
-                                        </div>
-
-                                        <!-- Form Buttons -->
-                                        <div class="btn-container">
-                                            <button type="button" class="btn btn-secondary">Clear Form</button>
-                                            <button type="submit" class="btn btn-primary" name="submit">Submit Voucher</button>
-                                        </div>
-
+                                    </div>
+                                    <div class="btn-container">
+                                        <button type="reset" class="btn btn-secondary">
+                                            <i class="bi bi-arrow-counterclockwise"></i> Reset
+                                        </button>
+                                        <button type="submit" name="submit" class="btn btn-primary">
+                                            <i class="bi bi-save"></i> Submit
+                                        </button>
+                                    </div>
+                                </div>
                                     </form>
+                        </div>
+                    </div>
                                 </div>
                             </div>
                         </div>
@@ -850,259 +1200,337 @@ $ors_result = $connection->query($ors_query);
     <script src="js/accounting-entry.js"></script>
 
     <script>
-
-        function redirectToPage() {
-            window.location.href = "ORSForm.html";
-        }
-
-        function toggleTaxFields() {
-            const applyTaxes = document.getElementById('apply_taxes').checked;
-            const taxFieldsContainer = document.getElementById('tax_fields_container');
-
-            if (applyTaxes) {
-                taxFieldsContainer.classList.remove('hidden');
-                calculateTaxes();
-            } else {
-                taxFieldsContainer.classList.add('hidden');
-                calculateWithoutTaxes();
-            }
-        }
-        function calculateWithoutTaxes() {
-            const grossAmount = parseFloat(document.getElementById('gross_amount').value) || 0;
-
-            document.getElementById('net_amount').value = grossAmount.toFixed(2);
-
-            if (document.getElementById('amount') && !document.getElementById('amount').value) {
-                document.getElementById('amount').value = grossAmount.toFixed(2);
-            }
-        }
-
-        function calculateTaxes() {
-            const applyTaxes = document.getElementById('apply_taxes').checked;
-
-            if (!applyTaxes) {
-                calculateWithoutTaxes();
-                return;
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize form elements
+            const dateInput = document.getElementById('dvDate');
+            const orsNoInput = document.getElementById('ors_no');
+            
+            // Set default date to today if empty
+            if (!dateInput.value) {
+                const today = new Date();
+                dateInput.value = today.toISOString().split('T')[0];
             }
 
-            const grossAmount = parseFloat(document.getElementById('gross_amount').value) || 0;
-            const vatPercentage = parseFloat(document.getElementById('vat_percentage').value) || 0;
-            const tax1Percentage = parseFloat(document.getElementById('tax1_percentage').value) || 0;
-            const tax2Percentage = parseFloat(document.getElementById('tax2_percentage').value) || 0;
-
-
-            const vatAmount = grossAmount * (vatPercentage / 100);
-
-            const taxBase = grossAmount - vatAmount;
-
-
-            const tax1 = taxBase * (tax1Percentage / 100);
-
-
-            const tax2 = taxBase * (tax2Percentage / 100);
-
-            const netAmount = grossAmount - vatAmount - tax1 - tax2;
-
-            document.getElementById('vat_amount').value = vatAmount.toFixed(2);
-            document.getElementById('tax_base').value = taxBase.toFixed(2);
-            document.getElementById('tax_1').value = tax1.toFixed(2);
-            document.getElementById('tax_2').value = tax2.toFixed(2);
-            document.getElementById('net_amount').value = netAmount.toFixed(2);
-            if (document.getElementById('amount') && !document.getElementById('amount').value) {
-                document.getElementById('amount').value = grossAmount.toFixed(2);
+            // Generate ORS Number based on date
+            function generateORSNumber(dateStr) {
+                if (!dateStr) return '';
+                
+                const date = new Date(dateStr);
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                
+                // Format: ORS-YEAR-MONTH-SEQUENCE
+                return `ORS-${year}-${month}-<?php echo $new_sequence; ?>`;
             }
-        }
 
-        document.addEventListener('DOMContentLoaded', function () {
-            const sidebar = document.querySelector('.sidebar');
-            const dashboardContainer = document.querySelector('.dashboard-container');
+            // Initialize ORS number
+            orsNoInput.value = generateORSNumber(dateInput.value);
 
-            if (sidebar && dashboardContainer) {
-                sidebar.addEventListener('click', function (e) {
+            // Update ORS number when date changes
+            dateInput.addEventListener('change', function() {
+                orsNoInput.value = generateORSNumber(this.value);
+            });
 
-                    if (e.target === sidebar || e.target.classList.contains('logo-container') ||
-                        e.target.closest('.logo-container')) {
-                        dashboardContainer.classList.toggle('collapsed');
+            // Fill in TIN and Address when Payee is selected
+            const payeeSelect = document.getElementById('payee_id');
+            const tinInput = document.getElementById('tin_no');
+            const addressInput = document.getElementById('address');
+
+            payeeSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                tinInput.value = selectedOption.getAttribute('data-tin');
+                addressInput.value = selectedOption.getAttribute('data-address');
+                
+                // Add animation effect
+                tinInput.classList.add('highlight-effect');
+                addressInput.classList.add('highlight-effect');
+                
+                // Remove effect after animation completes
+                setTimeout(() => {
+                    tinInput.classList.remove('highlight-effect');
+                    addressInput.classList.remove('highlight-effect');
+                }, 1000);
+            });
+
+            // Handle dynamic accounting entries
+            const tableBody = document.getElementById('accounting-table-body');
+            const totalAmountInput = document.getElementById('total_amount');
+            const addEntryButton = document.getElementById('add-entry-button');
+
+            // Add a new entry row with animation
+            addEntryButton.addEventListener('click', function() {
+                const newRow = document.createElement('tr');
+                newRow.className = 'entry-row';
+                newRow.style.opacity = '0';
+                newRow.style.transform = 'translateY(10px)';
+                newRow.innerHTML = `
+                    <td colspan="2">
+                        <select class="form-control" name="account_id[]" required>
+                            <option selected disabled>Select Account</option>
+                            ${Array.from(document.querySelector('select[name="account_id[]"]').options)
+                                .map(opt => opt.outerHTML)
+                                .join('')}
+                        </select>
+                    </td>
+                    <td class="account-code"></td>
+                    <td>
+                        <input type="number" step="0.01" class="form-control amount-input" name="amount[]" required>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-danger btn-sm remove-entry">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(newRow);
+                
+                // Animate row appearance
+                setTimeout(() => {
+                    newRow.style.transition = 'all 0.3s ease';
+                    newRow.style.opacity = '1';
+                    newRow.style.transform = 'translateY(0)';
+                }, 10);
+                
+                // Add event listeners to the new row
+                initializeRowEvents(newRow);
+                
+                // Filter accounts based on selected OOPAP
+                filterAccountsByOOPAP();
+            });
+
+            // Initialize event listeners for existing rows
+            function initializeRowEvents(row) {
+                const accountSelect = row.querySelector('select[name="account_id[]"]');
+                const accountCodeCell = row.querySelector('.account-code');
+                const amountInput = row.querySelector('.amount-input');
+                const removeButton = row.querySelector('.remove-entry');
+
+                // Update account code when account changes
+                accountSelect.addEventListener('change', function() {
+                    const selectedOption = this.options[this.selectedIndex];
+                    if (selectedOption.value !== '') {
+                        accountCodeCell.textContent = selectedOption.getAttribute('data-code');
+                        // Highlight code cell with animation
+                        accountCodeCell.classList.add('highlight-effect');
+                        setTimeout(() => {
+                            accountCodeCell.classList.remove('highlight-effect');
+                        }, 1000);
+                    } else {
+                        accountCodeCell.textContent = '';
                     }
+                    
+                    // Filter accounts based on selected OOPAP
+                    filterAccountsByOOPAP();
+                });
+
+                // Remove row when delete button is clicked
+                removeButton.addEventListener('click', function() {
+                    if (tableBody.querySelectorAll('.entry-row').length > 1) {
+                        // Animate removal
+                        row.style.transition = 'all 0.3s ease';
+                        row.style.opacity = '0';
+                        row.style.transform = 'translateY(-10px)';
+                        
+                        setTimeout(() => {
+                            row.remove();
+                            calculateTotal();
+                        }, 300);
+                    } else {
+                        // Show error with animation
+                        row.classList.add('shake-effect');
+                        setTimeout(() => {
+                            row.classList.remove('shake-effect');
+                        }, 500);
+                        
+                        // Show error message with tooltip
+                        const tooltip = document.createElement('div');
+                        tooltip.className = 'error-tooltip';
+                        tooltip.textContent = 'At least one entry is required';
+                        row.appendChild(tooltip);
+                        
+                        setTimeout(() => {
+                            tooltip.remove();
+                        }, 3000);
+                    }
+                });
+
+                // Calculate total when amount changes
+                amountInput.addEventListener('input', function() {
+                    calculateTotal();
+                    
+                    // Highlight total amount with animation
+                    totalAmountInput.classList.add('highlight-effect');
+                    setTimeout(() => {
+                        totalAmountInput.classList.remove('highlight-effect');
+                    }, 1000);
                 });
             }
 
-
-            const dropdown = document.querySelector('.dropdown');
-
-            if (dropdown) {
-                dropdown.addEventListener('click', function (e) {
-
-                    if (!e.target.closest('.dropdown-content')) {
-                        e.stopPropagation();
-                        this.classList.toggle('active');
-                    }
-                });
-            }
-
-
-            calculateTaxes();
-        });
-
-    </script>
-
-        <!-- JavaScript Code -->
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                const tableBody = document.querySelector("#accounting-table-body");
-                const addRowContainer = document.querySelector("#add-row-container");
-
-                // Function to update total
-                function updateTotal() {
+            // Calculate total amount with currency formatting
+            function calculateTotal() {
+                const amountInputs = document.querySelectorAll('.amount-input');
                     let total = 0;
-                    document.querySelectorAll(".amount-input").forEach(function (input) {
-                        total += parseFloat(input.value) || 0;
-                    });
-                    document.getElementById("total_amount").value = total.toFixed(2);
-                }
-
-                // Function to create a new row
-                function createNewRow() {
-                    const newRow = document.createElement("tr");
-                    newRow.classList.add("entry-row");
-
-                    // Clone the account select options
-                    const accountSelect = document.querySelector('select[name="account_id[]"]').cloneNode(true);
-                    accountSelect.name = "account_id[]";
-                    accountSelect.className = "form-control account-select";
-                    accountSelect.value = ""; // Reset selection
-
-                    // Create account code input
-                    const codeInput = document.createElement("input");
-                    codeInput.type = "text";
-                    codeInput.className = "form-control account-code";
-                    codeInput.name = "account_code[]";
-                    codeInput.readOnly = true;
-
-                    // Create amount input
-                    const amountInput = document.createElement("input");
-                    amountInput.type = "number";
-                    amountInput.className = "form-control amount-input";
-                    amountInput.name = "amount[]";
-                    amountInput.step = "0.01";
-                    amountInput.required = true;
-
-                    // Create delete button
-                    const deleteButton = document.createElement("button");
-                    deleteButton.type = "button";
-                    deleteButton.className = "btn btn-danger btn-sm delete-row";
-                    deleteButton.innerHTML = "Delete";
-                    deleteButton.addEventListener("click", function () {
-                        newRow.remove();
-                        updateTotal();
-                    });
-
-                    // Create cells
-                    const accountCell = document.createElement("td");
-                    accountCell.colSpan = 2;
-                    accountCell.appendChild(accountSelect);
-
-                    const codeCell = document.createElement("td");
-                    codeCell.appendChild(codeInput);
-
-                    const amountCell = document.createElement("td");
-                    amountCell.appendChild(amountInput);
-
-                    const deleteCell = document.createElement("td");
-                    deleteCell.appendChild(deleteButton);
-
-                    newRow.appendChild(accountCell);
-                    newRow.appendChild(codeCell);
-                    newRow.appendChild(amountCell);
-                    newRow.appendChild(deleteCell);
-
-                    // Add event listeners
-                    amountInput.addEventListener("input", updateTotal);
-
-                    accountSelect.addEventListener("change", function () {
-                        const selectedOption = this.options[this.selectedIndex];
-                        if (selectedOption && selectedOption.dataset.account_code) {
-                            codeInput.value = selectedOption.dataset.account_code;
-                        } else {
-                            codeInput.value = "";
-                        }
-                    });
-
-                    return newRow;
-                }
-
-                // Add new row functionality
-                document.getElementById("addAccountRow").addEventListener("click", function () {
-                    const newRow = createNewRow();
-                    tableBody.insertBefore(newRow, addRowContainer);
-
-                    // Apply custom dropdown to the new select
-                    setTimeout(function () {
-                        const newSelect = newRow.querySelector('select[name="account_id[]"]');
-                        if (newSelect && !newSelect.classList.contains('custom-dropdown-processed')) {
-                            newSelect.classList.add('custom-dropdown-processed');
-                            const container = window.convertToSearchableDropdown(newSelect);
-                            window.dropdownContainers.push(container);
-                            window.updateAccountOptions();
-                        }
-                    }, 100);
+                
+                amountInputs.forEach(input => {
+                    const value = parseFloat(input.value) || 0;
+                    total += value;
                 });
+                
+                totalAmountInput.value = total.toFixed(2);
+                
+                // Update total display with currency formatting
+                const formattedTotal = new Intl.NumberFormat('en-PH', {
+                    style: 'currency',
+                    currency: 'PHP'
+                }).format(total);
+                
+                // If there's a total display element, update it
+                const totalDisplay = document.querySelector('.total-display');
+                if (totalDisplay) {
+                    totalDisplay.textContent = formattedTotal;
+                }
+            }
 
-                // Add delete buttons to existing rows
-                function addDeleteButtonsToExistingRows() {
-                    const existingRows = document.querySelectorAll("#accounting-table-body tr.entry-row");
+            // Filter accounts based on selected OOPAP
+            function filterAccountsByOOPAP() {
+                const oopapSelect = document.querySelector('select[name="oopap_id"]');
+                if (!oopapSelect) return;
+                
+                const selectedOopapId = oopapSelect.value;
+                if (!selectedOopapId || selectedOopapId === '') return;
+                
+                // Update account dropdowns
+                const accountSelects = document.querySelectorAll('select[name="account_id[]"]');
+                
+                accountSelects.forEach(select => {
+                    const options = select.querySelectorAll('option');
+                    
+                    options.forEach(option => {
+                        if (option.value === "") return;
+                        
+                        const optionOopapId = option.getAttribute('data-oopap');
+                        if (optionOopapId === selectedOopapId) {
+                            option.style.display = '';
+                        } else {
+                            option.style.display = 'none';
+                        }
+                    });
+                });
+            }
 
-                    existingRows.forEach(row => {
-                        if (!row.querySelector('.delete-row')) {
-                            const deleteButton = document.createElement("button");
-                            deleteButton.type = "button";
-                            deleteButton.className = "btn btn-danger btn-sm delete-row";
-                            deleteButton.innerHTML = "Delete";
+            // Handle OOPAP change
+            const oopapSelect = document.querySelector('select[name="oopap_id"]');
+            if (oopapSelect) {
+                oopapSelect.addEventListener('change', filterAccountsByOOPAP);
+            }
 
-                            deleteButton.addEventListener("click", function () {
-                                row.remove();
-                                updateTotal();
+            // Initialize events for the first row
+            const firstRow = tableBody.querySelector('.entry-row');
+            if (firstRow) {
+                initializeRowEvents(firstRow);
+            }
+
+            // Initialize Dropdown Services based on selected Fund Cluster and OOPAP
+            const fundClusterSelect = document.querySelector('select[name="fund_cluster_id"]');
+            const servicesSelect = document.getElementById('services');
+
+            // Load services on page load
+            loadServices();
+
+            // Update services when fund cluster or OOPAP changes
+            fundClusterSelect.addEventListener('change', loadServices);
+            if (oopapSelect) {
+                oopapSelect.addEventListener('change', loadServices);
+            }
+
+            function loadServices() {
+                const fundClusterId = fundClusterSelect.value;
+                const oopapId = oopapSelect ? oopapSelect.value : '';
+                
+                // Clear current options
+                servicesSelect.innerHTML = '<option selected disabled>Select Services</option>';
+                
+                // Only continue if both values are selected
+                if (!fundClusterId || !oopapId) return;
+                
+                // Add loading indicator
+                servicesSelect.innerHTML = '<option>Loading services...</option>';
+                
+                // Fetch services from the server
+                fetch(`get_services.php?fund_cluster_id=${fundClusterId}&oopap_id=${oopapId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Clear loading indicator
+                        servicesSelect.innerHTML = '<option selected disabled>Select Services</option>';
+                        
+                        if (data.length === 0) {
+                            const option = document.createElement('option');
+                            option.textContent = 'No services available';
+                            option.disabled = true;
+                            servicesSelect.appendChild(option);
+                        } else {
+                            data.forEach(service => {
+                                const option = document.createElement('option');
+                                option.value = service.services_id;
+                                option.textContent = service.services_name + ' - ' + service.code;
+                                servicesSelect.appendChild(option);
                             });
-
-                            const deleteCell = document.createElement("td");
-                            deleteCell.appendChild(deleteButton);
-
-                            row.appendChild(deleteCell);
                         }
+                    })
+                    .catch(error => {
+                        console.error('Error loading services:', error);
+                        servicesSelect.innerHTML = '<option disabled selected>Error loading services</option>';
                     });
-                }
-
-                addDeleteButtonsToExistingRows();
-
-                // Set up event listeners for existing amount inputs
-                document.querySelectorAll(".amount-input").forEach(input => {
-                    input.addEventListener("input", updateTotal);
-                });
-
-                // Set up event listeners for existing account selects
-                document.querySelectorAll(".account-select").forEach(select => {
-                    select.addEventListener("change", function () {
-                        const selectedOption = this.options[this.selectedIndex];
-                        const row = this.closest("tr");
-                        const codeInput = row.querySelector(".account-code");
-
-                        if (selectedOption && selectedOption.dataset.account_code) {
-                            codeInput.value = selectedOption.dataset.account_code;
+            }
+            
+            // Form validation
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(e) {
+                let isValid = true;
+                const requiredFields = form.querySelectorAll('[required]');
+                
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        isValid = false;
+                        field.classList.add('is-invalid');
+                        
+                        // Create error message
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'invalid-feedback';
+                        errorDiv.textContent = 'This field is required';
+                        
+                        // Only add if it doesn't exist already
+                        if (!field.nextElementSibling || !field.nextElementSibling.classList.contains('invalid-feedback')) {
+                            field.parentNode.insertBefore(errorDiv, field.nextElementSibling);
+                        }
                         } else {
-                            codeInput.value = "";
+                        field.classList.remove('is-invalid');
+                        // Remove error message if exists
+                        if (field.nextElementSibling && field.nextElementSibling.classList.contains('invalid-feedback')) {
+                            field.nextElementSibling.remove();
                         }
-                    });
-                });
-
-                // Initialize account codes for existing rows
-                document.querySelectorAll(".account-select").forEach(select => {
-                    const selectedOption = select.options[select.selectedIndex];
-                    const row = select.closest("tr");
-                    const codeInput = row.querySelector(".account-code");
-
-                    if (selectedOption && selectedOption.dataset.account_code) {
-                        codeInput.value = selectedOption.dataset.account_code;
                     }
+                });
+                
+                if (!isValid) {
+                    e.preventDefault();
+                    // Scroll to first error
+                    const firstError = form.querySelector('.is-invalid');
+                    if (firstError) {
+                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            });
+            
+            // Clear invalid status when field changes
+            form.querySelectorAll('[required]').forEach(field => {
+                field.addEventListener('input', function() {
+                    this.classList.remove('is-invalid');
+                    // Remove error message if exists
+                    if (this.nextElementSibling && this.nextElementSibling.classList.contains('invalid-feedback')) {
+                        this.nextElementSibling.remove();
+                    }
+                });
                 });
             });
         </script>
@@ -1111,25 +1539,26 @@ $ors_result = $connection->query($ors_query);
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const approverSelect = document.getElementById("approverSelect");
-            const designationLabel = document.getElementById("designationLabel");
+            const approverSelect = document.getElementById("approver");
 
+            if (approverSelect) {
             approverSelect.addEventListener("change", function () {
-
                 const selectedOption = approverSelect.options[approverSelect.selectedIndex];
-                const designation = selectedOption.getAttribute("data-designation") || "Designation";
+                    const designation = selectedOption.textContent.split(' - ')[1] || '';
 
-                designationLabel.textContent = designation;
+                    // You can display the designation somewhere if needed
+                    console.log('Selected designation:', designation);
             });
+            }
         });
     </script>
 
     <!-- dv_number -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const fundClusterSelect = document.getElementById("fundCluster");
+            const fundClusterSelect = document.getElementById("fund_cluster_id");
             const dvDateInput = document.getElementById("dvDate");
-            const orsNumberInput = document.getElementById("orsNumber");
+            const orsNumberInput = document.getElementById("ors_no");
 
             function generateorsNumber() {
                 const selectedUACS = fundClusterSelect.value;
@@ -1363,7 +1792,7 @@ $ors_result = $connection->query($ors_query);
                         const option = options[i];
                         if (option.value === "") continue;
 
-                        const optionOopapId = option.getAttribute('data-oopap_id');
+                        const optionOopapId = option.getAttribute('data-oopap');
                         if (optionOopapId === selectedOopapId) {
                             option.style.display = '';
                         } else {
@@ -1426,7 +1855,7 @@ $ors_result = $connection->query($ors_query);
                     const dropdownItem = document.createElement('div');
                     dropdownItem.className = 'dropdown-item';
                     dropdownItem.dataset.value = option.value;
-                    dropdownItem.dataset.oopapId = option.getAttribute('data-oopap_id');
+                    dropdownItem.dataset.oopapId = option.getAttribute('data-oopap');
                     dropdownItem.dataset.accountCode = option.getAttribute('data-account_code');
 
                     // Include account code in the display text

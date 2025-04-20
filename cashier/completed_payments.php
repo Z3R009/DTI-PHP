@@ -1,22 +1,6 @@
 <?php
 include '../DBConnection.php';
 
-// Process status update (mark as completed or return to chief accountant)
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_status'])) {
-    $payment_id = $_POST['payment_id'];
-    $status = $_POST['status'];
-    
-    $update_query = "UPDATE payment SET status = '$status' WHERE payment_id = '$payment_id'";
-    
-    if (mysqli_query($connection, $update_query)) {
-        // Success message
-        echo "<script>alert('Payment status updated successfully!'); window.location.href='completed_payments.php';</script>";
-    } else {
-        // Error message
-        echo "<script>alert('Error updating status: " . mysqli_error($connection) . "');</script>";
-    }
-}
-
 // Get all payments that are pending or completed
 $payments_query = "SELECT p.*, d.dv_no, o.ors_no, pa.payee_name
                   FROM payment p
@@ -30,6 +14,8 @@ $payments_result = mysqli_query($connection, $payments_query);
 
 <!DOCTYPE html>
 <html lang="en">
+
+<link rel="stylesheet" href="css/table.css">
 
 <?php include 'includes/header.php'; ?>
 <?php include 'includes/sidebar.php'; ?>
@@ -54,11 +40,9 @@ $payments_result = mysqli_query($connection, $payments_query);
                         <h5 class="card-title">Payment Records</h5>
                         
                         <div class="table-responsive">
-                            <table class="table table-striped datatable">
+                            <table class="datatable">
                                 <thead>
-                                    <tr>
-                                        <th>DV No</th>
-                                        <th>ORS No</th>
+                                    <tr class="bg-light text-dark">
                                         <th>Payee</th>
                                         <th>Payment Type</th>
                                         <th>Reference No</th>
@@ -71,12 +55,14 @@ $payments_result = mysqli_query($connection, $payments_query);
                                 <tbody>
                                     <?php while ($row = mysqli_fetch_assoc($payments_result)) : ?>
                                     <tr>
-                                        <td><?php echo $row['dv_no']; ?></td>
-                                        <td><?php echo $row['ors_no']; ?></td>
-                                        <td><?php echo $row['payee_name']; ?></td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div><?php echo $row['payee_name']; ?></div>
+                                            </div>
+                                        </td>
                                         <td><?php echo $row['payment_type']; ?></td>
-                                        <td><?php echo $row['reference_no']; ?></td>
-                                        <td>PHP <?php echo number_format($row['amount'], 2); ?></td>
+                                        <td><span class="badge bg-light text-primary"><?php echo $row['reference_no']; ?></span></td>
+                                        <td class="text-success fw-bold">PHP <?php echo number_format($row['amount'], 2); ?></td>
                                         <td><?php echo date('M d, Y', strtotime($row['payment_date'])); ?></td>
                                         <td>
                                             <?php if ($row['status'] == 'Completed') : ?>
@@ -86,37 +72,10 @@ $payments_result = mysqli_query($connection, $payments_query);
                                             <?php endif; ?>
                                         </td>
                                         <td>
-                                            <div class="dropdown">
-                                                <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                    Actions
+                                            <div class="btn-group">
+                                                <button type="button" class="btn btn-info btn-sm rounded" data-bs-toggle="modal" data-bs-target="#viewModal<?php echo $row['payment_id']; ?>">
+                                                    <i class="bi bi-eye"></i>
                                                 </button>
-                                                <ul class="dropdown-menu">
-                                                    <?php if ($row['status'] == 'Pending') : ?>
-                                                    <li>
-                                                        <form method="POST" action="" style="display: inline;">
-                                                            <input type="hidden" name="payment_id" value="<?php echo $row['payment_id']; ?>">
-                                                            <input type="hidden" name="status" value="Completed">
-                                                            <button type="submit" name="update_status" class="dropdown-item">
-                                                                <i class="bi bi-check-circle text-success"></i> Mark as Completed
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                    <?php endif; ?>
-                                                    <li>
-                                                        <form method="POST" action="" style="display: inline;">
-                                                            <input type="hidden" name="payment_id" value="<?php echo $row['payment_id']; ?>">
-                                                            <input type="hidden" name="status" value="Returned">
-                                                            <button type="submit" name="update_status" class="dropdown-item">
-                                                                <i class="bi bi-arrow-return-left text-primary"></i> Return to Chief Accountant
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                    <li>
-                                                        <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#viewModal<?php echo $row['payment_id']; ?>">
-                                                            <i class="bi bi-eye text-info"></i> View Details
-                                                        </button>
-                                                    </li>
-                                                </ul>
                                             </div>
                                         </td>
                                     </tr>
@@ -172,7 +131,13 @@ $payments_result = mysqli_query($connection, $payments_query);
                                     <?php endwhile; ?>
                                     <?php if (mysqli_num_rows($payments_result) == 0) : ?>
                                     <tr>
-                                        <td colspan="9" class="text-center">No payment records found</td>
+                                        <td colspan="7">
+                                            <div class="empty-state">
+                                                <i class="bi bi-clock-history"></i>
+                                                <h5>No payment records found</h5>
+                                                <p>There are no completed payments available at this time.</p>
+                                            </div>
+                                        </td>
                                     </tr>
                                     <?php endif; ?>
                                 </tbody>
@@ -187,4 +152,10 @@ $payments_result = mysqli_query($connection, $payments_query);
 
 </main><!-- End #main -->
 
+<?php include 'includes/footer.php'; ?>
+
+<style>
+    /* Enhanced Table Styling */
+    .table-responsive {
+        overflow-x: auto;
 <?php include 'includes/footer.php'; ?> 
