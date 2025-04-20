@@ -164,45 +164,105 @@ if ($ors_result->num_rows === 0) {
     <!-- Template Main CSS File -->
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1e40af;
+            --primary-light: #dbeafe;
+            --secondary-color: #475569;
+            --accent-color: #f59e0b;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --danger: #ef4444;
+            --success: #10b981;
+            --info: #0ea5e9;
+            --warning: #f59e0b;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            color: var(--text-dark);
+            background-color: var(--bg-light);
+        }
+
         .form-container {
             max-width: 1200px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 2rem auto;
+            background-color: var(--bg-white);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
         }
 
         .form-title {
             text-align: center;
-            margin-bottom: 30px;
-            color: #03045e;
+            margin-bottom: 2rem;
+            color: var(--primary-dark);
+            font-weight: 700;
+            font-size: 1.75rem;
+            position: relative;
+            padding-bottom: 0.75rem;
+        }
+
+        .form-title:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 4px;
+            background-color: var(--primary-color);
+            border-radius: 2px;
         }
 
         .form-section {
-            margin-bottom: 30px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 20px;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1.5rem;
         }
 
         .form-section h3 {
-            color: #0077b6;
-            margin-bottom: 15px;
-            font-size: 1.2rem;
+            color: var(--primary-color);
+            margin-bottom: 1.25rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-section h3:before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 18px;
+            background-color: var(--primary-color);
+            margin-right: 0.75rem;
+            border-radius: 2px;
         }
 
         .form-row {
             display: flex;
             flex-wrap: wrap;
-            margin: 0 -10px;
-            margin-bottom: 15px;
+            margin: 0 -0.75rem;
+            margin-bottom: 1.5rem;
         }
 
         .form-group {
             flex: 1;
             min-width: 250px;
-            padding: 0 10px;
-            margin-bottom: 15px;
+            padding: 0 0.75rem;
+            margin-bottom: 1.5rem;
         }
 
         .form-group.full-width {
@@ -215,113 +275,217 @@ if ($ors_result->num_rows === 0) {
 
         .form-label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #2B2D42;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.875rem;
         }
 
         .form-control {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background-color: #f8f9fa;
-            transition: all 0.3s ease;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background-color: var(--bg-white);
+            transition: var(--transition);
+            font-size: 0.95rem;
         }
 
         .form-control:focus {
             outline: none;
-            border-color: #0077b6;
-            box-shadow: 0 0 0 2px rgba(0, 119, 182, 0.2);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px var(--primary-light);
         }
 
         textarea.form-control {
-            min-height: 100px;
+            min-height: 120px;
             resize: vertical;
+        }
+
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%232563eb'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1rem;
+            padding-right: 2.5rem;
         }
 
         .checkbox-group {
             display: flex;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 1rem;
         }
 
         .checkbox-item {
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 0.5rem;
         }
 
         .btn-container {
             display: flex;
             justify-content: flex-end;
-            gap: 10px;
-            margin-top: 30px;
+            gap: 1rem;
+            margin-top: 2rem;
         }
 
         .btn {
-            padding: 12px 20px;
+            padding: 0.75rem 1.5rem;
             border: none;
-            border-radius: 8px;
+            border-radius: var(--radius-md);
             cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s ease;
+            font-weight: 600;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            letter-spacing: 0.01em;
+        }
+
+        .btn i {
+            font-size: 1.1rem;
         }
 
         .btn-primary {
-            background-color: #0077b6;
+            background-color: var(--primary-color);
             color: white;
         }
 
         .btn-primary:hover {
-            background-color: #03045e;
+            background-color: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
         }
 
         .btn-secondary {
-            background-color: #8d99ae;
+            background-color: var(--secondary-color);
             color: white;
         }
 
         .btn-secondary:hover {
-            background-color: #2B2D42;
+            background-color: #334155;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-info {
+            background-color: var(--info);
+            color: white;
+        }
+
+        .btn-info:hover {
+            background-color: #0284c7;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-sm {
+            padding: 0.4rem 0.75rem;
+            font-size: 0.875rem;
         }
 
         .table-responsive {
             overflow-x: auto;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 1.5rem;
         }
 
-        table {
+        .table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-bottom: 0;
         }
 
-        table th,
-        table td {
-            padding: 12px;
+        .table th,
+        .table td {
+            padding: 1rem;
             text-align: left;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--border-color);
         }
 
-        table th {
-            background-color: #0077b6;
+        .table th {
+            background-color: var(--primary-color);
             color: white;
-            font-weight: 500;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+            border: none;
         }
 
-        .signature-box {
-            border: 1px dashed #ddd;
-            height: 100px;
-            border-radius: 8px;
-            margin-top: 10px;
+        .table th:first-child {
+            border-top-left-radius: var(--radius-md);
+        }
+
+        .table th:last-child {
+            border-top-right-radius: var(--radius-md);
+        }
+
+        .table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .table tr:hover td {
+            background-color: var(--primary-light);
+        }
+
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: var(--bg-light);
+        }
+
+        .table-striped tbody tr:hover {
+            background-color: var(--primary-light);
+        }
+
+        /* Status badges */
+        .badge {
+            display: inline-block;
+            padding: 0.35em 0.65em;
+            font-size: 0.75em;
+            font-weight: 700;
+            line-height: 1;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 50rem;
+        }
+
+        .badge-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .badge-warning {
+            background-color: var(--warning);
+            color: white;
+        }
+
+        .badge-info {
+            background-color: var(--info);
+            color: white;
+        }
+
+        /* Filter section */
+        .filter-section {
+            background-color: var(--bg-white);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .filter-section h3 {
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            color: var(--primary-dark);
             display: flex;
             align-items: center;
-            justify-content: center;
-            color: #aaa;
-            cursor: pointer;
-        }
-
-        .signature-box:hover {
-            background-color: #f8f9fa;
+            gap: 0.5rem;
         }
 
         @media (max-width: 992px) {
@@ -340,7 +504,8 @@ if ($ors_result->num_rows === 0) {
             }
 
             .form-container {
-                padding: 20px;
+                padding: 1.5rem;
+                margin: 1rem;
             }
 
             .form-row {
@@ -350,6 +515,20 @@ if ($ors_result->num_rows === 0) {
             .form-group {
                 min-width: 100%;
             }
+
+            .btn {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+
+            .btn-container {
+                flex-direction: column;
+            }
+
+            .table th, 
+            .table td {
+                padding: 0.75rem;
+            }
         }
 
         @media print {
@@ -358,7 +537,10 @@ if ($ors_result->num_rows === 0) {
             }
 
             .sidebar,
-            .btn-container {
+            .btn-container,
+            .header,
+            .filter-section,
+            .back-to-top {
                 display: none;
             }
 
@@ -369,39 +551,81 @@ if ($ors_result->num_rows === 0) {
             .form-container {
                 box-shadow: none;
                 padding: 0;
+                margin: 0;
+            }
+
+            .table-responsive {
+                overflow: visible;
+                box-shadow: none;
+            }
+
+            .table th {
+                background-color: #f1f5f9 !important;
+                color: black !important;
             }
         }
 
-
-        .calculation-field {
-            background-color: #edf2f7;
-            cursor: not-allowed;
+        /* Animation styles */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
         }
 
-        .accounting-entry-table th:nth-child(1),
-        .accounting-entry-table td:nth-child(1) {
-            width: 40%;
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .accounting-entry-table th:nth-child(2),
-        .accounting-entry-table td:nth-child(2) {
-            width: 20%;
+        /* Status indicator styles */
+        .status-processed {
+            background-color: #dcfce7;
+            color: var(--success);
+            padding: 0.3rem 0.6rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
         }
 
-        .accounting-entry-table th:nth-child(3),
-        .accounting-entry-table th:nth-child(4),
-        .accounting-entry-table td:nth-child(3),
-        .accounting-entry-table td:nth-child(4) {
-            width: 20%;
+        .status-processed i {
+            font-size: 0.875rem;
         }
 
-        .tax-fields {
-            width: 100%;
-            transition: all 0.3s ease;
+        .amount-cell {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            color: var(--primary-dark);
         }
 
-        .tax-fields.hidden {
-            display: none;
+        .active-filter {
+            border-color: var(--primary-color);
+            background-color: var(--primary-light);
+        }
+        
+        .spin {
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .highlight-row {
+            animation: highlight 1.5s ease-in-out;
+        }
+        
+        @keyframes highlight {
+            0% { background-color: var(--primary-light); }
+            100% { background-color: transparent; }
         }
     </style>
 </head>
@@ -415,102 +639,122 @@ if ($ors_result->num_rows === 0) {
     <main id="main" class="main">
 
         <div class="pagetitle d-flex justify-content-between align-items-center">
-            <h1 class="mb-0">Obligation Request and Status</h1>
+            <div>
+                <h1 class="mb-0">Processed ORS Records</h1>
+                <nav>
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="index.php">Dashboard</a></li>
+                        <li class="breadcrumb-item">Book Keeper</li>
+                        <li class="breadcrumb-item active">Processed ORS</li>
+                    </ol>
+                </nav>
+            </div>
             <button class="btn btn-primary" onclick="window.location.href='ors.php'">
-                ORS Form
+                <i class="bi bi-plus-circle"></i> Create New ORS
             </button>
-
         </div><!-- End Page Title -->
 
 
-        <div class="content-wrapper">
+        <div class="content-wrapper fade-in">
+            <div class="filter-section">
+                <h3><i class="bi bi-funnel-fill"></i> Filter Records</h3>
+                <div class="form-row">
+                    <!-- Year Filter -->
+                    <div class="form-group col-md-4">
+                        <label for="yearFilter" class="form-label">Year</label>
+                        <select class="form-control" id="yearFilter" name="year">
+                            <option value="">Select Year</option>
+                            <?php
+                            for ($yearOption = 2010; $yearOption <= date('Y'); $yearOption++) {
+                                $selected = ($yearOption == $year) ? 'selected' : '';
+                                echo "<option value='" . $yearOption . "' $selected>" . $yearOption . "</option>";
+                            }
+                            ?>
+                        </select>
+                    </div>
+
+                    <!-- Month Filter -->
+                    <div class="form-group col-md-4">
+                        <label for="monthFilter" class="form-label">Month</label>
+                        <select class="form-control" id="monthFilter" name="month">
+                            <option value="">All Months</option>
+                            <?php
+                            $months = [
+                                "January",
+                                "February",
+                                "March",
+                                "April",
+                                "May",
+                                "June",
+                                "July",
+                                "August",
+                                "September",
+                                "October",
+                                "November",
+                                "December"
+                            ];
+                            foreach ($months as $index => $monthName) {
+                                $monthNumber = $index + 1;
+                                $selected = ($monthNumber == $month) ? 'selected' : '';
+                                echo "<option value='" . $monthNumber . "' $selected>" . $monthName . "</option>";
+                            }
+                            ?>
+                        </select>
+                    </div>
+
+                    <!-- Services Filter -->
+                    <div class="form-group col-md-4">
+                        <label for="servicesFilter" class="form-label">Services</label>
+                        <select class="form-control" id="servicesFilter" name="service">
+                            <option value="">All Services</option>
+                            <?php
+                            $services_query = "SELECT * FROM services";
+                            $services_result = $connection->query($services_query);
+                            while ($row = $services_result->fetch_assoc()) {
+                                $selected = ($row['services_name'] == $service) ? 'selected' : '';
+                                echo "<option value='" . htmlspecialchars($row['services_name']) . "' $selected>" . htmlspecialchars($row['services_name']) . "</option>";
+                            }
+                            ?>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
             <div class="form-container">
-                <h2 class="form-title">Obligation Request And Status</h2>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="card-title mb-0">Obligation Request Records</h2>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-outline-primary" onclick="printTable()">
+                            <i class="bi bi-printer"></i> Print
+                        </button>
+                        <button class="btn btn-sm btn-outline-success" onclick="exportToCSV()">
+                            <i class="bi bi-file-earmark-excel"></i> Export
+                        </button>
+                    </div>
+                </div>
 
                 <!-- ors list -->
                 <div>
-
-                    <!-- ORS List Filter Section -->
-                    <div class="container mt-4">
-                        <div class="form-row">
-                            <!-- Year Filter -->
-                            <div class="form-group col-md-4">
-                                <label for="yearFilter">Year</label>
-                                <select class="form-control" id="yearFilter" name="year">
-                                    <option value="">Select Year</option>
-                                    <?php
-                                    for ($yearOption = 2010; $yearOption <= date('Y'); $yearOption++) {
-                                        $selected = ($yearOption == $year) ? 'selected' : '';
-                                        echo "<option value='" . $yearOption . "' $selected>" . $yearOption . "</option>";
-                                    }
-                                    ?>
-                                </select>
-                            </div>
-
-                            <!-- Month Filter -->
-                            <div class="form-group col-md-4">
-                                <label for="monthFilter">Month</label>
-                                <select class="form-control" id="monthFilter" name="month">
-                                    <option value="">All Months</option>
-                                    <?php
-                                    $months = [
-                                        "January",
-                                        "February",
-                                        "March",
-                                        "April",
-                                        "May",
-                                        "June",
-                                        "July",
-                                        "August",
-                                        "September",
-                                        "October",
-                                        "November",
-                                        "December"
-                                    ];
-                                    foreach ($months as $index => $monthName) {
-                                        $monthNumber = $index + 1;
-                                        $selected = ($monthNumber == $month) ? 'selected' : '';
-                                        echo "<option value='" . $monthNumber . "' $selected>" . $monthName . "</option>";
-                                    }
-                                    ?>
-                                </select>
-                            </div>
-
-                            <!-- Services Filter -->
-                            <div class="form-group col-md-4">
-                                <label for="servicesFilter">Services</label>
-                                <select class="form-control" id="servicesFilter" name="service">
-                                    <option value="">All Services</option>
-                                    <?php
-                                    $services_query = "SELECT * FROM services";
-                                    $services_result = $connection->query($services_query);
-                                    while ($row = $services_result->fetch_assoc()) {
-                                        $selected = ($row['services_name'] == $service) ? 'selected' : '';
-                                        echo "<option value='" . htmlspecialchars($row['services_name']) . "' $selected>" . htmlspecialchars($row['services_name']) . "</option>";
-                                    }
-                                    ?>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="container">
-                        <div class="table-responsive">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>ORS No.</th>
-                                        <th>Date</th>
-                                        <th>Payee</th>
-                                        <th>Amount</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ORS No.</th>
+                                    <th>Date</th>
+                                    <th>Payee</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                if ($ors_result->num_rows === 0) {
+                                    echo '<tr><td colspan="6" class="text-center py-4">No records found for the selected filters.</td></tr>';
+                                } else {
                                     while ($ors = $ors_result->fetch_assoc()) {
                                         echo "<tr>";
-                                        echo "<td>" . htmlspecialchars($ors['ors_no']) . "</td>";
+                                        echo "<td><strong>" . htmlspecialchars($ors['ors_no']) . "</strong></td>";
                                         $date = new DateTime($ors['date']);
                                         echo "<td>" . htmlspecialchars($date->format('F j, Y')) . "</td>";
 
@@ -520,17 +764,19 @@ if ($ors_result->num_rows === 0) {
                                         $payee = $payee_result->fetch_assoc();
 
                                         echo "<td>" . htmlspecialchars($payee['payee_name']) . "</td>";
-                                        echo "<td>" . number_format($ors['total_amount'], 2) . "</td>";
-                                        echo "<td>Processed</td>"; // You can add dynamic status logic
+                                        echo "<td class='amount-cell'>₱ " . number_format($ors['total_amount'], 2) . "</td>";
+                                        echo "<td><span class='status-processed'><i class='bi bi-check-circle-fill'></i> Processed</span></td>";
                                         echo "<td>
-                                                <a href='ors_form.php?ors_no=" . $ors['ors_no'] . "' class='btn btn-info btn-sm'>View</a>
+                                                <a href='ors_form.php?ors_no=" . $ors['ors_no'] . "' class='btn btn-info btn-sm'>
+                                                    <i class='bi bi-eye'></i> View
+                                                </a>
                                             </td>";
                                         echo "</tr>";
                                     }
-                                    ?>
-                                </tbody>
-                            </table>
-                        </div>
+                                }
+                                ?>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -561,12 +807,22 @@ if ($ors_result->num_rows === 0) {
 
     <!-- Filter -->
     <script>
-        // JavaScript to handle filtering without the "Apply Filters" button
-        document.getElementById('yearFilter').addEventListener('change', applyFilter);
-        document.getElementById('monthFilter').addEventListener('change', applyFilter);
-        document.getElementById('servicesFilter').addEventListener('change', applyFilter);
+        // JavaScript to handle filtering with visual feedback
+        document.addEventListener('DOMContentLoaded', function() {
+            // Filter change handlers
+            document.getElementById('yearFilter').addEventListener('change', applyFilter);
+            document.getElementById('monthFilter').addEventListener('change', applyFilter);
+            document.getElementById('servicesFilter').addEventListener('change', applyFilter);
+            
+            // Add visual indicators for active filters
+            highlightActiveFilters();
+        });
 
         function applyFilter() {
+            // Show loading indicator
+            const tableBody = document.querySelector('tbody');
+            tableBody.innerHTML = '<tr><td colspan="6" class="text-center py-4"><i class="bi bi-arrow-repeat spin me-2"></i> Loading records...</td></tr>';
+            
             var year = document.getElementById('yearFilter').value;
             var month = document.getElementById('monthFilter').value;
             var service = document.getElementById('servicesFilter').value;
@@ -576,6 +832,160 @@ if ($ors_result->num_rows === 0) {
 
             // Update the URL with the selected filters
             window.location.href = newUrl; // Redirect to the new URL with filters
+        }
+        
+        function highlightActiveFilters() {
+            // Get all filter dropdowns
+            const filterElements = ['yearFilter', 'monthFilter', 'servicesFilter'];
+            
+            filterElements.forEach(id => {
+                const select = document.getElementById(id);
+                if (select.value) {
+                    // Add a class to indicate active filter
+                    select.classList.add('active-filter');
+                    // Add a visual indicator to the label
+                    const label = select.previousElementSibling;
+                    if (label) {
+                        label.innerHTML += ' <i class="bi bi-funnel-fill text-primary"></i>';
+                    }
+                }
+            });
+        }
+        
+        // Print table function
+        function printTable() {
+            const year = document.getElementById('yearFilter').value || 'All';
+            const month = document.getElementById('monthFilter').options[document.getElementById('monthFilter').selectedIndex].text || 'All';
+            const service = document.getElementById('servicesFilter').value || 'All Services';
+            
+            // Create a new window for printing
+            const printWindow = window.open('', '_blank');
+            
+            // Generate print content
+            let printContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Processed ORS Records</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 20px; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+                        th { background-color: #f2f2f2; }
+                        .header { margin-bottom: 20px; text-align: center; }
+                        .filters { margin-bottom: 15px; font-size: 14px; }
+                        .footer { margin-top: 30px; font-size: 12px; text-align: center; }
+                        .amount { text-align: right; font-family: monospace; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h2>Department of Trade and Industry</h2>
+                        <h3>Processed Obligation Request and Status Records</h3>
+                    </div>
+                    <div class="filters">
+                        <p><strong>Filters:</strong> Year: ${year} | Month: ${month} | Service: ${service}</p>
+                        <p><strong>Date Printed:</strong> ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</p>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ORS No.</th>
+                                <th>Date</th>
+                                <th>Payee</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+            
+            // Get data from the current table
+            const rows = document.querySelectorAll('.table tbody tr');
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length < 5) return; // Skip if it's a "no records found" row
+                
+                printContent += '<tr>';
+                // Only include the first 5 columns (skip Actions column)
+                for (let i = 0; i < 5; i++) {
+                    const cellContent = cells[i].innerHTML;
+                    // Special formatting for amount column
+                    if (i === 3) {
+                        printContent += `<td class="amount">${cellContent}</td>`;
+                    } else {
+                        printContent += `<td>${cellContent}</td>`;
+                    }
+                }
+                printContent += '</tr>';
+            });
+            
+            printContent += `
+                        </tbody>
+                    </table>
+                    <div class="footer">
+                        <p>Generated by DTI Book Keeping System</p>
+                    </div>
+                </body>
+                </html>
+            `;
+            
+            printWindow.document.open();
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            
+            // Wait for content to load before printing
+            printWindow.onload = function() {
+                printWindow.print();
+            };
+        }
+        
+        // Export to CSV function
+        function exportToCSV() {
+            const table = document.querySelector('.table');
+            const rows = table.querySelectorAll('tr');
+            
+            let csvContent = "data:text/csv;charset=utf-8,";
+            
+            // Add CSV header - skip the Actions column
+            const headerRow = rows[0];
+            const headers = headerRow.querySelectorAll('th');
+            const headerValues = [];
+            
+            // Include only the first 5 columns (skip the Actions column)
+            for (let i = 0; i < 5; i++) {
+                headerValues.push('"' + headers[i].innerText.trim() + '"');
+            }
+            csvContent += headerValues.join(",") + "\r\n";
+            
+            // Add data rows
+            for (let i = 1; i < rows.length; i++) {
+                const cells = rows[i].querySelectorAll('td');
+                if (cells.length < 5) continue; // Skip if it's a "no records found" row
+                
+                const rowValues = [];
+                // Include only the first 5 columns (skip the Actions column)
+                for (let j = 0; j < 5; j++) {
+                    // Clean up the cell text - remove HTML tags and normalize text
+                    const cellText = cells[j].innerText.trim();
+                    rowValues.push('"' + cellText.replace(/"/g, '""') + '"');
+                }
+                csvContent += rowValues.join(",") + "\r\n";
+            }
+            
+            // Create download link
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            
+            // Set filename with date
+            const today = new Date();
+            const filename = `ORS_Records_${today.getFullYear()}-${(today.getMonth()+1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}.csv`;
+            link.setAttribute("download", filename);
+            
+            // Trigger download
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
     </script>
 
