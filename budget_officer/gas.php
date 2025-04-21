@@ -680,9 +680,12 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form method="post" id="editUserForm" action="update_gas.php">
+                    <form method="post" id="editUserForm" action="update_SOF.php">
                         <input type="hidden" id="edit_project_id" name="project_id">
                         <input type="hidden" id="edit_account_id" name="edit_account_id">
+
+                         <!-- Add this hidden redirect field -->
+                         <input type="hidden" name="redirect" value="gas.php">
 
                         <div class="mb-3">
                             <label for="edit_account_title" class="form-label">Project/Program/Activities</label>
