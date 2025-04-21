@@ -933,7 +933,8 @@ WHERE dv.status = 'Pending'
                                         <td><?php echo htmlspecialchars($row['account_title']); ?></td>
                                         <td><?php echo htmlspecialchars($row['account_code']); ?></td>
                                         <td><?php echo htmlspecialchars($row['type']); ?></td>
-                                        <td><?php echo htmlspecialchars($row['amount']); ?></td>
+                                        <td><?php echo number_format($row['amount'], 2); ?></td>
+
                                     </tr>
                                 <?php } ?>
                             </tbody>
