@@ -87,3 +87,115 @@
 2025-04-15 10:03:40 - Current values: Allotment: 8000, Balance: 6000
 2025-04-15 10:03:40 - Calculated new balance: 10000
 2025-04-15 10:03:40 - Update successful
+2025-04-21 05:51:09 - Update request received
+2025-04-21 05:51:09 - Project ID: , Allotment: 31000.00
+2025-04-21 05:51:09 - Failed to get current values
+2025-04-21 05:51:17 - Update request received
+2025-04-21 05:51:17 - Project ID: , Allotment: 31000.00
+2025-04-21 05:51:17 - Failed to get current values
+2025-04-21 05:52:23 - Update request received
+2025-04-21 05:52:23 - Project ID: , Allotment: 31000.00
+2025-04-21 05:52:23 - Failed to get current values
+2025-04-21 05:53:31 - Update request received
+2025-04-21 05:53:31 - Project ID: 387, Allotment: 31000.00
+2025-04-21 05:53:31 - Current values: Allotment: 30000, Balance: 30000
+2025-04-21 05:53:31 - Calculated new balance: 0
+2025-04-21 05:53:31 - Update successful
+2025-04-21 05:53:51 - Update request received
+2025-04-21 05:53:51 - Project ID: 387, Allotment: 1000
+2025-04-21 05:53:51 - Current values: Allotment: 0, Balance: 0
+2025-04-21 05:53:51 - Calculated new balance: 0
+2025-04-21 05:53:51 - Update successful
+2025-04-21 05:54:28 - Update request received
+2025-04-21 05:54:28 - Project ID: 387, Allotment: 10000
+2025-04-21 05:54:28 - Current values: Allotment: 0, Balance: 0
+2025-04-21 05:54:28 - Calculated new balance: 0
+2025-04-21 05:54:28 - Update successful
+2025-04-21 05:57:49 - Update request received
+2025-04-21 05:57:49 - Project ID: 387, Allotment: 30000.00
+2025-04-21 05:57:49 - Current values: Allotment: 0, Balance: 0
+2025-04-21 05:57:49 - Calculated new balance: 30000
+2025-04-21 05:57:49 - Update successful
+2025-04-21 05:58:00 - Update request received
+2025-04-21 05:58:00 - Project ID: 387, Allotment: 29000.00
+2025-04-21 05:58:00 - Current values: Allotment: 30000, Balance: 30000
+2025-04-21 05:58:00 - Calculated new balance: 29000
+2025-04-21 05:58:00 - Update successful
+2025-04-21 05:58:09 - Update request received
+2025-04-21 05:58:09 - Project ID: 387, Allotment: 30000.00
+2025-04-21 05:58:09 - Current values: Allotment: 29000, Balance: 29000
+2025-04-21 05:58:09 - Calculated new balance: 30000
+2025-04-21 05:58:09 - Update successful
+2025-04-21 06:08:26 - Update request received
+2025-04-21 06:08:26 - Project ID: 398, Allotment: 1000
+2025-04-21 06:08:26 - Current values: Allotment: 0, Balance: 0
+2025-04-21 06:08:26 - Calculated new balance: 1000
+2025-04-21 06:08:26 - Update successful
+2025-04-21 06:08:50 - Update request received
+2025-04-21 06:08:50 - Project ID: 386, Allotment: 320000
+2025-04-21 06:08:50 - Current values: Allotment: 318000, Balance: 318000
+2025-04-21 06:08:50 - Calculated new balance: 320000
+2025-04-21 06:08:50 - Update successful
+2025-04-21 06:09:09 - Update request received
+2025-04-21 06:09:09 - Project ID: 386, Allotment: 318000
+2025-04-21 06:09:09 - Current values: Allotment: 320000, Balance: 320000
+2025-04-21 06:09:09 - Calculated new balance: 318000
+2025-04-21 06:09:09 - Update successful
+2025-04-21 06:09:21 - Update request received
+2025-04-21 06:09:21 - Project ID: 398, Allotment: 000
+2025-04-21 06:09:21 - Current values: Allotment: 1000, Balance: 1000
+2025-04-21 06:09:21 - Calculated new balance: 0
+2025-04-21 06:09:21 - Update successful
+2025-04-21 06:16:56 - Update request received
+2025-04-21 06:16:56 - Project ID: 59, Allotment: 21000.00
+2025-04-21 06:16:56 - Direct SQL: UPDATE project SET allotment = 21000.00 WHERE project_id = 59
+2025-04-21 06:16:56 - Direct update successful
+2025-04-21 06:17:03 - Update request received
+2025-04-21 06:17:03 - Project ID: 59, Allotment: 20000.00
+2025-04-21 06:17:03 - Direct SQL: UPDATE project SET allotment = 20000.00 WHERE project_id = 59
+2025-04-21 06:17:03 - Direct update successful
+2025-04-21 06:19:55 - Update request received
+2025-04-21 06:19:55 - Project ID: 59, Allotment: 21000.00
+2025-04-21 06:19:55 - Current values: Allotment: 20000, Balance: 20000
+2025-04-21 06:19:55 - Calculated new balance: 21000
+2025-04-21 06:19:55 - Update successful
+2025-04-21 06:22:16 - Update request received
+2025-04-21 06:22:16 - Project ID: 59, Allotment: 20000.00
+2025-04-21 06:22:16 - Current values: Allotment: 21000, Balance: 21000
+2025-04-21 06:22:16 - Calculated new balance: 20000
+2025-04-21 06:22:16 - Update successful
+2025-04-21 06:23:37 - Update request received
+2025-04-21 06:23:37 - Project ID: 59, Allotment: 22000.00
+2025-04-21 06:23:37 - Current values: Allotment: 20000, Balance: 20000
+2025-04-21 06:23:37 - Calculated new balance: 22000
+2025-04-21 06:23:37 - Update successful
+2025-04-21 06:23:42 - Update request received
+2025-04-21 06:23:42 - Project ID: 59, Allotment: 20000.00
+2025-04-21 06:23:42 - Current values: Allotment: 22000, Balance: 22000
+2025-04-21 06:23:42 - Calculated new balance: 20000
+2025-04-21 06:23:42 - Update successful
+2025-04-21 06:38:36 - Update request received
+2025-04-21 06:38:36 - Project ID: 386, Allotment: 319000.00
+2025-04-21 06:38:36 - Current values: Allotment: 318000, Balance: 318000
+2025-04-21 06:38:36 - Calculated new balance: 319000
+2025-04-21 06:38:36 - Update successful
+2025-04-21 06:38:43 - Update request received
+2025-04-21 06:38:43 - Project ID: 386, Allotment: 318000.00
+2025-04-21 06:38:43 - Current values: Allotment: 319000, Balance: 319000
+2025-04-21 06:38:43 - Calculated new balance: 318000
+2025-04-21 06:38:43 - Update successful
+2025-04-21 06:44:01 - Update request received
+2025-04-21 06:44:01 - Project ID: 446, Allotment: 2000.00
+2025-04-21 06:44:01 - Current values: Allotment: 1000, Balance: 1000
+2025-04-21 06:44:01 - Calculated new balance: 2000
+2025-04-21 06:44:01 - Update successful
+2025-04-21 07:11:01 - Update request received
+2025-04-21 07:11:01 - Project ID: 398, Allotment: 4000
+2025-04-21 07:11:01 - Current values: Allotment: 0, Balance: 0
+2025-04-21 07:11:01 - Calculated new balance: 4000
+2025-04-21 07:11:01 - Update successful
+2025-04-21 07:11:08 - Update request received
+2025-04-21 07:11:08 - Project ID: 398, Allotment: 0
+2025-04-21 07:11:08 - Current values: Allotment: 4000, Balance: 4000
+2025-04-21 07:11:08 - Calculated new balance: 0
+2025-04-21 07:11:08 - Update successful

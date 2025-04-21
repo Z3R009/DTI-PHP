@@ -732,6 +732,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
+
                 <div class="modal-body">
                     <form method="post" id="editUserForm" action="update_draft.php">
                         <input type="hidden" id="edit_draft_id" name="draft_id">
@@ -1010,8 +1011,6 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
                 });
             }
         });
-
-
     </script>
 
     <style>
