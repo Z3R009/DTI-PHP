@@ -134,7 +134,7 @@ $connection->close();
         }
 
         .floating-card {
-            width: 1300px;
+            width: 1150px;
             margin: 50px auto;
             background: white;
             padding: 20px;
