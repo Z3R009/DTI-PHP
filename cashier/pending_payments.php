@@ -10,6 +10,11 @@ if(isset($_GET['success']) && $_GET['success'] == '1') {
     $success_message = 'DV has been returned to Chief Accountant successfully!';
 } elseif(isset($_GET['success']) && $_GET['success'] == '3') {
     $success_message = 'Batch ADA payment has been recorded successfully!';
+    
+    // Store LDDAP data in JavaScript if available
+    $lddap_ref = isset($_GET['lddap_ref']) ? $_GET['lddap_ref'] : '';
+    $lddap_data = isset($_GET['lddap_data']) ? $_GET['lddap_data'] : '';
+    $storage_key = isset($_GET['storage_key']) ? $_GET['storage_key'] : '';
 }
 
 // Check if there's an error message
@@ -27,11 +32,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['return_to_chief'])) {
         // Process return to chief accountant action
         include 'back_end/return_to_chief.php';
-    } elseif (isset($_POST['submit_payment'])) {
-// Process payment submission
-        include 'back_end/submit_payment.php';
     } elseif (isset($_POST['submit_batch_ada'])) {
-// Process batch ADA payment
+        // Process batch ADA payment
         include 'back_end/batch_ada_payment.php';
     }
 }
@@ -101,6 +103,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         <i class="bi bi-check-circle me-1"></i>
         <?php echo $success_message; ?>
+        <?php if(isset($_GET['success']) && $_GET['success'] == '3' && !empty($lddap_ref)): ?>
+        <div class="mt-2">
+            <button type="button" class="btn btn-sm btn-outline-success" id="viewLddapBtn">
+                <i class="bi bi-file-earmark-text me-1"></i> View LDDAP-ADA Form
+            </button>
+        </div>
+        <?php endif; ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
     <?php endif; ?>
@@ -130,7 +139,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     <i class="bi bi-check-all"></i> Select All
                                 </button>
                                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#batchAdaModal" id="createBatchAdaBtn" disabled>
-                                    <i class="bi bi-bank"></i> Create Batch ADA
+                                    <i class="bi bi-bank"></i> Create ADA
                                 </button>
                             </div>
                             <?php endif; ?>
@@ -210,7 +219,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                             <h5 class="modal-title">Process Payment for DV #<?php echo $row['dv_no']; ?></h5>
                                                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                                         </div>
-                                                        <form method="POST" action="back_end/submit_payment.php">
+                                                        <form method="POST" action="submit_payment_direct.php">
                                                             <div class="modal-body">
                                                                 <div class="row mb-4">
                                                                     <div class="col-md-6">
@@ -243,43 +252,43 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                                 
                                                                 <div class="row mb-3">
                                                                     <div class="col-md-6">
-                                                                        <label for="payment_type" class="form-label fw-medium">Payment Type</label>
-                                                                        <select class="form-select form-select-lg" name="payment_type" required>
+                                                                        <label for="payment_type_<?php echo $row['dv_id']; ?>" class="form-label fw-medium">Payment Type</label>
+                                                                        <select class="form-select form-select-lg" id="payment_type_<?php echo $row['dv_id']; ?>" name="payment_type" required>
                                                                             <option value="">Select Payment Type</option>
                                                                             <option value="Check">Check</option>
                                                                             <option value="ADA">ADA</option>
                                                                         </select>
                                                                     </div>
                                                                     <div class="col-md-6">
-                                                                        <label for="reference_no" class="form-label fw-medium">Check/ADA Reference No:</label>
-                                                                        <input type="text" class="form-control form-control-lg" name="reference_no" required>
+                                                                        <label for="reference_no_<?php echo $row['dv_id']; ?>" class="form-label fw-medium">Check/ADA Reference No:</label>
+                                                                        <input type="text" class="form-control form-control-lg" id="reference_no_<?php echo $row['dv_id']; ?>" name="reference_no" required>
                                                                     </div>
                                                                 </div>
                                                                 
                                                                 <div class="row mb-3">
                                                                     <div class="col-md-6">
-                                                                        <label for="payment_date" class="form-label fw-medium">Payment Date</label>
-                                                                        <input type="date" class="form-control form-control-lg" name="payment_date" value="<?php echo date('Y-m-d'); ?>" required>
+                                                                        <label for="payment_date_<?php echo $row['dv_id']; ?>" class="form-label fw-medium">Payment Date</label>
+                                                                        <input type="date" class="form-control form-control-lg" id="payment_date_<?php echo $row['dv_id']; ?>" name="payment_date" value="<?php echo date('Y-m-d'); ?>" required>
                                                                     </div>
                                                                     <div class="col-md-6">
-                                                                        <label for="amount" class="form-label fw-medium">Amount</label>
+                                                                        <label for="amount_<?php echo $row['dv_id']; ?>" class="form-label fw-medium">Amount</label>
                                                                         <div class="input-group input-group-lg">
                                                                             <span class="input-group-text">₱</span>
-                                                                        <input type="number" step="0.01" class="form-control" name="amount" value="<?php echo $row['net_amount']; ?>" required>
+                                                                            <input type="number" step="0.01" class="form-control" id="amount_<?php echo $row['dv_id']; ?>" name="amount" value="<?php echo $row['net_amount']; ?>" required>
                                                                         </div>
                                                                     </div>
                                                                 </div>
                                                                 
                                                                 <div class="mb-3">
-                                                                    <label for="remarks" class="form-label fw-medium">Remarks</label>
-                                                                    <textarea class="form-control" name="remarks" rows="3" placeholder="Enter any additional information or notes about this payment"></textarea>
+                                                                    <label for="remarks_<?php echo $row['dv_id']; ?>" class="form-label fw-medium">Remarks</label>
+                                                                    <textarea class="form-control" id="remarks_<?php echo $row['dv_id']; ?>" name="remarks" rows="3" placeholder="Enter any additional information or notes about this payment"></textarea>
                                                                 </div>
                                                             </div>
                                                             <div class="modal-footer">
                                                                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">
                                                                     <i class="bi bi-x-circle me-1"></i> Cancel
                                                                 </button>
-                                                                <button type="submit" name="submit_payment" class="btn btn-primary">
+                                                                <button type="submit" class="btn btn-primary">
                                                                     <i class="bi bi-save me-1"></i> Save Payment
                                                                 </button>
                                                             </div>
@@ -461,7 +470,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <div class="modal-dialog modal-xl">
                                     <div class="modal-content">
                                         <div class="modal-header bg-primary text-white">
-                                            <h5 class="modal-title" id="batchAdaModalLabel"><i class="bi bi-bank me-2"></i>Create Batch ADA Payment</h5>
+                                            <h5 class="modal-title" id="batchAdaModalLabel"><i class="bi bi-bank me-2"></i>Create ADA Payment</h5>
                                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
                                         <div class="modal-body">
@@ -485,6 +494,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                             </div>
                                                             
                                                             <div class="mb-3">
+                                                                <label for="fund_code" class="form-label fw-medium">Fund Code <span class="text-danger">*</span></label>
+                                                                <input type="text" class="form-control" id="fund_code" name="fund_code" value="01101101" required>
+                                                                <div class="form-text">This will be used in the LDDAP-ADA reference number format</div>
+                                                            </div>
+                                                            
+                                                            <div class="mb-3">
+                                                                <label for="bank_info" class="form-label fw-medium">Bank Information <span class="text-danger">*</span></label>
+                                                                <input type="text" class="form-control" id="bank_info" name="bank_info" value="LAND BANK OF THE PHILIPPINES- KORONADAL BRANCH- 2075-9006-81" required>
+                                                                <div class="form-text">Format: BANK NAME- BRANCH- ACCOUNT NUMBER</div>
+                                                            </div>
+                                                            
+                                                            <div class="mb-3">
                                                                 <label for="batch_remarks" class="form-label fw-medium">Payment Remarks</label>
                                                                 <textarea class="form-control" id="batch_remarks" name="batch_remarks" rows="3" placeholder="Enter any additional notes or comments about this batch payment"></textarea>
                                                             </div>
@@ -498,6 +519,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                             <h5 class="card-title mb-0 text-success"><i class="bi bi-bank2 me-2"></i>ADA Reference</h5>
                                                         </div>
                                                         <div class="card-body">
+                                                            <div class="alert alert-secondary">
+                                                                <small>The LDDAP-ADA reference format will be: <strong>fund_code-month-series-year</strong><br>
+                                                                Example: 01101101-07-001-2023</small>
+                                                            </div>
+                                                            
                                                             <div class="form-check mb-3">
                                                                 <input class="form-check-input" type="radio" name="ada_option" id="useCommonAda" value="common" checked>
                                                                 <label class="form-check-label fw-medium" for="useCommonAda">
@@ -506,8 +532,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                             </div>
                                                             
                                                             <div class="mb-3" id="commonAdaSection">
-                                                                <label for="common_ada_ref" class="form-label fw-medium">ADA Reference Number <span class="text-danger">*</span></label>
-                                                                <input type="text" class="form-control form-control-lg" id="common_ada_ref" name="common_ada_ref" placeholder="Enter ADA reference number" required>
+                                                                <label for="common_ada_ref" class="form-label fw-medium">ADA Series Number <span class="text-danger">*</span></label>
+                                                                <input type="text" class="form-control form-control-lg" id="common_ada_ref" name="common_ada_ref" 
+                                                                       placeholder="Enter series number only (e.g. 001)" 
+                                                                       pattern="[0-9]+" 
+                                                                       title="Please enter numbers only" required>
+                                                                <div class="form-text">The complete reference will be generated as: fund_code-month-series-year</div>
                                                             </div>
                                                             
                                                             <div class="form-check">
@@ -579,6 +609,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <script>
 // Custom initialization for DataTable to preserve checkbox functionality
 $(document).ready(function() {
+    // Handle LDDAP-ADA data from URL if available
+    <?php if(isset($_GET['success']) && $_GET['success'] == '3' && !empty($lddap_data) && !empty($storage_key)): ?>
+    try {
+        // Store LDDAP data in localStorage for the form to access
+        const lddapData = <?php echo $lddap_data; ?>;
+        const storageKey = "<?php echo $storage_key; ?>";
+        localStorage.setItem(storageKey, JSON.stringify(lddapData));
+        
+        // Set up click handler for viewing LDDAP form
+        document.getElementById('viewLddapBtn').addEventListener('click', function() {
+            const lddapRef = "<?php echo $lddap_ref; ?>";
+            const lddapWindow = window.open('LDDAP-APA.html?ref=' + encodeURIComponent(lddapRef), '_blank');
+            
+            // If the window opens, we can also try to send the data directly
+            if (lddapWindow) {
+                // Wait for the window to load
+                setTimeout(function() {
+                    try {
+                        lddapWindow.postMessage(lddapData, window.location.origin);
+                    } catch (e) {
+                        console.error('Error sending data to LDDAP window:', e);
+                    }
+                }, 1000);
+            }
+        });
+    } catch (e) {
+        console.error('Error processing LDDAP data:', e);
+    }
+    <?php endif; ?>
+    
     // Initialize DataTable with specific options to preserve form controls
     var table = $('.datatable').DataTable({
         "columnDefs": [
@@ -596,6 +656,26 @@ $(document).ready(function() {
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
                 tooltipTriggerList.map(function (tooltipTriggerEl) {
                     return new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+                
+                // Reinitialize payment modal handlers after table redraws
+                document.querySelectorAll('[id^="paymentModal"]').forEach(modal => {
+                    const form = modal.querySelector('form');
+                    if (form) {
+                        const submitBtn = form.querySelector('button[type="submit"][name="submit_payment"]');
+                        if (submitBtn) {
+                            // Remove existing listeners to avoid duplicates
+                            const newSubmitBtn = submitBtn.cloneNode(true);
+                            submitBtn.parentNode.replaceChild(newSubmitBtn, submitBtn);
+                            
+                            // Add new listener
+                            newSubmitBtn.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                console.log('Payment form submit button clicked');
+                                form.submit();
+                            });
+                        }
+                    }
                 });
             }, 100);
         },
@@ -749,30 +829,35 @@ document.addEventListener('DOMContentLoaded', function() {
             // Update selected count
             document.getElementById('selectedDVCount').textContent = `${currentCheckboxes.length} selected`;
             
-            currentCheckboxes.forEach(checkbox => {
-                    const row = checkbox.closest('tr');
+            currentCheckboxes.forEach((checkbox, idx) => {
+                const row = checkbox.closest('tr');
                 const dvId = checkbox.value;
-                    const dvNo = row.cells[1].textContent.trim();
-                    const payee = row.cells[4].textContent.trim();
-                    const amountText = row.cells[6].textContent.trim();
-                
+                const dvNo = row.cells[1].textContent.trim();
+                const payee = row.cells[4].textContent.trim();
+                const amountText = row.cells[6].textContent.trim();
+            
                 console.log('Adding DV to batch:', { dvNo, payee, amountText });
                     
-                    // Extract amount (remove currency symbol and commas)
-                    const amount = parseFloat(amountText.replace(/[₱,]/g, ''));
-                    totalAmount += amount;
-                    
-                    // Add to table
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${dvNo}</td>
-                        <td>${payee}</td>
-                        <td>₱${amount.toFixed(2)}</td>
+                // Extract amount (remove currency symbol and commas)
+                const amount = parseFloat(amountText.replace(/[₱,]/g, ''));
+                totalAmount += amount;
+                
+                // Generate a suggested series number (padded with leading zeros)
+                const suggestedSeries = (idx + 1).toString().padStart(3, '0');
+                
+                // Add to table
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${dvNo}</td>
+                    <td>${payee}</td>
+                    <td>₱${amount.toFixed(2)}</td>
                     <td>
-                        <input type="text" class="form-control ada-reference-input" data-dv-id="${dvId}" required>
-                        <input type="hidden" name="selected_dvs[]" value="${dvId}">
+                        <input type="text" class="form-control ada-reference-input" 
+                               data-dv-id="${dvId}" 
+                               value="${suggestedSeries}"
+                               placeholder="Series number only (e.g. 001)" required>
                     </td>
-                    `;
+                `;
                 selectedDVsBody.appendChild(tr);
             });
             
@@ -831,6 +916,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const commonReferenceNo = document.getElementById('common_ada_ref').value;
             const paymentDate = document.getElementById('batch_date').value;
             const remarks = document.getElementById('batch_remarks').value;
+            const fundCode = document.getElementById('fund_code').value;
+            const bankInfo = document.getElementById('bank_info').value;
             
             // Get all checkboxes and verify selection
             const selectedCheckboxes = document.querySelectorAll('.dv-checkbox:checked');
@@ -841,12 +928,22 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Validate form
             if (useCommonAda && !commonReferenceNo) {
-                alert('Please enter a common ADA Reference Number');
+                alert('Please enter an ADA Series Number');
                 return;
             }
             
             if (!paymentDate) {
                 alert('Please enter a Payment Date');
+                return;
+            }
+            
+            if (!fundCode) {
+                alert('Please enter a Fund Code');
+                return;
+            }
+            
+            if (!bankInfo) {
+                alert('Please enter Bank Information');
                 return;
             }
             
@@ -872,11 +969,25 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Get the form and create a FormData object for better data handling
             const form = document.getElementById('batchAdaForm');
-            const formData = new FormData(form);
+            
+            // First clear all hidden inputs to prevent duplication
+            const existingHiddenInputs = form.querySelectorAll('input[type="hidden"]');
+            existingHiddenInputs.forEach(input => {
+                if (input.name === 'selected_dvs[]' || input.name.startsWith('ada_references') || 
+                    input.name === 'fund_code' || input.name === 'bank_info') {
+                    input.remove();
+                }
+            });
+            
+            const formData = new FormData();
             
             // Add necessary fields that might be missing
             formData.append('submit_batch_ada', '1');
             formData.append('use_common_ada', useCommonAda ? '1' : '0');
+            
+            // Add fund code and bank info
+            formData.append('fund_code', fundCode);
+            formData.append('bank_info', bankInfo);
             
             // Handle the reference number(s)
             if (useCommonAda) {
@@ -899,30 +1010,26 @@ document.addEventListener('DOMContentLoaded', function() {
             // Add remarks
             formData.append('batch_remarks', remarks);
             
+            // Add selected DVs
+            selectedCheckboxes.forEach(checkbox => {
+                formData.append('selected_dvs[]', checkbox.value);
+            });
+            
             // Log form data for debugging
             console.log('Form submission data:', {
                 useCommonAda: useCommonAda,
                 referenceNo: useCommonAda ? commonReferenceNo : 'Multiple',
                 paymentDate: paymentDate,
                 remarks: remarks,
+                fundCode: fundCode,
+                bankInfo: bankInfo,
                 selectedDVs: Array.from(selectedCheckboxes).map(cb => cb.value)
             });
-            
-            // Ensure selected DVs are included
-            if (formData.getAll('selected_dvs[]').length === 0) {
-                selectedCheckboxes.forEach(checkbox => {
-                    formData.append('selected_dvs[]', checkbox.value);
-                });
-            }
             
             // Transfer formData values to the form for standard submission
             const keys = Array.from(formData.keys());
             keys.forEach(key => {
                 const values = formData.getAll(key);
-                
-                // Remove any existing elements with this name
-                const existingElements = form.querySelectorAll(`[name="${key}"]`);
-                existingElements.forEach(el => el.remove());
                 
                 // Add new elements for each value
                 values.forEach(value => {

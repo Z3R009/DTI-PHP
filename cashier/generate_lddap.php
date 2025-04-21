@@ -255,7 +255,15 @@ if (isset($_SERVER['HTTP_REFERER'])) {
                     return $dv_clean;
                 }, $dvs);
                 
-                echo json_encode($dvs_with_remarks); 
+                // Use associative array with dv_id as key to eliminate duplicates
+                $unique_dvs = [];
+                foreach ($dvs_with_remarks as $dv) {
+                    if (!isset($unique_dvs[$dv['dv_id']])) {
+                        $unique_dvs[$dv['dv_id']] = $dv;
+                    }
+                }
+                
+                echo json_encode(array_values($unique_dvs)); 
             ?>,
             totalGross: <?php echo $total_gross; ?>,
             totalWithholding: <?php echo $total_withholding; ?>,

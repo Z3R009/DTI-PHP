@@ -118,11 +118,7 @@
     </style>
 </head>
 <body>
-    <div style="text-align: center; margin: 5px 0;">
-        <button id="printButton" onclick="window.print();" style="padding: 8px 16px; font-size: 14px; background-color: #0d6efd; color: white; border: none; border-radius: 4px; cursor: pointer;">
-            <i class="bi bi-printer"></i> Print LDDAP-ADA Form
-        </button>
-    </div>
+   
     
     <div class="container">
         <table>
@@ -149,10 +145,11 @@
                         </tr>
                         <tr>
                             <td>FUND CODE :</td>
-                            <td colspan="7">01101101</td>
+                            <td colspan="7" id="fundCodeDisplay">01101101</td>
                         </tr>
                         <tr>
-                            <td colspan="8">LAND BANK OF THE PHILIPPINES- KORONADAL BRANCH- 2075-9006-81</td>
+                            <td>BANK :</td>
+                            <td colspan="7" id="bankInfoDisplay">LAND BANK OF THE PHILIPPINES- KORONADAL BRANCH- 2075-9006-81</td>
                         </tr>
                     </table>
                 </td>
@@ -229,8 +226,8 @@
             </tr>
             <tr>
                 <td colspan="9">
-                    <p style="margin-top: 0; margin-bottom: 0;">TO MDS-GSB of the Agency&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LAND BANK OF THE PHILIPPINES- KORONADAL BRANCH</p>
-                    <p style="margin-bottom: 0;margin-top: 0;">Please debit MDS Sub-Account Number: 2075-9006-81</p>
+                    <p style="margin-top: 0; margin-bottom: 0;">TO MDS-GSB of the Agency&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="bankNameDisplay">LAND BANK OF THE PHILIPPINES- KORONADAL BRANCH</span></p>
+                    <p style="margin-bottom: 0;margin-top: 0;">Please debit MDS Sub-Account Number: <span id="accountNumberDisplay">2075-9006-81</span></p>
                     <p style="margin-top: 0;">Please credit the account of the above listed creditors to cover payment of accounts payable (A/Ps).</p>
                     <div style="display: flex; justify-content: space-between; margin-top: 10px;">
                         <div style="width: 65%; ">
@@ -281,6 +278,11 @@
         </table>
     </div>
     
+    <div style="text-align: center; margin: 5px 0;">
+        <button id="printButton" onclick="window.print();" style="padding: 8px 16px; font-size: 14px; background-color: #0d6efd; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            <i class="bi bi-printer"></i> Print LDDAP-ADA Form
+        </button>
+    </div>
     <script>
         // Listen for messages from the parent window
         window.addEventListener('message', function(event) {
@@ -295,8 +297,109 @@
         });
         
         function populateForm(data) {
-            // Set the ADA reference number and date
-            document.getElementById('adaReferenceNo').textContent = data.referenceNo;
+            // Set the fund code if provided
+            if (data.fundCode) {
+                document.getElementById('fundCodeDisplay').textContent = data.fundCode;
+            }
+            
+            // Set the bank information if provided
+            if (data.bankInfo) {
+                document.getElementById('bankInfoDisplay').textContent = data.bankInfo;
+                
+                // Try to split bank info into bank name and account number
+                const bankInfoParts = data.bankInfo.split('-');
+                if (bankInfoParts.length >= 2) {
+                    // Last part is likely the account number
+                    const accountNumber = bankInfoParts[bankInfoParts.length - 1].trim();
+                    // The rest is likely the bank name
+                    const bankName = bankInfoParts.slice(0, bankInfoParts.length - 1).join('-').trim();
+                    
+                    document.getElementById('bankNameDisplay').textContent = bankName;
+                    document.getElementById('accountNumberDisplay').textContent = accountNumber;
+                }
+            }
+            
+            // Format and set the ADA reference number using the required format: last 3 digits of fund code-month-first ada-last ada-year
+            if (data.referenceNo) {
+                let formattedADANo = data.referenceNo;
+                
+                // If we have DVs data, we can use it to get first and last ADA numbers
+                if (data.dvs && data.dvs.length > 0) {
+                    // Get all unique reference numbers from DVs
+                    const adaNumbers = data.dvs.map(dv => {
+                        if (dv.reference_no && dv.reference_no.includes('-')) {
+                            // Extract the series part (third element in format fund-month-series-year)
+                            const parts = dv.reference_no.split('-');
+                            if (parts.length >= 4) {
+                                return parts[2]; // Return just the series number
+                            }
+                        }
+                        return null;
+                    }).filter(ref => ref !== null);
+                    
+                    // If we have extracted ADA numbers, use them to format the LDDAP-ADA number
+                    if (adaNumbers.length > 0) {
+                        // Sort ADA numbers numerically
+                        adaNumbers.sort((a, b) => parseInt(a) - parseInt(b));
+                        
+                        const firstAda = adaNumbers[0];
+                        const lastAda = adaNumbers[adaNumbers.length - 1];
+                        
+                        // Create the formatted ADA number
+                        let fundCode = data.fundCode || '01101101';
+                        
+                        // Get only the last 3 digits of the fund code
+                        if (fundCode.length > 3) {
+                            fundCode = fundCode.substring(fundCode.length - 3);
+                        }
+                        
+                        const paymentDate = new Date(data.paymentDate);
+                        const month = String(paymentDate.getMonth() + 1).padStart(2, '0');
+                        const year = paymentDate.getFullYear();
+                        
+                        // Use first and last ADA if multiple, otherwise just use one
+                        if (adaNumbers.length > 1 && firstAda !== lastAda) {
+                            formattedADANo = `${fundCode}-${month}-${firstAda}-${lastAda}-${year}`;
+                        } else {
+                            formattedADANo = `${fundCode}-${month}-${firstAda}-${year}`;
+                        }
+                    } else if (data.fundCode && data.paymentDate) {
+                        // If no individual ADA numbers, but we have fund code and date
+                        let fundCode = data.fundCode;
+                        
+                        // Get only the last 3 digits of the fund code
+                        if (fundCode.length > 3) {
+                            fundCode = fundCode.substring(fundCode.length - 3);
+                        }
+                        
+                        const paymentDate = new Date(data.paymentDate);
+                        const month = String(paymentDate.getMonth() + 1).padStart(2, '0');
+                        const year = paymentDate.getFullYear();
+                        const series = formattedADANo.includes('-') ? formattedADANo.split('-')[2] : '001';
+                        
+                        formattedADANo = `${fundCode}-${month}-${series}-${year}`;
+                    }
+                } else if (data.fundCode && data.paymentDate) {
+                    // If no DVs data, but we have fund code and date
+                    let fundCode = data.fundCode;
+                    
+                    // Get only the last 3 digits of the fund code
+                    if (fundCode.length > 3) {
+                        fundCode = fundCode.substring(fundCode.length - 3);
+                    }
+                    
+                    const paymentDate = new Date(data.paymentDate);
+                    const month = String(paymentDate.getMonth() + 1).padStart(2, '0');
+                    const year = paymentDate.getFullYear();
+                    const series = formattedADANo.includes('-') ? formattedADANo.split('-')[2] : '001';
+                    
+                    formattedADANo = `${fundCode}-${month}-${series}-${year}`;
+                }
+                
+                document.getElementById('adaReferenceNo').textContent = formattedADANo;
+            }
+            
+            // Set the payment date
             document.getElementById('adaDate').textContent = formatDate(data.paymentDate);
             
             // Set remarks content
@@ -319,11 +422,33 @@
             const dvRowsContainer = document.getElementById('dvRows');
             dvRowsContainer.innerHTML = ''; // Clear existing rows
             
+            // Track added DVs to prevent duplicates
+            const addedDvIds = new Set();
+            
             // Add rows for each DV
             data.dvs.forEach((dv, index) => {
+                // Skip if this DV has already been added
+                if (dv.dv_id && addedDvIds.has(dv.dv_id)) {
+                    return;
+                }
+                
+                // Add this DV's ID to the set of added DVs
+                if (dv.dv_id) {
+                    addedDvIds.add(dv.dv_id);
+                }
+                
+                // Extract just the series number from the reference
+                let adaDisplay = (index + 1).toString();
+                if (dv.reference_no && dv.reference_no.includes('-')) {
+                    const parts = dv.reference_no.split('-');
+                    if (parts.length >= 4) {
+                        adaDisplay = parts[2]; // Get just the series part (third element)
+                    }
+                }
+                
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${index + 1}</td>
+                    <td>${adaDisplay}</td>
                     <td>${dv.payee_name}</td>
                     <td>${dv.bank_account}</td>
                     <td>${dv.ors_no}</td>
@@ -336,7 +461,7 @@
             });
             
             // Add empty rows to keep the form layout consistent
-            const emptyRowsNeeded = Math.max(0, 8 - data.dvs.length);
+            const emptyRowsNeeded = Math.max(0, 8 - addedDvIds.size);
             for (let i = 0; i < emptyRowsNeeded; i++) {
                 const emptyRow = document.createElement('tr');
                 emptyRow.innerHTML = `
