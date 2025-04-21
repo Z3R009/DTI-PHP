@@ -621,7 +621,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                     <form method="post" id="addUserForm">
                         <div class="mb-3">
                             <input type="hidden" class="form-control" id="oopap_id" name="oopap_id"
-                                value="1" readonly required autocomplete="off">
+                                value="11" readonly required autocomplete="off">
                         </div>
                         <div class="mb-3">
                             <label for="account_id" class="form-label">Account Title <span class="text-danger">*</span></label>
@@ -832,7 +832,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
         });
     </script>
     <script>
-        function deleteUser(oo1ID) {
+        function deleteUser(oo1PID) {
             Swal.fire({
                 title: 'Are you sure?',
                 text: "You won't be able to revert this!",
@@ -852,7 +852,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                             Swal.showLoading();
                         }
                     });
-                    window.location.href = 'oo1_personalServices.php?project_id=' + oo1ID + '&confirm=yes';
+                    window.location.href = 'oo1_personalServices.php?project_id=' + oo1PID + '&confirm=yes';
                 }
             });
         }

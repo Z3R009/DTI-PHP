@@ -3,20 +3,25 @@ include '../DBConnection.php';
 $selected_month = isset($_GET['month']) ? intval($_GET['month']) : date('n');
 $selected_year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
 
+//Delete
 if (isset($_GET['project_id']) && $_GET['confirm'] == 'yes') {
     $project_id = intval($_GET['project_id']);
-     $deleteUserSql = "DELETE FROM project WHERE project_id = ?";
+
+    $deleteUserSql = "DELETE FROM project WHERE project_id = ?";
     $stmtUser = $connection->prepare($deleteUserSql);
     $stmtUser->bind_param("i", $project_id);
 
     if ($stmtUser->execute()) {
+        $_SESSION['success_message'] = "Project deleted successfully!";
         header('Location: oo2_tida.php');
         exit();
     } else {
-         echo "Error deleting user: " . $connection->error;
+        $_SESSION['error_message'] = "Error deleting project: " . $connection->error;
+        header('Location: oo2_tida.php');
+        exit();
     }
 } else {
-     echo "Invalid request.";
+    echo "Invalid request.";
 }
 
 //Add
@@ -48,6 +53,7 @@ if (isset($_POST['submit'])) {
     }
 }
 
+// retrieve
 $select = mysqli_query(
     $connection,
     "SELECT project.*,
@@ -55,15 +61,10 @@ $select = mysqli_query(
             account_title.account_code 
             FROM project
             LEFT JOIN account_title ON project.account_id = account_title.account_id
-            WHERE oopap_id = 12
+            WHERE oopap_id = 12 
             AND YEAR(project.created_at) = $selected_year
             ORDER BY account_title.account_title ASC"
 );
-
-$oopap_query = "SELECT description FROM oopap WHERE oopap_id = 12";
-$oopap_result = mysqli_query($connection, $oopap_query);
-$oopap_data = mysqli_fetch_assoc($oopap_result);
-$description = $oopap_data['description'];
 
 $query_account = "SELECT account_id, account_title, account_code FROM account_title ORDER BY account_title ASC";
 $result_account = $connection->query($query_account);
@@ -71,6 +72,7 @@ $result_account = $connection->query($query_account);
 $total_allotment_query = "SELECT SUM(allotment) AS total_allotment FROM project WHERE oopap_id = 12 AND YEAR(created_at) = $selected_year";
 $total_allotment_result = mysqli_query($connection, $total_allotment_query);
 $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'];
+
 $update_balances_query = "UPDATE project p 
                          SET p.balances = p.allotment - (
                              SELECT COALESCE(SUM(ors.total_amount), 0) 
@@ -83,11 +85,11 @@ $update_balances_query = "UPDATE project p
                          WHERE p.oopap_id = 12 
                          AND YEAR(p.created_at) = $selected_year";
 mysqli_query($connection, $update_balances_query);
+
 $total_balances_query = "SELECT SUM(balances) AS total_balances FROM project WHERE oopap_id = 12 AND YEAR(created_at) = $selected_year";
 $total_balances_result = mysqli_query($connection, $total_balances_query);
 $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -96,7 +98,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Dashboard - NiceAdmin Bootstrap Template</title>
+    <title>GAS Management - Budget System</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
@@ -117,6 +119,11 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     <link href="../NiceAdmin/assets/vendor/simple-datatables/style.css" rel="stylesheet">
 
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
+    
+    <!-- Add Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+    
     <style>
         .card {
             border-radius: 10px;
@@ -388,12 +395,12 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
 
         <div class="pagetitle page-header d-flex justify-content-between align-items-center">
             <div>
-                <h1> (OO2) Tida Contractual <?php echo date('Y'); ?></h1>
+                <h1>Tida Contractual (OO2) <?php echo date('Y'); ?></h1>
                 <nav>
                     <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="index.php">Home</a></li>
                         <li class="breadcrumb-item"><a href="index.php">Status of Fund</a></li>
-                        <li class="breadcrumb-item"><a href="index.php">Tida Contractual</a></li>
+                        <li class="breadcrumb-item"><a href="index.php">MOOE</a></li>
                         <li class="breadcrumb-item active">OO2</li>
                     </ol>
                 </nav>
@@ -476,131 +483,129 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
             </div>
         </div>
 
-            <div class="card">
-                <div class="card-body p-4">
-                    <?php if (isset($error_message)): ?>
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <i class="bi bi-exclamation-octagon me-1"></i>
-                        <?php echo $error_message; ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    <?php endif; ?>
-                    
-                    <div class="d-flex justify-content-end">
-                    <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#addUserModal" style="width: 200px; background-color:#023e8a;" data-bs-toggle="tooltip" data-bs-placement="top" title="Add new project/program/activities">
-                        <i class="bi bi-plus-circle me-1"></i> Add Project
-                    </button>
+        <div class="card">
+            <div class="card-body p-4">
+                <?php if (isset($error_message)): ?>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-octagon me-1"></i>
+                    <?php echo $error_message; ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-
-                    <div class="table-meta-container mb-3">
-                        <!-- <div class="table-search">
-                            <div class="input-group">
-                                <span class="input-group-text bg-primary text-white">
-                                    <i class="bi bi-search"></i>
-                                </span>
-                                <input type="text" id="tableSearch" class="form-control" placeholder="Search projects...">
-                            </div>
-                        </div> -->
-                        <div>
-                            <!-- <button class="btn btn-outline-primary btn-sm" id="refreshTable">
-                                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
-                            </button> -->
-                        </div>
-                    </div>
-                    
-                    <div class="table-container">
-                        <table class="table datatable table-striped table-hover">
-                            <thead>
-                                <tr>
-                                    <th width="30%">
-                                        <i class="bi bi-briefcase me-2 text-primary"></i>
-                                        Project/Activities/Program
-                                    </th>
-                                    <th width="15%">
-                                        <i class="bi bi-upc me-2 text-primary"></i>
-                                        Code
-                                    </th>
-                                    <th class="text-end" width="15%">
-                                        <i class="bi bi-cash me-2 text-primary"></i>
-                                        Allotment
-                                    </th>
-                                    <th class="text-end" width="15%">
-                                        <i class="bi bi-wallet2 me-2 text-primary"></i>
-                                        Balances
-                                    </th>
-                                    <th width="15%">
-                                        <i class="bi bi-calendar-date me-2 text-primary"></i>
-                                        Date
-                                    </th>
-                                    <th class="text-center" width="10%">
-                                        <i class="bi bi-sliders me-2 text-primary"></i>
-                                        Actions
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php while ($row = mysqli_fetch_assoc($select)) { ?>
-                                    <tr>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div class="icon-box rounded-circle bg-light me-3 p-2">
-                                                    <i class="bi bi-folder text-primary"></i>
-                                                </div>
-                                                <span class="fw-medium"><?php echo htmlspecialchars($row['account_title']); ?></span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span class="badge badge-code blue-badge"><?php echo htmlspecialchars($row['account_code']); ?></span>
-                                        </td>
-                                        <td class="text-end amount-cell">₱<?php echo htmlspecialchars(number_format($row['allotment'], 2)); ?></td>
-                                        <td class="text-end amount-cell">
-                                            <span class="badge badge-code green-badge">
-                                                ₱<?php echo htmlspecialchars(number_format($row['balances'], 2)); ?>
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <i class="bi bi-calendar3 me-2 text-muted"></i>
-                                                <?php echo date("M d, Y", strtotime($row['created_at'])); ?>
-                                            </div>
-                                        </td>
-                                        <td class="text-center">
-                                            <button type="button" class="btn btn-primary action-btn edit-btn" data-bs-toggle="tooltip" title="Edit project"
-                                                data-bs-target="#editModal" data-id="<?php echo $row['project_id']; ?>"
-                                                data-account_id="<?php echo htmlspecialchars($row['account_id']); ?>"
-                                                data-account_title="<?php echo htmlspecialchars($row['account_title']); ?>"
-                                                data-allotment="<?php echo htmlspecialchars($row['allotment']); ?>">
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
-
-                                            <button type="button" class="btn btn-danger action-btn" data-bs-toggle="tooltip" title="Delete project"
-                                                onclick="deleteUser(<?php echo $row['project_id']; ?>)">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                <?php } ?>
-                            </tbody>
-                            </table>
-                            <div class="table-footer">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="text-muted small">
-                                        <i class="bi bi-info-circle me-1"></i> Showing all projects for current fiscal year
-                                    </div>
-                                    <div>
-                                        <span class="fw-medium text-primary">Total Records: <?php echo mysqli_num_rows($select); ?></span>
-                                    </div>
-                                </div>
-                            </div>
-                              
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <?php endif; ?>
+                
+                <div class="d-flex justify-content-end">
+                <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#addUserModal" style="width: 200px; background-color:#023e8a;" data-bs-toggle="tooltip" data-bs-placement="top" title="Add new project/program/activities">
+                    <i class="bi bi-plus-circle me-1"></i> Add Project
+                </button>
             </div>
 
-        </section>
+                <div class="table-meta-container mb-3">
+                    <!-- <div class="table-search">
+                        <div class="input-group">
+                            <span class="input-group-text bg-primary text-white">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text" id="tableSearch" class="form-control" placeholder="Search projects...">
+                        </div>
+                    </div> -->
+                    <div>
+                        <!-- <button class="btn btn-outline-primary btn-sm" id="refreshTable">
+                            <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                        </button> -->
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table class="table datatable table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th width="30%">
+                                    <i class="bi bi-briefcase me-2 text-primary"></i>
+                                    Project/Activities/Program
+                                </th>
+                                <th width="15%">
+                                    <i class="bi bi-upc me-2 text-primary"></i>
+                                    Code
+                                </th>
+                                <th class="text-end" width="15%">
+                                    <i class="bi bi-cash me-2 text-primary"></i>
+                                    Allotment
+                                </th>
+                                <th class="text-end" width="15%">
+                                    <i class="bi bi-wallet2 me-2 text-primary"></i>
+                                    Balances
+                                </th>
+                                <th width="15%">
+                                    <i class="bi bi-calendar-date me-2 text-primary"></i>
+                                    Date
+                                </th>
+                                <th class="text-center" width="10%">
+                                    <i class="bi bi-sliders me-2 text-primary"></i>
+                                    Actions
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php while ($row = mysqli_fetch_assoc($select)) { ?>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="icon-box rounded-circle bg-light me-3 p-2">
+                                                <i class="bi bi-folder text-primary"></i>
+                                            </div>
+                                            <span class="fw-medium"><?php echo htmlspecialchars($row['account_title']); ?></span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-code blue-badge"><?php echo htmlspecialchars($row['account_code']); ?></span>
+                                    </td>
+                                    <td class="text-end amount-cell">₱<?php echo htmlspecialchars(number_format($row['allotment'], 2)); ?></td>
+                                    <td class="text-end amount-cell">
+                                        <span class="badge badge-code green-badge">
+                                            ₱<?php echo htmlspecialchars(number_format($row['balances'], 2)); ?>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <i class="bi bi-calendar3 me-2 text-muted"></i>
+                                            <?php echo date("M d, Y", strtotime($row['created_at'])); ?>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-primary action-btn edit-btn" data-bs-toggle="tooltip" title="Edit project"
+                                            data-bs-target="#editModal" data-id="<?php echo $row['project_id']; ?>"
+                                            data-account_id="<?php echo htmlspecialchars($row['account_id']); ?>"
+                                            data-account_title="<?php echo htmlspecialchars($row['account_title']); ?>"
+                                            data-allotment="<?php echo htmlspecialchars($row['allotment']); ?>">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
 
+                                        <button type="button" class="btn btn-danger action-btn" data-bs-toggle="tooltip" title="Delete project"
+                                            onclick="deleteUser(<?php echo $row['project_id']; ?>)">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            <?php } ?>
+                        </tbody>
+                        </table>
+                        <div class="table-footer">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="text-muted small">
+                                    <i class="bi bi-info-circle me-1"></i> Showing all projects for current fiscal year
+                                </div>
+                                <div>
+                                    <span class="fw-medium text-primary">Total Records: <?php echo mysqli_num_rows($select); ?></span>
+                                </div>
+                            </div>
+                        </div>
+                            
+                    </div>
+                </div>
+            </div>        
+         </div>
+        </div>
+        </section>
     </main>
 
     <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
@@ -616,7 +621,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                     <form method="post" id="addUserForm">
                         <div class="mb-3">
                             <input type="hidden" class="form-control" id="oopap_id" name="oopap_id"
-                                value="1" readonly required autocomplete="off">
+                                value="12" readonly required autocomplete="off">
                         </div>
                         <div class="mb-3">
                             <label for="account_id" class="form-label">Account Title <span class="text-danger">*</span></label>
@@ -674,14 +679,13 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-
                 <div class="modal-body">
                     <form method="post" id="editUserForm" action="update_SOF.php">
                         <input type="hidden" id="edit_project_id" name="project_id">
                         <input type="hidden" id="edit_account_id" name="edit_account_id">
 
                          <!-- Add this hidden redirect field -->
-                         <input type="hidden" name="redirect" value="oo2_tida.php"> <!-- change value to current page -->
+                         <input type="hidden" name="redirect" value="oo2_tida.php">
 
                         <div class="mb-3">
                             <label for="edit_account_title" class="form-label">Project/Program/Activities</label>
@@ -723,37 +727,18 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     <script src="../NiceAdmin/assets/vendor/simple-datatables/simple-datatables.js"></script>
     <script src="../NiceAdmin/assets/vendor/tinymce/tinymce.min.js"></script>
     <script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
-    <link href="../NiceAdmin/assets/vendor/simple-datatables/style.css" rel="stylesheet">    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
-    
+
     <script src="../NiceAdmin/assets/js/main.js"></script>
+
     <script>
        
-       function clearForm() {
-           document.getElementById('addUserForm').reset();
-           updateBalances();
-       }
-   </script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const editButtons = document.querySelectorAll(".edit-btn");
-
-            editButtons.forEach(button => {
-                button.addEventListener("click", function () {
-                    const id = this.getAttribute("data-id");
-                    const account_id = this.getAttribute("data-account_id");
-                    const account_title = this.getAttribute("data-account_title");
-                    const allotment = this.getAttribute("data-allotment");
-
-                    document.getElementById("edit_project_id").value = id;
-                    document.getElementById("edit_account_id").value = account_id;
-                    document.getElementById("edit_account_title").value = account_title;
-                    document.getElementById("edit_allotment").value = allotment;
-                });
-            });
-        });
+        function clearForm() {
+            document.getElementById('addUserForm').reset();
+            updateBalances();
+        }
     </script>
-<script>
+
+    <script>
         document.addEventListener('DOMContentLoaded', function() {
             const yearSelect = document.getElementById('year');
             const monthSelect = document.getElementById('month');
@@ -846,9 +831,8 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
             });
         });
     </script>
-
     <script>
-        function deleteUser(status_fundID) {
+        function deleteUser(oo2TID) {
             Swal.fire({
                 title: 'Are you sure?',
                 text: "You won't be able to revert this!",
@@ -868,7 +852,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                             Swal.showLoading();
                         }
                     });
-                    window.location.href = 'oo2_tida.php?project_id=' + gasID + '&confirm=yes';
+                    window.location.href = 'oo2_tida.php?project_id=' + oo2TID + '&confirm=yes';
                 }
             });
         }
@@ -901,7 +885,6 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
             return false;
         }
     </script>
-
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -910,33 +893,14 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
             });
         });
     </script>
-
     <script>
         function updateBalances() {
             var allotmentValue = document.getElementById('allotment').value;
             document.getElementById('balances').value = allotmentValue;
         }
     </script>
-
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
-    <!-- Add jQuery and Select2 JS -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
-    <script>
-        $(document).ready(function() {
-            // Initialize Select2 on the account_id dropdown
-            $('#account_id').select2({
-                theme: 'bootstrap-5',
-                width: '100%',
-                placeholder: 'Search for an account...',
-                allowClear: true,
-                dropdownParent: $('#addUserModal')
-            });
-        });
-    </script>
-
     <script>
         <?php if (isset($_SESSION['success_message'])): ?>
             Swal.fire({
@@ -998,22 +962,33 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     
     <style>
         @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
-
+        
         .spin-animation {
             animation: spin 1s linear;
         }
-
         
         @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap');
     </style>
+
+    <!-- Add jQuery and Select2 JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Initialize Select2 on the account_id dropdown
+            $('#account_id').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: 'Search for an account...',
+                allowClear: true,
+                dropdownParent: $('#addUserModal')
+            });
+        });
+    </script>
 
 </body>
 
