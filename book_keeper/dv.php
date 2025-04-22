@@ -258,7 +258,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
     <!-- Template Main CSS File -->
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
 
-  <link rel="stylesheet" href="css/dv.css">
+    <link rel="stylesheet" href="css/dv.css">
 </head>
 
 <body>
@@ -287,7 +287,8 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                 <div class="row mb-4">
                     <div class="col-12">
                         <h2 class="form-title">Pending Disbursement Vouchers</h2>
-                        <p class="text-muted text-center">Create disbursement vouchers from the available ORS documents below</p>
+                        <p class="text-muted text-center">Create disbursement vouchers from the available ORS documents
+                            below</p>
                     </div>
                 </div>
 
@@ -638,7 +639,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                     const orsId = this.getAttribute('data-id');
                     // Show loader or loading animation
                     document.body.classList.add('loading');
-                    
+
                     fetch(`get_ors_details.php?id=${orsId}`)
                         .then(response => response.json())
                         .then(data => {
@@ -684,7 +685,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
             }
 
             // Function to close modal with fade effect
-            window.closeModal = function() {
+            window.closeModal = function () {
                 modal.classList.remove('show');
                 setTimeout(() => {
                     modal.style.display = 'none';
@@ -1456,7 +1457,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
         });
     </script> -->
 
-    <script>
+    <!-- <script>
         document.addEventListener('DOMContentLoaded', function () {
             const form = document.querySelector('form');
             const netAmountInput = document.getElementById('net_amount');
@@ -1475,7 +1476,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                 }
             });
         });
-    </script>
+    </script> -->
 
 </body>
 
