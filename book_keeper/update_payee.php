@@ -9,10 +9,11 @@ if (isset($_POST['update'])) {
     $address = $_POST['address'];
     $nature = $_POST['nature'];
     $contact_no = $_POST['contact_no'];
+    $payee_type = $_POST['payee_type'];
 
-    $sql = "UPDATE payee SET payee_name = ?, tin_no = ?, bank_acc_no = ?, address = ?, nature = ?, contact_no = ? WHERE payee_id = ?";
+    $sql = "UPDATE payee SET payee_name = ?, tin_no = ?, bank_acc_no = ?, address = ?, nature = ?, contact_no = ?, payee_type = ? WHERE payee_id = ?";
     $stmt = $connection->prepare($sql);
-    $stmt->bind_param("ssssssi", $payee_name, $tin_no, $bank_acc_no, $address, $nature, $contact_no, $payee_id);
+    $stmt->bind_param("sssssssi", $payee_name, $tin_no, $bank_acc_no, $address, $nature, $contact_no, $payee_type, $payee_id);
 
     if ($stmt->execute()) {
         header('Location: payee.php');

@@ -1,9 +1,6 @@
 <?php
 include '../DBConnection.php';
 
-
-//Add users
-
 if (isset($_POST['submit'])) {
     $oopap_name = $_POST['oopap_name'];
     $description = $_POST['description'];
@@ -21,9 +18,6 @@ if (isset($_POST['submit'])) {
     }
 }
 
-
-// retrieve users
-
 $select = mysqli_query($connection, "SELECT * FROM oopap");
 ?>
 
@@ -34,21 +28,15 @@ $select = mysqli_query($connection, "SELECT * FROM oopap");
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Dashboard - NiceAdmin Bootstrap Template</title>
+    <title>Book Keeper - 00/PAP</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
-    <!-- Favicons -->
-    <link href="../NiceAdmin/assets/img/favicon.png" rel="icon">
+    <link href="img/dti_logo.png" rel="icon">
     <link href="../NiceAdmin/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
-
-    <!-- Google Fonts -->
     <link href="https://fonts.gstatic.com" rel="preconnect">
-    <link
-        href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
 
-    <!-- Vendor CSS Files -->
     <link href="../NiceAdmin/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
@@ -56,9 +44,8 @@ $select = mysqli_query($connection, "SELECT * FROM oopap");
     <link href="../NiceAdmin/assets/vendor/quill/quill.bubble.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/remixicon/remixicon.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/simple-datatables/style.css" rel="stylesheet">
-
-    <!-- Template Main CSS File -->
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/table.css">
 
 </head>
 
@@ -127,7 +114,7 @@ $select = mysqli_query($connection, "SELECT * FROM oopap");
                     </div>
 
                     <!-- Table with stripped rows -->
-                    <table class="table datatable">
+                    <table class="datatable">
                         <thead>
                             <tr>
                                 <th>OO/PAP</th>
@@ -191,7 +178,6 @@ $select = mysqli_query($connection, "SELECT * FROM oopap");
 
                         <script>
                             document.getElementById("edit_oopap").addEventListener("blur", function () {
-                                // Ensure the value is formatted to 2 decimal places
                                 this.value = parseFloat(this.value).toFixed(2);
                             });
                         </script>
@@ -210,7 +196,6 @@ $select = mysqli_query($connection, "SELECT * FROM oopap");
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
             class="bi bi-arrow-up-short"></i></a>
 
-    <!-- Vendor JS Files -->
     <script src="../NiceAdmin/assets/vendor/apexcharts/apexcharts.min.js"></script>
     <script src="../NiceAdmin/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="../NiceAdmin/assets/vendor/chart.js/chart.umd.js"></script>
@@ -219,19 +204,16 @@ $select = mysqli_query($connection, "SELECT * FROM oopap");
     <script src="../NiceAdmin/assets/vendor/simple-datatables/simple-datatables.js"></script>
     <script src="../NiceAdmin/assets/vendor/tinymce/tinymce.min.js"></script>
     <script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
-
-    <!-- Template Main JS File -->
     <script src="../NiceAdmin/assets/js/main.js"></script>
 
-    <!-- clear -->
     <script>
-        // Function to clear form
+
         function clearForm() {
             document.getElementById('addUserForm').reset();
         }
     </script>
 
-    <!-- show update -->
+
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -250,8 +232,6 @@ $select = mysqli_query($connection, "SELECT * FROM oopap");
             });
         });
     </script>
-
-    <!-- delete -->
     <script>
         function deleteUser(oopapID) {
             if (confirm("Are you sure you want to delete this OO/PAP?")) {
