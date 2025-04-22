@@ -14,11 +14,11 @@ if (isset($_GET['draft_id']) && $_GET['confirm'] == 'yes') {
 
     if ($stmtUser->execute()) {
         $_SESSION['success_message'] = "Draft Project deleted successfully!";
-        header('Location: bsmed.php');
+        header('Location: rapidLoan.php');
         exit();
     } else {
         $_SESSION['error_message'] = "Error deleting Draft project: " . $connection->error;
-        header('Location: bsmed.php');
+        header('Location: rapidLoan.php');
         exit();
     }
 }
@@ -45,7 +45,7 @@ if (isset($_POST['submit'])) {
 
         if ($stmt->execute()) {
             $_SESSION['success_message'] = "Draft Project added successfully!";
-            header('Location: bsmed.php');
+            header('Location: rapidLoan.php');
             exit();
         } else {
             $error_message = "Error saving data: " . $stmt->error;
@@ -62,7 +62,7 @@ $select = mysqli_query(
             an.type
      FROM draft_project dp
      LEFT JOIN account_name an ON dp.account_id = an.account_id
-     WHERE dp.account_id = 9
+     WHERE dp.account_id = 7
      AND MONTH(dp.created_at) = $selected_month
      AND YEAR(dp.created_at) = $selected_year
      ORDER BY an.account_name ASC"
@@ -85,7 +85,7 @@ $beginning_balance = 0;
 if ($current_quarter == $prev_quarter) {
     $prev_balance_query = "SELECT SUM(balances) as prev_balance 
                           FROM draft_project 
-                          WHERE account_id = 9 
+                          WHERE account_id = 7 
                           AND MONTH(created_at) = $prev_month 
                           AND YEAR(created_at) = $prev_year";
     $prev_balance_result = mysqli_query($connection, $prev_balance_query);
@@ -96,7 +96,7 @@ if ($current_quarter == $prev_quarter) {
 // Get total cash allotment for current month
 $total_Cashallotment_query = "SELECT SUM(cash_allotment) AS total_Cashallotment 
                              FROM draft_project 
-                             WHERE account_id = 9
+                             WHERE account_id = 7
                              AND MONTH(created_at) = $selected_month 
                              AND YEAR(created_at) = $selected_year";
 $total_Cashallotment_result = mysqli_query($connection, $total_Cashallotment_query);
@@ -109,7 +109,7 @@ $total_Cashallotment += $beginning_balance;
 // Get total balances for current month
 $total_balances_query = "SELECT SUM(balances) AS total_balances 
                         FROM draft_project 
-                        WHERE account_id = 9 
+                        WHERE account_id = 7 
                         AND MONTH(created_at) = $selected_month 
                         AND YEAR(created_at) = $selected_year";
 $total_balances_result = mysqli_query($connection, $total_balances_query);
@@ -118,7 +118,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
 // Add beginning balance to total balances
 $query_account = "SELECT account_id, account_name, account_number, type 
                  FROM account_name 
-                 WHERE account_id = 9 
+                 WHERE account_id = 7 
                  ORDER BY account_name ASC";
 $result_account = $connection->query($query_account);
 ?>
@@ -130,7 +130,7 @@ $result_account = $connection->query($query_account);
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>DTI BSMED</title>
+    <title>DTI RAPID LOAN PROCEEDS</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
@@ -437,17 +437,17 @@ $result_account = $connection->query($query_account);
 
         <div class="pagetitle page-header d-flex justify-content-between align-items-center">
             <div>
-                <h1>DTI BSMED <?php echo date('Y'); ?></h1>
+                <h1>DTI RAPID LOAN PROCEEDS <?php echo date('Y'); ?></h1>
                 <nav>
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="index.php">Home</a></li>
-                        <li class="breadcrumb-item"><a href="index.php">DTI BSMED</a></li>
+                        <li class="breadcrumb-item"><a href="index.php">DTI Rapid Loan</a></li>
                     </ol>
                 </nav>
             </div>
             <div class="d-flex align-items-center">
 
-                <form method="get" action="bsmed.php" class="d-flex align-items-center me-3 filter-form">
+                <form method="get" action="rapidLoan.php" class="d-flex align-items-center me-3 filter-form">
                     <div class="input-group input-group-sm me-2 <?php echo ($selected_year != date('Y')) ? 'filter-active' : ''; ?>"
                         data-bs-toggle="tooltip" data-bs-placement="top" title="Select year for total allotment">
                         <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
@@ -491,7 +491,7 @@ $result_account = $connection->query($query_account);
                         data-bs-placement="top" title="Apply selected filters">
                         <i class="bi bi-funnel me-1"></i>Filter
                     </button>
-                    <a href="bsmed.php" class="btn btn-sm btn-outline-secondary ms-2" data-bs-toggle="tooltip"
+                    <a href="rapidLoan.php" class="btn btn-sm btn-outline-secondary ms-2" data-bs-toggle="tooltip"
                         data-bs-placement="top" title="Reset to current month and year" id="resetFilter">
                         <i class="bi bi-arrow-counterclockwise me-1"></i>Reset
                     </a>
@@ -727,7 +727,7 @@ $result_account = $connection->query($query_account);
                 <div class="modal-body">
                     <form method="post" id="addUserForm">
                         <div class="mb-3">
-                            <input type="hidden" class="form-control" id="account_id" name="account_id" value="9"
+                            <input type="hidden" class="form-control" id="account_id" name="account_id" value="7"
                                 readonly required>
                         </div>
 
@@ -741,7 +741,7 @@ $result_account = $connection->query($query_account);
                             <label for="account_display" class="form-label">Account Name <span
                                     class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="account_display"
-                                value="DTI BSMED_RTCXII_ADMIN EXPENSEFUND FOR CFIDP IMPLEMENTATION" readonly>
+                                value="DTI RAPID LOAN PROCEEDS" readonly>
                         </div>
 
                         <div class="mb-3">
@@ -796,7 +796,7 @@ $result_account = $connection->query($query_account);
                         <input type="hidden" id="edit_account_id" name="account_id">
 
                         <!-- Add this hidden redirect field -->
-                        <input type="hidden" name="redirect" value="bsmed.php"> <!-- change value to current page -->
+                        <input type="hidden" name="redirect" value="rapidLoan.php"> <!-- change value to current page -->
 
                         <div class="mb-3">
                             <label for="edit_payee" class="form-label">Reference</label>
@@ -961,7 +961,7 @@ $result_account = $connection->query($query_account);
                             Swal.showLoading();
                         }
                     });
-                    window.location.href = 'bsmed.php?draft_id=' + draft_id + '&confirm=yes';
+                    window.location.href = 'rapidLoan.php?draft_id=' + draft_id + '&confirm=yes';
                 }
             });
         }
