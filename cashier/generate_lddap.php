@@ -2,7 +2,6 @@
 
 include '../DBConnection.php';
 
-// Check if LDDAP data is available in session
 if (!isset($_SESSION['lddap_data'])) {
     header('Location: pending_payments.php');
     exit();
@@ -16,45 +15,36 @@ $total_gross = $lddap_data['total_gross'];
 $total_withholding = $lddap_data['total_withholding'];
 $total_net = $lddap_data['total_net'];
 
-// Update status to "Completed" for all payments with this reference number
 if (isset($_GET['ref']) && !empty($_GET['ref'])) {
     $ref = $_GET['ref'];
     $has_multiple_references = isset($lddap_data['has_multiple_references']) && $lddap_data['has_multiple_references'];
     
     if ($ref === 'multiple' || $has_multiple_references) {
-        // For multiple references, we'll update the individual payment statuses based on the DVs in the session
         foreach ($dvs as $dv) {
             $dv_id = $dv['dv_id'];
             $individual_ref = $dv['reference_no'];
             
-            // Update payment status to "Completed"
             $update_query = "UPDATE payment SET status = 'Completed' 
                             WHERE dv_id = ? AND reference_no = ? AND payment_type = 'ADA'";
             $update_stmt = $connection->prepare($update_query);
             $update_stmt->bind_param("is", $dv_id, $individual_ref);
             $update_stmt->execute();
             
-            // Update DV status to "Completed"
             $update_dv = "UPDATE dv SET status = 'Completed' WHERE dv_id = ?";
             $update_dv_stmt = $connection->prepare($update_dv);
             $update_dv_stmt->bind_param("i", $dv_id);
             $update_dv_stmt->execute();
         }
     } else {
-        // Update all payments with this reference number to "Completed"
         $update_query = "UPDATE payment SET status = 'Completed' WHERE reference_no = ? AND payment_type = 'ADA'";
         $update_stmt = $connection->prepare($update_query);
         $update_stmt->bind_param("s", $ref);
         $update_stmt->execute();
-        
-        // Get all DV IDs associated with this reference number
         $dv_query = "SELECT dv_id FROM payment WHERE reference_no = ? AND payment_type = 'ADA'";
         $dv_stmt = $connection->prepare($dv_query);
         $dv_stmt->bind_param("s", $ref);
         $dv_stmt->execute();
         $dv_result = $dv_stmt->get_result();
-        
-        // Update all associated DVs to "Completed" status
         while ($row = $dv_result->fetch_assoc()) {
             $dv_id = $row['dv_id'];
             $update_dv = "UPDATE dv SET status = 'Completed' WHERE dv_id = ?";
@@ -65,12 +55,10 @@ if (isset($_GET['ref']) && !empty($_GET['ref'])) {
     }
 }
 
-// Convert the net amount to words
 function numberToWords($number) {
     $f = new NumberFormatter("en", NumberFormatter::SPELLOUT);
     $words = ucfirst($f->format($number));
     
-    // Get decimal part
     $decimal = round(($number - floor($number)) * 100);
     if ($decimal > 0) {
         $words .= ' and ' . $decimal . '/100';
@@ -111,7 +99,6 @@ function numberToWords($number) {
             return $tens[$ten] . ($one > 0 ? " " . $ones[$one] : "");
         }
         
-        // Handle hundreds and thousands
         if ($number < 1000) {
             $hundred = floor($number / 100);
             $remainder = $number % 100;
@@ -124,12 +111,10 @@ function numberToWords($number) {
             return simplified_number_to_words($thousand) . " Thousand" . ($remainder > 0 ? " " . simplified_number_to_words($remainder) : "");
         }
         
-        return "Number too large"; // Simplification
+        return "Number too large"; 
     }
     
-    // Get the whole number part
     $whole = floor($total_net);
-    // Get the cents part
     $cents = round(($total_net - $whole) * 100);
     
     $amount_in_words = simplified_number_to_words($whole);
@@ -137,10 +122,7 @@ function numberToWords($number) {
         $amount_in_words .= " and " . $cents . "/100";
     }
     $amount_in_words .= " Pesos Only";
-// }
 
-// Store data for LDDAP-APA form
-// Determine the return path based on the referrer
 $return_path = 'pending_payments.php?success=3';
 if (isset($_SERVER['HTTP_REFERER'])) {
     if (strpos($_SERVER['HTTP_REFERER'], 'ada_records.php') !== false) {
@@ -225,14 +207,11 @@ if (isset($_SERVER['HTTP_REFERER'])) {
         }
     </style>
     <script>
-        // Data to populate the LDDAP-APA form
         const lddapData = {
             referenceNo: "<?php echo htmlspecialchars($reference_no); ?>",
             paymentDate: "<?php echo htmlspecialchars($payment_date); ?>",
             dvs: <?php 
-                // Create a modified copy of the DVs array with remarks included
                 $dvs_with_remarks = array_map(function($dv) use ($connection) {
-                    // Retrieve the remarks from the payment table for this DV
                     $dv_id = $dv['dv_id'];
                     $ref = isset($dv['reference_no']) ? $dv['reference_no'] : '';
                     
@@ -244,8 +223,6 @@ if (isset($_SERVER['HTTP_REFERER'])) {
                     $stmt->execute();
                     $result = $stmt->get_result();
                     $payment_data = $result->fetch_assoc();
-                    
-                    // Add remarks to the DV data
                     $dv_clean = $dv;
                     if (isset($dv_clean['purpose'])) {
                         unset($dv_clean['purpose']);
@@ -254,8 +231,14 @@ if (isset($_SERVER['HTTP_REFERER'])) {
                     
                     return $dv_clean;
                 }, $dvs);
+                $unique_dvs = [];
+                foreach ($dvs_with_remarks as $dv) {
+                    if (!isset($unique_dvs[$dv['dv_id']])) {
+                        $unique_dvs[$dv['dv_id']] = $dv;
+                    }
+                }
                 
-                echo json_encode($dvs_with_remarks); 
+                echo json_encode(array_values($unique_dvs)); 
             ?>,
             totalGross: <?php echo $total_gross; ?>,
             totalWithholding: <?php echo $total_withholding; ?>,
@@ -263,18 +246,13 @@ if (isset($_SERVER['HTTP_REFERER'])) {
             amountInWords: "<?php echo htmlspecialchars($amount_in_words); ?>",
             remarks: "<?php echo isset($lddap_data['remarks']) ? htmlspecialchars(str_replace(array("\r\n", "\r", "\n"), "\\n", $lddap_data['remarks'])) : ''; ?>"
         };
-        
-        // Store data in local storage for embedded view
         localStorage.setItem('lddap_<?php echo htmlspecialchars($reference_no); ?>', JSON.stringify(lddapData));
         
         document.addEventListener('DOMContentLoaded', function() {
-            // Load the LDDAP-APA form in the iframe
             const iframe = document.getElementById('lddap-iframe');
             iframe.src = 'LDDAP-APA.html?ref=<?php echo urlencode($reference_no); ?>';
-            
-            // Add print event handler
-            document.getElementById('print-btn').addEventListener('click', function() {
-                // Print the LDDAP-APA form
+                document.getElementById('print-btn').addEventListener('click', function() {
+                    // Print the LDDAP-APA form
                 document.getElementById('lddap-iframe').contentWindow.print();
                 
                 // Update status message

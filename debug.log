@@ -199,3 +199,8 @@
 2025-04-21 07:11:08 - Current values: Allotment: 4000, Balance: 4000
 2025-04-21 07:11:08 - Calculated new balance: 0
 2025-04-21 07:11:08 - Update successful
+2025-04-22 04:44:32 - Update request received
+2025-04-22 04:44:32 - Draft ID: 3, Payee: Haha, New Cash_Allotment: 1210.00
+2025-04-22 04:44:32 - Current values: Allotment: 1212, Balance: 1210
+2025-04-22 04:44:32 - Calculated new balance: 1208
+2025-04-22 04:44:32 - Update successful

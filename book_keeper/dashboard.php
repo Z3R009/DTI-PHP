@@ -1,7 +1,5 @@
 <?php
 include "../DBConnection.php";
-
-// Get summary statistics
 $ors_query = "SELECT COUNT(*) as total_ors, SUM(total_amount) as total_amount FROM ors";
 $ors_result = $connection->query($ors_query);
 $ors_data = $ors_result->fetch_assoc();
@@ -13,13 +11,9 @@ $dv_data = $dv_result->fetch_assoc();
 $jev_query = "SELECT COUNT(*) as total_jev FROM jev";
 $jev_result = $connection->query($jev_query);
 $jev_data = $jev_result->fetch_assoc();
-
-// Get pending ORS count
 $pending_ors_query = "SELECT COUNT(*) as pending_ors FROM ors WHERE status = 'Pending'";
 $pending_ors_result = $connection->query($pending_ors_query);
 $pending_ors_data = $pending_ors_result->fetch_assoc();
-
-// Get recent ORS
 $recent_ors_query = "SELECT o.*, p.payee_name, fc.fund_cluster_name, s.services_name 
                     FROM ors o 
                     JOIN payee p ON o.payee_id = p.payee_id 
@@ -27,23 +21,17 @@ $recent_ors_query = "SELECT o.*, p.payee_name, fc.fund_cluster_name, s.services_
                     JOIN services s ON o.services_id = s.services_id 
                     ORDER BY o.date DESC LIMIT 5";
 $recent_ors_result = $connection->query($recent_ors_query);
-
-// Get recent DV
 $recent_dv_query = "SELECT d.*, o.ors_no, o.purpose 
                    FROM dv d 
                    JOIN ors o ON d.ors_id = o.ors_id 
                    ORDER BY d.date DESC LIMIT 5";
 $recent_dv_result = $connection->query($recent_dv_query);
-
-// Get recent JEV
 $recent_jev_query = "SELECT j.*, d.dv_no, o.ors_no 
                     FROM jev j 
                     JOIN dv d ON j.dv_id = d.dv_id 
                     JOIN ors o ON j.ors_id = o.ors_id 
                     ORDER BY j.date DESC LIMIT 5";
 $recent_jev_result = $connection->query($recent_jev_query);
-
-// Get monthly data for chart
 $monthly_data_query = "SELECT 
                         DATE_FORMAT(date, '%Y-%m') as month, 
                         COUNT(*) as count, 
@@ -61,8 +49,6 @@ while($row = $monthly_data_result->fetch_assoc()) {
     $monthly_counts[] = $row['count'];
     $monthly_amounts[] = $row['amount'];
 }
-
-// Reverse arrays for chronological order
 $monthly_labels = array_reverse($monthly_labels);
 $monthly_counts = array_reverse($monthly_counts);
 $monthly_amounts = array_reverse($monthly_amounts);
@@ -74,21 +60,16 @@ $monthly_amounts = array_reverse($monthly_amounts);
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Dashboard - Book Keeper</title>
+    <title>Book Keeper - Dashboard </title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
-    <!-- Favicons -->    
     <link href="img/dti_logo.png" rel="icon">
     <link href="../NiceAdmin/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
-
-    <!-- Google Fonts -->
     <link href="https://fonts.gstatic.com" rel="preconnect">
     <link
         href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
         rel="stylesheet">
-
-    <!-- Vendor CSS Files -->
     <link href="../NiceAdmin/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
@@ -97,243 +78,8 @@ $monthly_amounts = array_reverse($monthly_amounts);
     <link href="../NiceAdmin/assets/vendor/remixicon/remixicon.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/simple-datatables/style.css" rel="stylesheet">
 
-    <!-- Template Main CSS File -->
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
-
-    <!-- Custom CSS for Enhanced Dashboard -->
-    <style>
-        :root {
-            --primary-color: #0d6efd;
-            --secondary-color: #6c757d;
-            --success-color: #198754;
-            --info-color: #0dcaf0;
-            --warning-color: #ffc107;
-            --danger-color: #dc3545;
-            --light-color: #f8f9fa;
-            --dark-color: #212529;
-        }
-
-        .card {
-            border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: none;
-            margin-bottom: 20px;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-        }
-
-        .card-body {
-            padding: 1.5rem;
-        }
-
-        .info-card {
-            border-left: 4px solid;
-        }
-
-        .sales-card {
-            border-left-color: var(--primary-color);
-        }
-
-        .revenue-card {
-            border-left-color: var(--success-color);
-        }
-
-        .customers-card {
-            border-left-color: var(--info-color);
-        }
-
-        .card-icon {
-            width: 60px;
-            height: 60px;
-            background-color: rgba(13, 110, 253, 0.1);
-            color: var(--primary-color);
-            font-size: 24px;
-        }
-
-        .revenue-card .card-icon {
-            background-color: rgba(25, 135, 84, 0.1);
-            color: var(--success-color);
-        }
-
-        .customers-card .card-icon {
-            background-color: rgba(13, 202, 240, 0.1);
-            color: var(--info-color);
-        }
-
-        .card-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--dark-color);
-            margin-bottom: 1rem;
-        }
-
-        .card-title span {
-            color: var(--secondary-color);
-            font-weight: 400;
-        }
-
-        .datatable {
-            border-collapse: separate;
-            border-spacing: 0 8px;
-        }
-
-        .datatable thead th {
-            border: none;
-            font-weight: 600;
-            color: var(--secondary-color);
-            padding: 15px 10px;
-        }
-
-        .datatable tbody tr {
-            background-color: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-            border-radius: 8px;
-            transition: transform 0.2s ease;
-        }
-
-        .datatable tbody tr:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-        }
-
-        .datatable tbody td {
-            padding: 15px 10px;
-            vertical-align: middle;
-            border: none;
-        }
-
-        .datatable tbody td:first-child {
-            border-top-left-radius: 8px;
-            border-bottom-left-radius: 8px;
-        }
-
-        .datatable tbody td:last-child {
-            border-top-right-radius: 8px;
-            border-bottom-right-radius: 8px;
-        }
-
-        .badge {
-            padding: 0.5em 0.8em;
-            font-weight: 500;
-            border-radius: 6px;
-        }
-
-        .pagetitle {
-            margin-bottom: 2rem;
-        }
-
-        .pagetitle h1 {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--dark-color);
-        }
-
-        .breadcrumb {
-            background-color: transparent;
-            padding: 0;
-            margin: 0;
-        }
-
-        .breadcrumb-item a {
-            color: var(--primary-color);
-            text-decoration: none;
-        }
-
-        .breadcrumb-item.active {
-            color: var(--secondary-color);
-        }
-
-        .section {
-            padding: 2rem 0;
-        }
-
-        .quick-actions {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .quick-action-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 10px 15px;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            color: var(--dark-color);
-            text-decoration: none;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-        }
-
-        .quick-action-btn:hover {
-            background-color: var(--primary-color);
-            color: white;
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(13, 110, 253, 0.2);
-        }
-
-        .quick-action-btn i {
-            margin-right: 8px;
-            font-size: 18px;
-        }
-
-        .chart-container {
-            position: relative;
-            height: 350px;
-        }
-
-        .table-responsive {
-            border-radius: 15px;
-            overflow: hidden;
-        }
-
-        .table-title {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .table-title h5 {
-            margin: 0;
-        }
-
-        .view-all {
-            color: var(--primary-color);
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        .view-all:hover {
-            text-decoration: underline;
-        }
-
-        @media (max-width: 768px) {
-            .quick-actions {
-                flex-wrap: wrap;
-            }
-            
-            .quick-action-btn {
-                flex: 1 0 calc(50% - 10px);
-                min-width: 120px;
-            }
-        }
-    </style>
-
-    <!-- =======================================================
-  * Template Name: NiceAdmin
-  * Template URL: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/
-  * Updated: Apr 20 2024 with Bootstrap v5.3.3
-  * Author: BootstrapMade.com
-  * License: https://bootstrapmade.com/license/
-  ======================================================== -->
+    <link rel="stylesheet" href="css/dashboard.css">
 </head>
 
 <body>

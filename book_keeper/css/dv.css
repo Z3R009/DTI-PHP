@@ -178,7 +178,7 @@ body {
 }
 
 .btn-primary:active {
-    transform: translateY(0);
+        transform: translateY(0);
     box-shadow: 0 2px 3px rgba(0, 119, 182, 0.2);
 }
 

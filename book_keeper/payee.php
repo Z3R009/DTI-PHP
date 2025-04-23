@@ -10,10 +10,11 @@ if (isset($_POST['submit'])) {
     $address = $_POST['address'];
     $nature = $_POST['nature'];
     $contact_no = $_POST['contact_no'];
+    $payee_type = $_POST['payee_type'];
 
-    $sql = "INSERT INTO payee (payee_name, bank_acc_no, tin_no, address, nature, contact_no) VALUES (?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO payee (payee_name, bank_acc_no, tin_no, address, nature, contact_no, payee_type) VALUES (?, ?, ?, ?, ?, ?,?)";
     $stmt = $connection->prepare($sql);
-    $stmt->bind_param("ssssss", $payee_name, $bank_acc_no, $tin_no, $address, $nature, $contact_no);
+    $stmt->bind_param("sssssss", $payee_name, $bank_acc_no, $tin_no, $address, $nature, $contact_no, $payee_type);
 
     if ($stmt->execute()) {
         header('Location: payee.php');
@@ -61,6 +62,8 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
     <!-- Template Main CSS File -->
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
 
+    <link rel="stylesheet" href="css/table.css">
+
     <!-- =======================================================
   * Template Name: NiceAdmin
   * Template URL: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/
@@ -99,88 +102,117 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                     <!-- Modal for Add User Form -->
                     <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel"
                         aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-dialog modal-dialog-centered modal-lg">
                             <div class="modal-content border-0 shadow">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="addUserModalLabel">Add Payee
+                                <div class="modal-header bg-primary text-white">
+                                    <h5 class="modal-title" id="addUserModalLabel">
+                                        <i class="bi bi-person-plus-fill me-2"></i>Add New Payee
                                     </h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
                                 </div>
-                                <div class="modal-body">
+                                <div class="modal-body p-4">
                                     <form method="post" id="addCluster">
-
-                                        <div class="mb-3">
-                                            <label for="payee_name" class="form-label">Payee Name</label>
-                                            <input type="text" class="form-control" id="payee_name" name="payee_name"
-                                                placeholder="Enter Payee Name" required autocomplete="off">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <div class="form-floating mb-3">
+                                                    <input type="text" class="form-control" id="payee_name" name="payee_name"
+                                                        placeholder="Enter Payee Name" required autocomplete="off">
+                                                    <label for="payee_name">Payee Name</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-floating mb-3">
+                                                    <input type="text" class="form-control" id="bank_acc_no" name="bank_acc_no"
+                                                        placeholder="Enter Bank Account No." autocomplete="off">
+                                                    <label for="bank_acc_no">Bank Account No.</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-floating mb-3">
+                                                    <input type="text" class="form-control" id="tin_no" name="tin_no"
+                                                        placeholder="Enter TIN/Employee No." autocomplete="off">
+                                                    <label for="tin_no">TIN/Employee No.</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-floating mb-3">
+                                                    <input type="text" class="form-control" id="address" name="address"
+                                                        placeholder="Enter Address" autocomplete="off">
+                                                    <label for="address">Address</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-floating mb-3">
+                                                    <input type="text" class="form-control" id="nature" name="nature"
+                                                        placeholder="Enter Nature of Business" autocomplete="off">
+                                                    <label for="nature">Nature of Business</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-floating mb-3">
+                                                    <input type="text" class="form-control" id="contact_no" name="contact_no"
+                                                        maxlength="13" autocomplete="off" placeholder="Enter Contact Number">
+                                                    <label for="contact_no">Contact Number</label>
+                                                    <span id="addErrorMsg" class="text-danger small" style="display: none;">Please enter numbers only</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-floating mb-3">
+                                                    <select class="form-select" id="payee_type" name="payee_type" required>
+                                                        <option value="">Select payee type</option>
+                                                        <option value="internal">Internal</option>
+                                                        <option value="external">External (supplier)</option>
+                                                    </select>
+                                                    <label for="payee_type">Payee Type</label>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="mb-3">
-                                            <label for="bank_acc_no" class="form-label">Bank Account No.</label>
-                                            <input type="text" class="form-control" id="bank_acc_no" name="bank_acc_no"
-                                                placeholder="Enter Bank Account No." autocomplete="off">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="tin_no" class="form-label">TIN/Employee No.</label>
-                                            <input type="text" class="form-control" id="tin_no" name="tin_no"
-                                                placeholder="Enter TIN/Employee No." autocomplete="off">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="address" class="form-label">Address</label>
-                                            <input type="text" class="form-control" id="address" name="address"
-                                                placeholder="Enter Address" autocomplete="off">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="nature" class="form-label">Nature of Business</label>
-                                            <input type="text" class="form-control" id="nature" name="nature"
-                                                placeholder="Enter Nature of Business" autocomplete="off">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="contact_no" class="form-label">Contact Number</label>
-                                            <input type="text" class="form-control" id="contact_no" name="contact_no"
-                                                maxlength="13" autocomplete="off" placeholder="Enter Contact Number">
-                                            <span id="addErrorMsg" style="color: red; display: none;">Please enter
-                                                numbers
-                                                only</span>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <!-- <button type="button" class="btn btn-secondary"
-                                        data-bs-dismiss="modal">Close</button> -->
-                                            <button type="button" class="btn btn-secondary"
-                                                onclick="clearForm()">Clear</button>
-                                            <button type="submit" id="submit" name="submit"
-                                                class="btn btn-primary">Save</button>
+                                        <div class="modal-footer border-0 pt-4">
+                                            <button type="button" class="btn btn-light" onclick="clearForm()">
+                                                <i class="bi bi-x-circle me-1"></i>Clear
+                                            </button>
+                                            <button type="submit" id="submit" name="submit" class="btn btn-primary">
+                                                <i class="bi bi-save me-1"></i>Save Payee
+                                            </button>
                                         </div>
                                     </form>
                                 </div>
-
                             </div>
                         </div>
                     </div>
 
                     <!-- Table with stripped rows -->
                      <div class="table-responsive">
-                    <table class="table table-hover datatable">
+                    <table class="datatable">
                         <thead class="table-light">
                             <tr>
+                                <th scope="col"></th>
                                 <th scope="col">Payee Name</th>
                                 <th scope="col">Bank Account No.</th>
                                 <th scope="col">TIN/Employee No.</th>
                                 <th scope="col">Address</th>
-                                <th scope="col">Nature of Business</th>
-                                <th scope="col">Contact Number</th>
+                                <th scope="col" class="d-none expandable-col">Nature of Business</th>
+                                <th scope="col" class="d-none expandable-col">Contact Number</th>
+                                <th scope="col" class="d-none expandable-col">Payee Type</th>
                                 <th scope="col">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php while ($row = mysqli_fetch_assoc($select)) { ?>
                                 <tr>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-secondary expand-row" type="button" data-bs-toggle="collapse" data-bs-target="#expand<?php echo $row['payee_id']; ?>" aria-expanded="false">
+                                            <i class="bi bi-chevron-down"></i>
+                                        </button>
+                                    </td>
                                     <td><?php echo htmlspecialchars($row['payee_name']); ?></td>
                                     <td><?php echo htmlspecialchars($row['bank_acc_no']); ?></td>
                                     <td><?php echo htmlspecialchars($row['tin_no']); ?></td>
                                     <td><?php echo htmlspecialchars($row['address']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['nature']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['contact_no']); ?></td>
+                                    <td class="d-none expandable-col"><?php echo htmlspecialchars($row['nature']); ?></td>
+                                    <td class="d-none expandable-col"><?php echo htmlspecialchars($row['contact_no']); ?></td>
+                                    <td class="d-none expandable-col"><?php echo htmlspecialchars($row['payee_type']); ?></td>
                                     <td class="text-end"> 
                                         <button type="button" class="btn btn-sm btn-outline-primary edit-btn" data-bs-toggle="modal"
                                             data-bs-target="#editUserModal" data-id="<?php echo $row['payee_id']; ?>"
@@ -189,21 +221,41 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                                             data-tin_no="<?= htmlspecialchars($row['tin_no']); ?>"
                                             data-address="<?= htmlspecialchars($row['address']); ?>"
                                             data-nature="<?= htmlspecialchars($row['nature']); ?>"
-                                            data-contact_no="<?= htmlspecialchars($row['contact_no']); ?>">
+                                            data-contact_no="<?= htmlspecialchars($row['contact_no']); ?>"
+                                            data-payee_type="<?= htmlspecialchars($row['payee_type']); ?>">
                                             <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top"
                                                 title="Edit"></i>
                                         </button>
-
-
                                         <button type="button" class="btn btn-sm btn-outline-danger"
                                             onclick="deleteUser(<?php echo $row['payee_id']; ?>)"><i class="bi bi-trash"
                                                 data-bs-toggle="tooltip" data-bs-placement="top"
-                                                title="Delete"></i></i></button>
+                                                title="Delete"></i></button>
+                                    </td>
+                                </tr>
+                                <tr class="expandable-row">
+                                    <td colspan="9" class="p-0">
+                                        <div class="collapse" id="expand<?php echo $row['payee_id']; ?>">
+                                            <div class="card card-body border-custom">
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <p class="mb-1"><strong>Nature of Business:</strong></p>
+                                                        <p><?php echo htmlspecialchars($row['nature']); ?></p>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <p class="mb-1"><strong>Contact Number:</strong></p>
+                                                        <p><?php echo htmlspecialchars($row['contact_no']); ?></p>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <p class="mb-1"><strong>Payee Type:</strong></p>
+                                                        <p><?php echo htmlspecialchars($row['payee_type']); ?></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php } ?>
                         </tbody>
-
                     </table>
                     </div>
                 </div>
@@ -216,47 +268,74 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
     <!-- update modal -->
 
     <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editUserModalLabel">Edit Payee</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="editUserModalLabel">
+                        <i class="bi bi-pencil-square me-2"></i>Edit Payee
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body p-4">
                     <form method="post" id="editUserForm" action="update_payee.php">
                         <input type="hidden" id="edit_payee_id" name="payee_id">
-                        <div class="mb-3">
-                            <label for="edit_payee_name" class="form-label">Payee Name</label>
-                            <input type="text" class="form-control" id="edit_payee_name" name="payee_name" required>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" id="edit_payee_name" name="payee_name" required>
+                                    <label for="edit_payee_name">Payee Name</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" id="edit_bank_acc_no" name="bank_acc_no" required>
+                                    <label for="edit_bank_acc_no">Bank Account No.</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" id="edit_tin_no" name="tin_no" required>
+                                    <label for="edit_tin_no">TIN/Employee No.</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" id="edit_address" name="address" required>
+                                    <label for="edit_address">Address</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" id="edit_nature" name="nature" required>
+                                    <label for="edit_nature">Nature of Business</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" id="edit_contact_no" name="contact_no" required
+                                        maxlength="13" autocomplete="off" placeholder="Enter Contact Number">
+                                    <label for="edit_contact_no">Contact Number</label>
+                                    <span id="editErrorMsg" class="text-danger small" style="display: none;">Please enter numbers only</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <select class="form-select" id="edit_payee_type" name="payee_type" required>
+                                        <option value="">Select payee type</option>
+                                        <option value="internal">Internal</option>
+                                        <option value="external">External (supplier)</option>
+                                    </select>
+                                    <label for="edit_payee_type">Payee Type</label>
+                                </div>
+                            </div>
                         </div>
-
-                        <div class="mb-3">
-                            <label for="edit_bank_acc_no" class="form-label">Bank Account No.</label>
-                            <input type="number" class="form-control" id="edit_bank_acc_no" name="bank_acc_no" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="edit_tin_no" class="form-label">TIN/Employee No.</label>
-                            <input type="text" class="form-control" id="edit_tin_no" name="tin_no" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="edit_address" class="form-label">Address</label>
-                            <input type="text" class="form-control" id="edit_address" name="address" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="edit_nature" class="form-label">Nature of Business</label>
-                            <input type="text" class="form-control" id="edit_nature" name="nature" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="edit_contact_no" class="form-label">Contact Number</label>
-                            <input type="text" class="form-control" id="edit_contact_no" name="contact_no" required
-                                maxlength="13" autocomplete="off" placeholder="Enter Contact Number">
-                            <span id="editErrorMsg" style="color: red; display: none;">Please enter
-                                numbers
-                                only</span>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" id="update" name="update" class="btn btn-primary">Update</button>
+                        <div class="modal-footer border-0 pt-4">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                                <i class="bi bi-x-circle me-1"></i>Close
+                            </button>
+                            <button type="submit" id="update" name="update" class="btn btn-primary">
+                                <i class="bi bi-save me-1"></i>Update Payee
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -304,10 +383,21 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                     document.getElementById("edit_contact_no").value = contact_no;
                 });
             });
+
+            const expandButtons = document.querySelectorAll('.expand-row');
+            expandButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const icon = this.querySelector('i');
+                    if (icon.classList.contains('bi-chevron-down')) {
+                        icon.classList.replace('bi-chevron-down', 'bi-chevron-up');
+                    } else {
+                        icon.classList.replace('bi-chevron-up', 'bi-chevron-down');
+                    }
+                });
+            });
         });
     </script>
 
-    <!-- delete -->
     <script>
         function deleteUser(userID) {
             if (confirm("Are you sure you want to delete this user?")) {
@@ -316,14 +406,11 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
         }
     </script>
 
-    <!-- Contact Number -->
     <script>
-        // Function to clear the form
         function clearForm() {
             document.getElementById('addCluster').reset();
         }
 
-        // Contact number validation for Add Payee modal
         const contact_noInput = document.getElementById('contact_no');
         const addErrorMessage = document.getElementById('addErrorMsg');
 
@@ -342,7 +429,6 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
             }
         });
 
-        // Contact number validation for Edit Payee modal
         const editContact_noInput = document.getElementById('edit_contact_no');
         const editErrorMessage = document.getElementById('editErrorMsg');
 
@@ -360,7 +446,78 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                 editErrorMessage.style.display = 'none';
             }
         });
+
+        const payee_type = this.getAttribute("data-payee_type");
+        document.getElementById("edit_payee_type").value = payee_type;
     </script>
+
+    <style>
+        .expandable-row {
+            background-color: #f8f9fa;
+        }
+        .expandable-row .card-body {
+            padding: 1rem;
+        }
+        .expand-row:focus {
+            box-shadow: none;
+        }
+        .expand-row {
+            padding: 0.25rem 0.5rem;
+        }
+        .modal-content {
+            border-radius: 0.5rem;
+        }
+        
+        .modal-header {
+            border-radius: 0.5rem 0.5rem 0 0;
+        }
+        
+        .form-floating > .form-control:focus ~ label,
+        .form-floating > .form-control:not(:placeholder-shown) ~ label {
+            color: #0d6efd;
+        }
+        
+        .form-floating > .form-control:focus,
+        .form-floating > .form-control:not(:placeholder-shown) {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+        
+        .form-select:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+        
+        .btn-close-white {
+            opacity: 0.8;
+        }
+        
+        .btn-close-white:hover {
+            opacity: 1;
+        }
+        
+        .modal-footer {
+            background-color: #f8f9fa;
+        }
+ 
+        .expandable-row .card {
+            border: 1px solid #0d6efd;
+            border-radius: 0.375rem;
+            margin: 0.5rem 0;
+            box-shadow: 0 0.125rem 0.25rem rgba(13, 110, 253, 0.1);
+        }
+
+        .expandable-row .card-body {
+            background-color: #f0f7ff;
+            border-radius: 0.375rem;
+        }
+
+        .expandable-row .card-body strong {
+            color: #0d6efd;
+        }
+
+
+    </style>
 
 </body>
 

@@ -688,7 +688,7 @@ function numberToWords($number)
 
                         <div class="amount-row" style="justify-content: flex-end;">
                             <span class="amount-value"
-                                style="margin-right: 20px;"><?php echo number_format(( $dv_form['tax_1_amount'] + $dv_form['tax_2_amount']), 2, '.', ','); ?></span>
+                                style="margin-right: 20px;"><?php echo number_format(($dv_form['tax_1_amount'] + $dv_form['tax_2_amount']), 2, '.', ','); ?></span>
                         </div>
                         <div class="amount-line"></div>
 
@@ -704,11 +704,19 @@ function numberToWords($number)
                 <td style="text-align: center;" rowspan="2"><?php echo $ors_form['oopap_name']; ?></td>
                 <td></td>
             </tr>
+            <?php
+            $last_credit_amount = 0;
+            foreach ($dv_accounts as $account) {
+                if ($account['type'] == 'credit') {
+                    $last_credit_amount = $account['amount'];
+                }
+            }
+            ?>
 
             <tr>
                 <td colspan="3">Amount Due</td>
                 <td style="text-align: right;">
-                    <strong>₱<?php echo number_format($dv_form['net_amount'], 2, '.', ','); ?></strong>
+                    <strong>₱<?php echo number_format($last_credit_amount, 2, '.', ','); ?></strong>
                 </td>
             </tr>
             <tr>

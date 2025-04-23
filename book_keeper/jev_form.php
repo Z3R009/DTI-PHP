@@ -119,6 +119,20 @@ $stmt2->close();
 $connection->close();
 ?>
 
+<?php
+$prefix = "To Recognize Payment of"; // default
+
+if (isset($ors_form['purpose'])) {
+    if (stripos($ors_form['purpose'], 'cash advance') !== false) {
+        $prefix = "To Recognize Cash Advance of";
+    } elseif (stripos($ors_form['purpose'], 'reimburse') !== false) {
+        $prefix = "To Recognize Reimbursement of";
+    }
+}
+?>
+
+
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -152,6 +166,7 @@ $connection->close();
             border: 1px solid black;
             padding: 8px;
             text-align: left;
+            font-size: 12px;
         }
 
         .header-table td {
@@ -224,20 +239,21 @@ $connection->close();
                                 style="width: 80px; height: 80px; text-align: left;">
                         </div>
                     </td>
-                    <td>JEV No.:</td>
-                    <td><?php echo $jev_form['jev_no']; ?></td>
+                    <td style="font-size: 10px; text-align: center;"><strong>JEV No.:</strong></td>
+                    <td style="font-size: 10px; text-align: center;"><strong>
+                            <?php echo $jev_form['jev_no']; ?></strong></td>
                 </tr>
                 <tr>
-                    <td colspan="2"><strong>Entity Name:</strong> </td>
-                    <td colspan="4">DEPARTMENT OF TRADE AND INDUSTRY</td>
-                    <td rowspan="3">Date:</td>
-                    <td rowspan="3"><?php $date = new DateTime($dv_form['date']);
-                    echo $date->format('F j, Y'); ?></td>
+                    <td colspan="2">Entity Name: </td>
+                    <td colspan="4"><strong>DEPARTMENT OF TRADE AND INDUSTRY</strong></td>
+                    <td style="font-size: 10px; text-align: center;" rowspan="3"><strong>Date:</strong></td>
+                    <td style="font-size: 10px; text-align: center;" rowspan="3"><strong><?php $date = new DateTime($dv_form['date']);
+                    echo $date->format('F j, Y'); ?></strong></td>
                 </tr>
                 <tr>
-                    <td colspan="2"><strong>Payee:</strong> </td>
+                    <td colspan="2">Payee: </td>
                     <td colspan="6">
-                        <?php echo !empty($ors_form['payee_name']) ? htmlspecialchars($ors_form['payee_name']) : "Not Available"; ?>
+                        <strong><?php echo !empty($ors_form['payee_name']) ? htmlspecialchars($ors_form['payee_name']) : "Not Available"; ?></strong>
                     </td>
                 </tr>
                 <tr>
@@ -288,9 +304,12 @@ $connection->close();
                         </td>
                     </tr>
                 <?php endforeach; ?>
+
+
                 <tr>
 
-                    <td style="text-align: center;" colspan="2" rowspan="4"><?php echo $ors_form['notes']; ?>
+                    <td style="text-align: center;" colspan="2" rowspan="4">
+                        <?php echo $prefix . ' ' . $ors_form['notes']; ?>
                     </td>
                     <td colspan="2"></td>
                     <td></td>
@@ -339,12 +358,19 @@ $connection->close();
                     </td>
                 </tr>
 
-                <td style="text-align: center; width: 53%; " colspan="3" class="name"><strong style="font-size:18px; ">
-                        <br><br><?php echo $jev_form['administrative_aide']; ?></strong> <br>
+                <td style="text-align: center; width: 53%; " colspan="3" class="name">
+                    <p style="text-align: start;">Prepared by:</p><strong style="font-size:15px; ">
+
+                        <br><br><?php echo $jev_form['administrative_aide']; ?>
+                    </strong> <br>
                     <p>Administrative Aide VI</p>
                 </td>
-                <td style="text-align: center;" colspan="5" class="name"><strong
-                        style="font-size:18px;"><br><br><?php echo $jev_form['accountant']; ?></strong>
+                <td style="text-align: center;" colspan="5" class="name">
+                    <p style="text-align: start;">Certified Correct:</p>
+                    <strong style="font-size:15px;">
+
+                        <br><br><?php echo $jev_form['accountant']; ?>
+                    </strong>
                     <br>
                     <p>Accountant III</p>
                 </td>

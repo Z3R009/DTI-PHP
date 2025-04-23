@@ -1,9 +1,5 @@
 <?php
 include '../DBConnection.php';
-
-
-//Add
-
 if (isset($_POST['submit'])) {
     $account_title = $_POST['account_title'];
     $account_code = $_POST['account_code'];
@@ -28,17 +24,14 @@ if (isset($_POST['submit'])) {
     }
 
 }
+    $search = isset($_GET['search']) ? $_GET['search'] : '';
+    $where = '';
+    if (!empty($search)) {
+        $search = mysqli_real_escape_string($connection, $search);
+        $where = "WHERE account_title LIKE '%$search%' OR account_code LIKE '%$search%'";
+    }
 
-
-// retrieve 
-$search = isset($_GET['search']) ? $_GET['search'] : '';
-$where = '';
-if (!empty($search)) {
-    $search = mysqli_real_escape_string($connection, $search);
-    $where = "WHERE account_title LIKE '%$search%' OR account_code LIKE '%$search%'";
-}
-
-$select = mysqli_query($connection, "SELECT * FROM account_title $where ORDER BY CAST(account_code AS UNSIGNED)");
+    $select = mysqli_query($connection, "SELECT * FROM account_title $where ORDER BY CAST(account_code AS UNSIGNED)");
 ?>
 
 
@@ -49,21 +42,15 @@ $select = mysqli_query($connection, "SELECT * FROM account_title $where ORDER BY
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Dashboard - NiceAdmin Bootstrap Template</title>
+    <title>BookKeeper - Account Title Management</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
-
-    <!-- Favicons -->
-    <link href="../NiceAdmin/assets/img/favicon.png" rel="icon">
+    <link href="img/dti_logo.png" rel="icon">
     <link href="../NiceAdmin/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
-    <!-- Google Fonts -->
     <link href="https://fonts.gstatic.com" rel="preconnect">
-    <link
-        href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
 
-    <!-- Vendor CSS Files -->
     <link href="../NiceAdmin/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
@@ -72,12 +59,11 @@ $select = mysqli_query($connection, "SELECT * FROM account_title $where ORDER BY
     <link href="../NiceAdmin/assets/vendor/remixicon/remixicon.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/simple-datatables/style.css" rel="stylesheet">
 
-    <!-- Template Main CSS File -->
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
 
-    <!-- SimpleDatatables CSS -->
     <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet"
         type="text/css">
+        <link rel="stylesheet" href="css/table.css">
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -152,7 +138,7 @@ $select = mysqli_query($connection, "SELECT * FROM account_title $where ORDER BY
 
                     <!-- Table with stripped rows -->
                     <div class="table-responsive">
-                        <table class="table table-hover datatable">
+                        <table class="datatable">
                             <thead class="table-light">
                                 <tr>
                                     <th scope="col">Account Title</th>
@@ -234,7 +220,6 @@ $select = mysqli_query($connection, "SELECT * FROM account_title $where ORDER BY
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
             class="bi bi-arrow-up-short"></i></a>
 
-    <!-- Vendor JS Files -->
     <script src="../NiceAdmin/assets/vendor/apexcharts/apexcharts.min.js"></script>
     <script src="../NiceAdmin/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="../NiceAdmin/assets/vendor/chart.js/chart.umd.js"></script>
@@ -243,11 +228,7 @@ $select = mysqli_query($connection, "SELECT * FROM account_title $where ORDER BY
     <script src="../NiceAdmin/assets/vendor/simple-datatables/simple-datatables.js"></script>
     <script src="../NiceAdmin/assets/vendor/tinymce/tinymce.min.js"></script>
     <script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
-
-    <!-- Template Main JS File -->
     <script src="../NiceAdmin/assets/js/main.js"></script>
-
-    <!-- Initialize SimpleDatatables -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             try {
@@ -267,11 +248,7 @@ $select = mysqli_query($connection, "SELECT * FROM account_title $where ORDER BY
                         info: "Showing {start} to {end} of {rows} entries",
                     }
                 });
-
-                // Debug: Log when datatable is initialized
                 console.log("Datatable initialized successfully");
-
-                // Debug: Add event listener for search
                 const searchInput = document.querySelector('.datatable-search');
                 if (searchInput) {
                     searchInput.addEventListener('input', function (e) {
@@ -284,9 +261,8 @@ $select = mysqli_query($connection, "SELECT * FROM account_title $where ORDER BY
         });
     </script>
 
-    <!-- clear -->
     <script>
-        // Function to clear form
+     
         function clearForm() {
             document.getElementById('addUserForm').reset();
         }
@@ -323,7 +299,7 @@ $select = mysqli_query($connection, "SELECT * FROM account_title $where ORDER BY
 
     <!-- Form validation and delete confirmation -->
     <script>
-        // Form validation
+
         (function () {
             'use strict'
             var forms = document.querySelectorAll('.needs-validation')
@@ -338,7 +314,6 @@ $select = mysqli_query($connection, "SELECT * FROM account_title $where ORDER BY
             })
         })()
 
-        // Enhanced delete confirmation
         function deleteUser(userID) {
             Swal.fire({
                 title: 'Delete Account Title?',

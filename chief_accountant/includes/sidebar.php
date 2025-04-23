@@ -45,7 +45,7 @@
 
                     <li>
                         <a href="roxii.php">
-                            <i class="bi bi-circle"></i><span>101 REG</span>
+                            <i class="bi bi-circle"></i><span>RO XI</span>
                         </a>
                     </li>
 
@@ -74,14 +74,14 @@
                     </li>
 
                     <li>
-                        <a href="#">
-                            <i class="bi bi-circle"></i><span>LP</span>
+                        <a href="rapidLoan.php">
+                            <i class="bi bi-circle"></i><span>RAPID LOAN</span>
                         </a>
                     </li>
 
                     <li>
-                        <a href="#">
-                            <i class="bi bi-circle"></i><span>RAPID_GRANT</span>
+                        <a href="rapidGrant.php">
+                            <i class="bi bi-circle"></i><span>RAPID GRANT</span>
                         </a>
                     </li>
 

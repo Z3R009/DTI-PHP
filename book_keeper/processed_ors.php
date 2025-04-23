@@ -298,7 +298,7 @@ if ($ors_result->num_rows === 0) {
 
                                         echo "<td>" . htmlspecialchars($payee['payee_name']) . "</td>";
                                         echo "<td class='amount-cell'>₱ " . number_format($ors['total_amount'], 2) . "</td>";
-                                        echo "<td><span class='status-processed'><i class='bi bi-check-circle-fill'></i> Processed</span></td>";
+                                        echo "<td><span class='status-processed'><i class='bi bi-check-circle-fill'></i> Obligated</span></td>";
                                         echo "<td>
                                                 <a href='ors_form.php?ors_no=" . $ors['ors_no'] . "' class='btn btn-info btn-sm'>
                                                     <i class='bi bi-eye'></i> View
@@ -341,12 +341,12 @@ if ($ors_result->num_rows === 0) {
     <!-- Filter -->
     <script>
         // JavaScript to handle filtering with visual feedback
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Filter change handlers
             document.getElementById('yearFilter').addEventListener('change', applyFilter);
             document.getElementById('monthFilter').addEventListener('change', applyFilter);
             document.getElementById('servicesFilter').addEventListener('change', applyFilter);
-            
+
             // Add visual indicators for active filters
             highlightActiveFilters();
         });
@@ -355,7 +355,7 @@ if ($ors_result->num_rows === 0) {
             // Show loading indicator
             const tableBody = document.querySelector('tbody');
             tableBody.innerHTML = '<tr><td colspan="6" class="text-center py-4"><i class="bi bi-arrow-repeat spin me-2"></i> Loading records...</td></tr>';
-            
+
             var year = document.getElementById('yearFilter').value;
             var month = document.getElementById('monthFilter').value;
             var service = document.getElementById('servicesFilter').value;
@@ -366,11 +366,11 @@ if ($ors_result->num_rows === 0) {
             // Update the URL with the selected filters
             window.location.href = newUrl; // Redirect to the new URL with filters
         }
-        
+
         function highlightActiveFilters() {
             // Get all filter dropdowns
             const filterElements = ['yearFilter', 'monthFilter', 'servicesFilter'];
-            
+
             filterElements.forEach(id => {
                 const select = document.getElementById(id);
                 if (select.value) {
@@ -384,16 +384,16 @@ if ($ors_result->num_rows === 0) {
                 }
             });
         }
-        
+
         // Print table function
         function printTable() {
             const year = document.getElementById('yearFilter').value || 'All';
             const month = document.getElementById('monthFilter').options[document.getElementById('monthFilter').selectedIndex].text || 'All';
             const service = document.getElementById('servicesFilter').value || 'All Services';
-            
+
             // Create a new window for printing
             const printWindow = window.open('', '_blank');
-            
+
             // Generate print content
             let printContent = `
                 <!DOCTYPE html>
@@ -431,13 +431,13 @@ if ($ors_result->num_rows === 0) {
                             </tr>
                         </thead>
                         <tbody>`;
-            
+
             // Get data from the current table
             const rows = document.querySelectorAll('.table tbody tr');
             rows.forEach(row => {
                 const cells = row.querySelectorAll('td');
                 if (cells.length < 5) return; // Skip if it's a "no records found" row
-                
+
                 printContent += '<tr>';
                 // Only include the first 5 columns (skip Actions column)
                 for (let i = 0; i < 5; i++) {
@@ -451,7 +451,7 @@ if ($ors_result->num_rows === 0) {
                 }
                 printContent += '</tr>';
             });
-            
+
             printContent += `
                         </tbody>
                     </table>
@@ -461,40 +461,40 @@ if ($ors_result->num_rows === 0) {
                 </body>
                 </html>
             `;
-            
+
             printWindow.document.open();
             printWindow.document.write(printContent);
             printWindow.document.close();
-            
+
             // Wait for content to load before printing
-            printWindow.onload = function() {
+            printWindow.onload = function () {
                 printWindow.print();
             };
         }
-        
+
         // Export to CSV function
         function exportToCSV() {
             const table = document.querySelector('.table');
             const rows = table.querySelectorAll('tr');
-            
+
             let csvContent = "data:text/csv;charset=utf-8,";
-            
+
             // Add CSV header - skip the Actions column
             const headerRow = rows[0];
             const headers = headerRow.querySelectorAll('th');
             const headerValues = [];
-            
+
             // Include only the first 5 columns (skip the Actions column)
             for (let i = 0; i < 5; i++) {
                 headerValues.push('"' + headers[i].innerText.trim() + '"');
             }
             csvContent += headerValues.join(",") + "\r\n";
-            
+
             // Add data rows
             for (let i = 1; i < rows.length; i++) {
                 const cells = rows[i].querySelectorAll('td');
                 if (cells.length < 5) continue; // Skip if it's a "no records found" row
-                
+
                 const rowValues = [];
                 // Include only the first 5 columns (skip the Actions column)
                 for (let j = 0; j < 5; j++) {
@@ -504,17 +504,17 @@ if ($ors_result->num_rows === 0) {
                 }
                 csvContent += rowValues.join(",") + "\r\n";
             }
-            
+
             // Create download link
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            
+
             // Set filename with date
             const today = new Date();
-            const filename = `ORS_Records_${today.getFullYear()}-${(today.getMonth()+1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}.csv`;
+            const filename = `ORS_Records_${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}.csv`;
             link.setAttribute("download", filename);
-            
+
             // Trigger download
             document.body.appendChild(link);
             link.click();
