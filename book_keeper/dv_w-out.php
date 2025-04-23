@@ -1,17 +1,15 @@
 <?php
 include '../DBConnection.php';
 
+echo "<pre>";
+print_r($_POST['account_titles']);
+echo "</pre>";
+
+
 // insert
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-if (isset($_POST['submit'])) {
-    echo "Form submitted!";
-
-    // Debugging: Print all POST data
-    echo "<pre>";
-    print_r($_POST);
-    echo "</pre>";
-
-
+    // Sanitize and assign main record fields
     $fund_cluster_id = $_POST['fund_cluster_id'];
     $oopap_id = $_POST['oopap_id'];
     $services_id = $_POST['services_id'];
@@ -21,9 +19,7 @@ if (isset($_POST['submit'])) {
     $purpose = $_POST['purpose'];
     $notes = $_POST['notes'];
     $rc_id = $_POST['rc_id'];
-    $account_id = $_POST['account_id'];
-    $amount = $_POST['amount'];
-    $type = $_POST['type'];
+
     $total_amount = $_POST['total_amount'];
     $vat = $_POST['vat'];
     $vat_amount = $_POST['vat_amount'];
@@ -33,74 +29,76 @@ if (isset($_POST['submit'])) {
     $tax_2 = $_POST['tax_2'];
     $tax_2_amount = $_POST['tax_2_amount'];
     $net_amount = $_POST['net_amount'];
+
     $approver_id = $_POST['approver_id'];
     $chief_accountant = $_POST['chief_accountant'];
     $regional_director = $_POST['regional_director'];
-    $status = $_POST['status'];
 
-    // Get the account titles and amounts arrays
-    $account_titles = $_POST['account_titles'];
-    $debit_amounts = $_POST['debit_amounts'];
-    $credit_amounts = $_POST['credit_amounts'];
+    // Insert DV Non-ORS main record
+    $sql = "INSERT INTO dv_non_ors (fund_cluster_id, oopap_id, services_id, date, dv_no, payee_id, purpose, notes, rc_id, total_amount, vat, vat_amount, tax_base, tax_1, tax_1_amount, tax_2, tax_2_amount, net_amount, approver_id, chief_accountant, regional_director) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-    // Start a transaction
-    $connection->begin_transaction();
+    $stmt = $connection->prepare($sql);
+    if (!$stmt) {
+        die("Prepare failed: " . $connection->error);
+    }
 
-    try {
+    $stmt->bind_param(
+        "iiississddddidididiss"
+        ,
+        $fund_cluster_id,
+        $oopap_id,
+        $services_id,
+        $date,
+        $dv_no,
+        $payee_id,
+        $purpose,
+        $notes,
+        $rc_id,
+        $total_amount,
+        $vat,
+        $vat_amount,
+        $tax_base,
+        $tax_1,
+        $tax_1_amount,
+        $tax_2,
+        $tax_2_amount,
+        $net_amount,
+        $approver_id,
+        $chief_accountant,
+        $regional_director
+    );
 
-        // Insert the main DV record
-        $sql = "INSERT INTO dv_non_ors (fund_cluster, oopap_id, services_id, date, dv_no, payee_id, purpose, notes, rc_id, account_id, amount, type, total_amount, vat, vat_amount, tax_base, tax_1, tax_1_amount, tax_2, tax_2_amount, net_amount, approver_id, chief_accountant, regional_director) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-        $stmt = $connection->prepare($sql);
-        if ($stmt === false) {
-            throw new Exception('Prepare failed: ' . htmlspecialchars($connection->error));
-        }
-
-        $stmt->bind_param(
-            "iiississiidsdiddididdisss",
-            $fund_cluster,
-            $oopap_id,
-            $services_id,
-            $date,
-            $dv_no,
-            $payee_id,
-            $purpose,
-            $notes,
-            $rc_id,
-            $account_id,
-            $amount,
-            $type,
-            $total_amount,
-            $vat,
-            $vat_amount,
-            $tax_base,
-            $tax_1,
-            $tax_1_amount,
-            $tax_2,
-            $tax_2_amount,
-            $net_amount,
-            $approver_id,
-            $chief_accountant,
-            $regional_director,
-            $status
-        );
-
-        if (!$stmt->execute()) {
-            throw new Exception("Error: " . $stmt->error);
-        }
-
-        $dv_id = $connection->insert_id;
+    if ($stmt->execute()) {
+        $dv_id = $connection->insert_id; // get the last inserted dv_non_ors ID
         $stmt->close();
 
-        // Redirect after successful save
-        header("Location: dv_form.php?dv_no=$dv_no");
-        exit();
+        // Insert accounting entries
+        $account_titles = $_POST['account_titles'];
+        $debit_amounts = $_POST['debit_amounts'];
+        $credit_amounts = $_POST['credit_amounts'];
 
-    } catch (Exception $e) {
-        // Rollback the transaction on error
-        $connection->rollback();
-        echo "Error: " . $e->getMessage();
+        $entry_sql = "INSERT INTO dv_non_ors_entry (dv_id, account_id, debit_amount, credit_amount) VALUES (?, ?, ?, ?)";
+        $entry_stmt = $connection->prepare($entry_sql);
+
+        if (!$entry_stmt) {
+            die("Prepare failed: " . $connection->error);
+        }
+
+        for ($i = 0; $i < count($account_titles); $i++) {
+            $account_id = $account_titles[$i];
+            $debit = !empty($debit_amounts[$i]) ? $debit_amounts[$i] : 0;
+            $credit = !empty($credit_amounts[$i]) ? $credit_amounts[$i] : 0;
+
+            $entry_stmt->bind_param("iidd", $dv_id, $account_id, $debit, $credit);
+            $entry_stmt->execute();
+        }
+
+        $entry_stmt->close();
+
+        echo "<script>alert('Disbursement Voucher saved successfully!'); window.location.href='dv_list.php';</script>";
+    } else {
+        echo "Error: " . $stmt->error;
     }
 
     $connection->close();
@@ -150,6 +148,8 @@ while ($row = $result_approvers->fetch_assoc()) {
     ];
 }
 ?>
+
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -839,7 +839,8 @@ while ($row = $result_approvers->fetch_assoc()) {
                                                 <option selected disabled>Select Fund Cluster</option>
                                                 <?php
                                                 while ($row = $result_fund_cluster->fetch_assoc()) {
-                                                    echo "<option value='" . htmlspecialchars($row['uacs_code']) . "'>" . htmlspecialchars($row['fund_cluster']) . "</option>";
+                                                    echo "<option value='" . htmlspecialchars($row['fund_cluster_id']) . "'>" . htmlspecialchars($row['fund_cluster']) . "</option>";
+
                                                 }
                                                 ?>
                                             </select>
