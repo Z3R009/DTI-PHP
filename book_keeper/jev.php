@@ -6,19 +6,19 @@ include '../DBConnection.php';
 if (isset($_POST['submit'])) {
     echo "Form submitted!";
 
-    // Debugging: Print all POST data
+
     echo "<pre>";
     print_r($_POST);
     echo "</pre>";
 
     $date = $_POST['date'];
-    $dv_no = $_POST['dv_no']; // changed from dv_id to dv_no
-    $ors_no = $_POST['ors_no']; // clarified this is ORS number
+    $dv_no = $_POST['dv_no']; 
+    $ors_no = $_POST['ors_no'];
     $jev_no = $_POST['jev_no'];
     $administrative_aide = $_POST['administrative_aide'];
     $accountant = $_POST['accountant'];
 
-    // Start a transaction
+
     $connection->begin_transaction();
 
     try {
@@ -112,7 +112,6 @@ if (isset($_POST['submit'])) {
 }
 
 
-// retrieve_dv
 $select_dv = mysqli_query($connection, "
 SELECT 
     ors.*,

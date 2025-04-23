@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 22, 2025 at 04:42 AM
+-- Generation Time: Apr 22, 2025 at 09:00 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -301,9 +301,9 @@ INSERT INTO `dv` (`dv_id`, `date`, `ors_id`, `account_id`, `dv_no`, `vat`, `vat_
 (66, '2025-04-21', 74, 1, '1-25-04-003', 12.00, 0.00, 2300.00, 0.00, 0.00, 0.00, 0.00, 2300.00, 2300.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', '', '2025-04-21 02:22:21', '', '', '', ''),
 (67, '2025-04-21', 75, 1, '1-25-04-004', 12.00, 0.00, 250.00, 0.00, 0.00, 0.00, 0.00, 250.00, 250.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', '', '2025-04-21 02:22:21', '', '', '', ''),
 (68, '2025-04-21', 76, 1, '1-25-04-005', 12.00, 0.00, 15000.00, 0.00, 0.00, 0.00, 0.00, 15000.00, 15000.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', '', '2025-04-21 08:30:32', '', '', '', ''),
-(69, '2025-04-21', 77, 1, '1-25-04-006', 12.00, 0.00, 1000.00, 0.00, 0.00, 0.00, 0.00, 1000.00, 1000.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', 'Pending', '2025-04-21 05:17:04', '', '', '', ''),
-(70, '2025-04-21', 78, 1, '1-25-04-007', 12.00, 0.00, 1000.00, 0.00, 0.00, 0.00, 0.00, 1000.00, 1000.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', 'Pending', '2025-04-21 09:03:29', '', '', '', ''),
-(71, '2025-04-21', 79, 1, '1-25-04-008', 12.00, 0.00, 10000.00, 0.00, 0.00, 0.00, 0.00, 10000.00, 10000.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', 'Endorsed', '2025-04-21 09:10:18', '', '', '', ''),
+(69, '2025-04-21', 77, 1, '1-25-04-006', 12.00, 0.00, 1000.00, 0.00, 0.00, 0.00, 0.00, 1000.00, 1000.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', '', '2025-04-22 04:18:47', '', '', '', ''),
+(70, '2025-04-21', 78, 1, '1-25-04-007', 12.00, 0.00, 1000.00, 0.00, 0.00, 0.00, 0.00, 1000.00, 1000.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', '', '2025-04-22 04:18:47', '', '', '', ''),
+(71, '2025-04-21', 79, 1, '1-25-04-008', 12.00, 0.00, 10000.00, 0.00, 0.00, 0.00, 0.00, 10000.00, 10000.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', '', '2025-04-22 04:18:47', '', '', '', ''),
 (72, '2025-04-21', 80, 1, '1-25-04-009', 12.00, 3214.29, 26785.71, 5.00, 1339.29, 2.00, 535.71, 28125.00, 30000.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', 'Endorsed', '2025-04-21 09:14:49', '', '', '', '');
 
 -- --------------------------------------------------------
@@ -549,24 +549,26 @@ CREATE TABLE `payee` (
   `bank_acc_no` varchar(30) DEFAULT NULL,
   `address` varchar(255) DEFAULT NULL,
   `nature` varchar(255) DEFAULT NULL,
-  `contact_no` varchar(15) DEFAULT NULL
+  `contact_no` varchar(15) DEFAULT NULL,
+  `payee_type` varchar(123) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `payee`
 --
 
-INSERT INTO `payee` (`payee_id`, `payee_name`, `tin_no`, `bank_acc_no`, `address`, `nature`, `contact_no`) VALUES
-(16, '3G Gensan Hotel', '', '', '', '', ''),
-(17, '3D Advertising', '712-786-936-0000', '', '', '', ''),
-(18, '8 OZ Prints', '', 'LBP - 0751-2051-55', '', '', ''),
-(19, 'ACE CENTERPOINT', '', 'LBP - CA 0752-1040-93', '', '', ''),
-(20, 'ACE HARDWARE PHIL. INC.', '200-035-311-0000', 'LBP - CA 0752-1040-93', '', '', ''),
-(21, 'ADC AUTOMOTIVE SHOP BY ANNIE LIZA R CERALVO', '', 'LBP - SA 0751-1741-01', '', '', ''),
-(22, 'ADWERKZ PRINTING SOLUTIONS/PAUL RYAN C. BARCELONA', '', 'LBP - SA 3416-0029-23', '', '', ''),
-(23, 'AFL 168 CORPORATION', '', 'LBP - SA 0751-1769-37', '', '', ''),
-(24, 'AHR WOODCRAFT CENTER BY ALLAN B. HIMALLA ', '', 'LBP - SA 0751-1759-90', '', '', ''),
-(25, 'BENJO G. BASID', '', '', 'Koronadal City', '', '');
+INSERT INTO `payee` (`payee_id`, `payee_name`, `tin_no`, `bank_acc_no`, `address`, `nature`, `contact_no`, `payee_type`) VALUES
+(16, '3G Gensan Hotel', ' 0752-1040-93', '07521040932', 'Koronadal', 'Dark system', '2158244', 'external'),
+(17, '3D Advertising', '712-786-936-0000', '', '', '', '', ''),
+(18, '8 OZ Prints', '', 'LBP - 0751-2051-55', '', '', '', ''),
+(19, 'ACE CENTERPOINT', '', 'LBP - CA 0752-1040-93', '', '', '', ''),
+(20, 'ACE HARDWARE PHIL. INC.', '200-035-311-0000', '0752104093', 'Koronadal', 'external', '215824', 'external'),
+(21, 'ADC AUTOMOTIVE SHOP BY ANNIE LIZA R CERALVO', '', 'LBP - SA 0751-1741-01', '', '', '', ''),
+(22, 'ADWERKZ PRINTING SOLUTIONS/PAUL RYAN C. BARCELONA', '', 'LBP - SA 3416-0029-23', '', '', '', ''),
+(23, 'AFL 168 CORPORATION', '', 'LBP - SA 0751-1769-37', '', '', '', ''),
+(24, 'AHR WOODCRAFT CENTER BY ALLAN B. HIMALLA ', '', 'LBP - SA 0751-1759-90', '', '', '', ''),
+(25, 'BENJO G. BASID', '', '', 'Koronadal City', '', '', ''),
+(26, 'Test', '712-786-936-0000', 'LBP - 0751-2051-55', 'Koronadal', 'external', '0912345678', 'external');
 
 -- --------------------------------------------------------
 
@@ -599,7 +601,10 @@ INSERT INTO `payment` (`payment_id`, `dv_id`, `payment_date`, `payment_type`, `r
 (7, 67, '2025-04-21', 'ADA', '5555', 250.00, 'xbsjhcbhsu', 'Cashier', '2025-04-21 02:22:21', 'Completed'),
 (8, 66, '2025-04-21', 'ADA', '5555', 2300.00, 'xbsjhcbhsu', 'Cashier', '2025-04-21 02:22:21', 'Completed'),
 (9, 65, '2025-04-21', 'ADA', '101-04-001-2025', 100.00, 'sampleonly', 'Cashier', '2025-04-21 08:30:32', 'Completed'),
-(10, 68, '2025-04-21', 'ADA', '101-04-002-2025', 15000.00, 'sampleonly', 'Cashier', '2025-04-21 08:30:32', 'Completed');
+(10, 68, '2025-04-21', 'ADA', '101-04-002-2025', 15000.00, 'sampleonly', 'Cashier', '2025-04-21 08:30:32', 'Completed'),
+(11, 69, '2025-04-22', 'ADA', '101-04-001-2025', 1000.00, 'FOR MDS-GSB USE ONLY', 'Cashier', '2025-04-22 04:18:47', 'Completed'),
+(12, 70, '2025-04-22', 'ADA', '101-04-002-2025', 1000.00, 'FOR MDS-GSB USE ONLY', 'Cashier', '2025-04-22 04:18:47', 'Completed'),
+(13, 71, '2025-04-22', 'ADA', '101-04-003-2025', 10000.00, 'FOR MDS-GSB USE ONLY', 'Cashier', '2025-04-22 04:18:47', 'Completed');
 
 -- --------------------------------------------------------
 
@@ -1277,13 +1282,13 @@ ALTER TABLE `ors`
 -- AUTO_INCREMENT for table `payee`
 --
 ALTER TABLE `payee`
-  MODIFY `payee_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `payee_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT for table `payment`
 --
 ALTER TABLE `payment`
-  MODIFY `payment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `payment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `project`

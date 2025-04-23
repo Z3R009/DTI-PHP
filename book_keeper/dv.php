@@ -1,19 +1,17 @@
 <?php
 include '../DBConnection.php';
 
-// insert
 
 if (isset($_POST['submit'])) {
     echo "Form submitted!";
 
-    // Debugging: Print all POST data
     echo "<pre>";
     print_r($_POST);
     echo "</pre>";
 
     $date = $_POST['date'];
     $dv_no = $_POST['dv_no'];
-    $ors_no = $_POST['ors_id']; // This is actually the ORS number
+    $ors_no = $_POST['ors_id']; 
     $vat = $_POST['vat'];
     $vat_amount = $_POST['vat_amount'];
     $tax_base = $_POST['tax_base'];
@@ -25,17 +23,13 @@ if (isset($_POST['submit'])) {
     $chief_accountant = $_POST['chief_accountant'];
     $regional_director = $_POST['regional_director'];
     $total_amount = $_POST['total_amount'];
-
-    // Get the account titles and amounts arrays
     $account_titles = $_POST['account_titles'];
     $debit_amounts = $_POST['debit_amounts'];
     $credit_amounts = $_POST['credit_amounts'];
 
-    // Start a transaction
     $connection->begin_transaction();
 
     try {
-        // First, get the ors_id and account_id from the ors_no
         $ors_query = "SELECT ors_id FROM ors WHERE ors_no = ?";
         $ors_stmt = $connection->prepare($ors_query);
         if ($ors_stmt === false) {
@@ -52,11 +46,7 @@ if (isset($_POST['submit'])) {
         $ors_row = $ors_result->fetch_assoc();
         $ors_id = $ors_row['ors_id'];
         $ors_stmt->close();
-
-        // Get a valid account_id from account_name table (using ID 1 as default - you can change this)
-        $account_id = 1; // Using account ID 1 (DTI RO XI) as default
-
-        // If you need to check if account_id exists
+        $account_id = 1; 
         $account_query = "SELECT account_id FROM account_name WHERE account_id = ?";
         $account_stmt = $connection->prepare($account_query);
         if ($account_stmt === false) {
@@ -71,8 +61,6 @@ if (isset($_POST['submit'])) {
             throw new Exception("Account ID not found in account_name table");
         }
         $account_stmt->close();
-
-        // Insert the main DV record
         $sql = "INSERT INTO dv (date, dv_no, ors_id, account_id, vat, vat_amount, tax_base, tax_1, tax_1_amount, tax_2, tax_2_amount, net_amount, chief_accountant, regional_director, total_amount) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
@@ -106,8 +94,6 @@ if (isset($_POST['submit'])) {
 
         $dv_id = $connection->insert_id;
         $stmt->close();
-
-        // Update the ORS status to 'Processed'
         $update_status_sql = "UPDATE ors SET status = 'Endorsed' WHERE ors_id = ?";
         $update_status_stmt = $connection->prepare($update_status_sql);
         if ($update_status_stmt === false) {
@@ -119,26 +105,19 @@ if (isset($_POST['submit'])) {
             throw new Exception("Error updating ORS status: " . $update_status_stmt->error);
         }
         $update_status_stmt->close();
-
-
-        // Loop through each account and save it in dv_history
         for ($i = 0; $i < count($account_titles); $i++) {
             if (empty($account_titles[$i]))
-                continue; // Skip empty account selections
-
+                continue;
             $account_id = $account_titles[$i];
             $debit = !empty($debit_amounts[$i]) ? $debit_amounts[$i] : 0;
             $credit = !empty($credit_amounts[$i]) ? $credit_amounts[$i] : 0;
 
-            // Determine the type (debit or credit)
             $type = ($debit > 0) ? 'debit' : 'credit';
             $amount = ($debit > 0) ? $debit : $credit;
 
-            // Skip if amount is zero
             if ($amount == 0)
                 continue;
 
-            // Insert into dv_history
             $history_sql = "INSERT INTO dv_history (dv_id, account_id, type, amount) VALUES (?, ?, ?, ?)";
             $history_stmt = $connection->prepare($history_sql);
             if ($history_stmt === false) {
@@ -154,23 +133,18 @@ if (isset($_POST['submit'])) {
             $history_stmt->close();
         }
 
-        // Commit the transaction
         $connection->commit();
 
-        // Redirect after successful save
         header("Location: dv_form.php?dv_no=$dv_no");
         exit();
 
     } catch (Exception $e) {
-        // Rollback the transaction on error
         $connection->rollback();
         echo "Error: " . $e->getMessage();
     }
 
-    // $connection->close(); // Remove this line from the try-catch block
 }
 
-// retrieve ors
 $select_ors = mysqli_query($connection, "
     SELECT 
         ors.*, 
@@ -192,8 +166,6 @@ $select_ors = mysqli_query($connection, "
 
     WHERE ors.status = 'Pending';
 ");
-
-// retrieve_dv
 $select_dv = mysqli_query($connection, "
 SELECT 
     ors.*,
@@ -286,7 +258,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
             <div class="form-container">
                 <div class="row mb-4">
                     <div class="col-12">
-                        <h2 class="form-title">Pending Disbursement Vouchers</h2>
+                        <h2 class="form-title">Pending Obligation Request And Status</h2>
                         <p class="text-muted text-center">Create disbursement vouchers from the available ORS documents
                             below</p>
                     </div>

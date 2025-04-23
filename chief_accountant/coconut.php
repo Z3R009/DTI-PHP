@@ -68,12 +68,32 @@ $select = mysqli_query(
      ORDER BY an.account_name ASC"
 );
 
-$query_account = "SELECT account_id, account_name, account_number, type 
-                 FROM account_name 
-                 WHERE account_id = 3
-                 ORDER BY account_name ASC";
-$result_account = $connection->query($query_account);
+// Calculate beginning balance (previous month's remaining balance)
+$prev_month = $selected_month - 1;
+$prev_year = $selected_year;
+if ($prev_month == 0) {
+    $prev_month = 12;
+    $prev_year--;
+}
 
+// Determine current quarter and previous quarter
+$current_quarter = ceil($selected_month / 3);
+$prev_quarter = ceil($prev_month / 3);
+
+// Get beginning balance from previous month if in same quarter
+$beginning_balance = 0;
+if ($current_quarter == $prev_quarter) {
+    $prev_balance_query = "SELECT SUM(balances) as prev_balance 
+                          FROM draft_project 
+                          WHERE account_id = 3
+                          AND MONTH(created_at) = $prev_month 
+                          AND YEAR(created_at) = $prev_year";
+    $prev_balance_result = mysqli_query($connection, $prev_balance_query);
+    $prev_balance_row = mysqli_fetch_assoc($prev_balance_result);
+    $beginning_balance = $prev_balance_row['prev_balance'] ?? 0;
+}
+
+// Get total cash allotment for current month
 $total_Cashallotment_query = "SELECT SUM(cash_allotment) AS total_Cashallotment 
                              FROM draft_project 
                              WHERE account_id = 3
@@ -82,8 +102,11 @@ $total_Cashallotment_query = "SELECT SUM(cash_allotment) AS total_Cashallotment
 $total_Cashallotment_result = mysqli_query($connection, $total_Cashallotment_query);
 $total_Cashallotment = mysqli_fetch_assoc($total_Cashallotment_result)['total_Cashallotment'] ?? 0;
 
+// Add beginning balance to total cash allotment
+$total_Cashallotment += $beginning_balance;
 
-// Fetch total cash allotment
+
+// Get total balances for current month
 $total_balances_query = "SELECT SUM(balances) AS total_balances 
                         FROM draft_project 
                         WHERE account_id = 3 
@@ -91,6 +114,13 @@ $total_balances_query = "SELECT SUM(balances) AS total_balances
                         AND YEAR(created_at) = $selected_year";
 $total_balances_result = mysqli_query($connection, $total_balances_query);
 $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?? 0;
+
+// Add beginning balance to total balances
+$query_account = "SELECT account_id, account_name, account_number, type 
+                 FROM account_name 
+                 WHERE account_id = 3 
+                 ORDER BY account_name ASC";
+$result_account = $connection->query($query_account);
 ?>
 
 <!DOCTYPE html>
@@ -100,7 +130,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>RAPID GOP</title>
+    <title>DTI COCONUT LEVY FUND</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
@@ -411,7 +441,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
                 <nav>
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="index.php">Home</a></li>
-                        <li class="breadcrumb-item"><a href="index.php">Coconut Levy Fund</a></li>
+                        <li class="breadcrumb-item"><a href="index.php">DTI Coconut Levy Fund</a></li>
                     </ol>
                 </nav>
             </div>
@@ -481,6 +511,33 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
                                     <i class="bi bi-cash-stack text-primary fs-4"></i>
                                 </div>
                                 <div>
+                                    <h5 class="card-title">Beginning Balance 
+                                        (<?php
+                                        $previous_month = $selected_month - 1;
+
+                                        if ($previous_month < 1) {
+                                            $previous_month = 12;
+                                        }
+
+                                        echo $months[$previous_month];
+                                        ?>)
+                                        </h5>
+                                    <h3 class="card-text">₱<?php echo number_format($beginning_balance, 2); ?></h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card summary-card">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center">
+                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center me-3"
+                                    style="background-color: rgba(65, 84, 241, 0.1);">
+                                    <i class="bi bi-cash-stack text-primary fs-4"></i>
+                                </div>
+                                <div>
                                     <h5 class="card-title">Total Cash Allotment (<?php echo $months[$selected_month]; ?>
                                         <?php echo $selected_year; ?>)</h5>
                                     <h3 class="card-text">₱<?php echo number_format($total_Cashallotment, 2); ?></h3>
@@ -502,7 +559,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
                                 <div>
                                     <h5 class="card-title">Remaining Balances (<?php echo $months[$selected_month]; ?>
                                         <?php echo $selected_year; ?>)</h5>
-                                    <h3 class="card-text">₱<?php echo number_format($total_balances, 2); ?></h3>
+                                    <h3 class="card-text">₱<?php echo number_format($total_balances + $beginning_balance, 2); ?></h3>
                                 </div>
                             </div>
                         </div>
@@ -683,8 +740,8 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?
                         <div class="mb-3">
                             <label for="account_display" class="form-label">Account Name <span
                                     class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="account_display" value="DTI COCONUT LEVY FUND"
-                                readonly>
+                            <input type="text" class="form-control" id="account_display"
+                                value="DTI COCONUT LEVY FUND" readonly>
                         </div>
 
                         <div class="mb-3">
