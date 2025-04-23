@@ -98,7 +98,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>GAS Management - Budget System</title>
+    <title>OO2-Tida</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
@@ -395,7 +395,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
 
         <div class="pagetitle page-header d-flex justify-content-between align-items-center">
             <div>
-                <h1>Tida Contractual (OO2) <?php echo date('Y'); ?></h1>
+                <h1>OO2-Tida Contractual <?php echo date('Y'); ?></h1>
                 <nav>
                     <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="index.php">Home</a></li>

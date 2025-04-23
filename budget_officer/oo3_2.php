@@ -93,7 +93,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Dashboard - NiceAdmin Bootstrap Template</title>
+    <title>OO3.2-OTOP Next Gen</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
@@ -385,7 +385,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
 
         <div class="pagetitle page-header d-flex justify-content-between align-items-center">
             <div>
-                <h1>OTOP Next Gen (OO3.2) <?php echo date('Y'); ?></h1>
+                <h1>OO3.2-OTOP NEXT GEN  <?php echo date('Y'); ?></h1>
                 <nav>
                     <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="index.php">Home</a></li>

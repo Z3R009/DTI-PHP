@@ -114,7 +114,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Dashboard - NiceAdmin Bootstrap Template</title>
+    <title>O2-Rapid LP 2024 Continuing </title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
@@ -149,7 +149,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     <main id="main" class="main">
 
         <div class="pagetitle">
-            <h1>O2 - <?php echo htmlspecialchars($description); ?></h1>
+            <h1>O2-RAPID LP 2024 CONTINUING - <?php echo htmlspecialchars($description); ?></h1>
         </div><!-- End Page Title -->
 
         <section class="section dashboard">

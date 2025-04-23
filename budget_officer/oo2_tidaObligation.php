@@ -72,7 +72,7 @@ $total_balances = $total_allotment - $total_filtered_amount;
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Dashboard - NiceAdmin Bootstrap Template</title>
+    <title>OO2-Tida</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
@@ -107,7 +107,7 @@ $total_balances = $total_allotment - $total_filtered_amount;
     <main id="main" class="main">
 
         <div class="pagetitle">
-            <h1>OO2-OBLIGATION(<?php echo date('Y'); ?>) - <?php echo htmlspecialchars($oopap_description); ?></h1>
+            <h1>OO2-TIDA OBLIGATION(<?php echo date('Y'); ?>) - <?php echo htmlspecialchars($oopap_description); ?></h1>
         </div><!-- End Page Title -->
 
         <section class="section dashboard">
