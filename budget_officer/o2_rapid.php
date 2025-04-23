@@ -89,7 +89,7 @@ $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'
 
 // Calculate balances based on allotment and ORS total_amount for the selected month
 $update_balances_query = "UPDATE project p 
-                         SET p.balances = p.allotment - (
+                         SET p.balances = p.balances - (
                              SELECT COALESCE(SUM(ors.total_amount), 0) 
                              FROM obligation_history oh 
                              JOIN ors ON oh.ors_id = ors.ors_id 

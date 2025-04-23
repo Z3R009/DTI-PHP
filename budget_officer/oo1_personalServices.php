@@ -41,6 +41,7 @@ if (isset($_POST['submit'])) {
     } else {
         $sql = "INSERT INTO project (project_id, oopap_id, account_id, allotment, balances, created_at) VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $connection->prepare($sql);
+        $balances = $allotment;
         $stmt->bind_param("iiisss", $project_id, $oopap_id, $account_id, $allotment, $balances, $created_at);
 
         if ($stmt->execute()) {
@@ -74,7 +75,7 @@ $total_allotment_result = mysqli_query($connection, $total_allotment_query);
 $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'];
 
 $update_balances_query = "UPDATE project p 
-                         SET p.balances = p.allotment - (
+                         SET p.balances = p.balances - (
                              SELECT COALESCE(SUM(ors.total_amount), 0) 
                              FROM obligation_history oh 
                              JOIN ors ON oh.ors_id = ors.ors_id 
