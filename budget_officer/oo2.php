@@ -378,7 +378,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                 margin-bottom: 10px;
             }
         }
-    </style>
+</style>
 <body>
 
     <?php include "Includes/header.php"; ?>
