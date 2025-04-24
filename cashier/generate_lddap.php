@@ -24,10 +24,10 @@ if (isset($_GET['ref']) && !empty($_GET['ref'])) {
             $dv_id = $dv['dv_id'];
             $individual_ref = $dv['reference_no'];
             
-            $update_query = "UPDATE payment SET status = 'Completed' 
+            $update_query = "UPDATE payment SET status = 'Completed', ada_no = ? 
                             WHERE dv_id = ? AND reference_no = ? AND payment_type = 'ADA'";
             $update_stmt = $connection->prepare($update_query);
-            $update_stmt->bind_param("is", $dv_id, $individual_ref);
+            $update_stmt->bind_param("sis", $lddap_data['ada_no'], $dv_id, $individual_ref);
             $update_stmt->execute();
             
             $update_dv = "UPDATE dv SET status = 'Completed' WHERE dv_id = ?";
@@ -36,9 +36,9 @@ if (isset($_GET['ref']) && !empty($_GET['ref'])) {
             $update_dv_stmt->execute();
         }
     } else {
-        $update_query = "UPDATE payment SET status = 'Completed' WHERE reference_no = ? AND payment_type = 'ADA'";
+        $update_query = "UPDATE payment SET status = 'Completed', ada_no = ? WHERE reference_no = ? AND payment_type = 'ADA'";
         $update_stmt = $connection->prepare($update_query);
-        $update_stmt->bind_param("s", $ref);
+        $update_stmt->bind_param("ss", $lddap_data['ada_no'], $ref);
         $update_stmt->execute();
         $dv_query = "SELECT dv_id FROM payment WHERE reference_no = ? AND payment_type = 'ADA'";
         $dv_stmt = $connection->prepare($dv_query);

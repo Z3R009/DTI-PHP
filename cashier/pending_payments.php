@@ -1049,4 +1049,4 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize on page load
     bindCheckboxEvents();
 });
-</script> 
+</script>
