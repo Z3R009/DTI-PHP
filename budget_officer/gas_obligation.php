@@ -98,6 +98,7 @@ $total_balances = $total_allotment - $total_filtered_amount;
     <!-- Template Main CSS File -->
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
 </head>
+    
 
 <body>
 

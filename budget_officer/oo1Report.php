@@ -124,14 +124,14 @@ $months = [
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1>OO1 REPORTS</h1>
+            <h1>OO1-EXPORTS AND INVESTMENT PROGRAM REPORTS</h1>
         </div>
 
         <section class="section dashboard">
             <!-- Filter Card -->
             <div class="card mb-3">
                 <div class="card-body">
-                    <h5 class="card-title">SUMMARY OF OBLIGATION (OO1) <?php echo $months[$selected_month] . ' ' . $selected_year; ?></h5>
+                    <h5 class="card-title">SUMMARY OF OBLIGATION (OO1-EXPORTS AND INVESTMENT PROGRAM REPORTS) <?php echo $months[$selected_month] . ' ' . $selected_year; ?></h5>
                     <form method="get" action="oo1Report.php" class="row g-3">
                         <div class="col-md-4">
                             <label for="year" class="form-label">Year</label>
@@ -187,7 +187,7 @@ $months = [
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td colspan="7"><strong>GAS</strong></td>
+                                    <td colspan="7"><strong>EXPORTS AND INVESTMENT PROGRAM REPORTS</strong></td>
                                 </tr>
                                 <?php foreach ($filtered_data as $row): ?>
                                     <tr>
