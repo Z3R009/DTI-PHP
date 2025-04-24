@@ -10,7 +10,7 @@ if (isset($_POST['submit'])) {
 
     $date = $_POST['date'];
     $dv_no = $_POST['dv_no'];
-    $ors_no = $_POST['ors_id']; 
+    $ors_no = $_POST['ors_id'];
     $payment_mode = $_POST['payment_mode'];
     $vat = $_POST['vat'];
     $vat_amount = $_POST['vat_amount'];
@@ -98,7 +98,7 @@ if (isset($_POST['submit'])) {
 
         for ($i = 0; $i < count($account_titles); $i++) {
             if (empty($account_titles[$i]))
-                continue; 
+                continue;
 
             $account_id = $account_titles[$i];
             $debit = !empty($debit_amounts[$i]) ? $debit_amounts[$i] : 0;
@@ -182,6 +182,8 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
 
 
 ");
+
+
 
 ?>
 

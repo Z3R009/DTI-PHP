@@ -93,12 +93,12 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
         <section class="section dashboard">
             <div class="card">
                 <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="card-title">Payee Information</h5>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="card-title">Payee Information</h5>
                         <button type="button" class="btn btn-primary rounded-pill" data-bs-toggle="modal"
                             data-bs-target="#addUserModal">Add Payee</button>
-                 
-                </div>
+
+                    </div>
                     <!-- Modal for Add User Form -->
                     <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel"
                         aria-hidden="true">
@@ -116,15 +116,17 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                                         <div class="row g-3">
                                             <div class="col-md-6">
                                                 <div class="form-floating mb-3">
-                                                    <input type="text" class="form-control" id="payee_name" name="payee_name"
-                                                        placeholder="Enter Payee Name" required autocomplete="off">
+                                                    <input type="text" class="form-control" id="payee_name"
+                                                        name="payee_name" placeholder="Enter Payee Name" required
+                                                        autocomplete="off">
                                                     <label for="payee_name">Payee Name</label>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-floating mb-3">
-                                                    <input type="text" class="form-control" id="bank_acc_no" name="bank_acc_no"
-                                                        placeholder="Enter Bank Account No." autocomplete="off">
+                                                    <input type="text" class="form-control" id="bank_acc_no"
+                                                        name="bank_acc_no" placeholder="Enter Bank Account No."
+                                                        autocomplete="off">
                                                     <label for="bank_acc_no">Bank Account No.</label>
                                                 </div>
                                             </div>
@@ -151,15 +153,18 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-floating mb-3">
-                                                    <input type="text" class="form-control" id="contact_no" name="contact_no"
-                                                        maxlength="13" autocomplete="off" placeholder="Enter Contact Number">
+                                                    <input type="text" class="form-control" id="contact_no"
+                                                        name="contact_no" maxlength="13" autocomplete="off"
+                                                        placeholder="Enter Contact Number">
                                                     <label for="contact_no">Contact Number</label>
-                                                    <span id="addErrorMsg" class="text-danger small" style="display: none;">Please enter numbers only</span>
+                                                    <span id="addErrorMsg" class="text-danger small"
+                                                        style="display: none;">Please enter numbers only</span>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-floating mb-3">
-                                                    <select class="form-select" id="payee_type" name="payee_type" required>
+                                                    <select class="form-select" id="payee_type" name="payee_type"
+                                                        required>
                                                         <option value="">Select payee type</option>
                                                         <option value="internal">Internal</option>
                                                         <option value="external">External (supplier)</option>
@@ -183,80 +188,87 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                     </div>
 
                     <!-- Table with stripped rows -->
-                     <div class="table-responsive">
-                    <table class="datatable">
-                        <thead class="table-light">
-                            <tr>
-                                <th scope="col"></th>
-                                <th scope="col">Payee Name</th>
-                                <th scope="col">Bank Account No.</th>
-                                <th scope="col">TIN/Employee No.</th>
-                                <th scope="col">Address</th>
-                                <th scope="col" class="d-none expandable-col">Nature of Business</th>
-                                <th scope="col" class="d-none expandable-col">Contact Number</th>
-                                <th scope="col" class="d-none expandable-col">Payee Type</th>
-                                <th scope="col">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php while ($row = mysqli_fetch_assoc($select)) { ?>
+                    <div class="table-responsive">
+                        <table class="datatable">
+                            <thead class="table-light">
                                 <tr>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-secondary expand-row" type="button" data-bs-toggle="collapse" data-bs-target="#expand<?php echo $row['payee_id']; ?>" aria-expanded="false">
-                                            <i class="bi bi-chevron-down"></i>
-                                        </button>
-                                    </td>
-                                    <td><?php echo htmlspecialchars($row['payee_name']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['bank_acc_no']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['tin_no']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['address']); ?></td>
-                                    <td class="d-none expandable-col"><?php echo htmlspecialchars($row['nature']); ?></td>
-                                    <td class="d-none expandable-col"><?php echo htmlspecialchars($row['contact_no']); ?></td>
-                                    <td class="d-none expandable-col"><?php echo htmlspecialchars($row['payee_type']); ?></td>
-                                    <td class="text-end"> 
-                                        <button type="button" class="btn btn-sm btn-outline-primary edit-btn" data-bs-toggle="modal"
-                                            data-bs-target="#editUserModal" data-id="<?php echo $row['payee_id']; ?>"
-                                            data-payee_name="<?= htmlspecialchars($row['payee_name']); ?>"
-                                            data-bank_acc_no="<?= htmlspecialchars($row['bank_acc_no']); ?>"
-                                            data-tin_no="<?= htmlspecialchars($row['tin_no']); ?>"
-                                            data-address="<?= htmlspecialchars($row['address']); ?>"
-                                            data-nature="<?= htmlspecialchars($row['nature']); ?>"
-                                            data-contact_no="<?= htmlspecialchars($row['contact_no']); ?>"
-                                            data-payee_type="<?= htmlspecialchars($row['payee_type']); ?>">
-                                            <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top"
-                                                title="Edit"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-sm btn-outline-danger"
-                                            onclick="deleteUser(<?php echo $row['payee_id']; ?>)"><i class="bi bi-trash"
-                                                data-bs-toggle="tooltip" data-bs-placement="top"
-                                                title="Delete"></i></button>
-                                    </td>
+                                    <th scope="col"></th>
+                                    <th scope="col">Payee Name</th>
+                                    <th scope="col">Bank Account No.</th>
+                                    <th scope="col">TIN/Employee No.</th>
+                                    <th scope="col">Address</th>
+                                    <th scope="col" class="d-none expandable-col">Nature of Business</th>
+                                    <th scope="col" class="d-none expandable-col">Contact Number</th>
+                                    <th scope="col" class="d-none expandable-col">Payee Type</th>
+                                    <th scope="col">Actions</th>
                                 </tr>
-                                <tr class="expandable-row">
-                                    <td colspan="9" class="p-0">
-                                        <div class="collapse" id="expand<?php echo $row['payee_id']; ?>">
-                                            <div class="card card-body border-custom">
-                                                <div class="row">
-                                                    <div class="col-md-4">
-                                                        <p class="mb-1"><strong>Nature of Business:</strong></p>
-                                                        <p><?php echo htmlspecialchars($row['nature']); ?></p>
-                                                    </div>
-                                                    <div class="col-md-4">
-                                                        <p class="mb-1"><strong>Contact Number:</strong></p>
-                                                        <p><?php echo htmlspecialchars($row['contact_no']); ?></p>
-                                                    </div>
-                                                    <div class="col-md-4">
-                                                        <p class="mb-1"><strong>Payee Type:</strong></p>
-                                                        <p><?php echo htmlspecialchars($row['payee_type']); ?></p>
+                            </thead>
+                            <tbody>
+                                <?php while ($row = mysqli_fetch_assoc($select)) { ?>
+                                    <tr>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-secondary expand-row" type="button"
+                                                data-bs-toggle="collapse"
+                                                data-bs-target="#expand<?php echo $row['payee_id']; ?>"
+                                                aria-expanded="false">
+                                                <i class="bi bi-chevron-down"></i>
+                                            </button>
+                                        </td>
+                                        <td><?php echo htmlspecialchars($row['payee_name']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['bank_acc_no']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['tin_no']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['address']); ?></td>
+                                        <td class="d-none expandable-col"><?php echo htmlspecialchars($row['nature']); ?>
+                                        </td>
+                                        <td class="d-none expandable-col">
+                                            <?php echo htmlspecialchars($row['contact_no']); ?></td>
+                                        <td class="d-none expandable-col">
+                                            <?php echo htmlspecialchars($row['payee_type']); ?></td>
+                                        <td class="text-end">
+                                            <button type="button" class="btn btn-sm btn-outline-primary edit-btn"
+                                                data-bs-toggle="modal" data-bs-target="#editUserModal"
+                                                data-id="<?php echo $row['payee_id']; ?>"
+                                                data-payee_name="<?= htmlspecialchars($row['payee_name']); ?>"
+                                                data-bank_acc_no="<?= htmlspecialchars($row['bank_acc_no']); ?>"
+                                                data-tin_no="<?= htmlspecialchars($row['tin_no']); ?>"
+                                                data-address="<?= htmlspecialchars($row['address']); ?>"
+                                                data-nature="<?= htmlspecialchars($row['nature']); ?>"
+                                                data-contact_no="<?= htmlspecialchars($row['contact_no']); ?>"
+                                                data-payee_type="<?= htmlspecialchars($row['payee_type']); ?>">
+                                                <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top"
+                                                    title="Edit"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-danger"
+                                                onclick="deleteUser(<?php echo $row['payee_id']; ?>)"><i class="bi bi-trash"
+                                                    data-bs-toggle="tooltip" data-bs-placement="top"
+                                                    title="Delete"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr class="expandable-row">
+                                        <td colspan="9" class="p-0">
+                                            <div class="collapse" id="expand<?php echo $row['payee_id']; ?>">
+                                                <div class="card card-body border-custom">
+                                                    <div class="row">
+                                                        <div class="col-md-4">
+                                                            <p class="mb-1"><strong>Nature of Business:</strong></p>
+                                                            <p><?php echo htmlspecialchars($row['nature']); ?></p>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <p class="mb-1"><strong>Contact Number:</strong></p>
+                                                            <p><?php echo htmlspecialchars($row['contact_no']); ?></p>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <p class="mb-1"><strong>Payee Type:</strong></p>
+                                                            <p><?php echo htmlspecialchars($row['payee_type']); ?></p>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            <?php } ?>
-                        </tbody>
-                    </table>
+                                        </td>
+                                    </tr>
+                                <?php } ?>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -274,7 +286,8 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                     <h5 class="modal-title" id="editUserModalLabel">
                         <i class="bi bi-pencil-square me-2"></i>Edit Payee
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
                     <form method="post" id="editUserForm" action="update_payee.php">
@@ -282,13 +295,15 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <div class="form-floating mb-3">
-                                    <input type="text" class="form-control" id="edit_payee_name" name="payee_name" required>
+                                    <input type="text" class="form-control" id="edit_payee_name" name="payee_name"
+                                        required>
                                     <label for="edit_payee_name">Payee Name</label>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-floating mb-3">
-                                    <input type="text" class="form-control" id="edit_bank_acc_no" name="bank_acc_no" required>
+                                    <input type="text" class="form-control" id="edit_bank_acc_no" name="bank_acc_no"
+                                        required>
                                     <label for="edit_bank_acc_no">Bank Account No.</label>
                                 </div>
                             </div>
@@ -312,18 +327,19 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                             </div>
                             <div class="col-md-6">
                                 <div class="form-floating mb-3">
-                                    <input type="text" class="form-control" id="edit_contact_no" name="contact_no" required
-                                        maxlength="13" autocomplete="off" placeholder="Enter Contact Number">
+                                    <input type="text" class="form-control" id="edit_contact_no" name="contact_no"
+                                        required maxlength="13" autocomplete="off" placeholder="Enter Contact Number">
                                     <label for="edit_contact_no">Contact Number</label>
-                                    <span id="editErrorMsg" class="text-danger small" style="display: none;">Please enter numbers only</span>
+                                    <span id="editErrorMsg" class="text-danger small" style="display: none;">Please
+                                        enter numbers only</span>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-floating mb-3">
                                     <select class="form-select" id="edit_payee_type" name="payee_type" required>
                                         <option value="">Select payee type</option>
-                                        <option value="internal">Internal</option>
-                                        <option value="external">External (supplier)</option>
+                                        <option value="Internal">Internal</option>
+                                        <option value="External">External (supplier)</option>
                                     </select>
                                     <label for="edit_payee_type">Payee Type</label>
                                 </div>
@@ -386,7 +402,7 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
 
             const expandButtons = document.querySelectorAll('.expand-row');
             expandButtons.forEach(button => {
-                button.addEventListener('click', function() {
+                button.addEventListener('click', function () {
                     const icon = this.querySelector('i');
                     if (icon.classList.contains('bi-chevron-down')) {
                         icon.classList.replace('bi-chevron-down', 'bi-chevron-up');
@@ -455,51 +471,55 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
         .expandable-row {
             background-color: #f8f9fa;
         }
+
         .expandable-row .card-body {
             padding: 1rem;
         }
+
         .expand-row:focus {
             box-shadow: none;
         }
+
         .expand-row {
             padding: 0.25rem 0.5rem;
         }
+
         .modal-content {
             border-radius: 0.5rem;
         }
-        
+
         .modal-header {
             border-radius: 0.5rem 0.5rem 0 0;
         }
-        
-        .form-floating > .form-control:focus ~ label,
-        .form-floating > .form-control:not(:placeholder-shown) ~ label {
+
+        .form-floating>.form-control:focus~label,
+        .form-floating>.form-control:not(:placeholder-shown)~label {
             color: #0d6efd;
         }
-        
-        .form-floating > .form-control:focus,
-        .form-floating > .form-control:not(:placeholder-shown) {
+
+        .form-floating>.form-control:focus,
+        .form-floating>.form-control:not(:placeholder-shown) {
             border-color: #0d6efd;
             box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
         }
-        
+
         .form-select:focus {
             border-color: #0d6efd;
             box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
         }
-        
+
         .btn-close-white {
             opacity: 0.8;
         }
-        
+
         .btn-close-white:hover {
             opacity: 1;
         }
-        
+
         .modal-footer {
             background-color: #f8f9fa;
         }
- 
+
         .expandable-row .card {
             border: 1px solid #0d6efd;
             border-radius: 0.375rem;
@@ -515,8 +535,6 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
         .expandable-row .card-body strong {
             color: #0d6efd;
         }
-
-
     </style>
 
 </body>
