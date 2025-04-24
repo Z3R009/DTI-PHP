@@ -484,8 +484,9 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                         <tbody id="accountingTableBody">
                                             <tr>
                                                 <td colspan="2">
-                                                    <select class="form-control account-select" name="account_titles[]">
-                                                        <option selected disabled>Select Account</option>
+                                                    <select class="form-control account-select" name="account_titles[]"
+                                                        required>
+                                                        <option selected disabled value="">Select Account</option>
                                                         <?php
                                                         $account_query = "SELECT * FROM account_title ORDER BY account_title ASC";
                                                         $account_result = $connection->query($account_query);
@@ -1206,8 +1207,8 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                 const newRow = document.createElement('tr');
                 newRow.innerHTML = `
                 <td colspan="2">
-                    <select class="form-control account-select" name="account_titles[]">
-                        <option selected disabled>Select Account</option>
+                    <select class="form-control account-select" name="account_titles[]" required>
+                        <option selected disabled value="">Select Account</option>
                         <?php
                         $account_result->data_seek(0);
                         while ($account = $account_result->fetch_assoc()) {
