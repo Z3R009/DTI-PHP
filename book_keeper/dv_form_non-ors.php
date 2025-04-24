@@ -1,0 +1,868 @@
+<?php
+// Include the database connection file
+include '../DBConnection.php';
+
+// Check if dv_no is set
+if (!isset($_GET['dv_no'])) {
+    die("Error: DV No. is missing.");
+}
+
+$dv_no = $_GET['dv_no'];
+
+// Prepare SQL query to fetch DV record
+$query = "SELECT dv_non_ors.*, 
+CONCAT(fund_cluster.uacs_code, '-', fund_cluster.fund_cluster_name) AS fund_cluster,
+          payee.payee_name,
+          approver.approver_name,
+        approver.designation,
+          payee.tin_no,
+          payee.address,
+          responsibility_center.code AS code,
+          oopap.oopap_name,
+          dv_non_ors_entry.account_id,
+          dv_non_ors_entry.type,
+          dv_non_ors_entry.amount,
+          account_title.account_title,
+          account_title.account_code
+          FROM dv_non_ors
+          LEFT JOIN payee ON dv_non_ors.payee_id = payee.payee_id
+    LEFT JOIN approver ON dv_non_ors.approver_id = approver.approver_id
+          LEFT JOIN fund_cluster ON dv_non_ors.fund_cluster_id = fund_cluster.fund_cluster_id
+          LEFT JOIN responsibility_center ON dv_non_ors.rc_id = responsibility_center.rc_id
+          LEFT JOIN oopap ON dv_non_ors.oopap_id = oopap.oopap_id
+          LEFT JOIN dv_non_ors_entry ON dv_non_ors.dv_non_ors_id = dv_non_ors_entry.dv_non_ors_id
+          LEFT JOIN account_title ON dv_non_ors_entry.account_id = account_title.account_id
+          WHERE dv_non_ors.dv_no = ?";
+
+
+$stmt = $connection->prepare($query);
+if (!$stmt) {
+    die("Query preparation failed: " . $connection->error);
+}
+$stmt->bind_param("s", $dv_no);
+$stmt->execute();
+$result = $stmt->get_result();
+
+// Fetch data from 'dv' table
+if ($result->num_rows > 0) {
+    $dv_form = $result->fetch_assoc();
+} else {
+    die("No record found in 'dv' table for DV No.: " . htmlspecialchars($dv_no));
+}
+$stmt->close();
+
+// Fetch all accounts for this DV
+$accounts_query = "SELECT dv_non_ors_entry.*, 
+                  account_title.account_title,
+                  account_title.account_code
+                  FROM dv_non_ors_entry 
+                  LEFT JOIN account_title ON dv_non_ors_entry.account_id = account_title.account_id
+                  WHERE dv_non_ors_entry.dv_non_ors_id = ?";
+
+$accounts_stmt = $connection->prepare($accounts_query);
+if (!$accounts_stmt) {
+    die("Query preparation failed: " . $connection->error);
+}
+$accounts_stmt->bind_param("i", $dv_form['dv_non_ors_id']);
+$accounts_stmt->execute();
+$accounts_result = $accounts_stmt->get_result();
+
+// Store all accounts in an array
+$dv_accounts = [];
+while ($account = $accounts_result->fetch_assoc()) {
+    $dv_accounts[] = $account;
+}
+$accounts_stmt->close();
+
+
+// Close the database connection
+$connection->close();
+
+// Display results
+echo "<pre>";
+// print_r($dv_form);
+// print_r($dv_form);
+echo "</pre>";
+
+function numberToWords($number)
+{
+    $ones = array(
+        0 => "ZERO",
+        1 => "ONE",
+        2 => "TWO",
+        3 => "THREE",
+        4 => "FOUR",
+        5 => "FIVE",
+        6 => "SIX",
+        7 => "SEVEN",
+        8 => "EIGHT",
+        9 => "NINE",
+        10 => "TEN",
+        11 => "ELEVEN",
+        12 => "TWELVE",
+        13 => "THIRTEEN",
+        14 => "FOURTEEN",
+        15 => "FIFTEEN",
+        16 => "SIXTEEN",
+        17 => "SEVENTEEN",
+        18 => "EIGHTEEN",
+        19 => "NINETEEN"
+    );
+    $tens = array(
+        2 => "TWENTY",
+        3 => "THIRTY",
+        4 => "FORTY",
+        5 => "FIFTY",
+        6 => "SIXTY",
+        7 => "SEVENTY",
+        8 => "EIGHTY",
+        9 => "NINETY"
+    );
+    $scales = array(
+        0 => "",
+        1 => "THOUSAND",
+        2 => "MILLION",
+        3 => "BILLION",
+        4 => "TRILLION"
+    );
+
+    // Format the number to ensure it has exactly 2 decimal places
+    $number = floatval($number);
+    $formatted = number_format($number, 2, '.', ',');
+
+    // Split number into whole and decimal parts
+    $parts = explode('.', $formatted);
+    $wholeNumber = $parts[0];
+    $decimal = $parts[1];
+
+    // Return 'ZERO PESOS ONLY' if the number is 0
+    if ($wholeNumber == '0' && $decimal == '00') {
+        return "ZERO PESOS ONLY";
+    }
+
+    $result = '';
+
+    // Process whole number part
+    if ($wholeNumber > 0) {
+        // Split the number by commas to get groups of thousands, millions, etc.
+        $numGroups = explode(',', $wholeNumber);
+        $numGroupsCount = count($numGroups);
+
+        // Process each group
+        for ($i = 0; $i < $numGroupsCount; $i++) {
+            $groupNumber = (int) $numGroups[$i];
+
+            if ($groupNumber > 0) {
+                $groupText = '';
+
+                // Handle hundreds
+                $hundreds = floor($groupNumber / 100);
+                if ($hundreds > 0) {
+                    $groupText .= $ones[$hundreds] . " HUNDRED";
+                    if ($groupNumber % 100 > 0) {
+                        $groupText .= " ";
+                    }
+                }
+
+                // Handle tens and ones
+                $tensAndOnes = $groupNumber % 100;
+                if ($tensAndOnes > 0) {
+                    if ($tensAndOnes < 20) {
+                        $groupText .= $ones[$tensAndOnes];
+                    } else {
+                        $groupText .= $tens[floor($tensAndOnes / 10)];
+                        if ($tensAndOnes % 10 > 0) {
+                            $groupText .= " " . $ones[$tensAndOnes % 10];
+                        }
+                    }
+                }
+
+                // Add scale (thousand, million, etc.)
+                $scaleIndex = $numGroupsCount - $i - 1;
+                if ($scaleIndex > 0 && isset($scales[$scaleIndex])) {
+                    $groupText .= " " . $scales[$scaleIndex];
+                }
+
+                // Add to result with proper spacing
+                if ($result != '') {
+                    $result .= " " . $groupText;
+                } else {
+                    $result = $groupText;
+                }
+            }
+        }
+
+        $result .= " PESOS";
+    }
+
+    // Process decimal part
+    if ($decimal != '00') {
+        if ($result != '') {
+            $result .= " AND ";
+        }
+
+        $decimalValue = (int) $decimal;
+        if ($decimalValue < 20) {
+            $result .= $ones[$decimalValue];
+        } else {
+            $result .= $tens[floor($decimalValue / 10)];
+            if ($decimalValue % 10 > 0) {
+                $result .= " " . $ones[$decimalValue % 10];
+            }
+        }
+
+        $result .= " CENTAVOS";
+    }
+
+    return $result . " ONLY";
+}
+?>
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disbursement Voucher Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            background: #f5f5f5;
+        }
+
+        .container {
+            width: 700px;
+            margin: 0 auto;
+            padding: 30px;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header {
+            text-align: left;
+        }
+
+        .section {
+            margin-top: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1.5px solid black;
+            background: white;
+            margin-bottom: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid black;
+            padding: 4px 5px;
+            /* Reduced padding */
+            text-align: left;
+            vertical-align: top;
+            font-size: 10px;
+            /* Smaller font size */
+            line-height: 1.3;
+        }
+
+        .no-border {
+            border: none !important;
+        }
+
+        .centered {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .centered h3 {
+            font-size: 12px;
+            margin: 1px 0;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-align: center;
+            display: block;
+            line-height: 1.2;
+        }
+
+        .centered h5 {
+            font-size: 11px;
+            margin: 1px 0;
+            font-weight: normal;
+            text-align: center;
+            display: block;
+            line-height: 1.2;
+        }
+
+        .header-cell {
+            padding: 2px 4px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .res {
+            vertical-align: text-top;
+            text-align: left;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid black;
+            margin: 5px 0;
+        }
+
+        .signature-line {
+            border-top: 1px solid black;
+            width: 80%;
+            margin: 0px auto 5px;
+        }
+
+        .signature-container {
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        .signature-name {
+            font-weight: bold;
+            margin: 3px 0;
+            font-size: 11px;
+        }
+
+        .signature-title {
+            font-size: 10px;
+            margin: 1px 0;
+        }
+
+        .checkbox-container {
+            margin: 2px 0;
+            font-size: 10px;
+        }
+
+        input[type="checkbox"] {
+            margin-right: 3px;
+            vertical-align: middle;
+            transform: scale(0.8);
+        }
+
+        /* Specific cell adjustments */
+        td.amount-cell {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        td.label-cell {
+            white-space: nowrap;
+            width: 1%;
+        }
+
+        /* Print specific styles */
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+                background: white;
+                min-height: auto;
+            }
+
+            .container {
+                width: 650px !important;
+                margin: 0 auto;
+                padding: 10px 30px;
+                box-shadow: none;
+                border-radius: 0;
+            }
+
+            table {
+                margin-bottom: 0;
+            }
+
+            /* Ensure borders print clearly */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            @page {
+                size: letter portrait;
+                margin: 0.5cm;
+            }
+
+            /* Hide print buttons */
+            .no-print {
+                display: none !important;
+            }
+        }
+
+        /* Modal footer adjustments */
+        .modal-footer {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            background: white;
+        }
+
+        /* Adjust button sizes */
+        .btn {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        /* Center the button group */
+        .modal-footer {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            background: white;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            font-size: 14px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        /* Print Preview Modal */
+        .print-preview-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .print-preview-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            height: 80%;
+            overflow: auto;
+        }
+
+        .print-preview-close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .print-preview-close:hover {
+            color: black;
+        }
+
+        .print-preview-actions {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        /* Add these styles */
+        .amount-section {
+            margin-left: 20px;
+            width: 250px;
+        }
+
+        .amount-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 2px 0;
+            align-items: center;
+        }
+
+        .amount-label {
+            flex: 1;
+            text-align: left;
+        }
+
+        .amount-value {
+            text-align: right;
+            min-width: 100px;
+            margin-right: 20px;
+        }
+
+        .amount-line {
+            width: 150px;
+            border-top: 1px solid black;
+            margin: 3px 0 3px auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+
+        <table>
+            <tr>
+                <th colspan="4" class="centered header-cell" rowspan="2">
+                    <div style="display: flex; align-items: center; gap: 40px;">
+                        <img src="../img/dtilogo.jpg" alt="DTI Logo"
+                            style="width: 80px; height: 80px; text-align: left;">
+                        <div>
+                            <h3 style="margin: 0;">DEPARTMENT OF TRADE AND INDUSTRY 12</h3>
+                            <h5 style="margin: 0;">Entity Name</h5>
+                            <h3 style="margin: 0;">DISBURSEMENT VOUCHER</h3>
+                        </div>
+                    </div>
+                </th>
+
+                <td colspan="4" class="header-cell">
+                    <p style="text-align: left;"><b>Fund Cluster:</b>
+                    <p>
+                        <b style="text-align: center; margin-left: 10px;">
+                            <?php echo isset($dv_form['fund_cluster']) ? htmlspecialchars($dv_form['fund_cluster']) : 'N/A'; ?>
+                        </b>
+
+                    </p>
+                    </p>
+
+                </td>
+            </tr>
+            <td colspan="4">
+                <p style="text-align: left;"><b>Date: </b><b style="text-align: center; margin-left: 20px;"><?php $date = new DateTime($dv_form['date']);
+                echo $date->format('F j, Y'); ?></b>
+                </p>
+                <p style="text-align: left;"><b>DV No.:</b>
+                <p>
+                    <b style="text-align: left;"><?php echo $dv_form['dv_no']; ?></b>
+                </p>
+                </p>
+            </td>
+            <tr>
+
+            </tr>
+            <tr>
+                <td style="text-align: center; " class="centered"><strong>Mode of Payment:</strong>
+                </td>
+                <td colspan="5"><input type="checkbox">MDS Check <input type="checkbox">Commercial
+                    Check
+                    <input type="checkbox">ADA <input type="checkbox">Others (Please specify)
+                </td>
+            </tr>
+
+
+            <tr>
+                <td><strong>Payee</strong></td>
+                <td>
+                    <strong><?php echo $dv_form['payee_name']; ?></strong>
+                </td>
+                <td colspan="2">
+                    <p>Tin Employee No.: <?php echo $dv_form['tin_no']; ?></p>
+                </td>
+                <td colspan="2">
+                    <p>ORS/URS No.:
+                        <?php echo isset($dv_form['ors_no']) ? htmlspecialchars($dv_form['ors_no']) : '&nbsp'; ?>
+                    </p>
+                </td>
+            </tr>
+
+            <tr>
+                <td><strong>Address</strong></td>
+                <td colspan="5"><b><?php echo $dv_form['address']; ?></b></td>
+            </tr>
+
+            <tr>
+                <th style="text-align: center; width: 55%;" colspan="3">Particulars</th>
+                <th style="text-align: center;">Responsibility Center</th>
+                <th style="text-align: center; width: 15%;">OO/PAP</th>
+                <th style="text-align: center;" colspan="3">Amount</th>
+            </tr>
+
+            <tr>
+                <td colspan="3">
+                    <p style="text-align: center;"><b><?php echo $dv_form['notes']; ?></b></p>
+
+                    <div class="amount-section">
+                        <div class="amount-row">
+                            <span class="amount-label">Total amount Billed:</span>
+                            <span
+                                class="amount-value"><?php echo number_format($dv_form['total_amount'], 2, '.', ','); ?></span>
+                        </div>
+
+                        <div class="amount-row">
+                            <span class="amount-label">Gross Amount</span>
+                            <span
+                                class="amount-value"><?php echo number_format($dv_form['total_amount'], 2, '.', ','); ?></span>
+                        </div>
+
+                        <div class="amount-row">
+                            <span class="amount-label">Less VAT <?php echo $dv_form['vat']; ?>%</span>
+                            <span
+                                class="amount-value"><?php echo number_format($dv_form['vat_amount'], 2, '.', ','); ?></span>
+                        </div>
+                        <div class="amount-line"></div>
+
+                        <div class="amount-row">
+                            <span class="amount-label">Tax Base</span>
+                            <span
+                                class="amount-value"><?php echo number_format($dv_form['tax_base'], 2, '.', ','); ?></span>
+                        </div>
+                        <div class="amount-line"></div>
+
+                        <div class="amount-row">
+                            <span class="amount-label">Less: <?php echo $dv_form['tax_1']; ?>%</span>
+                            <span
+                                class="amount-value"><?php echo number_format($dv_form['tax_1_amount'], 2, '.', ','); ?></span>
+                        </div>
+
+                        <div class="amount-row">
+                            <span class="amount-label">Less: <?php echo $dv_form['tax_2']; ?>%</span>
+                            <span
+                                class="amount-value"><?php echo number_format($dv_form['tax_2_amount'], 2, '.', ','); ?></span>
+                        </div>
+                        <div class="amount-line"></div>
+
+                        <div class="amount-row" style="justify-content: flex-end;">
+                            <span class="amount-value"
+                                style="margin-right: 20px;"><?php echo number_format(($dv_form['tax_1_amount'] + $dv_form['tax_2_amount']), 2, '.', ','); ?></span>
+                        </div>
+                        <div class="amount-line"></div>
+
+                        <div class="amount-row">
+                            <span class="amount-label">Net Amount</span>
+                            <span
+                                class="amount-value"><b><?php echo number_format($dv_form['net_amount'], 2, '.', ','); ?></b></span>
+                        </div>
+                        <div class="amount-line"></div>
+                    </div>
+
+                <td style="text-align: center;" rowspan="2"><?php echo $dv_form['code']; ?></td>
+                <td style="text-align: center;" rowspan="2"><?php echo $dv_form['oopap_name']; ?></td>
+                <td></td>
+            </tr>
+            <?php
+            $last_credit_amount = 0;
+            foreach ($dv_accounts as $account) {
+                if ($account['type'] == 'credit') {
+                    $last_credit_amount = $account['amount'];
+                }
+            }
+            ?>
+
+            <tr>
+                <td colspan="3">Amount Due</td>
+                <td style="text-align: right;">
+                    <strong>₱<?php echo number_format($last_credit_amount, 2, '.', ','); ?></strong>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="6"><strong>A. Certified: Expenses/Cash Advance necessary, lawful and incurred under my
+                        direct
+                        supervision.</strong>
+                    <div style="text-align: center; margin-top: 50px;">
+                        <p style="margin-bottom: 0;"><?php echo $dv_form['approver_name']; ?></p>
+                        <div style="width: 250px; border-top: 1px solid black; margin: 0 auto;"></div>
+                        <p style="margin-top: 3px;"><?php echo $dv_form['designation']; ?></p>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="6"><strong>B. Accounting Entry</strong>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td style="text-align: center;" colspan="2">Account Title</td>
+                <td style="text-align: center;">
+                    <p>UACS Code</p>
+                </td>
+                <td style="text-align: center;" colspan="2">
+                    <p>Debit</p>
+                </td>
+                <td style="text-align: center;" colspan="2">
+                    <p>Credit</p>
+                </td>
+            </tr>
+
+            <?php foreach ($dv_accounts as $account): ?>
+                <tr>
+                    <td colspan="2"><?php echo $account['account_title']; ?></td>
+                    <td style="text-align: center;"><?php echo $account['account_code']; ?></td>
+                    <td style="text-align: right;" colspan="2">
+                        <?php echo $account['type'] == 'debit' ? number_format($account['amount'], 2, '.', ',') : ''; ?>
+                    </td>
+                    <td style="width: 40%; text-align: right;">
+                        <?php echo $account['type'] == 'credit' ? number_format($account['amount'], 2, '.', ',') : ''; ?>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+
+            <tr>
+                <td colspan="3">
+                    <p><b>C. Certified:</b></p>
+                    <div class="checkbox-container">
+                        <input type="checkbox"> <span>Cash available</span>
+                    </div>
+                    <div class="checkbox-container">
+                        <input type="checkbox"> <span>Subject to Authority to Debit Account (when applicable)</span>
+                    </div>
+                    <div class="checkbox-container">
+                        <input type="checkbox"> <span>Supporting documents complete and amount claimed proper</span>
+                    </div>
+                </td>
+                <td colspan="3">
+                    <p><b>D. Approved for Payment</b></p>
+                    <p style="text-align: center; margin-top: 20px;">
+                        <b>***<?php
+                        $last_account = end($dv_accounts);
+                        echo numberToWords($last_account ? $last_account['amount'] : 0);
+                        ?>***</b>
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3"><br>
+                    <p>Signature:</p>
+                    <div class="signature-line"></div>
+                    <div class="signature-container">
+                        <p class="signature-name"><?php echo $dv_form['chief_accountant']; ?></p>
+                        <p class="signature-title">Chief Accountant</p>
+                        <p class="signature-title">Head, Accounting Unit/Authorized Representative</p>
+                    </div>
+                    <p>Date:</p>
+                    <div class="signature-line"></div>
+                </td>
+                <td colspan="3"><br>
+                    <p>Signature:</p>
+                    <div class="signature-line"></div>
+                    <div class="signature-container">
+                        <p class="signature-name"><?php echo $dv_form['regional_director']; ?></p>
+                        <p class="signature-title">Regional Director</p>
+                        <p class="signature-title">Agency Head/Authorized Representative</p>
+                    </div>
+                    <p>Date:</p>
+                    <div class="signature-line"></div>
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="5">E. Receipt of Payment</td>
+                <td rowspan="2">JEV No.</td>
+            </tr>
+
+            <tr>
+                <td>
+                    <p>Check/ADA No.:</p>
+                </td>
+                <td></td>
+                <td>Date: </td>
+                <td colspan="2">Bank Name & Account Number:
+                    <?php echo !empty($dv_form['bank_acc_no']) ? htmlspecialchars($dv_form['bank_acc_no']) : "&nbsp"; ?>
+                </td>
+            </tr>
+
+            <tr>
+                <td>Signature:</td>
+                <td></td>
+                <td>Date: </td>
+                <td colspan="2">Printed Name: </td>
+                <td rowspan="2">Date</td>
+            </tr>
+
+            <tr>
+                <td colspan="2">Official Receipt No. & Date/Other Documents </td>
+            </tr>
+
+        </table>
+        <div class="modal-footer no-print">
+            <button type="button" class="btn btn-primary" onclick="window.print()">Print DV</button>
+            <button type="button" class="btn btn-secondary" onclick="window.location.href='dv_w-out.php';">
+                Back
+            </button>
+
+        </div>
+
+    </div>
+    </div>
+    </div>
+
+    <script>
+        // Function to show print preview
+        function showPrintPreview() {
+            // Clone the main content
+            const content = document.querySelector('.container').cloneNode(true);
+
+            // Remove the no-print elements
+            const noPrintElements = content.querySelectorAll('.no-print');
+            noPrintElements.forEach(element => {
+                element.remove();
+            });
+
+            // Add the cloned content to the preview modal
+            document.getElementById('printPreviewContent').innerHTML = '';
+            document.getElementById('printPreviewContent').appendChild(content);
+
+            // Show the modal
+            document.getElementById('printPreviewModal').style.display = 'block';
+        }
+
+        // Function to close print preview
+        function closePrintPreview() {
+            document.getElementById('printPreviewModal').style.display = 'none';
+        }
+
+        // Function to print the document
+        function printDocument() {
+            // Create a new window for printing
+            const printWindow = window.open('', '_blank');
+
+            // Get the content to print
+            const contentToPrint = document.querySelector('.container').cloneNode(true);
+
+            // Remove the no-print elements
+            const noPrintElements = contentToPrint.querySelectorAll('.no-print');
+            noPrintElements.forEach(element => {
+                element.remove();
+            });
+        }
+
+    </script>
+</body>
+
+</html>

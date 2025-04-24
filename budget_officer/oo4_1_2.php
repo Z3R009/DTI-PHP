@@ -69,7 +69,7 @@ $total_allotment_result = mysqli_query($connection, $total_allotment_query);
 $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'];
 
 $update_balances_query = "UPDATE project p 
-                         SET p.balances = p.allotment - (
+                         SET p.balances = p.balances - (
                              SELECT COALESCE(SUM(ors.total_amount), 0) 
                              FROM obligation_history oh 
                              JOIN ors ON oh.ors_id = ors.ors_id 
@@ -93,11 +93,11 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Dashboard - NiceAdmin Bootstrap Template</title>
+    <title>OO4.1.2-Accreditation and Issuance of BN</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
-    <link href="../NiceAdmin/assets/img/favicon.png" rel="icon">
+    
     <link href="../NiceAdmin/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
     <link href="https://fonts.gstatic.com" rel="preconnect">
@@ -386,7 +386,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
 
         <div class="pagetitle page-header d-flex justify-content-between align-items-center">
             <div>
-                <h1>Accreditation and Issuance of BN (OO4.1.2) <?php echo date('Y'); ?></h1>
+                <h1>OO4.1.2-ACCREDITATION AND ISSUANCE OF BN<?php echo date('Y'); ?></h1>
                 <nav>
                     <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="index.php">Home</a></li>

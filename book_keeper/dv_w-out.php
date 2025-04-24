@@ -1,17 +1,15 @@
 <?php
 include '../DBConnection.php';
 
+
 // insert
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-if (isset($_POST['submit'])) {
-    echo "Form submitted!";
-
-    // Debugging: Print all POST data
     echo "<pre>";
     print_r($_POST);
     echo "</pre>";
 
-
+    // Sanitize and assign main record fields
     $fund_cluster_id = $_POST['fund_cluster_id'];
     $oopap_id = $_POST['oopap_id'];
     $services_id = $_POST['services_id'];
@@ -21,9 +19,7 @@ if (isset($_POST['submit'])) {
     $purpose = $_POST['purpose'];
     $notes = $_POST['notes'];
     $rc_id = $_POST['rc_id'];
-    $account_id = $_POST['account_id'];
-    $amount = $_POST['amount'];
-    $type = $_POST['type'];
+
     $total_amount = $_POST['total_amount'];
     $vat = $_POST['vat'];
     $vat_amount = $_POST['vat_amount'];
@@ -33,78 +29,93 @@ if (isset($_POST['submit'])) {
     $tax_2 = $_POST['tax_2'];
     $tax_2_amount = $_POST['tax_2_amount'];
     $net_amount = $_POST['net_amount'];
+
     $approver_id = $_POST['approver_id'];
     $chief_accountant = $_POST['chief_accountant'];
     $regional_director = $_POST['regional_director'];
-    $status = $_POST['status'];
 
-    // Get the account titles and amounts arrays
-    $account_titles = $_POST['account_titles'];
-    $debit_amounts = $_POST['debit_amounts'];
-    $credit_amounts = $_POST['credit_amounts'];
+    // Insert DV Non-ORS main record
+    $sql = "INSERT INTO dv_non_ors (fund_cluster_id, oopap_id, services_id, date, dv_no, payee_id, purpose, notes, rc_id, total_amount, vat, vat_amount, tax_base, tax_1, tax_1_amount, tax_2, tax_2_amount, net_amount, approver_id, chief_accountant, regional_director) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-    // Start a transaction
-    $connection->begin_transaction();
+    $stmt = $connection->prepare($sql);
+    if (!$stmt) {
+        die("Prepare failed: " . $connection->error);
+    }
 
-    try {
+    $stmt->bind_param(
+        "iiississddddidididiss"
+        ,
+        $fund_cluster_id,
+        $oopap_id,
+        $services_id,
+        $date,
+        $dv_no,
+        $payee_id,
+        $purpose,
+        $notes,
+        $rc_id,
+        $total_amount,
+        $vat,
+        $vat_amount,
+        $tax_base,
+        $tax_1,
+        $tax_1_amount,
+        $tax_2,
+        $tax_2_amount,
+        $net_amount,
+        $approver_id,
+        $chief_accountant,
+        $regional_director
+    );
 
-        // Insert the main DV record
-        $sql = "INSERT INTO dv_non_ors (fund_cluster, oopap_id, services_id, date, dv_no, payee_id, purpose, notes, rc_id, account_id, amount, type, total_amount, vat, vat_amount, tax_base, tax_1, tax_1_amount, tax_2, tax_2_amount, net_amount, approver_id, chief_accountant, regional_director) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-        $stmt = $connection->prepare($sql);
-        if ($stmt === false) {
-            throw new Exception('Prepare failed: ' . htmlspecialchars($connection->error));
-        }
-
-        $stmt->bind_param(
-            "iiississiidsdiddididdisss",
-            $fund_cluster,
-            $oopap_id,
-            $services_id,
-            $date,
-            $dv_no,
-            $payee_id,
-            $purpose,
-            $notes,
-            $rc_id,
-            $account_id,
-            $amount,
-            $type,
-            $total_amount,
-            $vat,
-            $vat_amount,
-            $tax_base,
-            $tax_1,
-            $tax_1_amount,
-            $tax_2,
-            $tax_2_amount,
-            $net_amount,
-            $approver_id,
-            $chief_accountant,
-            $regional_director,
-            $status
-        );
-
-        if (!$stmt->execute()) {
-            throw new Exception("Error: " . $stmt->error);
-        }
-
-        $dv_id = $connection->insert_id;
+    if ($stmt->execute()) {
+        $dv_id = $connection->insert_id; // get the last inserted dv_non_ors ID
         $stmt->close();
 
-        // Redirect after successful save
-        header("Location: dv_form.php?dv_no=$dv_no");
-        exit();
+        // Insert accounting entries with type and amount logic
+        $account_titles = $_POST['account_titles'];
+        $debit_amounts = $_POST['debit_amounts'];
+        $credit_amounts = $_POST['credit_amounts'];
 
-    } catch (Exception $e) {
-        // Rollback the transaction on error
-        $connection->rollback();
-        echo "Error: " . $e->getMessage();
+        $entry_sql = "INSERT INTO dv_non_ors_entry (dv_non_ors_id, account_id, type, amount) VALUES (?, ?, ?, ?)";
+        $entry_stmt = $connection->prepare($entry_sql);
+
+        if (!$entry_stmt) {
+            die("Prepare failed: " . $connection->error);
+        }
+
+        for ($i = 0; $i < count($account_titles); $i++) {
+            $account_id = $account_titles[$i];
+
+            $debit = !empty($debit_amounts[$i]) ? $debit_amounts[$i] : 0;
+            $credit = !empty($credit_amounts[$i]) ? $credit_amounts[$i] : 0;
+
+            // Determine type and amount
+            if ($debit > 0) {
+                $type = 'debit';
+                $amount = $debit;
+            } elseif ($credit > 0) {
+                $type = 'credit';
+                $amount = $credit;
+            } else {
+                continue; // skip if both debit and credit are 0
+            }
+
+            $entry_stmt->bind_param("iisd", $dv_id, $account_id, $type, $amount);
+            $entry_stmt->execute();
+        }
+
+        $entry_stmt->close();
+
+        header("Location: dv_form_non-ors.php?dv_no=$dv_no");
+    } else {
+        echo "Error: " . $stmt->error;
     }
 
     $connection->close();
 }
+
 
 
 // retrieve payee
@@ -149,7 +160,31 @@ while ($row = $result_approvers->fetch_assoc()) {
         'designation' => $row['designation']
     ];
 }
+
+$select_dv = mysqli_query($connection, "
+    SELECT 
+        dv_non_ors.*, dv_non_ors_entry.*,
+        account_title.account_title, 
+        approver.approver_name,
+        CONCAT(fund_cluster.uacs_code, '-', fund_cluster.fund_cluster_name) AS fund_cluster,
+        responsibility_center.code,
+        oopap.oopap_name,
+        payee.payee_name,
+        payee.tin_no,
+        payee.address
+    FROM dv_non_ors
+    LEFT JOIN dv_non_ors_entry ON dv_non_ors.dv_non_ors_id = dv_non_ors_entry.dv_non_ors_id
+    LEFT JOIN account_title ON dv_non_ors_entry.account_id = account_title.account_id
+    LEFT JOIN approver ON dv_non_ors.approver_id = approver.approver_id
+    LEFT JOIN fund_cluster ON dv_non_ors.fund_cluster_id = fund_cluster.fund_cluster_id
+    LEFT JOIN responsibility_center ON dv_non_ors.rc_id = responsibility_center.rc_id
+    LEFT JOIN oopap ON dv_non_ors.oopap_id = oopap.oopap_id
+    LEFT JOIN payee ON dv_non_ors.payee_id = payee.payee_id
+
+");
 ?>
+
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -609,11 +644,13 @@ while ($row = $result_approvers->fetch_assoc()) {
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            width: 80%;
-            max-width: 900px;
+            width: 100%;
+            /* max-width: 900px; */
+            /* <- remove this line */
             position: relative;
             animation: modalopen 0.4s;
         }
+
 
         @keyframes modalopen {
             from {
@@ -793,6 +830,25 @@ while ($row = $result_approvers->fetch_assoc()) {
             margin-bottom: 30px;
             color: #03045e;
         }
+
+        .modal {
+            z-index: 1050 !important;
+        }
+
+        /* Make sure backdrop doesn't obscure content */
+        .modal-backdrop {
+            z-index: 1040 !important;
+        }
+
+        /* Properly style backdrop */
+        .modal-backdrop.show {
+            opacity: 0.5;
+        }
+
+        /* Full width for larger forms */
+        .modal-lg {
+            max-width: 800px;
+        }
     </style>
 </head>
 
@@ -821,28 +877,43 @@ while ($row = $result_approvers->fetch_assoc()) {
             </div>
         </div>
 
+        <section class="section dashboard">
+            <h5 class="card-title">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                    data-bs-target="#addUserModal">Create DV</button>
+            </h5>
+            <p></p>
 
-        <div class="content-wrapper">
-            <div class="form-container">
-                <h2 class="form-title">Disbursement Voucher</h2>
+            <!-- Modal  -->
+            <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addUserModalLabel">Create DV</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
 
-                <div class="tab-content">
-                    <div>
-                        <div id="ors_form">
+                        <div class="modal-body">
                             <form method="post">
+                                <!-- General Information Section -->
                                 <div class="form-section">
                                     <h3>General Information</h3>
                                     <div class="form-row">
                                         <div class="form-group">
                                             <label class="form-label">Fund Cluster</label>
-                                            <select class="form-control" name="fund_cluster_id" id="fund_cluster">
+                                            <select class="form-control" name="fund_cluster_id" id="fund_cluster"
+                                                onchange="updateUACSCode()">
                                                 <option selected disabled>Select Fund Cluster</option>
                                                 <?php
                                                 while ($row = $result_fund_cluster->fetch_assoc()) {
-                                                    echo "<option value='" . htmlspecialchars($row['uacs_code']) . "'>" . htmlspecialchars($row['fund_cluster']) . "</option>";
+                                                    echo "<option value='" . htmlspecialchars($row['fund_cluster_id']) . "' data-uacs='" . htmlspecialchars($row['uacs_code']) . "'>" . htmlspecialchars($row['fund_cluster']) . "</option>";
                                                 }
                                                 ?>
+
                                             </select>
+                                            <input type="hidden" id="uacs_code" name="uacs_code">
+
                                         </div>
 
                                         <div class="form-group">
@@ -862,10 +933,23 @@ while ($row = $result_approvers->fetch_assoc()) {
                                                 <option selected disabled>Select Services</option>
                                             </select>
                                         </div>
+
                                         <div class="form-group">
                                             <label class="form-label">Date</label>
                                             <input type="date" class="form-control" id="date" name="date">
                                         </div>
+
+                                        <script>
+                                            // Set the current date as default
+                                            document.addEventListener("DOMContentLoaded", function () {
+                                                const dateInput = document.getElementById("date");
+                                                if (!dateInput.value) {
+                                                    const today = new Date().toISOString().split('T')[0];
+                                                    dateInput.value = today;
+                                                }
+                                            });
+                                        </script>
+
                                         <div class="form-group">
                                             <label class="form-label">Disbursement Voucher No.</label>
                                             <input type="text" class="form-control" id="dv_no" name="dv_no" readonly>
@@ -875,7 +959,7 @@ while ($row = $result_approvers->fetch_assoc()) {
 
                                 <!-- Payee Details Section -->
                                 <div class="form-section">
-                                    <h3> Payee Details</h3>
+                                    <h3>Payee Details</h3>
                                     <div class="form-row">
                                         <div class="form-group">
                                             <label class="form-label">Payee Name</label>
@@ -884,8 +968,8 @@ while ($row = $result_approvers->fetch_assoc()) {
                                                 <?php
                                                 while ($row = $result_payee->fetch_assoc()) {
                                                     echo "<option value='" . htmlspecialchars($row['payee_id']) . "' 
-                                                                        data-tin='" . htmlspecialchars($row['tin_no']) . "' 
-                                                                        data-address='" . htmlspecialchars($row['address']) . "'>"
+                                                        data-tin='" . htmlspecialchars($row['tin_no']) . "' 
+                                                        data-address='" . htmlspecialchars($row['address']) . "'>"
                                                         . htmlspecialchars($row['payee_name']) .
                                                         "</option>";
                                                 }
@@ -895,149 +979,147 @@ while ($row = $result_approvers->fetch_assoc()) {
                                         <div class="form-group">
                                             <label class="form-label">TIN/Employee No.</label>
                                             <input type="text" class="form-control" name="tin_no" id="tin_no"
-                                                autocomplete="off">
-
+                                                autocomplete="off" readonly>
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label">Address</label>
                                         <input type="text" class="form-control" name="address" id="address"
-                                            autocomplete="off">
-
+                                            autocomplete="off" readonly>
                                     </div>
                                 </div>
 
+                                <!-- Purpose Section -->
                                 <div class="form-section">
-
-
-                                    <label class="form-label">Purpose</label>
+                                    <h3>Purpose</h3>
                                     <div class="form-row">
-                                        <select class="form-control" name="purpose">
-                                            <option value="To Payment of">To Payment of</option>
-                                            <option value="To Disburse">To Reimburse</option>
-                                            <option value="To Cash Advance">To Cash Advance</option>
-                                        </select>
-                                        <textarea class="form-control" name="notes" placeholder="Enter Purpose"></textarea autocomplete="off">
+                                        <div class="form-group">
+                                            <select class="form-control" name="purpose">
+                                                <option value="To Payment of">To Payment of</option>
+                                                <option value="To Disburse">To Reimburse</option>
+                                                <option value="To Cash Advance">To Cash Advance</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <textarea class="form-control" name="notes"
+                                            placeholder="Enter Purpose"></textarea>
                                     </div>
 
                                     <div class="form-group">
-
-                                        <div class="form-row">
-                                            <label class="form-label">Responsibility Center</label>
-                                            <select class="form-control" name="rc_id">
-                                                <option selected disabled>Select Responsibility Center</option>
-                                                <?php
-                                                while ($row = $result_responsibility_center->fetch_assoc()) {
-                                                    echo "<option value='" . htmlspecialchars($row['rc_id']) . "'>"
-                                                        . htmlspecialchars($row['code']) . " - " . htmlspecialchars($row['description']) .
-                                                        "</option>";
-                                                }
-                                                ?>
-                                            </select>
-                                        </div>
-
-
+                                        <label class="form-label">Responsibility Center</label>
+                                        <select class="form-control" name="rc_id">
+                                            <option selected disabled>Select Responsibility Center</option>
+                                            <?php
+                                            while ($row = $result_responsibility_center->fetch_assoc()) {
+                                                echo "<option value='" . htmlspecialchars($row['rc_id']) . "'>"
+                                                    . htmlspecialchars($row['code']) . " - " . htmlspecialchars($row['description']) .
+                                                    "</option>";
+                                            }
+                                            ?>
+                                        </select>
                                     </div>
+                                </div>
 
-                                    <div class="form-section">
-                                        <h3>Accounting Entry</h3>
-                                        <div class="table-responsive">
-                                            <table class="accounting-entry-table">
-                                                <thead>
-                                                    <tr>
-                                                        <th colspan="2">Account Title</th>
-                                                        <th>Debit Amount</th>
-                                                        <th>Credit Amount</th>
-                                                        <th>Action</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="accountingTableBody">
-                                                    <tr>
-                                                        <td colspan="2">
-                                                            <select class="form-control account-select"
-                                                                name="account_titles[]">
-                                                                <option selected disabled>Select Account</option>
-                                                                <?php
-                                                                $account_query = "SELECT * FROM account_title ORDER BY account_title ASC";
-                                                                $account_result = $connection->query($account_query);
-                                                                while ($account = $account_result->fetch_assoc()) {
-                                                                    echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
-                                                                }
-                                                                ?>
-                                                            </select>
-                                                        </td>
-                                                        <td><input type="number" class="form-control debit-amount"
-                                                                name="debit_amounts[]" step="0.01"></td>
-                                                        <td><input type="number" class="form-control credit-amount"
-                                                                name="credit_amounts[]" step="0.01"></td>
-                                                        <td><button type="button"
-                                                                class="btn btn-danger btn-sm delete-row"><i
-                                                                    class="bi bi-trash"></i></button></td>
-                                                    </tr>
-                                                </tbody>
-                                                <tfoot>
-                                                    <tr>
-                                                        <td colspan="2">
-                                                            <select class="form-control account-select"
-                                                                name="account_titles[]">
-                                                                <option selected disabled>Select Cash Account</option>
-                                                                <?php
-                                                                // Define the specific account codes we want to show
-                                                                $cashAccountCodes = ['1010404000', '1010405000', '1010406000'];
+                                <!-- Accounting Entry Section -->
+                                <div class="form-section">
+                                    <h3><i class="bi bi-journal-text me-2"></i>Accounting Entry</h3>
+                                    <div class="table-responsive">
+                                        <table class="accounting-entry-table">
+                                            <thead>
+                                                <tr>
+                                                    <th colspan="2">Account Title</th>
+                                                    <th>Debit Amount</th>
+                                                    <th>Credit Amount</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="accountingTableBody">
+                                                <tr>
+                                                    <td colspan="2">
+                                                        <select class="form-control account-select"
+                                                            name="account_titles[]">
+                                                            <option selected disabled>Select Account</option>
+                                                            <?php
+                                                            $account_query = "SELECT * FROM account_title ORDER BY account_title ASC";
+                                                            $account_result = $connection->query($account_query);
+                                                            while ($account = $account_result->fetch_assoc()) {
+                                                                echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
+                                                            }
+                                                            ?>
+                                                        </select>
+                                                    </td>
+                                                    <td><input type="number" class="form-control debit-amount"
+                                                            name="debit_amounts[]" step="0.01"></td>
+                                                    <td><input type="number" class="form-control credit-amount"
+                                                            name="credit_amounts[]" step="0.01"></td>
+                                                    <td><button type="button"
+                                                            class="btn btn-danger btn-sm delete-row"><i
+                                                                class="bi bi-trash"></i></button></td>
+                                                </tr>
+                                            </tbody>
+                                            <tfoot>
+                                                <tr>
+                                                    <td colspan="2">
+                                                        <select class="form-control account-select"
+                                                            name="account_titles[]">
+                                                            <option selected disabled>Select Cash Account
+                                                            </option>
+                                                            <?php
+                                                            // Define the specific account codes we want to show
+                                                            $cashAccountCodes = ['1010404000', '1010405000', '1010406000'];
 
-                                                                // Query only the specific cash accounts
-                                                                $cash_account_query = "SELECT * FROM account_title WHERE account_code IN ('1010404000', '1010405000', '1010406000') ORDER BY account_title ASC";
-                                                                $cash_account_result = $connection->query($cash_account_query);
+                                                            // Query only the specific cash accounts
+                                                            $cash_account_query = "SELECT * FROM account_title WHERE account_code IN ('1010404000', '1010405000', '1010406000') ORDER BY account_title ASC";
+                                                            $cash_account_result = $connection->query($cash_account_query);
 
-                                                                while ($account = $cash_account_result->fetch_assoc()) {
-                                                                    echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
-                                                                }
-                                                                ?>
-                                                            </select>
-                                                        </td>
-                                                        <td><input type="number" class="form-control debit-amount"
-                                                                name="debit_amounts[]" step="0.01" readonly></td>
-                                                        <td><input type="number" class="form-control credit-amount"
-                                                                name="credit_amounts[]" step="0.01" readonly></td>
-                                                        <td><button type="button"
-                                                                class="btn btn-danger btn-sm delete-row"><i
-                                                                    class="bi bi-trash"></i></button></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>
-                                                            <button type="button" id="addAccountRow"
-                                                                class="btn btn-secondary"
-                                                                style="padding: 5px 10px; font-size: 12px;">
-                                                                <ion-icon name="add-outline"></ion-icon> Add Row
-                                                            </button>
-                                                        </td>
-                                                        <td colspan="3"></td>
-                                                    </tr>
-                                                </tfoot>
-                                            </table>
-                                        </div>
+                                                            while ($account = $cash_account_result->fetch_assoc()) {
+                                                                echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
+                                                            }
+                                                            ?>
+                                                        </select>
+                                                    </td>
+                                                    <td><input type="number" class="form-control debit-amount"
+                                                            name="debit_amounts[]" step="0.01" readonly></td>
+                                                    <td><input type="number" class="form-control credit-amount"
+                                                            name="credit_amounts[]" step="0.01" readonly></td>
+                                                    <td><button type="button"
+                                                            class="btn btn-danger btn-sm delete-row"><i
+                                                                class="bi bi-trash"></i></button></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <button type="button" id="addAccountRow"
+                                                            class="btn btn-secondary">
+                                                            <i class="bi bi-plus-lg"></i> Add Row
+                                                        </button>
+                                                    </td>
+                                                    <td colspan="3"></td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
                                     </div>
+                                </div>
 
-                                    <!-- tax -->
-                                    <div class="form-section">
-                                        <h3>Breakdown of Expenses</h3>
-                                        <div class="form-row">
-                                            <div class="form-group half-width">
-                                                <label class="form-label">Gross Amount</label>
-                                                <input type="number" class="form-control calculation-field" name="total_amount"
-                                                    id="total_amount" step="0.01" readonly>
-                                            </div>
-                                            <div class="form-group half-width">
-                                                <div class="checkbox-item">
-                                                    <input type="checkbox" class="apply_taxes" id="apply_taxes">
-                                                    <label for="apply_taxes">With VAT</label>
-                                                </div>
+                                <!-- Tax Section -->
+                                <div class="form-section">
+                                    <h3>Breakdown of Expenses</h3>
+                                    <div class="form-row">
+                                        <div class="form-group half-width">
+                                            <label class="form-label">Gross Amount</label>
+                                            <input type="number" class="form-control calculation-field"
+                                                name="total_amount" id="total_amount" step="0.01" readonly>
+                                        </div>
+                                        <div class="form-group half-width">
+                                            <div class="checkbox-item">
+                                                <input type="checkbox" class="apply_taxes" id="apply_taxes">
+                                                <label for="apply_taxes">With VAT</label>
                                             </div>
                                         </div>
+                                    </div>
 
-                                        <div id="tax_fields_container" class="tax-fields">
-                                            <div class="form-row"></div>
-
+                                    <div id="tax_fields_container" class="tax-fields">
+                                        <div class="form-row">
                                             <div class="form-group half-width">
                                                 <label class="form-label">VAT <input type="number"
                                                         class="tax-percentage" id="vat_percentage" name="vat" value="12"
@@ -1046,86 +1128,161 @@ while ($row = $result_approvers->fetch_assoc()) {
                                                     id="vat_amount" name="vat_amount" step="0.01" readonly>
                                             </div>
                                         </div>
-                                        <div class="form-row">
-                                            <div class="form-group">
-                                                <label class="form-label">Tax Base</label>
-                                                <input type="number" class="form-control"
-                                                    id="tax_base" name="tax_base" step="0.01">
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="form-label">Less: <input type="number"
-                                                        class="tax-percentage" id="tax1_percentage" name="tax_1"
-                                                        value="5" min="0" max="100"> %
-                                                    Tax</label>
-                                                <input type="number" class="form-control calculation-field" id="tax_1"
-                                                    name="tax_1_amount" step="0.01">
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="form-label">Less: <input type="number"
-                                                        class="tax-percentage" id="tax2_percentage" name="tax_2"
-                                                        value="2" min="0" max="100"> %
-                                                    Tax</label>
-                                                <input type="number" class="form-control calculation-field" id="tax_2"
-                                                    name="tax_2_amount" step="0.01">
-                                            </div>
-                                        </div>
                                     </div>
 
                                     <div class="form-row">
                                         <div class="form-group">
-                                            <label class="form-label">Net Amount</label>
-                                            <input type="number" class="form-control calculation-field" id="net_amount"
-                                                name="net_amount" step="0.01" readonly>
+                                            <label class="form-label">Tax Base</label>
+                                            <input type="number" class="form-control" id="tax_base" name="tax_base"
+                                                step="0.01">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Less: <input type="number" class="tax-percentage"
+                                                    id="tax1_percentage" name="tax_1" value="5" min="0" max="100"> %
+                                                Tax</label>
+                                            <input type="number" class="form-control calculation-field" id="tax_1"
+                                                name="tax_1_amount" step="0.01">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Less: <input type="number" class="tax-percentage"
+                                                    id="tax2_percentage" name="tax_2" value="2" min="0" max="100"> %
+                                                Tax</label>
+                                            <input type="number" class="form-control calculation-field" id="tax_2"
+                                                name="tax_2_amount" step="0.01">
                                         </div>
                                     </div>
-
-                                    <div class="form-section">
-                                        <h3>Approver Details</h3>
-                                        <div class="form-row">
-
-                                            <div class="form-group">
-                                                <label class="form-label" id="designationLabel">Designation</label>
-                                                <select class="form-control" id="approverSelect" name="approver_id">
-                                                    <option value="">Select Approver</option>
-                                                    <?php
-                                                    foreach ($approverData as $approver_id => $data) {
-                                                        echo "<option value='" . htmlspecialchars($approver_id) . "' data-designation='" . htmlspecialchars($data['designation']) . "'>" . htmlspecialchars($data['name']) . "</option>";
-                                                    }
-                                                    ?>
-                                                </select>
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="form-label">Chief Accountant</label>
-                                                <select class="form-control" name="chief_accountant">
-                                                    <option>NEIL ANTHONY T. MORALA</option>
-
-                                                </select>
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="form-label">Regional Director</label>
-                                                <select class="form-control" name="regional_director">
-                                                    <option>FLORA D. POLITUD-GABUNALES, CESO V</option>
-
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                     <!-- Buttons -->
-                            <div class="btn-container">
-                                <button type="button" class="btn btn-secondary" onclick="closeModal()">
-                                    <i class="bi bi-x-circle me-1"></i> Cancel
-                                </button>
-                                <button type="submit" class="btn btn-primary" name="submit">
-                                    <i class="bi bi-printer me-1"></i> Submit DV
-                                </button>
-                            </div>
                                 </div>
 
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Net Amount</label>
+                                        <input type="number" class="form-control calculation-field" id="net_amount"
+                                            name="net_amount" step="0.01" readonly>
+                                    </div>
+                                </div>
+
+                                <!-- Approver Details Section -->
+                                <div class="form-section">
+                                    <h3>Approver Details</h3>
+
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label" id="designationLabel">Designation</label>
+                                            <select class="form-control" id="approverSelect" name="approver_id">
+                                                <option value="">Select Approver</option>
+                                                <?php
+                                                foreach ($approverData as $approver_id => $data) {
+                                                    echo "<option value='" . htmlspecialchars($approver_id) . "' data-designation='" . htmlspecialchars($data['designation']) . "'>" . htmlspecialchars($data['name']) . "</option>";
+                                                }
+                                                ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+
+                                        <div class="form-group">
+                                            <label class="form-label">Chief Accountant</label>
+                                            <select class="form-control" name="chief_accountant">
+                                                <option>NEIL ANTHONY T. MORALA</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Regional Director</label>
+                                            <select class="form-control" name="regional_director">
+                                                <option>FLORA D. POLITUD-GABUNALES, CESO V</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Buttons -->
+                                <div class="btn-container">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                        <i class="bi bi-x-circle me-1"></i> Cancel
+                                    </button>
+                                    <button type="submit" class="btn btn-primary" name="submit">
+                                        <i class="bi bi-printer me-1"></i> Submit DV
+                                    </button>
+                                </div>
                             </form>
                         </div>
                     </div>
                 </div>
+            </div>
+        </section>
+
+        <div class="tab-content">
+            <!-- DV List Tab -->
+            <div>
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-0">
+                        <!-- Table with enhanced styling -->
+                        <table class="enhanced-table datatable">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>DV No.</th>
+                                    <th>Payee Name</th>
+                                    <th>Account Title</th>
+                                    <th>Amount</th>
+                                    <th>Approver</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                if (mysqli_num_rows($select_dv) > 0) {
+                                    while ($row = mysqli_fetch_assoc($select_dv)) {
+                                        ?>
+                                        <tr>
+                                            <td data-label="Date">
+                                                <?php
+                                                $date = new DateTime($row['date']);
+                                                echo htmlspecialchars($date->format('F j, Y'));
+                                                ?>
+                                            </td>
+                                            <td data-label="DV No.">
+                                                <?php echo htmlspecialchars($row['dv_no']); ?>
+                                            </td>
+                                            <td data-label="Payee Name">
+                                                <?php echo htmlspecialchars($row['payee_name']); ?>
+                                            </td>
+                                            <td data-label="Account Title">
+                                                <?php echo htmlspecialchars($row['account_title']); ?>
+                                            </td>
+                                            <td data-label="Amount" class="amount-column">
+                                                ₱<?php echo number_format($row['total_amount'], 2); ?></td>
+                                            <td data-label="Approver">
+                                                <?php echo htmlspecialchars($row['approver_name']); ?>
+                                            </td>
+                                            <td>
+                                                <a href="dv_form_non-ors.php?dv_no=<?php echo urlencode($row['dv_no']); ?>"
+                                                    class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top"
+                                                    title="View Details">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+
+                                            </td>
+
+                                        </tr>
+                                        <?php
+                                    }
+                                } else {
+                                    ?>
+                                    <tr>
+                                        <td colspan="7" class="enhanced-table-empty">
+                                            <i class="bi bi-inbox"></i>
+                                            <p>No pending ORS records found</p>
+                                            <small>All available ORS documents have been processed</small>
+                                        </td>
+                                    </tr>
+                                <?php } ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     </main>
 
@@ -1154,6 +1311,17 @@ while ($row = $result_approvers->fetch_assoc()) {
         });
 
     </script>
+
+    <!-- fund_cluster -->
+
+    <script>
+        function updateUACSCode() {
+            const selected = document.getElementById('fund_cluster').selectedOptions[0];
+            document.getElementById('uacs_code').value = selected.getAttribute('data-uacs');
+        }
+    </script>
+
+
 
     <!-- approver -->
 
@@ -1312,6 +1480,7 @@ while ($row = $result_approvers->fetch_assoc()) {
                 const creditInputs = document.querySelectorAll('tbody .credit-amount');
                 const totalAmountInput = document.getElementById('total_amount');
                 const taxBaseInput = document.getElementById('tax_base');
+                const netInput = document.getElementById('net_amount');
 
                 // Sum up debit amounts
                 debitInputs.forEach(input => {
@@ -1339,6 +1508,10 @@ while ($row = $result_approvers->fetch_assoc()) {
 
                 if (taxBaseInput) {
                     taxBaseInput.value = difference.toFixed(2); // Update the total_amount field
+                }
+
+                if (netInput) {
+                    netInput.value = difference.toFixed(2); // Update the total_amount field
                 }
 
 
@@ -1466,35 +1639,35 @@ while ($row = $result_approvers->fetch_assoc()) {
                 return;
             }
 
-            let fundClusterValue = fundClusterInput.value.trim();
-            let fundClusterNumber = fundClusterValue.match(/^\d+/); // Extract only the leading number
+            let selectedOption = fundClusterInput.options[fundClusterInput.selectedIndex];
+            let fundClusterId = selectedOption.value;
+            let uacsCode = selectedOption.getAttribute("data-uacs");
 
-            if (!fundClusterNumber) {
-                console.error("Fund cluster ID is missing or invalid!");
+            if (!uacsCode) {
+                console.error("UACS code missing in selected fund cluster!");
                 return;
             }
 
             let formData = new FormData();
-            formData.append("fund_cluster_id", fundClusterNumber[0]); // Send only the number
+            formData.append("fund_cluster_id", fundClusterId); // for DB saving
+            formData.append("uacs_code", uacsCode); // for display in DV number
 
             // Add date parameter if available
             if (dateInput && dateInput.value) {
                 formData.append("date", dateInput.value);
             }
 
-            fetch("fetch_dv_number.php", {
+            fetch("fetch_dv_number_non-ors.php", {
                 method: "POST",
                 body: formData,
             })
                 .then(response => response.json())
                 .then(data => {
-                    console.log("Fetched DV Data:", data); // Debugging
                     let dvNoInput = document.getElementById("dv_no");
 
                     if (dvNoInput) {
                         if (data.success) {
                             dvNoInput.value = data.dv_no;
-                            console.log("DV No Set:", dvNoInput.value);
                         } else {
                             console.error("Error fetching DV number:", data.error);
                         }
@@ -1504,6 +1677,7 @@ while ($row = $result_approvers->fetch_assoc()) {
                 })
                 .catch(error => console.error("Fetch error:", error));
         }
+
 
 
     </script>

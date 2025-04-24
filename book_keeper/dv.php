@@ -11,7 +11,7 @@ if (isset($_POST['submit'])) {
 
     $date = $_POST['date'];
     $dv_no = $_POST['dv_no'];
-    $ors_no = $_POST['ors_id']; 
+    $ors_no = $_POST['ors_id'];
     $vat = $_POST['vat'];
     $vat_amount = $_POST['vat_amount'];
     $tax_base = $_POST['tax_base'];
@@ -46,7 +46,7 @@ if (isset($_POST['submit'])) {
         $ors_row = $ors_result->fetch_assoc();
         $ors_id = $ors_row['ors_id'];
         $ors_stmt->close();
-        $account_id = 1; 
+        $account_id = 1;
         $account_query = "SELECT account_id FROM account_name WHERE account_id = ?";
         $account_stmt = $connection->prepare($account_query);
         if ($account_stmt === false) {

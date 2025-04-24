@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 22, 2025 at 09:00 AM
+-- Generation Time: Apr 23, 2025 at 05:11 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -69,7 +69,6 @@ INSERT INTO `account_title` (`account_id`, `account_title`, `account_code`) VALU
 (245, 'Cash - Collecting Officers', '1010101000'),
 (246, 'Petty Cash Fund', '1010102000'),
 (247, 'Cash in Bank - Local Currency, Current Account', '1010202024'),
-(248, 'Cash - National Treasury - MDS', '1010404000'),
 (249, 'Loans Receivables-Others', '1030101000'),
 (250, 'Due from NGAs', '1030301000'),
 (251, 'Due from NGOs and POs', '1030303000'),
@@ -301,10 +300,10 @@ INSERT INTO `dv` (`dv_id`, `date`, `ors_id`, `account_id`, `dv_no`, `vat`, `vat_
 (66, '2025-04-21', 74, 1, '1-25-04-003', 12.00, 0.00, 2300.00, 0.00, 0.00, 0.00, 0.00, 2300.00, 2300.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', '', '2025-04-21 02:22:21', '', '', '', ''),
 (67, '2025-04-21', 75, 1, '1-25-04-004', 12.00, 0.00, 250.00, 0.00, 0.00, 0.00, 0.00, 250.00, 250.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', '', '2025-04-21 02:22:21', '', '', '', ''),
 (68, '2025-04-21', 76, 1, '1-25-04-005', 12.00, 0.00, 15000.00, 0.00, 0.00, 0.00, 0.00, 15000.00, 15000.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', '', '2025-04-21 08:30:32', '', '', '', ''),
-(69, '2025-04-21', 77, 1, '1-25-04-006', 12.00, 0.00, 1000.00, 0.00, 0.00, 0.00, 0.00, 1000.00, 1000.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', '', '2025-04-22 04:18:47', '', '', '', ''),
-(70, '2025-04-21', 78, 1, '1-25-04-007', 12.00, 0.00, 1000.00, 0.00, 0.00, 0.00, 0.00, 1000.00, 1000.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', '', '2025-04-22 04:18:47', '', '', '', ''),
-(71, '2025-04-21', 79, 1, '1-25-04-008', 12.00, 0.00, 10000.00, 0.00, 0.00, 0.00, 0.00, 10000.00, 10000.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', '', '2025-04-22 04:18:47', '', '', '', ''),
-(72, '2025-04-21', 80, 1, '1-25-04-009', 12.00, 3214.29, 26785.71, 5.00, 1339.29, 2.00, 535.71, 28125.00, 30000.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', 'Endorsed', '2025-04-21 09:14:49', '', '', '', '');
+(69, '2025-04-21', 77, 1, '1-25-04-006', 12.00, 0.00, 1000.00, 0.00, 0.00, 0.00, 0.00, 1000.00, 1000.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', '', '2025-04-23 01:34:30', '', '', '', ''),
+(70, '2025-04-21', 78, 1, '1-25-04-007', 12.00, 0.00, 1000.00, 0.00, 0.00, 0.00, 0.00, 1000.00, 1000.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', '', '2025-04-23 01:34:30', '', '', '', ''),
+(71, '2025-04-21', 79, 1, '1-25-04-008', 12.00, 0.00, 10000.00, 0.00, 0.00, 0.00, 0.00, 10000.00, 10000.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', '', '2025-04-23 01:34:30', '', '', '', ''),
+(72, '2025-04-21', 80, 1, '1-25-04-009', 12.00, 3214.29, 26785.71, 5.00, 1339.29, 2.00, 535.71, 28125.00, 30000.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', '', '2025-04-23 01:34:30', '', '', '', '');
 
 -- --------------------------------------------------------
 
@@ -365,13 +364,13 @@ CREATE TABLE `dv_non_ors` (
   `date` date NOT NULL,
   `dv_no` varchar(255) NOT NULL,
   `payee_id` int(255) NOT NULL,
+  `rc_id` int(255) NOT NULL,
   `purpose` varchar(255) NOT NULL,
   `notes` varchar(255) NOT NULL,
-  `account_id` int(255) NOT NULL,
-  `amount` double(40,2) NOT NULL,
-  `type` enum('debit','credit') NOT NULL,
   `total_amount` double(40,2) NOT NULL,
   `tax_base` double(40,2) NOT NULL,
+  `vat` int(255) NOT NULL,
+  `vat_amount` double(40,2) NOT NULL,
   `tax_1` double(40,2) NOT NULL,
   `tax_1_amount` double(40,2) NOT NULL,
   `tax_2` double(40,2) NOT NULL,
@@ -382,6 +381,37 @@ CREATE TABLE `dv_non_ors` (
   `regional_director` varchar(255) NOT NULL,
   `status` enum('Pending','Endorsed') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `dv_non_ors`
+--
+
+INSERT INTO `dv_non_ors` (`dv_non_ors_id`, `fund_cluster_id`, `oopap_id`, `services_id`, `date`, `dv_no`, `payee_id`, `rc_id`, `purpose`, `notes`, `total_amount`, `tax_base`, `vat`, `vat_amount`, `tax_1`, `tax_1_amount`, `tax_2`, `tax_2_amount`, `net_amount`, `approver_id`, `chief_accountant`, `regional_director`, `status`) VALUES
+(13, 3, 1, 11, '2025-04-23', '3-25-04-001', 24, 7, 'To Payment of', 'dsfrwf', 937.50, 937.00, 12, 107.14, 5.00, 44.00, 2.00, 17.00, 937.50, 1, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', 'Pending');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `dv_non_ors_entry`
+--
+
+CREATE TABLE `dv_non_ors_entry` (
+  `dv_non_ors_entry_id` int(11) NOT NULL,
+  `dv_non_ors_id` int(11) NOT NULL,
+  `account_id` int(11) NOT NULL,
+  `type` enum('debit','credit') NOT NULL,
+  `amount` double(40,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `dv_non_ors_entry`
+--
+
+INSERT INTO `dv_non_ors_entry` (`dv_non_ors_entry_id`, `dv_non_ors_id`, `account_id`, `type`, `amount`) VALUES
+(3, 13, 380, 'debit', 1000.00),
+(4, 13, 278, 'credit', 44.64),
+(5, 13, 278, 'credit', 17.86),
+(6, 13, 382, 'credit', 937.50);
 
 -- --------------------------------------------------------
 
@@ -549,26 +579,24 @@ CREATE TABLE `payee` (
   `bank_acc_no` varchar(30) DEFAULT NULL,
   `address` varchar(255) DEFAULT NULL,
   `nature` varchar(255) DEFAULT NULL,
-  `contact_no` varchar(15) DEFAULT NULL,
-  `payee_type` varchar(123) DEFAULT NULL
+  `contact_no` varchar(15) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `payee`
 --
 
-INSERT INTO `payee` (`payee_id`, `payee_name`, `tin_no`, `bank_acc_no`, `address`, `nature`, `contact_no`, `payee_type`) VALUES
-(16, '3G Gensan Hotel', ' 0752-1040-93', '07521040932', 'Koronadal', 'Dark system', '2158244', 'external'),
-(17, '3D Advertising', '712-786-936-0000', '', '', '', '', ''),
-(18, '8 OZ Prints', '', 'LBP - 0751-2051-55', '', '', '', ''),
-(19, 'ACE CENTERPOINT', '', 'LBP - CA 0752-1040-93', '', '', '', ''),
-(20, 'ACE HARDWARE PHIL. INC.', '200-035-311-0000', '0752104093', 'Koronadal', 'external', '215824', 'external'),
-(21, 'ADC AUTOMOTIVE SHOP BY ANNIE LIZA R CERALVO', '', 'LBP - SA 0751-1741-01', '', '', '', ''),
-(22, 'ADWERKZ PRINTING SOLUTIONS/PAUL RYAN C. BARCELONA', '', 'LBP - SA 3416-0029-23', '', '', '', ''),
-(23, 'AFL 168 CORPORATION', '', 'LBP - SA 0751-1769-37', '', '', '', ''),
-(24, 'AHR WOODCRAFT CENTER BY ALLAN B. HIMALLA ', '', 'LBP - SA 0751-1759-90', '', '', '', ''),
-(25, 'BENJO G. BASID', '', '', 'Koronadal City', '', '', ''),
-(26, 'Test', '712-786-936-0000', 'LBP - 0751-2051-55', 'Koronadal', 'external', '0912345678', 'external');
+INSERT INTO `payee` (`payee_id`, `payee_name`, `tin_no`, `bank_acc_no`, `address`, `nature`, `contact_no`) VALUES
+(16, '3G Gensan Hotel', '', '', '', '', ''),
+(17, '3D Advertising', '712-786-936-0000', '', '', '', ''),
+(18, '8 OZ Prints', '', 'LBP - 0751-2051-55', '', '', ''),
+(19, 'ACE CENTERPOINT', '', 'LBP - CA 0752-1040-93', '', '', ''),
+(20, 'ACE HARDWARE PHIL. INC.', '200-035-311-0000', 'LBP - CA 0752-1040-93', '', '', ''),
+(21, 'ADC AUTOMOTIVE SHOP BY ANNIE LIZA R CERALVO', '', 'LBP - SA 0751-1741-01', '', '', ''),
+(22, 'ADWERKZ PRINTING SOLUTIONS/PAUL RYAN C. BARCELONA', '', 'LBP - SA 3416-0029-23', '', '', ''),
+(23, 'AFL 168 CORPORATION', '', 'LBP - SA 0751-1769-37', '', '', ''),
+(24, 'AHR WOODCRAFT CENTER BY ALLAN B. HIMALLA ', '', 'LBP - SA 0751-1759-90', '', '', ''),
+(25, 'BENJO G. BASID', '', '', 'Koronadal City', '', '');
 
 -- --------------------------------------------------------
 
@@ -602,9 +630,10 @@ INSERT INTO `payment` (`payment_id`, `dv_id`, `payment_date`, `payment_type`, `r
 (8, 66, '2025-04-21', 'ADA', '5555', 2300.00, 'xbsjhcbhsu', 'Cashier', '2025-04-21 02:22:21', 'Completed'),
 (9, 65, '2025-04-21', 'ADA', '101-04-001-2025', 100.00, 'sampleonly', 'Cashier', '2025-04-21 08:30:32', 'Completed'),
 (10, 68, '2025-04-21', 'ADA', '101-04-002-2025', 15000.00, 'sampleonly', 'Cashier', '2025-04-21 08:30:32', 'Completed'),
-(11, 69, '2025-04-22', 'ADA', '101-04-001-2025', 1000.00, 'FOR MDS-GSB USE ONLY', 'Cashier', '2025-04-22 04:18:47', 'Completed'),
-(12, 70, '2025-04-22', 'ADA', '101-04-002-2025', 1000.00, 'FOR MDS-GSB USE ONLY', 'Cashier', '2025-04-22 04:18:47', 'Completed'),
-(13, 71, '2025-04-22', 'ADA', '101-04-003-2025', 10000.00, 'FOR MDS-GSB USE ONLY', 'Cashier', '2025-04-22 04:18:47', 'Completed');
+(11, 69, '2025-04-23', 'ADA', '101-04-201-2025', 1000.00, 'sddssdsdds', 'Cashier', '2025-04-23 01:34:30', 'Pending'),
+(12, 70, '2025-04-23', 'ADA', '101-04-202-2025', 1000.00, 'sddssdsdds', 'Cashier', '2025-04-23 01:34:30', 'Pending'),
+(13, 71, '2025-04-23', 'ADA', '101-04-203-2025', 10000.00, 'sddssdsdds', 'Cashier', '2025-04-23 01:34:30', 'Pending'),
+(14, 72, '2025-04-23', 'ADA', '101-04-204-2025', 28125.00, 'sddssdsdds', 'Cashier', '2025-04-23 01:34:30', 'Pending');
 
 -- --------------------------------------------------------
 
@@ -1120,12 +1149,21 @@ ALTER TABLE `dv_history`
 -- Indexes for table `dv_non_ors`
 --
 ALTER TABLE `dv_non_ors`
+  ADD PRIMARY KEY (`dv_non_ors_id`),
   ADD KEY `fund_cluster_id` (`fund_cluster_id`),
   ADD KEY `oopap_id` (`oopap_id`),
   ADD KEY `services_id` (`services_id`),
   ADD KEY `approver_id` (`approver_id`),
   ADD KEY `payee_id` (`payee_id`),
-  ADD KEY `account_id` (`account_id`);
+  ADD KEY `rc_id` (`rc_id`);
+
+--
+-- Indexes for table `dv_non_ors_entry`
+--
+ALTER TABLE `dv_non_ors_entry`
+  ADD PRIMARY KEY (`dv_non_ors_entry_id`),
+  ADD KEY `account_id` (`account_id`),
+  ADD KEY `dv_non_ors_id` (`dv_non_ors_id`);
 
 --
 -- Indexes for table `fund_cluster`
@@ -1249,6 +1287,18 @@ ALTER TABLE `dv_history`
   MODIFY `dvhis_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
 
 --
+-- AUTO_INCREMENT for table `dv_non_ors`
+--
+ALTER TABLE `dv_non_ors`
+  MODIFY `dv_non_ors_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+
+--
+-- AUTO_INCREMENT for table `dv_non_ors_entry`
+--
+ALTER TABLE `dv_non_ors_entry`
+  MODIFY `dv_non_ors_entry_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
 -- AUTO_INCREMENT for table `fund_cluster`
 --
 ALTER TABLE `fund_cluster`
@@ -1282,13 +1332,13 @@ ALTER TABLE `ors`
 -- AUTO_INCREMENT for table `payee`
 --
 ALTER TABLE `payee`
-  MODIFY `payee_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `payee_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `payment`
 --
 ALTER TABLE `payment`
-  MODIFY `payment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `payment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `project`
@@ -1347,7 +1397,14 @@ ALTER TABLE `dv_non_ors`
   ADD CONSTRAINT `dv_non_ors_ibfk_3` FOREIGN KEY (`services_id`) REFERENCES `services` (`services_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `dv_non_ors_ibfk_4` FOREIGN KEY (`approver_id`) REFERENCES `approver` (`approver_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `dv_non_ors_ibfk_5` FOREIGN KEY (`payee_id`) REFERENCES `payee` (`payee_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `dv_non_ors_ibfk_6` FOREIGN KEY (`account_id`) REFERENCES `account_title` (`account_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `dv_non_ors_ibfk_7` FOREIGN KEY (`rc_id`) REFERENCES `responsibility_center` (`rc_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `dv_non_ors_entry`
+--
+ALTER TABLE `dv_non_ors_entry`
+  ADD CONSTRAINT `dv_non_ors_entry_ibfk_1` FOREIGN KEY (`account_id`) REFERENCES `account_title` (`account_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `dv_non_ors_entry_ibfk_2` FOREIGN KEY (`dv_non_ors_id`) REFERENCES `dv_non_ors` (`dv_non_ors_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `jev`
