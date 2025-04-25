@@ -1,37 +1,59 @@
 <?php
-// Process batch ADA payment functionality
 require_once 'db_connection.php';
 
-// Initialize response array
+// Create batch_ada table if it doesn't exist
+$create_table_sql = "CREATE TABLE IF NOT EXISTS batch_ada (
+    batch_id INT AUTO_INCREMENT PRIMARY KEY,
+    reference_no VARCHAR(50) NOT NULL,
+    payment_date DATE NOT NULL,
+    fund_code VARCHAR(20) NOT NULL,
+    bank_info VARCHAR(255) NOT NULL,
+    total_gross DECIMAL(15,2) NOT NULL,
+    total_withholding DECIMAL(15,2) NOT NULL,
+    total_net DECIMAL(15,2) NOT NULL,
+    remarks TEXT,
+    status ENUM('Pending', 'Completed', 'Cancelled') DEFAULT 'Pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_by VARCHAR(50) NOT NULL,
+    UNIQUE KEY unique_reference (reference_no)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+
+$connection->query($create_table_sql);
+
+// Create batch_ada_dvs table to store associated DVs
+$create_dvs_table_sql = "CREATE TABLE IF NOT EXISTS batch_ada_dvs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    batch_id INT NOT NULL,
+    dv_id INT NOT NULL,
+    reference_no VARCHAR(50) NOT NULL,
+    gross_amount DECIMAL(15,2) NOT NULL,
+    withholding_tax DECIMAL(15,2) NOT NULL,
+    net_amount DECIMAL(15,2) NOT NULL,
+    FOREIGN KEY (batch_id) REFERENCES batch_ada(batch_id) ON DELETE CASCADE,
+    FOREIGN KEY (dv_id) REFERENCES dv(dv_id) ON DELETE CASCADE,
+    UNIQUE KEY unique_dv_batch (dv_id, batch_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+
+$connection->query($create_dvs_table_sql);
+
 $response = [
     'success' => false,
     'message' => '',
     'redirect' => ''
 ];
-
-// Check if the request is POST and the action is to submit batch ADA payment
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
     if(isset($_POST['selected_dvs']) && !empty($_POST['selected_dvs'])) {
-        // Fix duplication issue by removing duplicate DV IDs
         $selected_dvs = array_unique($_POST['selected_dvs']);
-        
         $use_common_ada = isset($_POST['use_common_ada']) && $_POST['use_common_ada'] == '1';
-        
-        // Get fund code
         $fund_code = isset($_POST['fund_code']) ? $_POST['fund_code'] : '01101101';
-        
-        // Get bank info
         $bank_info = isset($_POST['bank_info']) ? $_POST['bank_info'] : 'LAND BANK OF THE PHILIPPINES- KORONADAL BRANCH- 2075-9006-81';
-        
-        // Check for both possible parameter names
         $common_reference_no = '';
         if(isset($_POST['batch_reference_no'])) {
             $common_reference_no = $_POST['batch_reference_no'];
         } elseif(isset($_POST['common_ada_ref'])) {
             $common_reference_no = $_POST['common_ada_ref'];
         }
-        
-        // Check for both possible parameter names
         $payment_date = '';
         if(isset($_POST['batch_payment_date'])) {
             $payment_date = $_POST['batch_payment_date'];
@@ -40,34 +62,64 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
         }
         
         $remarks = isset($_POST['batch_remarks']) ? $_POST['batch_remarks'] : '';
-        
-        // Format the ADA reference number: fund_code-month-series-year
         $month = date('m', strtotime($payment_date));
         $year = date('Y', strtotime($payment_date));
-        
-        // Get only the last 3 digits of fund code
         $short_fund_code = substr($fund_code, -3);
-        $formatted_ada_ref = $short_fund_code . "-" . $month . "-" . $common_reference_no . "-" . $year;
-        
-        // Debug log
+        $reference_numbers = [];
+        foreach($selected_dvs as $dv_id) {
+            if ($use_common_ada) {
+                $reference_numbers[] = $common_reference_no;
+            } else {
+                $individual_ref = isset($_POST['ada_references'][$dv_id]) ? $_POST['ada_references'][$dv_id] : '';
+                $reference_numbers[] = $individual_ref;
+            }
+        }
+        sort($reference_numbers, SORT_NUMERIC);
+        $first_ref = $reference_numbers[0];
+        $last_ref = end($reference_numbers);
+        $formatted_ada_ref = $short_fund_code . "-" . $month . "-" . $first_ref . "-" . $last_ref . "-" . $year;
         error_log("Batch ADA params: " . json_encode([
             'use_common_ada' => $use_common_ada,
             'reference_no' => $formatted_ada_ref,
             'payment_date' => $payment_date,
             'selected_dvs_count' => count($selected_dvs)
         ]));
-        
-        // Validate required fields
         if ($use_common_ada && empty($common_reference_no)) {
             $response['message'] = "ADA reference number is required for batch payment.";
         } elseif (empty($payment_date)) {
             $response['message'] = "Payment date is required.";
         } else {
-            // Begin transaction
             $connection->begin_transaction();
             
             try {
-                // Create session data for LDDAP-APA form - use existing session
+                // Insert into batch_ada table
+                $insert_batch_sql = "INSERT INTO batch_ada (
+                    reference_no, payment_date, fund_code, bank_info, 
+                    total_gross, total_withholding, total_net, remarks, created_by
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Cashier')";
+                
+                $insert_batch_stmt = $connection->prepare($insert_batch_sql);
+                $insert_batch_stmt->bind_param(
+                    "ssssddds", 
+                    $formatted_ada_ref, 
+                    $payment_date, 
+                    $fund_code, 
+                    $bank_info,
+                    $total_gross,
+                    $total_withholding,
+                    $total_net,
+                    $remarks
+                );
+                $insert_batch_stmt->execute();
+                $batch_id = $connection->insert_id;
+                
+                // Insert into batch_ada_dvs table for each DV
+                $insert_dv_sql = "INSERT INTO batch_ada_dvs (
+                    batch_id, dv_id, reference_no, gross_amount, withholding_tax, net_amount
+                ) VALUES (?, ?, ?, ?, ?, ?)";
+                
+                $insert_dv_stmt = $connection->prepare($insert_dv_sql);
+                
                 $lddap_data = [
                     'referenceNo' => $formatted_ada_ref,
                     'paymentDate' => $payment_date,
@@ -86,7 +138,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
                 $total_net = 0;
                 
                 foreach($selected_dvs as $dv_id) {
-                    // Get the amount for this DV
                     $amount_query = "SELECT d.*, d.net_amount, d.vat_amount, d.tax_1_amount, d.tax_2_amount, 
                                     p.payee_name, p.bank_acc_no, o.ors_no, o.purpose 
                                     FROM dv d 
@@ -100,20 +151,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
                     $dv_data = $amount_result->fetch_assoc();
                     
                     $amount = $dv_data['net_amount'];
-                    // Calculate gross amount properly as the sum of net amount plus tax amounts
                     $gross_amount = $dv_data['net_amount'] + $dv_data['vat_amount'] + $dv_data['tax_1_amount'] + $dv_data['tax_2_amount'];
                     $withholding_tax = $dv_data['vat_amount'] + $dv_data['tax_1_amount'] + $dv_data['tax_2_amount'];
                     
-                    // Determine the reference number for this DV
                     if ($use_common_ada) {
                         $dv_reference_no = $formatted_ada_ref;
                     } else {
-                        // If using individual references, format each one
                         $individual_ref = isset($_POST['ada_references'][$dv_id]) ? $_POST['ada_references'][$dv_id] : '';
                         $dv_reference_no = $short_fund_code . "-" . $month . "-" . $individual_ref . "-" . $year;
                     }
                     
-                    // Add to LDDAP data
+                    $insert_dv_stmt->bind_param(
+                        "iisddd",
+                        $batch_id,
+                        $dv_id,
+                        $dv_reference_no,
+                        $gross_amount,
+                        $withholding_tax,
+                        $amount
+                    );
+                    $insert_dv_stmt->execute();
+                    
                     $lddap_data['dvs'][] = [
                         'dv_id' => $dv_id,
                         'dv_no' => $dv_data['dv_no'],
@@ -124,66 +182,47 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
                         'gross_amount' => $gross_amount,
                         'withholding_tax' => $withholding_tax,
                         'net_amount' => $amount,
-                        'reference_no' => $dv_reference_no // Add individual reference number for each DV
+                        'reference_no' => $dv_reference_no 
                     ];
                     
                     $total_gross += $gross_amount;
                     $total_withholding += $withholding_tax;
                     $total_net += $amount;
-                    
-                    // Insert payment record for this DV
-                    $insert_query = "INSERT INTO payment (dv_id, payment_date, payment_type, reference_no, amount, remarks, created_by, status) 
-                                    VALUES (?, ?, 'ADA', ?, ?, ?, 'Cashier', 'Pending')";
+                    $insert_query = "INSERT INTO payment (dv_id, payment_date, payment_type, reference_no, ada_no, amount, remarks, created_by, status) 
+                                    VALUES (?, ?, 'ADA', ?, ?, ?, ?, 'Cashier', 'Pending')";
                     
                     $stmt = $connection->prepare($insert_query);
-                    $stmt->bind_param("issds", $dv_id, $payment_date, $dv_reference_no, $amount, $remarks);
+                    $stmt->bind_param("isssds", $dv_id, $payment_date, $dv_reference_no, $dv_reference_no, $amount, $remarks);
                     $stmt->execute();
-                    
-                    // Update DV status to 'Processing'
                     $update_dv = "UPDATE dv SET status = 'Processing' WHERE dv_id = ?";
                     $update_stmt = $connection->prepare($update_dv);
                     $update_stmt->bind_param("i", $dv_id);
                     $update_stmt->execute();
                 }
-                
-                // Add totals to LDDAP data
                 $lddap_data['totalGross'] = $total_gross;
                 $lddap_data['totalWithholding'] = $total_withholding;
                 $lddap_data['totalNet'] = $total_net;
                 $lddap_data['has_multiple_references'] = !$use_common_ada;
                 $lddap_data['amountInWords'] = customNumberToWords($total_net);
-                
-                // Store in session for later access if needed
                 $_SESSION['lddap_data'] = $lddap_data;
-                
-                // Find the first and last ADA series numbers
                 if (!$use_common_ada && count($lddap_data['dvs']) > 0) {
                     $series_numbers = [];
                     foreach ($lddap_data['dvs'] as $dv) {
-                        // Extract the series part (third element) from the reference number
                         $parts = explode('-', $dv['reference_no']);
                         if (count($parts) >= 4) {
                             $series_numbers[] = $parts[2];
                         }
                     }
-                    
-                    // If we have multiple series numbers, create a range format
                     if (count($series_numbers) > 1) {
                         sort($series_numbers, SORT_NUMERIC);
                         $first_series = $series_numbers[0];
                         $last_series = $series_numbers[count($series_numbers) - 1];
-                        
-                        // Format the master LDDAP-ADA number to include the range
                         $lddap_ada_ref = $short_fund_code . "-" . $month . "-" . $first_series . "-" . $last_series . "-" . $year;
                         $lddap_data['referenceNo'] = $lddap_ada_ref;
                         $formatted_ada_ref = $lddap_ada_ref;
                     }
                 }
-                
-                // Commit transaction
                 $connection->commit();
-                
-                // Store LDDAP data in local storage via redirect parameter
                 $lddap_data_json = json_encode($lddap_data);
                 $storage_key = 'lddap_' . $formatted_ada_ref;
                 
@@ -193,7 +232,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
                                         "&storage_key=" . urlencode($storage_key) . 
                                         "&lddap_data=" . urlencode($lddap_data_json);
             } catch (Exception $e) {
-                // Roll back transaction on error
                 $connection->rollback();
                 $response['message'] = "Error recording batch ADA payment: " . $e->getMessage();
             }
@@ -201,35 +239,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
     } else {
         $response['message'] = "No DVs selected for batch ADA payment.";
     }
-    
-    // Return JSON response if it's an AJAX request
     if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
         header('Content-Type: application/json');
         echo json_encode($response);
         exit;
     } else {
-        // Handle normal form submission
         if ($response['success']) {
             header('Location: ' . $response['redirect']);
             exit;
         } else {
-            // Redirect back with error message
             header('Location: ../pending_payments.php?error=' . urlencode($response['message']));
             exit;
         }
     }
 } 
-// New code to handle ADA print completion
 elseif ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['mark_ada_printed'])) {
     if (isset($_POST['reference_no']) && !empty($_POST['reference_no'])) {
         $reference_no = $_POST['reference_no'];
         $dv_ids = isset($_POST['dv_ids']) ? $_POST['dv_ids'] : [];
-        
-        // Begin transaction
         $connection->begin_transaction();
         
         try {
-            // If dv_ids are not explicitly provided, fetch them based on the reference number
             if (empty($dv_ids)) {
                 $fetch_dvs_query = "SELECT dv_id FROM payment WHERE reference_no = ? AND payment_type = 'ADA'";
                 $fetch_stmt = $connection->prepare($fetch_dvs_query);
@@ -242,14 +272,10 @@ elseif ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['mark_ada_printed']
                     $dv_ids[] = $row['dv_id'];
                 }
             }
-            
-            // Update payment status to 'Complete'
             $update_payment_query = "UPDATE payment SET status = 'Complete' WHERE reference_no = ? AND payment_type = 'ADA'";
             $update_payment_stmt = $connection->prepare($update_payment_query);
             $update_payment_stmt->bind_param("s", $reference_no);
             $update_payment_stmt->execute();
-            
-            // Update all related DVs to 'Complete'
             foreach ($dv_ids as $dv_id) {
                 $update_dv_query = "UPDATE dv SET status = 'Complete' WHERE dv_id = ?";
                 $update_dv_stmt = $connection->prepare($update_dv_query);
@@ -257,21 +283,15 @@ elseif ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['mark_ada_printed']
                 $update_dv_stmt->execute();
             }
             
-            // Commit transaction
             $connection->commit();
-            
-            // Prepare response
             $response['success'] = true;
             $response['message'] = "ADA payment marked as complete and printed successfully!";
             $response['redirect'] = "../completed_payments.php?success=1";
         } catch (Exception $e) {
-            // Roll back transaction on error
             $connection->rollback();
             $response['message'] = "Error marking ADA as printed: " . $e->getMessage();
             $response['redirect'] = "../pending_payments.php?error=" . urlencode($response['message']);
         }
-        
-        // Return response based on the request type
         if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
             header('Content-Type: application/json');
             echo json_encode($response);
@@ -296,7 +316,6 @@ elseif ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['mark_ada_printed']
         exit;
     }
 } else {
-    // Redirect if no form submission
     header("Location: ../pending_payments.php?error=" . urlencode("Invalid form submission"));
     exit;
 }
