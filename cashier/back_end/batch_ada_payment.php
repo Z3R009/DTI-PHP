@@ -43,8 +43,15 @@ $response = [
     'redirect' => ''
 ];
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
-    if(isset($_POST['selected_dvs']) && !empty($_POST['selected_dvs'])) {
-        $selected_dvs = array_unique($_POST['selected_dvs']);
+    // Check if we have any selections (either DVs or merged groups)
+    $has_selections = (isset($_POST['selected_dvs']) && !empty($_POST['selected_dvs'])) || 
+                     (isset($_POST['selected_merged_groups']) && !empty($_POST['selected_merged_groups']));
+    
+    if($has_selections) {
+        // Initialize arrays
+        $selected_dvs = isset($_POST['selected_dvs']) ? array_unique($_POST['selected_dvs']) : [];
+        $selected_merged_groups = isset($_POST['selected_merged_groups']) ? array_unique($_POST['selected_merged_groups']) : [];
+        
         $use_common_ada = isset($_POST['use_common_ada']) && $_POST['use_common_ada'] == '1';
         $fund_code = isset($_POST['fund_code']) ? $_POST['fund_code'] : '01101101';
         $bank_info = isset($_POST['bank_info']) ? $_POST['bank_info'] : 'LAND BANK OF THE PHILIPPINES- KORONADAL BRANCH- 2075-9006-81';
@@ -66,23 +73,37 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
         $year = date('Y', strtotime($payment_date));
         $short_fund_code = substr($fund_code, -3);
         $reference_numbers = [];
+        
+        // Get reference numbers for regular DVs
         foreach($selected_dvs as $dv_id) {
             if ($use_common_ada) {
                 $reference_numbers[] = $common_reference_no;
             } else {
-                $individual_ref = isset($_POST['ada_references'][$dv_id]) ? $_POST['ada_references'][$dv_id] : '';
+                $individual_ref = isset($_POST['ada_references']["dv_".$dv_id]) ? $_POST['ada_references']["dv_".$dv_id] : '';
                 $reference_numbers[] = $individual_ref;
             }
         }
+        
+        // Get reference numbers for merged groups
+        foreach($selected_merged_groups as $merge_id) {
+            if ($use_common_ada) {
+                $reference_numbers[] = $common_reference_no;
+            } else {
+                $individual_ref = isset($_POST['ada_references']["merge_".$merge_id]) ? $_POST['ada_references']["merge_".$merge_id] : '';
+                $reference_numbers[] = $individual_ref;
+            }
+        }
+        
         sort($reference_numbers, SORT_NUMERIC);
-        $first_ref = $reference_numbers[0];
-        $last_ref = end($reference_numbers);
+        $first_ref = !empty($reference_numbers) ? $reference_numbers[0] : '000';
+        $last_ref = !empty($reference_numbers) ? end($reference_numbers) : '000';
         $formatted_ada_ref = $short_fund_code . "-" . $month . "-" . $first_ref . "-" . $last_ref . "-" . $year;
         error_log("Batch ADA params: " . json_encode([
             'use_common_ada' => $use_common_ada,
             'reference_no' => $formatted_ada_ref,
             'payment_date' => $payment_date,
-            'selected_dvs_count' => count($selected_dvs)
+            'selected_dvs_count' => count($selected_dvs),
+            'selected_merged_groups_count' => count($selected_merged_groups)
         ]));
         if ($use_common_ada && empty($common_reference_no)) {
             $response['message'] = "ADA reference number is required for batch payment.";
@@ -125,6 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
                     'paymentDate' => $payment_date,
                     'remarks' => $remarks,
                     'dvs' => [],
+                    'mergedGroups' => [],
                     'totalGross' => 0,
                     'totalWithholding' => 0,
                     'totalNet' => 0,
@@ -137,6 +159,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
                 $total_withholding = 0;
                 $total_net = 0;
                 
+                // Process regular DVs
                 foreach($selected_dvs as $dv_id) {
                     $amount_query = "SELECT d.*, d.net_amount, d.vat_amount, d.tax_1_amount, d.tax_2_amount, 
                                     p.payee_name, p.bank_acc_no, o.ors_no, o.purpose 
@@ -157,7 +180,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
                     if ($use_common_ada) {
                         $dv_reference_no = $formatted_ada_ref;
                     } else {
-                        $individual_ref = isset($_POST['ada_references'][$dv_id]) ? $_POST['ada_references'][$dv_id] : '';
+                        $individual_ref = isset($_POST['ada_references']["dv_".$dv_id]) ? $_POST['ada_references']["dv_".$dv_id] : '';
                         $dv_reference_no = $short_fund_code . "-" . $month . "-" . $individual_ref . "-" . $year;
                     }
                     
@@ -182,7 +205,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
                         'gross_amount' => $gross_amount,
                         'withholding_tax' => $withholding_tax,
                         'net_amount' => $amount,
-                        'reference_no' => $dv_reference_no 
+                        'reference_no' => $dv_reference_no,
+                        'is_merged' => false
                     ];
                     
                     $total_gross += $gross_amount;
@@ -199,10 +223,142 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
                     $update_stmt->bind_param("i", $dv_id);
                     $update_stmt->execute();
                 }
+                
+                // Process merged payee groups
+                require_once 'get_merged_payees.php';
+                
+                foreach($selected_merged_groups as $merge_id) {
+                    // Get merged group data
+                    $merge_query = "SELECT mp.*, mp.merge_name, mp.description, mp.payee_type
+                                  FROM merged_payees mp
+                                  WHERE mp.merge_id = ?";
+                    $merge_stmt = $connection->prepare($merge_query);
+                    $merge_stmt->bind_param("i", $merge_id);
+                    $merge_stmt->execute();
+                    $merge_result = $merge_stmt->get_result();
+                    $merge_data = $merge_result->fetch_assoc();
+                    
+                    if (!$merge_data) {
+                        continue;
+                    }
+                    
+                    // Get all DVs in this merged group
+                    $dvs_query = "SELECT d.*, d.net_amount, d.vat_amount, d.tax_1_amount, d.tax_2_amount,
+                                p.payee_name, p.bank_acc_no, o.ors_no, o.purpose
+                                FROM merged_payee_items mpi
+                                JOIN dv d ON mpi.dv_id = d.dv_id
+                                JOIN ors o ON d.ors_id = o.ors_id
+                                JOIN payee p ON o.payee_id = p.payee_id
+                                WHERE mpi.merge_id = ?";
+                    $dvs_stmt = $connection->prepare($dvs_query);
+                    $dvs_stmt->bind_param("i", $merge_id);
+                    $dvs_stmt->execute();
+                    $dvs_result = $dvs_stmt->get_result();
+                    
+                    // Set reference number for the merged group
+                    if ($use_common_ada) {
+                        $merge_reference_no = $formatted_ada_ref;
+                    } else {
+                        $individual_ref = isset($_POST['ada_references']["merge_".$merge_id]) ? $_POST['ada_references']["merge_".$merge_id] : '';
+                        $merge_reference_no = $short_fund_code . "-" . $month . "-" . $individual_ref . "-" . $year;
+                    }
+                    
+                    $group_gross = 0;
+                    $group_withholding = 0;
+                    $group_net = 0;
+                    $merged_dvs = [];
+                    
+                    // Process each DV in the merged group
+                    while ($dv_data = $dvs_result->fetch_assoc()) {
+                        $dv_id = $dv_data['dv_id'];
+                        $amount = $dv_data['net_amount'];
+                        $gross_amount = $dv_data['net_amount'] + $dv_data['vat_amount'] + $dv_data['tax_1_amount'] + $dv_data['tax_2_amount'];
+                        $withholding_tax = $dv_data['vat_amount'] + $dv_data['tax_1_amount'] + $dv_data['tax_2_amount'];
+                        
+                        // Add to batch_ada_dvs table
+                        $insert_dv_stmt->bind_param(
+                            "iisddd",
+                            $batch_id,
+                            $dv_id,
+                            $merge_reference_no,
+                            $gross_amount,
+                            $withholding_tax,
+                            $amount
+                        );
+                        $insert_dv_stmt->execute();
+                        
+                        // Create payment record for each DV
+                        $insert_query = "INSERT INTO payment (dv_id, payment_date, payment_type, reference_no, ada_no, amount, remarks, created_by, status) 
+                                        VALUES (?, ?, 'ADA', ?, ?, ?, ?, 'Cashier', 'Pending')";
+                        $stmt = $connection->prepare($insert_query);
+                        $stmt->bind_param("isssds", $dv_id, $payment_date, $merge_reference_no, $merge_reference_no, $amount, $remarks);
+                        $stmt->execute();
+                        
+                        // Update DV status
+                        $update_dv = "UPDATE dv SET status = 'Processing' WHERE dv_id = ?";
+                        $update_stmt = $connection->prepare($update_dv);
+                        $update_stmt->bind_param("i", $dv_id);
+                        $update_stmt->execute();
+                        
+                        // Add to group totals
+                        $group_gross += $gross_amount;
+                        $group_withholding += $withholding_tax;
+                        $group_net += $amount;
+                        
+                        // Add to merged DVs array
+                        $merged_dvs[] = [
+                            'dv_id' => $dv_id,
+                            'dv_no' => $dv_data['dv_no'],
+                            'payee_name' => $dv_data['payee_name'],
+                            'bank_account' => $dv_data['bank_acc_no'] ?? 'N/A',
+                            'ors_no' => $dv_data['ors_no'],
+                            'purpose' => $dv_data['purpose'],
+                            'gross_amount' => $gross_amount,
+                            'withholding_tax' => $withholding_tax,
+                            'net_amount' => $amount
+                        ];
+                    }
+                    
+                    // Add merged group to LDDAP data
+                    $lddap_data['mergedGroups'][] = [
+                        'merge_id' => $merge_id,
+                        'merge_name' => $merge_data['merge_name'],
+                        'payee_type' => $merge_data['payee_type'],
+                        'description' => $merge_data['description'],
+                        'dvs' => $merged_dvs,
+                        'gross_amount' => $group_gross,
+                        'withholding_tax' => $group_withholding,
+                        'net_amount' => $group_net,
+                        'reference_no' => $merge_reference_no
+                    ];
+                    
+                    // Add merged group as a special entry in the main DVs list
+                    $lddap_data['dvs'][] = [
+                        'dv_id' => 'merge_' . $merge_id,
+                        'dv_no' => 'MERGED',
+                        'payee_name' => $merge_data['merge_name'] . ' (Merged Group)',
+                        'bank_account' => 'N/A',
+                        'ors_no' => 'MULTIPLE',
+                        'purpose' => $merge_data['description'] ?: 'Merged payment for multiple vouchers',
+                        'gross_amount' => $group_gross,
+                        'withholding_tax' => $group_withholding,
+                        'net_amount' => $group_net,
+                        'reference_no' => $merge_reference_no,
+                        'is_merged' => true,
+                        'merge_id' => $merge_id
+                    ];
+                    
+                    // Add to total
+                    $total_gross += $group_gross;
+                    $total_withholding += $group_withholding;
+                    $total_net += $group_net;
+                }
+                
                 $lddap_data['totalGross'] = $total_gross;
                 $lddap_data['totalWithholding'] = $total_withholding;
                 $lddap_data['totalNet'] = $total_net;
                 $lddap_data['has_multiple_references'] = !$use_common_ada;
+                $lddap_data['has_merged_groups'] = !empty($selected_merged_groups);
                 $lddap_data['amountInWords'] = customNumberToWords($total_net);
                 $_SESSION['lddap_data'] = $lddap_data;
                 if (!$use_common_ada && count($lddap_data['dvs']) > 0) {
@@ -237,7 +393,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
             }
         }
     } else {
-        $response['message'] = "No DVs selected for batch ADA payment.";
+        $response['message'] = "No items selected for batch ADA payment.";
     }
     if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
         header('Content-Type: application/json');

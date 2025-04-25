@@ -97,6 +97,23 @@
             margin: 2px 0;
         }
         
+        /* Remarks cell styles */
+        #remarks {
+            border-bottom: none !important;
+            overflow: visible;
+            position: relative;
+            min-height: 100%;
+            height: 100%;
+            z-index: 2;
+        }
+        
+        #remarks:hover {
+            z-index: 10;
+            overflow: visible;
+            background-color: white;
+            box-shadow: 0px 0px 5px rgba(0,0,0,0.2);
+        }
+
         @media print {
             body {
                 padding: 0;
@@ -113,6 +130,11 @@
             
             #printButton {
                 display: none;
+            }
+            
+            #remarks {
+                overflow: visible !important;
+                z-index: auto !important;
             }
         }
     </style>
@@ -177,7 +199,7 @@
             </tr>
             <tr>
                 <td colspan="8" class="left">I. Current Year A/Ps</td>
-                <td rowspan="9" id="remarks">Cashier Remarks data</td>
+                <td rowspan="9" id="remarks" style="border-bottom: none;">Cashier Remarks data</td>
             </tr>
             
             <!-- DV rows will be inserted here -->
@@ -197,7 +219,7 @@
             
             <tr>
                 <td colspan="5" class="left">TOTAL</td>
-                <td class="right" id="totalGross">0.00</td>
+               <td class="right" id="totalGross"> <strong>0.00</strong></td>
                 <td class="right" id="totalWithholding">0.00</td>
                 <td class="right" id="totalNet">0.00</td>
             </tr>
@@ -266,7 +288,7 @@
                     
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px; border-top: 1px solid #000">
                         <div style="width: 50%;">
-                            <p style="margin-bottom: 0;"><strong>NOTES:</strong></p>
+                            <p style="margin-bottom: 0;">NOTES:</p>
                             <p style="margin-top: 0; margin-bottom: 5px;">The LDDAP-ADA is an accountable form</p>
                         </div>
                         <div style="width: 45%; text-align: right; padding-right: 50px;">
