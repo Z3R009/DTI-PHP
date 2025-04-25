@@ -12,7 +12,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Sanitize and assign main record fields
     $fund_cluster_id = $_POST['fund_cluster_id'];
     $oopap_id = $_POST['oopap_id'];
-    $services_id = $_POST['services_id'];
     $date = $_POST['date'];
     $dv_no = $_POST['dv_no'];
     $payee_id = $_POST['payee_id'];
@@ -35,8 +34,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $regional_director = $_POST['regional_director'];
 
     // Insert DV Non-ORS main record
-    $sql = "INSERT INTO dv_non_ors (fund_cluster_id, oopap_id, services_id, date, dv_no, payee_id, purpose, notes, rc_id, total_amount, vat, vat_amount, tax_base, tax_1, tax_1_amount, tax_2, tax_2_amount, net_amount, approver_id, chief_accountant, regional_director) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO dv_non_ors (fund_cluster_id, oopap_id, date, dv_no, payee_id, purpose, notes, rc_id, total_amount, vat, vat_amount, tax_base, tax_1, tax_1_amount, tax_2, tax_2_amount, net_amount, approver_id, chief_accountant, regional_director) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     $stmt = $connection->prepare($sql);
     if (!$stmt) {
@@ -44,11 +43,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     $stmt->bind_param(
-        "iiississddddidididiss"
+        "iississddddidididiss"
         ,
         $fund_cluster_id,
         $oopap_id,
-        $services_id,
         $date,
         $dv_no,
         $payee_id,
@@ -144,9 +142,6 @@ $result_fund_cluster = $connection->query($sql_fund_cluster);
 $sql_oopap = "SELECT oopap_id, oopap_name FROM oopap";
 $result_oopap = $connection->query($sql_oopap);
 
-// retrieve services
-$sql_services = "SELECT services_id, services_name, code FROM services";
-$result_services = $connection->query($sql_services);
 
 // Fetch Approvers Data
 $sql_approvers = "SELECT approver_id, approver_name, designation FROM approver";
@@ -927,12 +922,6 @@ $select_dv = mysqli_query($connection, "
                                                 ?>
                                             </select>
                                         </div>
-                                        <div class="form-group">
-                                            <label class="form-label">Services</label>
-                                            <select class="form-control" name="services_id" id="services" required>
-                                                <option selected disabled value="">Select Services</option>
-                                            </select>
-                                        </div>
 
                                         <div class="form-group">
                                             <label class="form-label">Date</label>
@@ -1488,7 +1477,7 @@ $select_dv = mysqli_query($connection, "
                 const taxBaseInput = document.getElementById('tax_base');
                 const netInput = document.getElementById('net_amount');
 
-                // Calculate total debit and credit across all rows
+                // Calculate total debit and credit across all tbody rows
                 debitInputs.forEach(input => {
                     totalDebit += parseFloat(input.value || 0);
                 });
@@ -1497,23 +1486,22 @@ $select_dv = mysqli_query($connection, "
                     totalCredit += parseFloat(input.value || 0);
                 });
 
-                // Get values only from the first row for gross/net/tax fields
-                const firstDebit = debitInputs.length > 0 ? parseFloat(debitInputs[0].value || 0) : 0;
-                const firstCredit = creditInputs.length > 0 ? parseFloat(creditInputs[0].value || 0) : 0;
+                const totalDifference = totalDebit - totalCredit;
 
-                const firstRowDifference = firstDebit - firstCredit;
-
-                // Optional: update footer's credit field with total difference
+                // Update footer credit field with total difference
                 const footerCreditInput = document.querySelector('tfoot .credit-amount');
                 if (footerCreditInput) {
-                    footerCreditInput.value = (totalDebit - totalCredit).toFixed(2);
+                    footerCreditInput.value = totalDifference.toFixed(2);
                 }
 
-                // Update fields with values from the first row
-                if (totalAmountInput) totalAmountInput.value = firstRowDifference.toFixed(2);
-                if (taxBaseInput) taxBaseInput.value = firstRowDifference.toFixed(2);
-                if (netInput) netInput.value = firstRowDifference.toFixed(2);
+                // Set total_amount and tax_base from totalDebit
+                if (totalAmountInput) totalAmountInput.value = totalDebit.toFixed(2);
+                if (taxBaseInput) taxBaseInput.value = totalDebit.toFixed(2);
+
+                // Set net_amount from totalDifference
+                if (netInput) netInput.value = totalDifference.toFixed(2);
             }
+
 
 
             // Function to filter account titles
@@ -1609,13 +1597,12 @@ $select_dv = mysqli_query($connection, "
             setupCalculationListeners(initialRow);
 
             // Add event listener for DV type changes
-            document.getElementById('ors_type').addEventListener('change', function () {
-                const selectedType = this.value;
-                const accountSelects = document.querySelectorAll('.account-select');
-                accountSelects.forEach(select => {
-                    filterAccountTitles(select, selectedType);
-                });
+            document.addEventListener('input', function (e) {
+                if (e.target.classList.contains('debit-amount') || e.target.classList.contains('credit-amount')) {
+                    calculateTotals();
+                }
             });
+
         });
     </script>
 
