@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 24, 2025 at 08:26 AM
+-- Generation Time: Apr 25, 2025 at 04:15 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -283,7 +283,9 @@ CREATE TABLE `batch_ada` (
 --
 
 INSERT INTO `batch_ada` (`batch_id`, `reference_no`, `payment_date`, `fund_code`, `bank_info`, `total_gross`, `total_withholding`, `total_net`, `remarks`, `status`, `created_at`, `updated_at`, `created_by`) VALUES
-(36, '101-04-001-003-2025', '2025-04-24', '01101101', 'LAND BANK OF THE PHILIPPINES- KORONADAL BRANCH- 2075-9006-81', 300.00, NULL, 300.00, 'jafk', 'Pending', '2025-04-24 03:27:11', '2025-04-24 03:35:08', 'Cashier');
+(36, '101-04-001-003-2025', '2025-04-24', '01101101', 'LAND BANK OF THE PHILIPPINES- KORONADAL BRANCH- 2075-9006-81', 300.00, NULL, 300.00, 'jafkASFKNASKFGALKSG', 'Pending', '2025-04-24 03:27:11', '2025-04-25 01:57:38', 'Cashier'),
+(37, '101-04---2025', '2025-04-25', '01101101', 'LAND BANK OF THE PHILIPPINES- KORONADAL BRANCH- 2075-9006-81', NULL, NULL, NULL, 'jafkASFKNASKFGALKSG', 'Pending', '2025-04-25 01:59:46', '2025-04-25 01:59:46', 'Cashier'),
+(38, '101-04-007-008-2025', '2025-04-25', '01101101', 'LAND BANK OF THE PHILIPPINES- KORONADAL BRANCH- 2075-9006-81', NULL, NULL, NULL, 'f;asf', 'Pending', '2025-04-25 02:10:13', '2025-04-25 02:10:13', 'Cashier');
 
 -- --------------------------------------------------------
 
@@ -308,7 +310,12 @@ CREATE TABLE `batch_ada_dvs` (
 INSERT INTO `batch_ada_dvs` (`id`, `batch_id`, `dv_id`, `reference_no`, `gross_amount`, `withholding_tax`, `net_amount`) VALUES
 (43, 36, 98, '101-04-001-2025', 100.00, 0.00, 100.00),
 (44, 36, 97, '101-04-002-2025', 100.00, 0.00, 100.00),
-(45, 36, 99, '101-04-003-2025', 100.00, 0.00, 100.00);
+(45, 36, 99, '101-04-003-2025', 100.00, 0.00, 100.00),
+(46, 37, 101, '101-04--2025', 100.00, 0.00, 100.00),
+(47, 38, 108, '101-04-007-2025', 100.00, 0.00, 100.00),
+(48, 38, 102, '101-04-008-2025', 123.00, 0.00, 123.00),
+(49, 38, 103, '101-04-008-2025', 123.00, 0.00, 123.00),
+(50, 38, 104, '101-04-008-2025', 123.00, 0.00, 123.00);
 
 -- --------------------------------------------------------
 
@@ -372,7 +379,14 @@ INSERT INTO `dv` (`dv_id`, `date`, `ors_id`, `account_id`, `dv_no`, `vat`, `vat_
 (98, '2025-04-24', 106, 1, '3-25-04-001', 12.00, 0.00, 100.00, 0.00, 0.00, 0.00, 0.00, 100.00, 100.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', '', '2025-04-24 03:27:11', '', '', '', ''),
 (99, '2025-04-24', 107, 1, '2-25-04-001', 12.00, 0.00, 100.00, 0.00, 0.00, 0.00, 0.00, 100.00, 100.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', '', '2025-04-24 03:27:11', '', '', '', ''),
 (100, '2025-04-24', 108, 1, '2-25-04-002', 12.00, 0.00, 100.00, 0.00, 0.00, 0.00, 0.00, 100.00, 100.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', '', '2025-04-24 03:41:22', '', '', '', ''),
-(101, '2025-04-24', 109, 1, '1-25-04-002', 12.00, 0.00, 100.00, 0.00, 0.00, 0.00, 0.00, 100.00, 100.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', 'Pending', '2025-04-24 03:49:02', '', '', '', '');
+(101, '2025-04-24', 109, 1, '1-25-04-002', 12.00, 0.00, 100.00, 0.00, 0.00, 0.00, 0.00, 100.00, 100.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', '', '2025-04-25 01:59:46', '', '', '', ''),
+(102, '2025-04-24', 110, 1, '', 12.00, 0.00, 123.00, 0.00, 0.00, 0.00, 0.00, 123.00, 123.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', '', '2025-04-25 02:10:13', '', '', '', ''),
+(103, '2025-04-24', 111, 1, '', 12.00, 0.00, 123.00, 0.00, 0.00, 0.00, 0.00, 123.00, 123.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', '', '2025-04-25 02:10:13', '', '', '', ''),
+(104, '2025-04-24', 112, 1, '', 12.00, 0.00, 123.00, 0.00, 0.00, 0.00, 0.00, 123.00, 123.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', '', '2025-04-25 02:10:13', '', '', '', ''),
+(105, '2025-04-25', 113, 1, '', 12.00, 0.00, 100.00, 0.00, 0.00, 0.00, 0.00, 100.00, 100.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', 'Pending', '2025-04-25 02:06:58', '', '', '', ''),
+(106, '2025-04-25', 113, 1, '', 12.00, 0.00, 100.00, 0.00, 0.00, 0.00, 0.00, 100.00, 100.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', 'Pending', '2025-04-25 02:07:28', '', '', '', ''),
+(107, '2025-04-25', 114, 1, '', 12.00, 0.00, 100.00, 0.00, 0.00, 0.00, 0.00, 100.00, 100.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', 'Pending', '2025-04-25 02:07:53', '', '', '', ''),
+(108, '2025-04-25', 115, 1, '', 12.00, 0.00, 100.00, 0.00, 0.00, 0.00, 0.00, 100.00, 100.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', '', '2025-04-25 02:10:13', '', '', '', '');
 
 -- --------------------------------------------------------
 
@@ -402,7 +416,20 @@ INSERT INTO `dv_history` (`dvhis_id`, `dv_id`, `account_id`, `type`, `amount`) V
 (91, 100, 270, 'debit', 100.00),
 (92, 100, 382, 'credit', 100.00),
 (93, 101, 276, 'debit', 100.00),
-(94, 101, 382, 'credit', 100.00);
+(94, 101, 382, 'credit', 100.00),
+(95, 102, 276, 'debit', 123.00),
+(96, 102, 382, 'credit', 123.00),
+(97, 103, 276, 'debit', 123.00),
+(98, 103, 382, 'credit', 123.00),
+(99, 104, 276, 'debit', 123.00),
+(100, 104, 382, 'credit', 123.00),
+(101, 105, 276, 'debit', 100.00),
+(102, 106, 276, 'debit', 100.00),
+(103, 106, 382, 'credit', 100.00),
+(104, 107, 276, 'debit', 100.00),
+(105, 107, 382, 'credit', 100.00),
+(106, 108, 276, 'debit', 100.00),
+(107, 108, 382, 'credit', 100.00);
 
 -- --------------------------------------------------------
 
@@ -462,6 +489,14 @@ CREATE TABLE `merged_payees` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Stores merged payee groups';
 
+--
+-- Dumping data for table `merged_payees`
+--
+
+INSERT INTO `merged_payees` (`merge_id`, `merge_name`, `description`, `payee_type`, `created_by`, `created_at`, `updated_at`) VALUES
+(1, 'DTI', 'gags', 'Internal', 'Cashier', '2025-04-25 01:43:38', '2025-04-25 01:43:38'),
+(2, 'DTI', '', 'Internal', 'Cashier', '2025-04-25 01:43:53', '2025-04-25 01:43:53');
+
 -- --------------------------------------------------------
 
 --
@@ -474,6 +509,17 @@ CREATE TABLE `merged_payee_items` (
   `dv_id` int(11) NOT NULL COMMENT 'Reference to dv.dv_id',
   `added_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Stores individual DVs in a merged payee group';
+
+--
+-- Dumping data for table `merged_payee_items`
+--
+
+INSERT INTO `merged_payee_items` (`item_id`, `merge_id`, `dv_id`, `added_at`) VALUES
+(1, 1, 102, '2025-04-25 01:43:38'),
+(2, 1, 103, '2025-04-25 01:43:38'),
+(3, 1, 104, '2025-04-25 01:43:38'),
+(4, 2, 102, '2025-04-25 01:43:53'),
+(5, 2, 103, '2025-04-25 01:43:53');
 
 -- --------------------------------------------------------
 
@@ -511,7 +557,13 @@ INSERT INTO `obligation_history` (`id`, `ors_id`, `project_id`, `net`) VALUES
 (71, 106, 378, 100.00),
 (72, 107, 378, 100.00),
 (73, 108, 378, 100.00),
-(74, 109, 378, 100.00);
+(74, 109, 378, 100.00),
+(75, 110, 380, 123.00),
+(76, 111, 380, 123.00),
+(77, 112, 380, 123.00),
+(78, 113, 378, 100.00),
+(79, 114, 378, 100.00),
+(80, 115, 378, 100.00);
 
 -- --------------------------------------------------------
 
@@ -578,7 +630,13 @@ INSERT INTO `ors` (`ors_id`, `fund_cluster_id`, `services_id`, `date`, `ors_no`,
 (106, 5, 8, '2025-04-24', 'PMS-25-04-001', 22, 'asfnasf', 'To Payment of', 10, 379, 1, 100.00, 4, 'CONNIE M. BARNACHEA', 'Endorsed'),
 (107, 4, 15, '2025-04-24', 'MSSD-25-04-001', 20, 'alsnf;asf', 'To Payment of', 8, 379, 1, 100.00, 4, 'CONNIE M. BARNACHEA', 'Endorsed'),
 (108, 4, 19, '2025-04-24', 'MSSD-KM-25-04-001', 20, 'asfasf', 'To Payment of', 10, 379, 1, 100.00, 5, 'CONNIE M. BARNACHEA', 'Endorsed'),
-(109, 3, 11, '2025-04-24', 'ADMINPOLICY-25-04-002', 19, 'asfnalskfn', 'To Payment of', 12, 379, 1, 100.00, 3, 'CONNIE M. BARNACHEA', 'Endorsed');
+(109, 3, 11, '2025-04-24', 'ADMINPOLICY-25-04-002', 19, 'asfnalskfn', 'To Payment of', 12, 379, 1, 100.00, 3, 'CONNIE M. BARNACHEA', 'Endorsed'),
+(110, 4, 11, '2025-04-24', 'ADMINPOLICY-25-04-003', 26, 'test1', 'To Payment of', 1, 381, 1, 123.00, 1, 'CONNIE M. BARNACHEA', 'Endorsed'),
+(111, 6, 11, '2025-04-24', 'ADMINPOLICY-25-04-004', 27, 'aasfa', 'To Payment of', 10, 381, 1, 123.00, 3, 'CONNIE M. BARNACHEA', 'Endorsed'),
+(112, 6, 11, '2025-04-24', 'ADMINPOLICY-25-04-005', 19, 'agasgsa', 'To Payment of', 7, 381, 1, 123.00, 2, 'CONNIE M. BARNACHEA', 'Endorsed'),
+(113, 4, 16, '2025-04-25', 'MSSD-ISO-25-04-001', 26, 'Test1', 'To Payment of', 2, 379, 1, 100.00, 2, 'CONNIE M. BARNACHEA', 'Endorsed'),
+(114, 5, 19, '2025-04-25', 'MSSD-KM-25-04-002', 27, 'test2', 'To Payment of', 4, 379, 1, 100.00, 2, 'CONNIE M. BARNACHEA', 'Endorsed'),
+(115, 4, 14, '2025-04-25', 'GADGET-25-04-001', 21, 'Twerk', 'To Payment of', 3, 379, 1, 100.00, 1, 'CONNIE M. BARNACHEA', 'Endorsed');
 
 -- --------------------------------------------------------
 
@@ -611,7 +669,9 @@ INSERT INTO `payee` (`payee_id`, `payee_name`, `tin_no`, `bank_acc_no`, `address
 (22, 'ADWERKZ PRINTING SOLUTIONS/PAUL RYAN C. BARCELONA', '', 'LBP - SA 3416-0029-23', '', '', '', ''),
 (23, 'AFL 168 CORPORATION', '', 'LBP - SA 0751-1769-37', '', '', '', ''),
 (24, 'AHR WOODCRAFT CENTER BY ALLAN B. HIMALLA ', '', 'LBP - SA 0751-1759-90', '', '', '', ''),
-(25, 'BENJO G. BASID', '', '', 'Koronadal City', '', '', '');
+(25, 'BENJO G. BASID', '', '', 'Koronadal City', '', '', ''),
+(26, 'test1', 'test1', 'test1', 'test1', 'test1', '1245125215', 'internal'),
+(27, 'test2', 'test2', 'test2', 'test2', 'test2', '12412', 'internal');
 
 -- --------------------------------------------------------
 
@@ -640,10 +700,15 @@ CREATE TABLE `payment` (
 --
 
 INSERT INTO `payment` (`payment_id`, `dv_id`, `ada_no`, `payment_date`, `payment_type`, `reference_no`, `amount`, `remarks`, `created_by`, `is_merged_payment`, `merge_id`, `created_at`, `status`) VALUES
-(45, 98, 101, '2025-04-24', 'ADA', '101-04-001-2025', 100.00, 'jafk', 'Cashier', 0, NULL, '2025-04-24 03:27:11', 'Pending'),
-(46, 97, 101, '2025-04-24', 'ADA', '101-04-002-2025', 100.00, 'jafk', 'Cashier', 0, NULL, '2025-04-24 03:27:11', 'Pending'),
-(47, 99, 101, '2025-04-24', 'ADA', '101-04-003-2025', 100.00, 'jafk', 'Cashier', 0, NULL, '2025-04-24 03:27:11', 'Pending'),
-(48, 100, 0, '2025-04-24', 'ADA', '101-04-002-2025', 100.00, 'jafk', 'Cashier', 0, NULL, '2025-04-24 03:41:22', 'Pending');
+(45, 98, 101, '2025-04-24', 'ADA', '101-04-001-2025', 100.00, 'jafkASFKNASKFGALKSG', 'Cashier', 0, NULL, '2025-04-24 03:27:11', 'Pending'),
+(46, 97, 101, '2025-04-24', 'ADA', '101-04-002-2025', 100.00, 'jafkASFKNASKFGALKSG', 'Cashier', 0, NULL, '2025-04-24 03:27:11', 'Pending'),
+(47, 99, 101, '2025-04-24', 'ADA', '101-04-003-2025', 100.00, 'jafkASFKNASKFGALKSG', 'Cashier', 0, NULL, '2025-04-24 03:27:11', 'Pending'),
+(48, 100, 0, '2025-04-24', 'ADA', '101-04-002-2025', 100.00, 'jafkASFKNASKFGALKSG', 'Cashier', 0, NULL, '2025-04-24 03:41:22', 'Pending'),
+(49, 101, 101, '2025-04-25', 'ADA', '101-04--2025', 100.00, 'jafkASFKNASKFGALKSG', 'Cashier', 0, NULL, '2025-04-25 01:59:46', 'Pending'),
+(50, 108, 101, '2025-04-25', 'ADA', '101-04-007-2025', 100.00, 'f;asf', 'Cashier', 0, NULL, '2025-04-25 02:10:13', 'Pending'),
+(51, 102, 101, '2025-04-25', 'ADA', '101-04-008-2025', 123.00, 'f;asf', 'Cashier', 0, NULL, '2025-04-25 02:10:13', 'Pending'),
+(52, 103, 101, '2025-04-25', 'ADA', '101-04-008-2025', 123.00, 'f;asf', 'Cashier', 0, NULL, '2025-04-25 02:10:13', 'Pending'),
+(53, 104, 101, '2025-04-25', 'ADA', '101-04-008-2025', 123.00, 'f;asf', 'Cashier', 0, NULL, '2025-04-25 02:10:13', 'Pending');
 
 -- --------------------------------------------------------
 
@@ -954,9 +1019,9 @@ INSERT INTO `project` (`project_id`, `oopap_id`, `account_id`, `allotment`, `bal
 (374, 9, 364, 0.00, 0.00, '2025-03-31'),
 (375, 9, 314, 50000.00, 50000.00, '2025-03-31'),
 (376, 9, 346, 50000.00, 50000.00, '2025-03-31'),
-(378, 1, 379, 100000.00, 87303.00, '2025-04-02'),
+(378, 1, 379, 100000.00, 87003.00, '2025-04-02'),
 (379, 1, 380, 100000.00, 94900.00, '2025-04-02'),
-(380, 1, 381, 0.00, -1830.00, '2025-04-02'),
+(380, 1, 381, 0.00, -2199.00, '2025-04-02'),
 (381, 11, 295, 3817000.00, 3817000.00, '2025-04-06'),
 (382, 11, 383, 144000.00, 144000.00, '2025-04-06'),
 (383, 11, 298, 120000.00, 120000.00, '2025-04-06'),
@@ -1367,13 +1432,13 @@ ALTER TABLE `approver`
 -- AUTO_INCREMENT for table `batch_ada`
 --
 ALTER TABLE `batch_ada`
-  MODIFY `batch_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+  MODIFY `batch_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
 -- AUTO_INCREMENT for table `batch_ada_dvs`
 --
 ALTER TABLE `batch_ada_dvs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 
 --
 -- AUTO_INCREMENT for table `draft_project`
@@ -1385,13 +1450,13 @@ ALTER TABLE `draft_project`
 -- AUTO_INCREMENT for table `dv`
 --
 ALTER TABLE `dv`
-  MODIFY `dv_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=102;
+  MODIFY `dv_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=109;
 
 --
 -- AUTO_INCREMENT for table `dv_history`
 --
 ALTER TABLE `dv_history`
-  MODIFY `dvhis_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=95;
+  MODIFY `dvhis_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=108;
 
 --
 -- AUTO_INCREMENT for table `fund_cluster`
@@ -1409,19 +1474,19 @@ ALTER TABLE `jev`
 -- AUTO_INCREMENT for table `merged_payees`
 --
 ALTER TABLE `merged_payees`
-  MODIFY `merge_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `merge_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `merged_payee_items`
 --
 ALTER TABLE `merged_payee_items`
-  MODIFY `item_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `obligation_history`
 --
 ALTER TABLE `obligation_history`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=75;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=81;
 
 --
 -- AUTO_INCREMENT for table `oopap`
@@ -1433,19 +1498,19 @@ ALTER TABLE `oopap`
 -- AUTO_INCREMENT for table `ors`
 --
 ALTER TABLE `ors`
-  MODIFY `ors_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=110;
+  MODIFY `ors_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=116;
 
 --
 -- AUTO_INCREMENT for table `payee`
 --
 ALTER TABLE `payee`
-  MODIFY `payee_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `payee_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT for table `payment`
 --
 ALTER TABLE `payment`
-  MODIFY `payment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
+  MODIFY `payment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
 
 --
 -- AUTO_INCREMENT for table `program`

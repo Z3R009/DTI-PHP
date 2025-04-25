@@ -2,6 +2,12 @@
 // Include database connection
 include '../DBConnection.php';
 
+// Debug check for database connection
+if (!isset($connection) || !$connection) {
+    $conn_error = "Database connection is not available. Please check the DBConnection.php file.";
+    error_log($conn_error);
+}
+
 // Check if there's a success message
 $success_message = '';
 if(isset($_GET['success']) && $_GET['success'] == '1') {
@@ -15,6 +21,15 @@ if(isset($_GET['success']) && $_GET['success'] == '1') {
     $lddap_ref = isset($_GET['lddap_ref']) ? $_GET['lddap_ref'] : '';
     $lddap_data = isset($_GET['lddap_data']) ? $_GET['lddap_data'] : '';
     $storage_key = isset($_GET['storage_key']) ? $_GET['storage_key'] : '';
+} elseif(isset($_GET['success']) && $_GET['success'] == '4') {
+    $success_message = 'Payees have been merged successfully!';
+    $merge_id = isset($_GET['merge_id']) ? $_GET['merge_id'] : '';
+} elseif(isset($_GET['success']) && $_GET['success'] == '5') {
+    $success_message = 'Merged payee group has been deleted successfully!';
+} elseif(isset($_GET['success']) && $_GET['success'] == '6') {
+    $payment_count = isset($_GET['payment_count']) ? $_GET['payment_count'] : '';
+    $total = isset($_GET['total']) ? $_GET['total'] : '';
+    $success_message = "Merged payment has been processed successfully! $payment_count vouchers paid totaling ₱$total.";
 }
 
 // Check if there's an error message
@@ -26,6 +41,39 @@ if(isset($_GET['error']) && !empty($_GET['error'])) {
 // Get pending vouchers from backend
 require_once 'back_end/get_pending_vouchers.php';
 $pending_result = getPendingVouchers();
+
+// Get merged payees data
+try {
+    // Check if file exists before requiring it
+    if (file_exists(__DIR__ . '/back_end/get_merged_payees.php')) {
+        require_once 'back_end/get_merged_payees.php';
+        if (function_exists('getMergedPayees')) {
+            $merged_payees = getMergedPayees();
+            
+            // Ensure $merged_payees is an array
+            if (!is_array($merged_payees)) {
+                $merged_payees = [];
+                $display_merged_payees_error = true;
+            }
+        } else {
+            $merged_payees = [];
+            $display_merged_payees_error = true;
+            error_log("getMergedPayees function does not exist");
+        }
+    } else {
+        $merged_payees = [];
+        $display_merged_payees_error = true;
+        error_log("get_merged_payees.php file not found");
+    }
+} catch (Exception $e) {
+    // Log error and set empty array
+    error_log("Error getting merged payees: " . $e->getMessage());
+    $merged_payees = [];
+    $display_merged_payees_error = true;
+}
+
+// Variable to hold connection error message
+$merged_payees_error_message = "Database Connection Error: Could not connect to the database. The merged payees feature may not work properly.";
 
 // Process form submissions
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -121,10 +169,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
     <?php endif; ?>
+    
+    <?php if (isset($conn_error)): ?>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-database-x me-1"></i>
+        <strong>Database Connection Error:</strong> Could not connect to the database. The merged payees feature may not work properly.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <?php endif; ?>
 
     <section class="section">
         <div class="row">
             <div class="col-lg-12">
+                <?php if (isset($conn_error)): ?>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-database-x me-1"></i>
+                    <strong>Database Connection Error:</strong> Could not connect to the database. Some features may not work properly.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <?php endif; ?>
+                
+                <?php if (isset($display_merged_payees_error) && $display_merged_payees_error): ?>
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                    <strong>Merged Payees Feature Issue:</strong> <?php echo $merged_payees_error_message; ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <?php endif; ?>
+                
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -140,6 +212,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 </button>
                                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#batchAdaModal" id="createBatchAdaBtn" disabled>
                                     <i class="bi bi-bank"></i> Create ADA
+                                </button>
+                                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#mergePayeeModal" id="mergePayeesBtn" disabled>
+                                    <i class="bi bi-people"></i> Merge Payees
                                 </button>
                             </div>
                             <?php endif; ?>
@@ -167,8 +242,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     </thead>
                                     <tbody>
                                         <?php if ($pending_count > 0): ?>
-                                            <?php mysqli_data_seek($pending_result, 0); // Reset result pointer ?>
-                                            <?php while ($row = mysqli_fetch_assoc($pending_result)): ?>
+                                            <?php 
+                                            // Create an array of DV IDs that are already part of merged groups
+                                            $merged_dv_ids = array();
+                                            if (!empty($merged_payees)) {
+                                                foreach ($merged_payees as $group) {
+                                                    if (!empty($group['dvs'])) {
+                                                        foreach ($group['dvs'] as $dv) {
+                                                            if (isset($dv['dv_id'])) {
+                                                                $merged_dv_ids[] = $dv['dv_id'];
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            
+                                            // Reset result pointer
+                                            mysqli_data_seek($pending_result, 0);
+                                            
+                                            // Counter for displayed DVs
+                                            $displayed_count = 0;
+                                            
+                                            while ($row = mysqli_fetch_assoc($pending_result)): 
+                                                // Skip this row if the voucher is already part of a merged group
+                                                if (in_array($row['dv_id'], $merged_dv_ids)) {
+                                                    continue;
+                                                }
+                                                
+                                                // Increment displayed count
+                                                $displayed_count++;
+                                            ?>
                                             <tr class="border-bottom">
                                                 <td class="text-center">
                                                     <div class="form-check">
@@ -450,6 +553,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                 </div>
                                             </div>
                                             <?php endwhile; ?>
+                                            
+                                            <?php if ($displayed_count === 0 && $pending_count > 0): ?>
+                                            <tr>
+                                                <td colspan="9" class="text-center p-4">
+                                                    <div class="empty-state">
+                                                        <i class="bi bi-people-fill fs-3 text-primary"></i>
+                                                        <h5 class="mt-3">All vouchers have been merged</h5>
+                                                        <p class="text-muted">All pending vouchers have been added to merged payee groups. You can view them in the Merged Payee Groups section below.</p>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <?php endif; ?>
                                         <?php else: ?>
                                         <tr>
                                             <td colspan="9" class="text-center p-4">
@@ -464,6 +579,88 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     </tbody>
                                 </table>
                             </div>
+                            
+                            <!-- Added section: Merged Payee Groups table -->
+                            <?php if (!empty($merged_payees)): ?>
+                            <div class="card border-primary shadow-sm mt-4 mb-4">
+                                <div class="card-header bg-primary bg-opacity-10 d-flex justify-content-between align-items-center">
+                                    <h5 class="card-title mb-0 text-primary"><i class="bi bi-people-fill me-2"></i>Merged Payee Groups</h5>
+                                    <span class="badge bg-primary rounded-pill"><?php echo count($merged_payees); ?> groups</span>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover align-middle mb-0">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th width="5%" class="text-center">
+                                                        <div class="form-check">
+                                                            <input type="checkbox" id="masterMergedCheckbox" class="form-check-input">
+                                                        </div>
+                                                    </th>
+                                                    <th>Group Name</th>
+                                                    <th>Type</th>
+                                                    <th>Vouchers</th>
+                                                    <th>Purpose</th>
+                                                    <th class="text-end">Total Amount</th>
+                                                    <th width="10%" class="text-center">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php foreach ($merged_payees as $group): ?>
+                                                <tr>
+                                                    <td class="text-center">
+                                                        <div class="form-check">
+                                                            <input type="checkbox" name="selected_merged_groups[]" value="<?php echo $group['merge_id']; ?>" 
+                                                                   class="form-check-input merged-group-checkbox"
+                                                                   data-merge-id="<?php echo $group['merge_id']; ?>"
+                                                                   data-merge-name="<?php echo htmlspecialchars($group['merge_name']); ?>"
+                                                                   data-total-amount="<?php echo $group['total_amount']; ?>">
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <span class="fw-medium text-primary"><?php echo $group['merge_name']; ?></span>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-<?php echo ($group['payee_type'] == 'Internal') ? 'success' : 'primary'; ?>">
+                                                            <?php echo $group['payee_type']; ?>
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-secondary"><?php echo $group['total_dvs']; ?> vouchers</span>
+                                                    </td>
+                                                    <td>
+                                                        <?php if (!empty($group['description'])): ?>
+                                                        <span class="text-truncate d-inline-block" style="max-width: 250px;" data-bs-toggle="tooltip" title="<?php echo htmlspecialchars($group['description']); ?>">
+                                                            <?php echo substr($group['description'], 0, 50) . (strlen($group['description']) > 50 ? '...' : ''); ?>
+                                                        </span>
+                                                        <?php else: ?>
+                                                        <span class="text-muted fst-italic">No description</span>
+                                                        <?php endif; ?>
+                                                    </td>
+                                                    <td class="text-end fw-medium text-success">₱<?php echo number_format($group['total_amount'], 2); ?></td>
+                                                    <td class="text-center">
+                                                        <div class="btn-group">
+                                                            <button type="button" class="btn btn-sm btn-info text-white rounded-circle me-1 view-merged-details-btn" 
+                                                                    data-merge-id="<?php echo $group['merge_id']; ?>" title="View Details">
+                                                                <i class="bi bi-eye"></i>
+                                                            </button>
+                                                            <button type="button" class="btn btn-sm btn-primary rounded-circle process-merged-payment-btn" 
+                                                                    data-merge-id="<?php echo $group['merge_id']; ?>" 
+                                                                    data-merge-name="<?php echo htmlspecialchars($group['merge_name']); ?>" 
+                                                                    data-total="<?php echo $group['total_amount']; ?>" title="Process Payment">
+                                                                <i class="bi bi-cash"></i>
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <?php endforeach; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php endif; ?>
+                            <!-- End of merged payee groups table -->
                             
                             <!-- Batch ADA Modal -->
                             <div class="modal fade" id="batchAdaModal" tabindex="-1" aria-labelledby="batchAdaModalLabel" aria-hidden="true">
@@ -596,6 +793,316 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     </div>
                                 </div>
                             </div>
+                            
+                            <!-- Merge Payees Modal -->
+                            <div class="modal fade" id="mergePayeeModal" tabindex="-1" aria-labelledby="mergePayeeModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-success text-white">
+                                            <h5 class="modal-title" id="mergePayeeModalLabel"><i class="bi bi-people me-2"></i>Merge Internal Payees</h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <form method="POST" action="back_end/merge_payees.php" id="mergePayeeForm">
+                                            <div class="modal-body">
+                                                <div class="alert alert-info d-flex align-items-center mb-4" role="alert">
+                                                    <i class="bi bi-info-circle-fill me-2 fs-4"></i>
+                                                    <div>
+                                                        You are creating a consolidated internal payee group for multiple vouchers. This allows you to process them as a single payment.
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="card mb-4 border-0 shadow-sm">
+                                                    <div class="card-header bg-light">
+                                                        <h6 class="card-title mb-0">Merge Information</h6>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div class="row mb-3">
+                                                            <div class="col-md-8">
+                                                                <label for="merge_name" class="form-label fw-medium">Merged Payee Name <span class="text-danger">*</span></label>
+                                                                <input type="text" class="form-control form-control-lg" id="merge_name" name="merge_name" 
+                                                                       placeholder="Enter a name for this group (e.g. Department Utilities Bills)" required>
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <label for="payee_type" class="form-label fw-medium">Payee Type</label>
+                                                                <select class="form-select form-select-lg" id="payee_type" name="payee_type">
+                                                                    <option value="Internal" selected>Internal</option>
+                                                                    <option value="External">External</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="mb-3">
+                                                            <label for="merge_description" class="form-label fw-medium">Description</label>
+                                                            <textarea class="form-control" id="merge_description" name="merge_description" rows="3" 
+                                                                      placeholder="Enter a description for this merged payee group"></textarea>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="card border-0 shadow-sm mb-3">
+                                                    <div class="card-header bg-light">
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <h6 class="card-title mb-0">Selected Vouchers</h6>
+                                                            <span class="badge bg-success rounded-pill" id="selectedMergeCount">0 selected</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="card-body p-0">
+                                                        <div class="table-responsive">
+                                                            <table class="table table-hover align-middle mb-0" id="selectedMergeTable">
+                                                                <thead class="table-light">
+                                                                    <tr>
+                                                                        <th>DV No.</th>
+                                                                        <th>Payee</th>
+                                                                        <th>Purpose</th>
+                                                                        <th>Amount</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody id="selectedMergeBody">
+                                                                    <!-- Selected DVs will be populated here via JavaScript -->
+                                                                </tbody>
+                                                                <tfoot class="table-light">
+                                                                    <tr>
+                                                                        <td colspan="3" class="text-end fw-bold">Total Amount:</td>
+                                                                        <td class="text-end fw-bold" id="totalMergeAmount">₱0.00</td>
+                                                                    </tr>
+                                                                </tfoot>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <input type="hidden" name="merge_payees" value="1">
+                                                <!-- Selected DVs will be added here as hidden inputs via JavaScript -->
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                                                    <i class="bi bi-x-circle me-1"></i> Cancel
+                                                </button>
+                                                <button type="submit" class="btn btn-success" id="submitMergeBtn">
+                                                    <i class="bi bi-people me-1"></i> Create Merged Payee
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Merged Payees List Modal -->
+                            <div class="modal fade" id="viewMergedPayeesModal" tabindex="-1" aria-labelledby="viewMergedPayeesModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-xl">
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-info text-white">
+                                            <h5 class="modal-title" id="viewMergedPayeesModalLabel"><i class="bi bi-people me-2"></i>Merged Payee Groups</h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <?php if (isset($display_merged_payees_error) && $display_merged_payees_error): ?>
+                                            <div class="alert alert-danger d-flex align-items-center" role="alert">
+                                                <i class="bi bi-exclamation-triangle-fill me-2 fs-4"></i>
+                                                <div>
+                                                    <?php echo $merged_payees_error_message; ?>
+                                                </div>
+                                            </div>
+                                            <?php endif; ?>
+                                            
+                                            <?php if (!empty($merged_payees)): ?>
+                                                <div class="accordion" id="mergedPayeesAccordion">
+                                                    <?php foreach ($merged_payees as $index => $group): ?>
+                                                    <div class="accordion-item border mb-3 rounded shadow-sm">
+                                                        <h2 class="accordion-header" id="heading<?php echo $group['merge_id']; ?>">
+                                                            <button class="accordion-button <?php echo ($index !== 0) ? 'collapsed' : ''; ?>" type="button" data-bs-toggle="collapse" 
+                                                                    data-bs-target="#collapse<?php echo $group['merge_id']; ?>" 
+                                                                    aria-expanded="<?php echo ($index === 0) ? 'true' : 'false'; ?>" 
+                                                                    aria-controls="collapse<?php echo $group['merge_id']; ?>">
+                                                                <div class="d-flex align-items-center justify-content-between w-100">
+                                                                    <div>
+                                                                        <span class="fw-bold"><?php echo isset($group['merge_name']) ? $group['merge_name'] : 'Unnamed Group'; ?></span>
+                                                                        <span class="badge bg-<?php echo (isset($group['payee_type']) && $group['payee_type'] == 'Internal') ? 'success' : 'primary'; ?> ms-2">
+                                                                            <?php echo isset($group['payee_type']) ? $group['payee_type'] : 'Internal'; ?>
+                                                                        </span>
+                                                                    </div>
+                                                                    <div class="text-end me-3">
+                                                                        <span class="badge bg-secondary me-2"><?php echo isset($group['total_dvs']) ? $group['total_dvs'] : 0; ?> vouchers</span>
+                                                                        <span class="text-success fw-bold">₱<?php echo isset($group['total_amount']) ? number_format($group['total_amount'], 2) : '0.00'; ?></span>
+                                                                    </div>
+                                                                </div>
+                                                            </button>
+                                                        </h2>
+                                                        <div id="collapse<?php echo $group['merge_id']; ?>" class="accordion-collapse collapse <?php echo ($index === 0) ? 'show' : ''; ?>" 
+                                                             aria-labelledby="heading<?php echo $group['merge_id']; ?>" data-bs-parent="#mergedPayeesAccordion">
+                                                            <div class="accordion-body">
+                                                                <?php if (!empty($group['description'])): ?>
+                                                                <div class="alert alert-light mb-3">
+                                                                    <i class="bi bi-info-circle me-2"></i>
+                                                                    <?php echo $group['description']; ?>
+                                                                </div>
+                                                                <?php endif; ?>
+                                                                
+                                                                <div class="d-flex justify-content-between mb-3">
+                                                                    <small class="text-muted">
+                                                                        Created by <?php echo isset($group['created_by']) ? $group['created_by'] : 'Unknown'; ?> on 
+                                                                        <?php echo isset($group['created_at']) ? date('M d, Y h:i A', strtotime($group['created_at'])) : 'Unknown date'; ?>
+                                                                    </small>
+                                                                    <form method="POST" action="back_end/merge_payees.php" class="delete-merge-form">
+                                                                        <input type="hidden" name="delete_merge_id" value="<?php echo $group['merge_id']; ?>">
+                                                                        <button type="submit" class="btn btn-sm btn-outline-danger delete-merge-btn">
+                                                                            <i class="bi bi-trash"></i> Delete this group
+                                                                        </button>
+                                                                    </form>
+                                                                </div>
+                                                                
+                                                                <?php if (!empty($group['dvs'])): ?>
+                                                                <div class="table-responsive">
+                                                                    <table class="table table-sm table-hover">
+                                                                        <thead class="table-light">
+                                                                            <tr>
+                                                                                <th>DV No.</th>
+                                                                                <th>Date</th>
+                                                                                <th>Payee</th>
+                                                                                <th>Purpose</th>
+                                                                                <th class="text-end">Amount</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            <?php foreach ($group['dvs'] as $dv): ?>
+                                                                            <tr>
+                                                                                <td><?php echo isset($dv['dv_no']) ? $dv['dv_no'] : 'N/A'; ?></td>
+                                                                                <td><?php echo isset($dv['date']) ? date('M d, Y', strtotime($dv['date'])) : 'N/A'; ?></td>
+                                                                                <td><?php echo isset($dv['payee_name']) ? $dv['payee_name'] : 'N/A'; ?></td>
+                                                                                <td>
+                                                                                    <?php if (isset($dv['purpose'])): ?>
+                                                                                    <span class="text-truncate d-inline-block" style="max-width: 250px;" data-bs-toggle="tooltip" 
+                                                                                          title="<?php echo htmlspecialchars($dv['purpose']); ?>">
+                                                                                        <?php echo substr($dv['purpose'], 0, 50) . (strlen($dv['purpose']) > 50 ? '...' : ''); ?>
+                                                                                    </span>
+                                                                                    <?php else: ?>
+                                                                                    <span>N/A</span>
+                                                                                    <?php endif; ?>
+                                                                                </td>
+                                                                                <td class="text-end">₱<?php echo isset($dv['net_amount']) ? number_format($dv['net_amount'], 2) : '0.00'; ?></td>
+                                                                            </tr>
+                                                                            <?php endforeach; ?>
+                                                                        </tbody>
+                                                                        <tfoot class="table-light">
+                                                                            <tr>
+                                                                                <td colspan="4" class="text-end fw-bold">Total:</td>
+                                                                                <td class="text-end fw-bold">₱<?php echo isset($group['total_amount']) ? number_format($group['total_amount'], 2) : '0.00'; ?></td>
+                                                                            </tr>
+                                                                        </tfoot>
+                                                                    </table>
+                                                                </div>
+                                                                <?php else: ?>
+                                                                <div class="alert alert-warning">
+                                                                    <i class="bi bi-exclamation-triangle me-2"></i>
+                                                                    No vouchers found in this group.
+                                                                </div>
+                                                                <?php endif; ?>
+                                                                
+                                                                <div class="d-flex justify-content-center mt-3">
+                                                                    <button type="button" class="btn btn-primary process-merged-payment-btn" data-merge-id="<?php echo $group['merge_id']; ?>" 
+                                                                            data-merge-name="<?php echo isset($group['merge_name']) ? $group['merge_name'] : 'Unnamed Group'; ?>" 
+                                                                            data-total="<?php echo isset($group['total_amount']) ? $group['total_amount'] : 0; ?>">
+                                                                        <i class="bi bi-cash-coin me-1"></i> Process Merged Payment
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            <?php else: ?>
+                                                <div class="text-center p-4 empty-state">
+                                                    <i class="bi bi-people fs-1 text-muted"></i>
+                                                    <h5 class="mt-3">No Merged Payee Groups Found</h5>
+                                                    <p class="text-muted">You haven't created any merged payee groups yet.</p>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                <i class="bi bi-x-circle me-1"></i> Close
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Process Merged Payment Modal -->
+                            <div class="modal fade" id="processMergedPaymentModal" tabindex="-1" aria-labelledby="processMergedPaymentModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-primary text-white">
+                                            <h5 class="modal-title" id="processMergedPaymentModalLabel"><i class="bi bi-cash-coin me-2"></i>Process Merged Payment</h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <form method="POST" action="back_end/process_merged_payment.php" id="processMergedPaymentForm">
+                                            <div class="modal-body">
+                                                <div class="row mb-4">
+                                                    <div class="col-md-6">
+                                                        <div class="border-start border-primary border-4 ps-3">
+                                                            <h6 class="text-primary fw-bold mb-2">Merged Payee Information</h6>
+                                                            <p class="mb-1 fs-5" id="mergedPayeeName"></p>
+                                                            <p class="text-muted">Internal Consolidated Payment</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="border-start border-success border-4 ps-3">
+                                                            <h6 class="text-success fw-bold mb-2">Amount Details</h6>
+                                                            <p class="mb-1 fs-4 fw-bold" id="mergedPayeeAmount"></p>
+                                                            <p class="text-muted" id="mergedPayeeVoucherCount"></p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <input type="hidden" name="merge_id" id="mergedPayeeId">
+                                                
+                                                <div class="row mb-3">
+                                                    <div class="col-md-6">
+                                                        <label for="merged_payment_type" class="form-label fw-medium">Payment Type</label>
+                                                        <select class="form-select form-select-lg" id="merged_payment_type" name="payment_type" required>
+                                                            <option value="">Select Payment Type</option>
+                                                            <option value="Check">Check</option>
+                                                            <option value="ADA">ADA</option>
+                                                            <option value="Cash">Cash</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label for="merged_reference_no" class="form-label fw-medium">Reference No:</label>
+                                                        <input type="text" class="form-control form-control-lg" id="merged_reference_no" name="reference_no" required>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="row mb-3">
+                                                    <div class="col-md-6">
+                                                        <label for="merged_payment_date" class="form-label fw-medium">Payment Date</label>
+                                                        <input type="date" class="form-control form-control-lg" id="merged_payment_date" name="payment_date" value="<?php echo date('Y-m-d'); ?>" required>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label for="merged_amount" class="form-label fw-medium">Amount</label>
+                                                        <div class="input-group input-group-lg">
+                                                            <span class="input-group-text">₱</span>
+                                                            <input type="number" step="0.01" class="form-control" id="merged_amount" name="amount" required>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="mb-3">
+                                                    <label for="merged_remarks" class="form-label fw-medium">Remarks</label>
+                                                    <textarea class="form-control" id="merged_remarks" name="remarks" rows="3" placeholder="Enter any additional information about this payment"></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                                                    <i class="bi bi-x-circle me-1"></i> Cancel
+                                                </button>
+                                                <button type="submit" class="btn btn-primary">
+                                                    <i class="bi bi-save me-1"></i> Process Payment
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -603,6 +1110,86 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
     </section>
 </main>
+
+<!-- View Merged Payee Details Modal -->
+<div class="modal fade" id="viewMergedDetailsModal" tabindex="-1" aria-labelledby="viewMergedDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="viewMergedDetailsModalLabel"><i class="bi bi-people-fill me-2"></i>Merged Payee Group Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex justify-content-between mb-3">
+                    <div>
+                        <h5 class="text-primary fw-bold mb-1" id="groupDetailName"></h5>
+                        <p class="text-muted mb-0" id="groupDetailType"></p>
+                    </div>
+                    <div class="text-end">
+                        <h5 class="text-success fw-bold mb-1" id="groupDetailAmount"></h5>
+                        <p class="text-muted mb-0" id="groupDetailCount"></p>
+                    </div>
+                </div>
+                
+                <div class="card bg-light mb-4">
+                    <div class="card-body">
+                        <h6 class="card-title text-dark mb-2">Description</h6>
+                        <p class="card-text" id="groupDetailDescription">No description available</p>
+                    </div>
+                </div>
+                
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-header bg-light">
+                        <h6 class="card-title mb-0">Included Vouchers</h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>DV No.</th>
+                                        <th>Date</th>
+                                        <th>Payee</th>
+                                        <th>Purpose</th>
+                                        <th class="text-end">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="groupDetailVouchers">
+                                    <!-- Vouchers will be populated via JavaScript -->
+                                </tbody>
+                                <tfoot class="table-light">
+                                    <tr>
+                                        <td colspan="4" class="text-end fw-bold">Total:</td>
+                                        <td class="text-end fw-bold" id="groupDetailTotal"></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="border-top pt-3 text-muted small">
+                    <div class="row">
+                        <div class="col-md-6">
+                            Created by: <span id="groupDetailCreatedBy"></span>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            Created on: <span id="groupDetailCreatedAt"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i> Close
+                </button>
+                <button type="button" class="btn btn-primary" id="processFromDetailsBtn">
+                    <i class="bi bi-cash me-1"></i> Process Payment
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <?php include 'includes/footer.php'; ?>
 
@@ -784,10 +1371,15 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateBatchButtonState() {
         const createBatchAdaBtn = document.getElementById('createBatchAdaBtn');
         const dvCheckboxes = document.querySelectorAll('.dv-checkbox');
+        const mergedGroupCheckboxes = document.querySelectorAll('.merged-group-checkbox');
         if (!createBatchAdaBtn) return;
         
-        const anyChecked = Array.from(dvCheckboxes).filter(cb => cb.checked).length > 0;
-        console.log('Any checkboxes checked:', anyChecked, 'count:', dvCheckboxes.length);
+        // Check if any regular DVs or merged groups are selected
+        const anyDvChecked = Array.from(dvCheckboxes).some(cb => cb.checked);
+        const anyMergedChecked = Array.from(mergedGroupCheckboxes).some(cb => cb.checked);
+        const anyChecked = anyDvChecked || anyMergedChecked;
+        
+        console.log('Any items checked:', anyChecked, '(DVs:', anyDvChecked, ', Merged:', anyMergedChecked, ')');
         createBatchAdaBtn.disabled = !anyChecked;
         
         // Fix: Add visual feedback by changing the button appearance
@@ -798,6 +1390,63 @@ document.addEventListener('DOMContentLoaded', function() {
             createBatchAdaBtn.classList.remove('btn-primary');
             createBatchAdaBtn.classList.add('btn-secondary');
         }
+    }
+    
+    // Handle merged payee group checkboxes
+    function bindMergedGroupCheckboxes() {
+        const masterMergedCheckbox = document.getElementById('masterMergedCheckbox');
+        const mergedGroupCheckboxes = document.querySelectorAll('.merged-group-checkbox');
+        
+        console.log('Found merged group elements:', {
+            masterMergedCheckbox: !!masterMergedCheckbox,
+            mergedGroupCheckboxesCount: mergedGroupCheckboxes.length
+        });
+        
+        if (!masterMergedCheckbox || mergedGroupCheckboxes.length === 0) return;
+        
+        // Clear previous event listeners by cloning and replacing elements
+        if (masterMergedCheckbox._hasEventListener) {
+            const newMasterMergedCheckbox = masterMergedCheckbox.cloneNode(true);
+            masterMergedCheckbox.parentNode.replaceChild(newMasterMergedCheckbox, masterMergedCheckbox);
+            masterMergedCheckbox = newMasterMergedCheckbox;
+        }
+        masterMergedCheckbox._hasEventListener = true;
+        
+        // Master checkbox functionality for merged groups
+        masterMergedCheckbox.addEventListener('change', function() {
+            console.log('Master merged checkbox changed:', this.checked);
+            mergedGroupCheckboxes.forEach(checkbox => {
+                checkbox.checked = masterMergedCheckbox.checked;
+            });
+            updateBatchButtonState();
+        });
+        
+        // Individual merged group checkbox functionality
+        mergedGroupCheckboxes.forEach((checkbox, index) => {
+            if (!checkbox._hasEventListener) {
+                checkbox.addEventListener('change', function() {
+                    console.log('Merged group checkbox', index, 'changed:', this.checked);
+                    updateMasterMergedCheckboxState();
+                    updateBatchButtonState();
+                });
+                checkbox._hasEventListener = true;
+            }
+        });
+        
+        // Initial state update
+        updateMasterMergedCheckboxState();
+    }
+    
+    // Update master merged checkbox state
+    function updateMasterMergedCheckboxState() {
+        const masterMergedCheckbox = document.getElementById('masterMergedCheckbox');
+        const mergedGroupCheckboxes = document.querySelectorAll('.merged-group-checkbox');
+        if (!masterMergedCheckbox) return;
+        
+        const checkedCount = Array.from(mergedGroupCheckboxes).filter(cb => cb.checked).length;
+        console.log('Checked merged groups count:', checkedCount, 'of', mergedGroupCheckboxes.length);
+        masterMergedCheckbox.checked = checkedCount === mergedGroupCheckboxes.length && mergedGroupCheckboxes.length > 0;
+        masterMergedCheckbox.indeterminate = checkedCount > 0 && checkedCount < mergedGroupCheckboxes.length;
     }
     
     // Populate batch ADA modal with selected DVs
@@ -824,11 +1473,19 @@ document.addEventListener('DOMContentLoaded', function() {
             // Get all selected DVs and populate table
             let totalAmount = 0;
             const currentCheckboxes = document.querySelectorAll('.dv-checkbox:checked');
-            console.log('Selected checkboxes for modal:', currentCheckboxes.length);
+            console.log('Selected regular DVs for modal:', currentCheckboxes.length);
+            
+            // Get all selected merged groups
+            const selectedMergedGroups = document.querySelectorAll('.merged-group-checkbox:checked');
+            console.log('Selected merged groups for modal:', selectedMergedGroups.length);
+            
+            // Calculate total count of all selected items
+            const totalSelectedCount = currentCheckboxes.length + selectedMergedGroups.length;
             
             // Update selected count
-            document.getElementById('selectedDVCount').textContent = `${currentCheckboxes.length} selected`;
+            document.getElementById('selectedDVCount').textContent = `${totalSelectedCount} selected`;
             
+            // First process regular DVs
             currentCheckboxes.forEach((checkbox, idx) => {
                 const row = checkbox.closest('tr');
                 const dvId = checkbox.value;
@@ -854,6 +1511,42 @@ document.addEventListener('DOMContentLoaded', function() {
                     <td>
                         <input type="text" class="form-control ada-reference-input" 
                                data-dv-id="${dvId}" 
+                               data-item-type="dv"
+                               value="${suggestedSeries}"
+                               placeholder="Series number only (e.g. 001)" required>
+                    </td>
+                `;
+                selectedDVsBody.appendChild(tr);
+            });
+            
+            // Then process merged groups
+            selectedMergedGroups.forEach((checkbox, idx) => {
+                const row = checkbox.closest('tr');
+                const mergeId = checkbox.dataset.mergeId;
+                const mergeName = checkbox.dataset.mergeName;
+                const amountText = row.cells[5].textContent.trim();
+                
+                console.log('Adding merged group to batch:', { mergeId, mergeName, amountText });
+                
+                // Extract amount (remove currency symbol and commas)
+                const amount = parseFloat(amountText.replace(/[₱,]/g, ''));
+                totalAmount += amount;
+                
+                // Generate a suggested series number (padded with leading zeros)
+                // Continue from the last regular DV index
+                const suggestedSeries = (currentCheckboxes.length + idx + 1).toString().padStart(3, '0');
+                
+                // Add to table with a different style to distinguish it
+                const tr = document.createElement('tr');
+                tr.classList.add('table-primary');
+                tr.innerHTML = `
+                    <td><i class="bi bi-people-fill me-1"></i> Group</td>
+                    <td>${mergeName}</td>
+                    <td>₱${amount.toFixed(2)}</td>
+                    <td>
+                        <input type="text" class="form-control ada-reference-input" 
+                               data-merge-id="${mergeId}" 
+                               data-item-type="merge"
                                value="${suggestedSeries}"
                                placeholder="Series number only (e.g. 001)" required>
                     </td>
@@ -919,10 +1612,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const fundCode = document.getElementById('fund_code').value;
             const bankInfo = document.getElementById('bank_info').value;
             
-            // Get all checkboxes and verify selection
-            const selectedCheckboxes = document.querySelectorAll('.dv-checkbox:checked');
-            if (selectedCheckboxes.length === 0) {
-                alert('Please select at least one DV for batch payment');
+            // Get all regular DV checkboxes
+            const selectedDvCheckboxes = document.querySelectorAll('.dv-checkbox:checked');
+            
+            // Get all merged group checkboxes
+            const selectedMergedGroups = document.querySelectorAll('.merged-group-checkbox:checked');
+            
+            // Verify selection
+            if (selectedDvCheckboxes.length === 0 && selectedMergedGroups.length === 0) {
+                alert('Please select at least one DV or merged group for batch payment');
                 return;
             }
             
@@ -962,7 +1660,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 
                 if (!allValid) {
-                    alert('Please provide ADA reference numbers for all selected DVs');
+                    alert('Please provide ADA reference numbers for all selected items');
                     return;
                 }
             }
@@ -973,8 +1671,9 @@ document.addEventListener('DOMContentLoaded', function() {
             // First clear all hidden inputs to prevent duplication
             const existingHiddenInputs = form.querySelectorAll('input[type="hidden"]');
             existingHiddenInputs.forEach(input => {
-                if (input.name === 'selected_dvs[]' || input.name.startsWith('ada_references') || 
-                    input.name === 'fund_code' || input.name === 'bank_info') {
+                if (input.name === 'selected_dvs[]' || input.name === 'selected_merged_groups[]' || 
+                    input.name.startsWith('ada_references') || input.name === 'fund_code' || 
+                    input.name === 'bank_info') {
                     input.remove();
                 }
             });
@@ -997,9 +1696,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 // For individual references, add them to the form
                 const adaReferenceInputs = document.querySelectorAll('.ada-reference-input');
                 adaReferenceInputs.forEach(input => {
-                    const dvId = input.getAttribute('data-dv-id');
-                    const refNo = input.value.trim();
-                    formData.append(`ada_references[${dvId}]`, refNo);
+                    const itemType = input.getAttribute('data-item-type');
+                    
+                    if (itemType === 'dv') {
+                        const dvId = input.getAttribute('data-dv-id');
+                        const refNo = input.value.trim();
+                        formData.append(`ada_references[dv_${dvId}]`, refNo);
+                    } else if (itemType === 'merge') {
+                        const mergeId = input.getAttribute('data-merge-id');
+                        const refNo = input.value.trim();
+                        formData.append(`ada_references[merge_${mergeId}]`, refNo);
+                    }
                 });
             }
             
@@ -1011,8 +1718,13 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('batch_remarks', remarks);
             
             // Add selected DVs
-            selectedCheckboxes.forEach(checkbox => {
+            selectedDvCheckboxes.forEach(checkbox => {
                 formData.append('selected_dvs[]', checkbox.value);
+            });
+            
+            // Add selected merged groups
+            selectedMergedGroups.forEach(checkbox => {
+                formData.append('selected_merged_groups[]', checkbox.value);
             });
             
             // Log form data for debugging
@@ -1023,7 +1735,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 remarks: remarks,
                 fundCode: fundCode,
                 bankInfo: bankInfo,
-                selectedDVs: Array.from(selectedCheckboxes).map(cb => cb.value)
+                selectedDVs: Array.from(selectedDvCheckboxes).map(cb => cb.value),
+                selectedMergedGroups: Array.from(selectedMergedGroups).map(cb => cb.value)
             });
             
             // Transfer formData values to the form for standard submission
@@ -1048,5 +1761,474 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize on page load
     bindCheckboxEvents();
+    bindMergedGroupCheckboxes();
+});
+
+// JavaScript for Merge Payees functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Reference to the merge payees button
+    const mergePayeesBtn = document.getElementById('mergePayeesBtn');
+    
+    // Make sure we have checkbox elements on the page
+    function initializeCheckboxes() {
+        // Find all checkboxes with the dv-checkbox class
+        const checkboxes = document.querySelectorAll('.dv-checkbox');
+        console.log('Initializing checkboxes for merge functionality. Found:', checkboxes.length);
+        
+        if (checkboxes.length === 0) {
+            console.warn('No checkboxes found with class .dv-checkbox');
+        }
+        
+        // Add event listener to each checkbox
+        checkboxes.forEach(checkbox => {
+            // Remove existing listeners first to avoid duplicates
+            checkbox.removeEventListener('change', handleCheckboxChange);
+            // Add the event listener
+            checkbox.addEventListener('change', handleCheckboxChange);
+            console.log('Added change listener to checkbox:', checkbox.value);
+        });
+        
+        // Also initialize the master checkbox if present
+        const masterCheckbox = document.getElementById('masterCheckbox');
+        if (masterCheckbox) {
+            masterCheckbox.removeEventListener('change', updateMergeButtonState);
+            masterCheckbox.addEventListener('change', updateMergeButtonState);
+            console.log('Added change listener to master checkbox');
+        } else {
+            console.warn('Master checkbox not found with ID masterCheckbox');
+        }
+        
+        // Also initialize merged group checkboxes for ADA selection
+        bindMergedGroupCheckboxes();
+        
+        // Initial update
+        updateMergeButtonState();
+        updateBatchButtonState(); // Make sure batch button state is also updated
+    }
+    
+    // Handle checkbox change events
+    function handleCheckboxChange() {
+        console.log('Checkbox changed:', this.checked, 'Value:', this.value);
+        updateMergeButtonState();
+        updateBatchButtonState(); // Update both button states
+    }
+    
+    // Update merge payees button state when checkboxes change
+    function updateMergeButtonState() {
+        // Get all checked checkboxes
+        const dvCheckboxes = document.querySelectorAll('.dv-checkbox:checked');
+        console.log('Selected DVs count for merge:', dvCheckboxes.length);
+        
+        // Find the merge button
+        const mergePayeesBtn = document.getElementById('mergePayeesBtn');
+        if (!mergePayeesBtn) {
+            console.error('Merge payees button not found!');
+            return;
+        }
+        
+        // Enable button only if at least 2 DVs are selected
+        const checkedCount = dvCheckboxes.length;
+        mergePayeesBtn.disabled = checkedCount < 2;
+        
+        // Update button appearance
+        if (checkedCount >= 2) {
+            mergePayeesBtn.classList.remove('btn-secondary');
+            mergePayeesBtn.classList.add('btn-success');
+            console.log('Merge button enabled - enough DVs selected');
+        } else {
+            mergePayeesBtn.classList.remove('btn-success');
+            mergePayeesBtn.classList.add('btn-secondary');
+            console.log('Merge button disabled - need at least 2 DVs');
+        }
+    }
+    
+    // Initialize checkboxes when the page loads
+    initializeCheckboxes();
+    
+    // Also handle any dynamically added checkboxes
+    // This is useful if the table data gets refreshed via AJAX
+    function setupMutationObserver() {
+        // Create an observer instance linked to a callback function
+        const observer = new MutationObserver(function(mutations) {
+            // Check if any mutations might have added checkboxes
+            let shouldReinitialize = false;
+            
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                    // Check if any added nodes contain checkboxes
+                    mutation.addedNodes.forEach(function(node) {
+                        if (node.nodeType === 1 && (
+                            node.classList.contains('dv-checkbox') || 
+                            node.classList.contains('merged-group-checkbox') ||
+                            (node.querySelector && (
+                                node.querySelector('.dv-checkbox') || 
+                                node.querySelector('.merged-group-checkbox')
+                            ))
+                        )) {
+                            shouldReinitialize = true;
+                        }
+                    });
+                }
+            });
+            
+            // If checkboxes were added, reinitialize
+            if (shouldReinitialize) {
+                console.log('New checkboxes detected, reinitializing...');
+                initializeCheckboxes();
+            }
+        });
+        
+        // Start observing the target node for configured mutations
+        const tableContainer = document.querySelector('.table-responsive');
+        if (tableContainer) {
+            observer.observe(tableContainer, { childList: true, subtree: true });
+            console.log('Mutation observer set up for dynamic checkboxes in main table');
+        }
+        
+        // Also observe the merged payees table if it exists
+        const mergedTable = document.querySelector('.merged-payees-table');
+        if (mergedTable) {
+            observer.observe(mergedTable, { childList: true, subtree: true });
+            console.log('Mutation observer set up for merged payees table');
+        }
+    }
+    
+    // Set up observer for dynamic content
+    setupMutationObserver();
+    
+    // Handle merge payee form submission
+    const mergePayeeForm = document.getElementById('mergePayeeForm');
+    if (mergePayeeForm) {
+        mergePayeeForm.addEventListener('submit', function(e) {
+            // Validate at least 2 DVs are selected
+            const selectedDvs = this.querySelectorAll('input[name="selected_dvs[]"]');
+            console.log('Form submission - Selected DVs:', selectedDvs.length);
+            
+            if (selectedDvs.length < 2) {
+                e.preventDefault();
+                alert('Please select at least two vouchers to merge.');
+                return false;
+            }
+            
+            // Validate merge name is provided
+            const mergeName = document.getElementById('merge_name').value.trim();
+            if (!mergeName) {
+                e.preventDefault();
+                alert('Please enter a name for the merged payee group.');
+                document.getElementById('merge_name').focus();
+                return false;
+            }
+            
+            console.log('Form is valid, submitting...');
+            return true;
+        });
+    }
+});
+
+// Populate merge payee modal with selected DVs
+const mergePayeeModal = document.getElementById('mergePayeeModal');
+if (mergePayeeModal) {
+    mergePayeeModal.addEventListener('show.bs.modal', function(event) {
+        console.log('Merge Payee modal opening');
+        
+        // Get references to table elements
+        const selectedMergeBody = document.getElementById('selectedMergeBody');
+        const totalMergeAmount = document.getElementById('totalMergeAmount');
+        const selectedMergeCount = document.getElementById('selectedMergeCount');
+        const mergePayeeForm = document.getElementById('mergePayeeForm');
+        
+        if (!selectedMergeBody || !totalMergeAmount || !mergePayeeForm) {
+            console.error('Could not find merge table elements');
+            return;
+        }
+        
+        // Clear previous data
+        selectedMergeBody.innerHTML = '';
+        
+        // Get all selected DVs
+        const selectedCheckboxes = document.querySelectorAll('.dv-checkbox:checked');
+        console.log('Selected checkboxes for merge:', selectedCheckboxes.length);
+        
+        if (selectedCheckboxes.length < 2) {
+            console.warn('Not enough DVs selected for merge - need at least 2');
+            
+            // Add a warning message to the modal
+            selectedMergeBody.innerHTML = `
+                <tr>
+                    <td colspan="4" class="text-center text-warning py-4">
+                        <i class="bi bi-exclamation-triangle-fill fs-3 mb-2"></i>
+                        <p>Please select at least two vouchers to merge.</p>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </td>
+                </tr>
+            `;
+            selectedMergeCount.textContent = "0 selected";
+            totalMergeAmount.textContent = "₱0.00";
+            
+            // Close the modal after a short delay
+            setTimeout(() => {
+                const modalInstance = bootstrap.Modal.getInstance(mergePayeeModal);
+                if (modalInstance) {
+                    modalInstance.hide();
+                }
+            }, 3000);
+            
+            return;
+        }
+        
+        // Update selected count
+        selectedMergeCount.textContent = `${selectedCheckboxes.length} selected`;
+        
+        // Clear existing hidden inputs for selected DVs
+        const existingHiddenInputs = mergePayeeForm.querySelectorAll('input[name="selected_dvs[]"]');
+        existingHiddenInputs.forEach(input => {
+            input.remove();
+        });
+        
+        let totalAmount = 0;
+        let successfullyAddedCount = 0;
+        
+        // Process each selected checkbox
+        selectedCheckboxes.forEach((checkbox, index) => {
+            try {
+                // Find the parent row - this is critical
+                const row = checkbox.closest('tr');
+                if (!row) {
+                    console.error(`Could not find parent row for checkbox ${index}`, checkbox);
+                    return;
+                }
+                
+                // Get the DV ID
+                const dvId = checkbox.value;
+                
+                // Correctly get data from cells based on the actual table structure
+                // The table columns are: checkbox(0), DV No(1), Date(2), ORS No(3), Payee(4), Purpose(5), Net Amount(6), Chief Account(7), Actions(8)
+                let dvNo = row.cells[1].querySelector('.fw-medium') ? 
+                          row.cells[1].querySelector('.fw-medium').textContent.trim() : 
+                          row.cells[1].textContent.trim();
+                
+                let payee = row.cells[4].querySelector('.fw-medium') ? 
+                          row.cells[4].querySelector('.fw-medium').textContent.trim() : 
+                          row.cells[4].textContent.trim();
+                
+                let purpose = '';
+                const purposeElement = row.cells[5].querySelector('[data-bs-toggle="tooltip"]');
+                if (purposeElement && purposeElement.getAttribute('title')) {
+                    purpose = purposeElement.getAttribute('title');
+                } else {
+                    purpose = row.cells[5].textContent.trim();
+                }
+                
+                // Get amount (at index 6)
+                const amountText = row.cells[6].textContent.trim();
+                const amount = parseFloat(amountText.replace(/[₱,]/g, '')) || 0;
+                totalAmount += amount;
+                
+                // Add to table
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${dvNo}</td>
+                    <td>${payee}</td>
+                    <td>
+                        <span class="text-truncate d-inline-block" style="max-width: 200px;" data-bs-toggle="tooltip" title="${purpose}">
+                            ${purpose.length > 40 ? purpose.substring(0, 40) + '...' : purpose}
+                        </span>
+                    </td>
+                    <td>₱${amount.toFixed(2)}</td>
+                `;
+                selectedMergeBody.appendChild(tr);
+                
+                // Add hidden input for DV ID
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'selected_dvs[]';
+                hiddenInput.value = dvId;
+                mergePayeeForm.appendChild(hiddenInput);
+                
+                successfullyAddedCount++;
+                
+            } catch (error) {
+                console.error(`Error processing checkbox ${index}:`, error);
+            }
+        });
+        
+        // Update UI with the results
+        totalMergeAmount.textContent = `₱${totalAmount.toFixed(2)}`;
+        selectedMergeCount.textContent = `${successfullyAddedCount} selected`;
+        
+        // Initialize tooltips in the modal
+        var tooltipTriggerList = [].slice.call(mergePayeeModal.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+        
+        // If no DVs were successfully added, show an error
+        if (successfullyAddedCount === 0) {
+            selectedMergeBody.innerHTML = `
+                <tr>
+                    <td colspan="4" class="text-center text-danger py-4">
+                        <i class="bi bi-exclamation-circle-fill fs-3 mb-2"></i>
+                        <p>Error processing selected vouchers. Please try again or contact support.</p>
+                    </td>
+                </tr>
+            `;
+        }
+    });
+}
+</script>
+
+<script>
+// Additional validation for merge functionality
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM fully loaded - Checking critical elements:');
+    
+    // Check if merge modal exists
+    const mergeModal = document.getElementById('mergePayeeModal');
+    console.log('Merge Modal found:', !!mergeModal);
+    
+    // Check if merge table body exists
+    const mergeTableBody = document.getElementById('selectedMergeBody');
+    console.log('Merge Table Body found:', !!mergeTableBody);
+    
+    // Check for checkboxes
+    const checkboxes = document.querySelectorAll('.dv-checkbox');
+    console.log('DV Checkboxes found:', checkboxes.length);
+    
+    // Check merge button
+    const mergeButton = document.getElementById('mergePayeesBtn');
+    console.log('Merge Button found:', !!mergeButton);
+    
+    // Try to add another event listener to the merge modal to ensure it works
+    if (mergeModal) {
+        mergeModal.addEventListener('shown.bs.modal', function() {
+            console.log('Merge modal has been shown - Secondary listener');
+            const selectedCheckboxes = document.querySelectorAll('.dv-checkbox:checked');
+            console.log('Selected checkboxes count (secondary check):', selectedCheckboxes.length);
+        });
+    }
+    
+    // Handle view merged payee details button click
+    const viewMergedDetailsBtns = document.querySelectorAll('.view-merged-details-btn');
+    if (viewMergedDetailsBtns.length > 0) {
+        console.log('Found view merged details buttons:', viewMergedDetailsBtns.length);
+        
+        viewMergedDetailsBtns.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const mergeId = this.getAttribute('data-merge-id');
+                console.log('View details clicked for merge ID:', mergeId);
+                showMergedGroupDetails(mergeId);
+            });
+        });
+    }
+    
+    // Function to show merged group details in modal
+    function showMergedGroupDetails(mergeId) {
+        // Find the merged group in the data
+        const mergedGroups = <?php echo json_encode($merged_payees); ?>;
+        const group = mergedGroups.find(g => g.merge_id == mergeId);
+        
+        if (!group) {
+            console.error('Merged group not found with ID:', mergeId);
+            return;
+        }
+        
+        console.log('Found group data:', group);
+        
+        // Populate modal with group data
+        document.getElementById('groupDetailName').textContent = group.merge_name || 'Unnamed Group';
+        document.getElementById('groupDetailType').textContent = group.payee_type || 'Internal';
+        document.getElementById('groupDetailAmount').textContent = '₱' + parseFloat(group.total_amount || 0).toFixed(2);
+        document.getElementById('groupDetailCount').textContent = (group.total_dvs || 0) + ' vouchers';
+        document.getElementById('groupDetailDescription').textContent = group.description || 'No description available';
+        document.getElementById('groupDetailCreatedBy').textContent = group.created_by || 'Unknown';
+        document.getElementById('groupDetailCreatedAt').textContent = group.created_at ? new Date(group.created_at).toLocaleString() : 'Unknown date';
+        document.getElementById('groupDetailTotal').textContent = '₱' + parseFloat(group.total_amount || 0).toFixed(2);
+        
+        // Clear and populate vouchers table
+        const vouchersBody = document.getElementById('groupDetailVouchers');
+        vouchersBody.innerHTML = '';
+        
+        if (group.dvs && group.dvs.length > 0) {
+            group.dvs.forEach(dv => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${dv.dv_no || 'N/A'}</td>
+                    <td>${dv.date ? new Date(dv.date).toLocaleDateString() : 'N/A'}</td>
+                    <td>${dv.payee_name || 'N/A'}</td>
+                    <td>
+                        <span class="text-truncate d-inline-block" style="max-width: 200px;" data-bs-toggle="tooltip" 
+                              title="${dv.purpose || ''}">
+                            ${dv.purpose ? (dv.purpose.length > 40 ? dv.purpose.substring(0, 40) + '...' : dv.purpose) : 'N/A'}
+                        </span>
+                    </td>
+                    <td class="text-end">₱${parseFloat(dv.net_amount || 0).toFixed(2)}</td>
+                `;
+                vouchersBody.appendChild(tr);
+            });
+            
+            // Initialize tooltips in the modal
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        } else {
+            // No vouchers
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td colspan="5" class="text-center py-3">
+                    <i class="bi bi-exclamation-circle text-warning me-2"></i>
+                    No vouchers found in this group
+                </td>
+            `;
+            vouchersBody.appendChild(tr);
+        }
+        
+        // Set up payment button
+        const processBtn = document.getElementById('processFromDetailsBtn');
+        if (processBtn) {
+            // Remove existing listeners to avoid duplicates
+            const newProcessBtn = processBtn.cloneNode(true);
+            processBtn.parentNode.replaceChild(newProcessBtn, processBtn);
+            
+            // Add event listener to process button
+            newProcessBtn.addEventListener('click', function() {
+                console.log('Process from details clicked for merge ID:', mergeId);
+                
+                // Get references to process merged payment modal elements
+                const processMergedPaymentModal = document.getElementById('processMergedPaymentModal');
+                const mergedPayeeId = document.getElementById('mergedPayeeId');
+                const mergedPayeeName = document.getElementById('mergedPayeeName');
+                const mergedPayeeAmount = document.getElementById('mergedPayeeAmount');
+                const mergedAmount = document.getElementById('merged_amount');
+                const mergedPayeeVoucherCount = document.getElementById('mergedPayeeVoucherCount');
+                
+                if (processMergedPaymentModal && mergedPayeeId && mergedPayeeName && mergedPayeeAmount && mergedAmount) {
+                    // Populate data
+                    mergedPayeeId.value = mergeId;
+                    mergedPayeeName.textContent = group.merge_name || 'Unnamed Group';
+                    mergedPayeeAmount.textContent = '₱' + parseFloat(group.total_amount || 0).toFixed(2);
+                    mergedAmount.value = parseFloat(group.total_amount || 0).toFixed(2);
+                    mergedPayeeVoucherCount.textContent = (group.total_dvs || 0) + ' vouchers';
+                    
+                    // Close details modal and open payment modal
+                    const detailsModal = bootstrap.Modal.getInstance(document.getElementById('viewMergedDetailsModal'));
+                    if (detailsModal) {
+                        detailsModal.hide();
+                    }
+                    
+                    // Show process modal
+                    const processModal = new bootstrap.Modal(processMergedPaymentModal);
+                    processModal.show();
+                }
+            });
+        }
+        
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('viewMergedDetailsModal'));
+        modal.show();
+    }
 });
 </script>
+</body>
+</html>
