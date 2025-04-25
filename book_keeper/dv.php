@@ -1057,63 +1057,6 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
 
     </script>
 
-    <!-- show form after selecting ors type  -->
-    <!-- <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const orsTypeSelect = document.getElementById("ors_type");
-        const orsForm = document.getElementById("dv_form");
-
-        orsTypeSelect.addEventListener("change", function () {
-            if (this.value) {
-                orsForm.style.display = "block";  // Show the form
-            }
-        });
-    });
-</script> -->
-
-    <!-- account_title -->
-    <!-- <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const orsTypeSelect = document.getElementById("ors_type");
-
-        function filterAccountTitles() {
-            const selectedType = orsTypeSelect.value;
-            const accountSelects = document.querySelectorAll('.account-select');
-
-            accountSelects.forEach(select => {
-                const currentValue = select.value;
-                const currentTitle = select.options[select.selectedIndex]?.getAttribute('data-title') || '';
-
-                Array.from(select.options).forEach(option => {
-                    if (option.value === "") return;
-
-                    const accountTitle = option.getAttribute('data-title')?.toLowerCase() || '';
-                    const accountCode = option.getAttribute('data-uacs') || '';
-                    if (selectedType === "cash_advance") {
-                        option.hidden = !accountTitle.includes('advance');
-                    } else if (selectedType === "transfer_fund") {
-                        option.hidden = !(accountTitle.includes('cash') && accountCode.startsWith('10'));
-                    } else {
-                        option.hidden = false;
-                    }
-                });
-
-                // Restore selection if it's still valid
-                if (currentValue && select.querySelector(`option[value="${currentValue}"]`)) {
-                    select.value = currentValue;
-                }
-            });
-        }
-
-        // Filter on initial load and when DV type changes
-        orsTypeSelect.addEventListener("change", filterAccountTitles);
-
-        // Also filter when new rows are added
-        document.getElementById('addAccountRow').addEventListener('click', function () {
-            setTimeout(filterAccountTitles, 0);
-        });
-    });
-</script> -->
 
     <!-- add row and calculate totals -->
     <script>
@@ -1450,6 +1393,65 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
             });
         });
     </script> -->
+
+    <!-- show form after selecting ors type  -->
+    <!-- <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const orsTypeSelect = document.getElementById("ors_type");
+        const orsForm = document.getElementById("dv_form");
+
+        orsTypeSelect.addEventListener("change", function () {
+            if (this.value) {
+                orsForm.style.display = "block";  // Show the form
+            }
+        });
+    });
+</script> -->
+
+    <!-- account_title -->
+    <!-- <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const orsTypeSelect = document.getElementById("ors_type");
+
+        function filterAccountTitles() {
+            const selectedType = orsTypeSelect.value;
+            const accountSelects = document.querySelectorAll('.account-select');
+
+            accountSelects.forEach(select => {
+                const currentValue = select.value;
+                const currentTitle = select.options[select.selectedIndex]?.getAttribute('data-title') || '';
+
+                Array.from(select.options).forEach(option => {
+                    if (option.value === "") return;
+
+                    const accountTitle = option.getAttribute('data-title')?.toLowerCase() || '';
+                    const accountCode = option.getAttribute('data-uacs') || '';
+                    if (selectedType === "cash_advance") {
+                        option.hidden = !accountTitle.includes('advance');
+                    } else if (selectedType === "transfer_fund") {
+                        option.hidden = !(accountTitle.includes('cash') && accountCode.startsWith('10'));
+                    } else {
+                        option.hidden = false;
+                    }
+                });
+
+                // Restore selection if it's still valid
+                if (currentValue && select.querySelector(`option[value="${currentValue}"]`)) {
+                    select.value = currentValue;
+                }
+            });
+        }
+
+        // Filter on initial load and when DV type changes
+        orsTypeSelect.addEventListener("change", filterAccountTitles);
+
+        // Also filter when new rows are added
+        document.getElementById('addAccountRow').addEventListener('click', function () {
+            setTimeout(filterAccountTitles, 0);
+        });
+    });
+</script> -->
+
 
 </body>
 
