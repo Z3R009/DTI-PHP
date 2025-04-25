@@ -12,7 +12,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Sanitize and assign main record fields
     $fund_cluster_id = $_POST['fund_cluster_id'];
     $oopap_id = $_POST['oopap_id'];
-    $services_id = $_POST['services_id'];
     $date = $_POST['date'];
     $dv_no = $_POST['dv_no'];
     $payee_id = $_POST['payee_id'];
@@ -35,8 +34,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $regional_director = $_POST['regional_director'];
 
     // Insert DV Non-ORS main record
-    $sql = "INSERT INTO dv_non_ors (fund_cluster_id, oopap_id, services_id, date, dv_no, payee_id, purpose, notes, rc_id, total_amount, vat, vat_amount, tax_base, tax_1, tax_1_amount, tax_2, tax_2_amount, net_amount, approver_id, chief_accountant, regional_director) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO dv_non_ors (fund_cluster_id, oopap_id, date, dv_no, payee_id, purpose, notes, rc_id, total_amount, vat, vat_amount, tax_base, tax_1, tax_1_amount, tax_2, tax_2_amount, net_amount, approver_id, chief_accountant, regional_director) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     $stmt = $connection->prepare($sql);
     if (!$stmt) {
@@ -44,11 +43,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     $stmt->bind_param(
-        "iiississddddidididiss"
+        "iississddddidididiss"
         ,
         $fund_cluster_id,
         $oopap_id,
-        $services_id,
         $date,
         $dv_no,
         $payee_id,
@@ -144,9 +142,6 @@ $result_fund_cluster = $connection->query($sql_fund_cluster);
 $sql_oopap = "SELECT oopap_id, oopap_name FROM oopap";
 $result_oopap = $connection->query($sql_oopap);
 
-// retrieve services
-$sql_services = "SELECT services_id, services_name, code FROM services";
-$result_services = $connection->query($sql_services);
 
 // Fetch Approvers Data
 $sql_approvers = "SELECT approver_id, approver_name, designation FROM approver";
@@ -903,8 +898,8 @@ $select_dv = mysqli_query($connection, "
                                         <div class="form-group">
                                             <label class="form-label">Fund Cluster</label>
                                             <select class="form-control" name="fund_cluster_id" id="fund_cluster"
-                                                onchange="updateUACSCode()">
-                                                <option selected disabled>Select Fund Cluster</option>
+                                                onchange="updateUACSCode()" required>
+                                                <option selected disabled value="">Select Fund Cluster</option>
                                                 <?php
                                                 while ($row = $result_fund_cluster->fetch_assoc()) {
                                                     echo "<option value='" . htmlspecialchars($row['fund_cluster_id']) . "' data-uacs='" . htmlspecialchars($row['uacs_code']) . "'>" . htmlspecialchars($row['fund_cluster']) . "</option>";
@@ -918,19 +913,13 @@ $select_dv = mysqli_query($connection, "
 
                                         <div class="form-group">
                                             <label class="form-label">OO/PAP</label>
-                                            <select class="form-control" name="oopap_id">
-                                                <option selected disabled>Select OO/PAP</option>
+                                            <select class="form-control" name="oopap_id" required>
+                                                <option selected disabled value="">Select OO/PAP</option>
                                                 <?php
                                                 while ($row = $result_oopap->fetch_assoc()) {
                                                     echo "<option value='" . htmlspecialchars($row['oopap_id']) . "'>" . htmlspecialchars($row['oopap_name']) . "</option>";
                                                 }
                                                 ?>
-                                            </select>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="form-label">Services</label>
-                                            <select class="form-control" name="services_id" id="services">
-                                                <option selected disabled>Select Services</option>
                                             </select>
                                         </div>
 
@@ -963,8 +952,8 @@ $select_dv = mysqli_query($connection, "
                                     <div class="form-row">
                                         <div class="form-group">
                                             <label class="form-label">Payee Name</label>
-                                            <select class="form-control" name="payee_id" id="payee_id">
-                                                <option selected disabled>Select Payee</option>
+                                            <select class="form-control" name="payee_id" id="payee_id" required>
+                                                <option selected disabled value="">Select Payee</option>
                                                 <?php
                                                 while ($row = $result_payee->fetch_assoc()) {
                                                     echo "<option value='" . htmlspecialchars($row['payee_id']) . "' 
@@ -1002,14 +991,14 @@ $select_dv = mysqli_query($connection, "
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <textarea class="form-control" name="notes"
-                                            placeholder="Enter Purpose"></textarea>
+                                        <textarea class="form-control" name="notes" placeholder="Enter Purpose"
+                                            required></textarea>
                                     </div>
 
                                     <div class="form-group">
                                         <label class="form-label">Responsibility Center</label>
-                                        <select class="form-control" name="rc_id">
-                                            <option selected disabled>Select Responsibility Center</option>
+                                        <select class="form-control" name="rc_id" required>
+                                            <option selected disabled value="">Select Responsibility Center</option>
                                             <?php
                                             while ($row = $result_responsibility_center->fetch_assoc()) {
                                                 echo "<option value='" . htmlspecialchars($row['rc_id']) . "'>"
@@ -1038,8 +1027,8 @@ $select_dv = mysqli_query($connection, "
                                                 <tr>
                                                     <td colspan="2">
                                                         <select class="form-control account-select"
-                                                            name="account_titles[]">
-                                                            <option selected disabled>Select Account</option>
+                                                            name="account_titles[]" required>
+                                                            <option selected disabled value="">Select Account</option>
                                                             <?php
                                                             $account_query = "SELECT * FROM account_title ORDER BY account_title ASC";
                                                             $account_result = $connection->query($account_query);
@@ -1168,8 +1157,9 @@ $select_dv = mysqli_query($connection, "
                                     <div class="form-row">
                                         <div class="form-group">
                                             <label class="form-label" id="designationLabel">Designation</label>
-                                            <select class="form-control" id="approverSelect" name="approver_id">
-                                                <option value="">Select Approver</option>
+                                            <select class="form-control" id="approverSelect" name="approver_id"
+                                                required>
+                                                <option selected disabled value="">Select Approver</option>
                                                 <?php
                                                 foreach ($approverData as $approver_id => $data) {
                                                     echo "<option value='" . htmlspecialchars($approver_id) . "' data-designation='" . htmlspecialchars($data['designation']) . "'>" . htmlspecialchars($data['name']) . "</option>";
@@ -1231,8 +1221,14 @@ $select_dv = mysqli_query($connection, "
                             </thead>
                             <tbody>
                                 <?php
+                                $displayed_dv_nos = [];
+
                                 if (mysqli_num_rows($select_dv) > 0) {
                                     while ($row = mysqli_fetch_assoc($select_dv)) {
+                                        if (in_array($row['dv_no'], $displayed_dv_nos)) {
+                                            continue; // skip duplicate dv_no
+                                        }
+                                        $displayed_dv_nos[] = $row['dv_no'];
                                         ?>
                                         <tr>
                                             <td data-label="Date">
@@ -1251,7 +1247,8 @@ $select_dv = mysqli_query($connection, "
                                                 <?php echo htmlspecialchars($row['account_title']); ?>
                                             </td>
                                             <td data-label="Amount" class="amount-column">
-                                                ₱<?php echo number_format($row['total_amount'], 2); ?></td>
+                                                ₱<?php echo number_format($row['total_amount'], 2); ?>
+                                            </td>
                                             <td data-label="Approver">
                                                 <?php echo htmlspecialchars($row['approver_name']); ?>
                                             </td>
@@ -1261,9 +1258,7 @@ $select_dv = mysqli_query($connection, "
                                                     title="View Details">
                                                     <i class="bi bi-eye"></i>
                                                 </a>
-
                                             </td>
-
                                         </tr>
                                         <?php
                                     }
@@ -1277,6 +1272,7 @@ $select_dv = mysqli_query($connection, "
                                         </td>
                                     </tr>
                                 <?php } ?>
+
                             </tbody>
                         </table>
                     </div>
@@ -1475,47 +1471,38 @@ $select_dv = mysqli_query($connection, "
                 let totalDebit = 0;
                 let totalCredit = 0;
 
-                // Get all debit and credit inputs except the footer row
                 const debitInputs = document.querySelectorAll('tbody .debit-amount');
                 const creditInputs = document.querySelectorAll('tbody .credit-amount');
                 const totalAmountInput = document.getElementById('total_amount');
                 const taxBaseInput = document.getElementById('tax_base');
                 const netInput = document.getElementById('net_amount');
 
-                // Sum up debit amounts
+                // Calculate total debit and credit across all tbody rows
                 debitInputs.forEach(input => {
                     totalDebit += parseFloat(input.value || 0);
                 });
 
-                // Sum up credit amounts
                 creditInputs.forEach(input => {
                     totalCredit += parseFloat(input.value || 0);
                 });
 
-                // Calculate the difference (total debit - total credit)
-                const difference = totalDebit - totalCredit;
+                const totalDifference = totalDebit - totalCredit;
 
-                // Update the footer row's credit field with the difference
+                // Update footer credit field with total difference
                 const footerCreditInput = document.querySelector('tfoot .credit-amount');
                 if (footerCreditInput) {
-                    footerCreditInput.value = difference.toFixed(2);
+                    footerCreditInput.value = totalDifference.toFixed(2);
                 }
 
-                if (totalAmountInput) {
-                    totalAmountInput.value = difference.toFixed(2); // Update the total_amount field
-                }
+                // Set total_amount and tax_base from totalDebit
+                if (totalAmountInput) totalAmountInput.value = totalDebit.toFixed(2);
+                if (taxBaseInput) taxBaseInput.value = totalDebit.toFixed(2);
 
-
-                if (taxBaseInput) {
-                    taxBaseInput.value = difference.toFixed(2); // Update the total_amount field
-                }
-
-                if (netInput) {
-                    netInput.value = difference.toFixed(2); // Update the total_amount field
-                }
-
-
+                // Set net_amount from totalDifference
+                if (netInput) netInput.value = totalDifference.toFixed(2);
             }
+
+
 
             // Function to filter account titles
             function filterAccountTitles(select, selectedType) {
@@ -1589,6 +1576,19 @@ $select_dv = mysqli_query($connection, "
                     }
                     calculateTotals();
                 });
+
+                if (deleteButton) {
+                    deleteButton.addEventListener('click', function () {
+                        // Don't delete if it's the only row in tbody
+                        if (tableBody.querySelectorAll('tr').length > 1) {
+                            row.remove();
+                            calculateTotals();
+                        } else {
+                            alert("Cannot delete the last row. At least one account entry is required.");
+                        }
+                    });
+                }
+
             }
 
             // Setup initial row
@@ -1597,13 +1597,12 @@ $select_dv = mysqli_query($connection, "
             setupCalculationListeners(initialRow);
 
             // Add event listener for DV type changes
-            document.getElementById('ors_type').addEventListener('change', function () {
-                const selectedType = this.value;
-                const accountSelects = document.querySelectorAll('.account-select');
-                accountSelects.forEach(select => {
-                    filterAccountTitles(select, selectedType);
-                });
+            document.addEventListener('input', function (e) {
+                if (e.target.classList.contains('debit-amount') || e.target.classList.contains('credit-amount')) {
+                    calculateTotals();
+                }
             });
+
         });
     </script>
 
