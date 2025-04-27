@@ -95,7 +95,7 @@
   button:hover {
     transform: translateY(-1px);
     box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-    background: linear-gradient(135deg, #023e8a 0%, #0077b6 100%);
+    background: linear-gradient(135deg, #D90429 0%, #D90429 100%);
     color: #fff;
   }
   

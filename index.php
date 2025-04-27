@@ -59,16 +59,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="img/dti_logo.png" rel="icon">
     <link rel="stylesheet" href="css/index.css">
 </head>
+<style>
+      .logo-container {
+            perspective: 1000px;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 30px;
+        }
+
+        .logo-carousel {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 1s;
+        }
+
+        .logo-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .logo-face img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .logo-back {
+            transform: rotateY(180deg);
+        }
+
+</style>
 
 <body>
-    <div class="login-container">
-        <div class="logo" style="display: flex; justify-content: center;">
-            <img src="img/dti_logo.png" alt="Company Logo" width="100" height="100">
-
+<div class="login-container">
+        <div class="logo-container" style="margin-bottom: 10px;">
+            <div class="logo-carousel" id="logo-carousel">
+                <div class="logo-face logo-front">
+                    <img src="img/dti_logo.png" alt="DTI Logo">
+                </div>
+                <div class="logo-face logo-back">
+                    <img src="img/Bagong-Pilipinas-Logo-e1717212149320-1920x1488.png" alt="Secondary Logo">
+                </div>
+            </div>
         </div>
 
+
         <p id="error-message" style="color: red; display: none;"></p>
-        <form method="post">
+        <form method="post" >
             <div class="form-group">
                 <label for="username">Username</label>
                 <ion-icon name="mail-outline"></ion-icon>
@@ -86,5 +130,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <button type="submit">Login</button>
         </form>
 </body>
+<script>
+        const carousel = document.getElementById('logo-carousel');
+        const toggleBtn = document.getElementById('toggle-btn');
+        const speedBtn = document.getElementById('speed-btn');
+        
+        let currentRotation = 0;
+        let animationRunning = true;
+        let animationSpeed = 2000;
+        let animationInterval;
+
+        function rotateLogo() {
+            currentRotation += 180;
+            carousel.style.transform = `rotateY(${currentRotation}deg)`;
+        }
+        function startAnimation() {
+            animationInterval = setInterval(rotateLogo, animationSpeed);
+        }
+        startAnimation();
+        toggleBtn.addEventListener('click', () => {
+            if (animationRunning) {
+                clearInterval(animationInterval);
+                toggleBtn.textContent = 'Resume Animation';
+                animationRunning = false;
+            } else {
+                startAnimation();
+                toggleBtn.textContent = 'Pause Animation';
+                animationRunning = true;
+            }
+        });
+        speedBtn.addEventListener('click', () => {
+            clearInterval(animationInterval);
+            
+            if (animationSpeed === 2000) {
+                animationSpeed = 1000;
+                speedBtn.textContent = 'Speed: Fast';
+            } else if (animationSpeed === 1000) {
+                animationSpeed = 500;
+                speedBtn.textContent = 'Speed: Very Fast';
+            } else {
+                animationSpeed = 2000;
+                speedBtn.textContent = 'Speed: Normal';
+            }
+            
+            if (animationRunning) {
+                startAnimation();
+            }
+        });
+        const secondaryLogo = document.querySelector('.logo-back img');
+        secondaryLogo.onerror = function() {
+            this.src = 'img/dti_logo.png'; 
+            this.style.filter = 'hue-rotate(180deg)'; 
+        };
+    </script>
+
 
 </html>
