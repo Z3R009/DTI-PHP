@@ -268,20 +268,15 @@ if (isset($ors_form['purpose'])) {
                     <td style="text-align: center;" colspan="6"><b>ACCOUNTING ENTRIES</b></td>
                 </tr>
                 <tr>
-                    <td rowspan="7" colspan="2">
+                    <td rowspan="<?php echo count($dv_accounts) + 2; ?>" colspan="2">
                         <?php echo !empty($ors_form['code']) ? htmlspecialchars($ors_form['code']) : "Not Available"; ?>
                     </td>
                     <td style="text-align: center;" colspan="2"><b>Account Name</b></td>
-                    <td style="text-align: center;" colspan="2">
-                        <b>UACS Code</b>
-                    </td>
-                    <td style="text-align: center;">
-                        <b>Debit</b>
-                    </td>
-                    <td style="text-align: center;">
-                        <b>Credit</b>
-                    </td>
+                    <td style="text-align: center;" colspan="2"><b>UACS Code</b></td>
+                    <td style="text-align: center;"><b>Debit</b></td>
+                    <td style="text-align: center;"><b>Credit</b></td>
                 </tr>
+
                 <?php
                 $total_debit = 0;
                 $total_credit = 0;
@@ -305,16 +300,13 @@ if (isset($ors_form['purpose'])) {
                     </tr>
                 <?php endforeach; ?>
 
-
+                <!-- Notes Row (aligned properly) -->
                 <tr>
-
-                    <td style="text-align: center;" colspan="2" rowspan="4">
-                        <?php echo $prefix . ' ' . $ors_form['notes']; ?>
+                    <td colspan="6" style="font-style: italic;">
+                        <strong>Notes:</strong> <?php echo $prefix . ' ' . $ors_form['notes']; ?>
                     </td>
-                    <td colspan="2"></td>
-                    <td></td>
-                    <td></td>
                 </tr>
+
                 <tr></tr>
                 <tr></tr>
                 <tr></tr>

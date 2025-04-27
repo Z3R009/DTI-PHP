@@ -12,7 +12,7 @@ if (isset($_POST['submit'])) {
     echo "</pre>";
 
     $date = $_POST['date'];
-    $dv_no = $_POST['dv_no']; 
+    $dv_no = $_POST['dv_no'];
     $ors_no = $_POST['ors_no'];
     $jev_no = $_POST['jev_no'];
     $administrative_aide = $_POST['administrative_aide'];
@@ -890,6 +890,17 @@ WHERE dv.status = 'Pending'
                                     <label class="form-label">Date</label>
                                     <input type="date" class="form-control" id="date" name="date">
                                 </div>
+
+                                <!-- <script>
+                                    // Set the current date as default
+                                    document.addEventListener("DOMContentLoaded", function () {
+                                        const dateInput = document.getElementById("date");
+                                        if (!dateInput.value) {
+                                            const today = new Date().toISOString().split('T')[0];
+                                            dateInput.value = today;
+                                        }
+                                    });
+                                </script> -->
                                 <div class="form-group">
                                     <label class="form-label">ORS No.</label>
                                     <input type="text" class="form-control" id="ors_no" name="ors_no" readonly>
