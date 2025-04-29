@@ -45,6 +45,7 @@ $select = mysqli_query($connection, "SELECT * FROM oopap");
     <link href="../NiceAdmin/assets/vendor/remixicon/remixicon.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/simple-datatables/style.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/UACS.css">
     <link rel="stylesheet" href="css/table.css">
 
 </head>

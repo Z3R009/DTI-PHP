@@ -11,8 +11,8 @@
             <img src="../img/dti_logo.png " alt="Profile" class="rounded-circle"
                 style="width: 80px; height: 80px; object-fit: cover; border: 3px solid rgba(0, 121, 107, 0.2);">
         </div>
-        <h5 class="text-dark fw-bold mb-0">Book Keeper</h5>
-        <p class="text-dark-emphasis small">Department of Trade & Industry</p>
+        <h5 class="text-white fw-bold mb-0">BookKeeper</h5>
+        <p class="text-white small">Department of Trade & Industry</p>
     </div>
 
 
@@ -109,6 +109,23 @@
 </aside>
 
 <style>
+    :root {
+    --primary-color: #03045e;
+    --primary-dark: #023e8a;
+    --primary-light: #e0f2fe;
+    --secondary-color: #8d99ae;
+    --text-color: #2B2D42;
+    --light-text: #6c757d;
+    --border-color: #e2e8f0;
+    --light-bg: #f8f9fa;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --danger-color: #dc3545;
+    --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --hover-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+    --transition: all 0.3s ease;
+
+}
     .sidebar {
         position: fixed;
         top: 0;
@@ -166,7 +183,7 @@
     .sidebar-nav .nav-link:hover,
     .sidebar-nav .nav-link.active,
     .sidebar-nav .nav-link ul .active {
-        background-color: rgba(10, 111, 253, 0.42);
+        background-color:rgba(2, 61, 138, 0.7);
         color: white;
     }
 
@@ -185,7 +202,7 @@
 
     .user-profile {
         padding: 20px;
-        background: rgba(10, 111, 253, 0.42);
+        background:rgba(2, 61, 138, 0.7);
         border-radius: 15px;
         margin-bottom: 20px;
     }

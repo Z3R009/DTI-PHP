@@ -43,6 +43,7 @@ $select = mysqli_query($connection, "SELECT * FROM approver");
     <link href="../NiceAdmin/assets/vendor/simple-datatables/style.css" rel="stylesheet">
 
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/UACS.css">
     <link rel="stylesheet" href="css/table.css">
 </head>
 
@@ -54,16 +55,16 @@ $select = mysqli_query($connection, "SELECT * FROM approver");
     <main id="main" class="main">
 
         <div class="pagetitle">
-            <h1>Approver</h1>
-        </div><!-- End Page Title -->
+ 
 
         <section class="section dashboard">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="card-title">Approver</h5>
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                             data-bs-target="#addUserModal">Add Approver</button>
-                    </h5>
+                   </div>
                     <p></p>
 
                     <!-- Modal for Add User Form -->

@@ -203,18 +203,12 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
     <title>Disbursement Voucher - DTI Book Keeper</title>
     <meta content="Disbursement Voucher Management System for DTI" name="description">
     <meta content="disbursement, voucher, dti, finance, accounting" name="keywords">
-
-    <!-- Favicons -->
     <link href="img/dti_logo.png" rel="icon">
     <link href="../NiceAdmin/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
-
-    <!-- Google Fonts -->
     <link href="https://fonts.gstatic.com" rel="preconnect">
     <link
         href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i|Roboto+Mono:400,500,600,700&display=swap"
         rel="stylesheet">
-
-    <!-- Vendor CSS Files -->
     <link href="../NiceAdmin/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
@@ -222,15 +216,15 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
     <link href="../NiceAdmin/assets/vendor/quill/quill.bubble.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/remixicon/remixicon.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/simple-datatables/style.css" rel="stylesheet">
-    <!-- Select2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css"
         rel="stylesheet" />
-
-    <!-- Template Main CSS File -->
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
-
+   
     <link rel="stylesheet" href="css/dv.css">
+    <link rel="stylesheet" href="csst/table.css">
+   
+
 </head>
 
 <body>
