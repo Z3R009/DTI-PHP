@@ -1,14 +1,11 @@
 <?php
-// Include database connection
 include '../DBConnection.php';
 
-// Debug check for database connection
 if (!isset($connection) || !$connection) {
     $conn_error = "Database connection is not available. Please check the DBConnection.php file.";
     error_log($conn_error);
 }
 
-// Check if there's a success message
 $success_message = '';
 if(isset($_GET['success']) && $_GET['success'] == '1') {
     $success_message = 'Payment has been recorded successfully!';
@@ -16,8 +13,6 @@ if(isset($_GET['success']) && $_GET['success'] == '1') {
     $success_message = 'DV has been returned to Chief Accountant successfully!';
 } elseif(isset($_GET['success']) && $_GET['success'] == '3') {
     $success_message = 'Batch ADA payment has been recorded successfully!';
-    
-    // Store LDDAP data in JavaScript if available
     $lddap_ref = isset($_GET['lddap_ref']) ? $_GET['lddap_ref'] : '';
     $lddap_data = isset($_GET['lddap_data']) ? $_GET['lddap_data'] : '';
     $storage_key = isset($_GET['storage_key']) ? $_GET['storage_key'] : '';
@@ -30,27 +25,20 @@ if(isset($_GET['success']) && $_GET['success'] == '1') {
     $payment_count = isset($_GET['payment_count']) ? $_GET['payment_count'] : '';
     $total = isset($_GET['total']) ? $_GET['total'] : '';
     $success_message = "Merged payment has been processed successfully! $payment_count vouchers paid totaling ₱$total.";
+} elseif(isset($_GET['success']) && $_GET['success'] == '7') {
+    $success_message = 'Cash Advance payment has been successfully processed.';
 }
-
-// Check if there's an error message
 $error_message = '';
 if(isset($_GET['error']) && !empty($_GET['error'])) {
     $error_message = urldecode($_GET['error']);
 }
-
-// Get pending vouchers from backend
 require_once 'back_end/get_pending_vouchers.php';
 $pending_result = getPendingVouchers();
-
-// Get merged payees data
 try {
-    // Check if file exists before requiring it
     if (file_exists(__DIR__ . '/back_end/get_merged_payees.php')) {
         require_once 'back_end/get_merged_payees.php';
         if (function_exists('getMergedPayees')) {
             $merged_payees = getMergedPayees();
-            
-            // Ensure $merged_payees is an array
             if (!is_array($merged_payees)) {
                 $merged_payees = [];
                 $display_merged_payees_error = true;
@@ -66,22 +54,16 @@ try {
         error_log("get_merged_payees.php file not found");
     }
 } catch (Exception $e) {
-    // Log error and set empty array
     error_log("Error getting merged payees: " . $e->getMessage());
     $merged_payees = [];
     $display_merged_payees_error = true;
 }
 
-// Variable to hold connection error message
 $merged_payees_error_message = "Database Connection Error: Could not connect to the database. The merged payees feature may not work properly.";
-
-// Process form submissions
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['return_to_chief'])) {
-        // Process return to chief accountant action
         include 'back_end/return_to_chief.php';
     } elseif (isset($_POST['submit_batch_ada'])) {
-        // Process batch ADA payment
         include 'back_end/batch_ada_payment.php';
     }
 }
@@ -257,19 +239,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                 }
                                             }
                                             
-                                            // Reset result pointer
                                             mysqli_data_seek($pending_result, 0);
                                             
-                                            // Counter for displayed DVs
                                             $displayed_count = 0;
                                             
                                             while ($row = mysqli_fetch_assoc($pending_result)): 
-                                                // Skip this row if the voucher is already part of a merged group
                                                 if (in_array($row['dv_id'], $merged_dv_ids)) {
                                                     continue;
                                                 }
                                                 
-                                                // Increment displayed count
                                                 $displayed_count++;
                                             ?>
                                             <tr class="border-bottom">
@@ -360,6 +338,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                                             <option value="">Select Payment Type</option>
                                                                             <option value="Check">Check</option>
                                                                             <option value="ADA">ADA</option>
+                                                                            <option value="Cash">Cash</option>
+                                                                            <option value="Cash Advance">Cash Advance</option>
                                                                         </select>
                                                                     </div>
                                                                     <div class="col-md-6">
@@ -691,14 +671,54 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                             </div>
                                                             
                                                             <div class="mb-3">
+                                                                <label for="account_name" class="form-label fw-medium">Account Name <span class="text-danger">*</span></label>
+                                                                <select class="form-select" id="account_name" name="account_name" required>
+                                                                    <option value="">-- Select Bank Account --</option>
+                                                                    <?php
+                                                                    $account_query = "SELECT * FROM account_name ORDER BY account_name ASC";
+                                                                    $account_result = mysqli_query($connection, $account_query);
+                                                                    while ($account = mysqli_fetch_assoc($account_result)) {
+                                                                        $fund_code = isset($account['fund_code']) ? $account['fund_code'] : 
+                                                                                    ($account['type'] == 'REGULAR LCCA' ? '01091201' : '01101101');
+                                                                        
+                                                                        $nca_date = isset($account['NCA_DATE']) && !empty($account['NCA_DATE']) ? 
+                                                                                  date('Y-m-d', strtotime($account['NCA_DATE'])) : '';
+                                                                        
+                                                                        echo '<option value="' . $account['account_id'] . '" 
+                                                                                data-account-number="' . $account['account_number'] . '"
+                                                                                data-account-type="' . $account['type'] . '"
+                                                                                data-fund-code="' . $fund_code . '"
+                                                                                data-account-name="' . $account['account_name'] . '"
+                                                                                data-nca-no="' . (isset($account['NCA_NO']) ? $account['NCA_NO'] : '') . '"
+                                                                                data-nca-date="' . $nca_date . '"
+                                                                                data-fund-source="' . (isset($account['FUND_SOURCE']) ? $account['FUND_SOURCE'] : '') . '"
+                                                                                data-description="' . (isset($account['Description']) ? htmlspecialchars($account['Description']) : '') . '">
+                                                                                ' . $account['account_name'] . ' (' . $account['account_number'] . ')
+                                                                              </option>';
+                                                                    }
+                                                                    ?>
+                                                                </select>
+                                                                <div class="form-text">Select the bank account for this ADA payment</div>
+                                                            </div>
+                                                            
+                                                            <div class="mb-3">
                                                                 <label for="fund_code" class="form-label fw-medium">Fund Code <span class="text-danger">*</span></label>
-                                                                <input type="text" class="form-control" id="fund_code" name="fund_code" value="01101101" required>
+                                                                <input type="text" class="form-control" id="fund_code" name="fund_code" value="" required>
                                                                 <div class="form-text">This will be used in the LDDAP-ADA reference number format</div>
                                                             </div>
                                                             
                                                             <div class="mb-3">
                                                                 <label for="bank_info" class="form-label fw-medium">Bank Information <span class="text-danger">*</span></label>
-                                                                <input type="text" class="form-control" id="bank_info" name="bank_info" value="LAND BANK OF THE PHILIPPINES- KORONADAL BRANCH- 2075-9006-81" required>
+                                                                <select class="form-select" id="bank_select" name="bank_select" onchange="toggleCustomBank()">
+                                                                    <option value="LBP-KORONADAL">LAND BANK OF THE PHILIPPINES- KORONADAL BRANCH- 2075-9006-81</option>
+                                                                    <option value="DBP-KORONADAL">DEVELOPMENT BANK OF THE PHILIPPINES- KORONADAL BRANCH- 0605-014672-031</option>
+                                                                    <option value="PNB-KORONADAL">PHILIPPINE NATIONAL BANK- KORONADAL BRANCH- 314570000254</option>
+                                                                    <option value="custom">-- Custom Bank Information --</option>
+                                                                </select>
+                                                                <div id="custom_bank_container" class="mt-2 d-none">
+                                                                    <input type="text" class="form-control" id="bank_info_custom" name="bank_info_custom" placeholder="Enter custom bank information">
+                                                                </div>
+                                                                <input type="hidden" id="bank_info" name="bank_info" value="LAND BANK OF THE PHILIPPINES- KORONADAL BRANCH- 2075-9006-81">
                                                                 <div class="form-text">Format: BANK NAME- BRANCH- ACCOUNT NUMBER</div>
                                                             </div>
                                                             
@@ -1064,6 +1084,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                             <option value="Check">Check</option>
                                                             <option value="ADA">ADA</option>
                                                             <option value="Cash">Cash</option>
+                                                            <option value="Cash Advance">Cash Advance</option>
                                                         </select>
                                                     </div>
                                                     <div class="col-md-6">
@@ -1611,6 +1632,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const remarks = document.getElementById('batch_remarks').value;
             const fundCode = document.getElementById('fund_code').value;
             const bankInfo = document.getElementById('bank_info').value;
+            const accountName = document.getElementById('account_name').value;
             
             // Get all regular DV checkboxes
             const selectedDvCheckboxes = document.querySelectorAll('.dv-checkbox:checked');
@@ -1642,6 +1664,11 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (!bankInfo) {
                 alert('Please enter Bank Information');
+                return;
+            }
+            
+            if (!accountName) {
+                alert('Please select an Account Name');
                 return;
             }
             
@@ -1684,9 +1711,10 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('submit_batch_ada', '1');
             formData.append('use_common_ada', useCommonAda ? '1' : '0');
             
-            // Add fund code and bank info
+            // Add fund code, bank info and account name
             formData.append('fund_code', fundCode);
             formData.append('bank_info', bankInfo);
+            formData.append('account_name', accountName);
             
             // Handle the reference number(s)
             if (useCommonAda) {
@@ -1735,6 +1763,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 remarks: remarks,
                 fundCode: fundCode,
                 bankInfo: bankInfo,
+                accountName: accountName,
                 selectedDVs: Array.from(selectedDvCheckboxes).map(cb => cb.value),
                 selectedMergedGroups: Array.from(selectedMergedGroups).map(cb => cb.value)
             });
@@ -2227,6 +2256,173 @@ document.addEventListener('DOMContentLoaded', function() {
         // Show modal
         const modal = new bootstrap.Modal(document.getElementById('viewMergedDetailsModal'));
         modal.show();
+    }
+});
+</script>
+
+<script>
+// Add the JavaScript for handling account selection at the end of the file, before the closing </script> tag
+    // Account name selection handling for batch ADA form
+    const accountNameSelect = document.getElementById('account_name');
+    if (accountNameSelect) {
+        accountNameSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            
+            if (this.value) {
+                // Get data attributes from the selected option
+                const accountNumber = selectedOption.getAttribute('data-account-number');
+                const accountType = selectedOption.getAttribute('data-account-type');
+                const accountName = selectedOption.getAttribute('data-account-name');
+                const fundCode = selectedOption.getAttribute('data-fund-code');
+                const ncaNo = selectedOption.getAttribute('data-nca-no');
+                const ncaDate = selectedOption.getAttribute('data-nca-date');
+                const fundSource = selectedOption.getAttribute('data-fund-source');
+                const description = selectedOption.getAttribute('data-description');
+                
+                // Update the bank info field with formatted info
+                document.getElementById('bank_info').value = `LAND BANK OF THE PHILIPPINES- KORONADAL BRANCH- ${accountNumber}`;
+                
+                // Update the fund code field with value from data attribute
+                document.getElementById('fund_code').value = fundCode || "01101101"; // Fallback to default if missing
+                
+                // Log the data for debugging
+                console.log('Selected account data:', {
+                    accountId: this.value,
+                    accountName,
+                    accountNumber,
+                    accountType,
+                    fundCode,
+                    ncaNo,
+                    ncaDate,
+                    fundSource,
+                    description
+                });
+                
+                // You can add more fields to update here if needed, for example:
+                // if you have fields for NCA_NO, NCA_DATE, etc. in your form
+            }
+        });
+    }
+    
+    // Function to toggle custom bank input field visibility
+    function toggleCustomBank() {
+        const bankSelect = document.getElementById('bank_select');
+        const customBankContainer = document.getElementById('custom_bank_container');
+        const bankInfoInput = document.getElementById('bank_info');
+        const customBankInput = document.getElementById('bank_info_custom');
+        
+        if (bankSelect && customBankContainer && bankInfoInput) {
+            if (bankSelect.value === 'custom') {
+                customBankContainer.classList.remove('d-none');
+                if (customBankInput) {
+                    bankInfoInput.value = customBankInput.value || '';
+                }
+            } else {
+                customBankContainer.classList.add('d-none');
+                
+                // Set the bank info based on selection
+                if (bankSelect.value === 'LBP-KORONADAL') {
+                    bankInfoInput.value = 'LAND BANK OF THE PHILIPPINES- KORONADAL BRANCH- 2075-9006-81';
+                } else if (bankSelect.value === 'DBP-KORONADAL') {
+                    bankInfoInput.value = 'DEVELOPMENT BANK OF THE PHILIPPINES- KORONADAL BRANCH- 0605-014672-031';
+                } else if (bankSelect.value === 'PNB-KORONADAL') {
+                    bankInfoInput.value = 'PHILIPPINE NATIONAL BANK- KORONADAL BRANCH- 314570000254';
+                }
+            }
+        }
+    }
+    
+    // Initialize the bank dropdown when the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        const bankSelect = document.getElementById('bank_info_select');
+        if (bankSelect) {
+            toggleCustomBank(); // Initialize the form state
+            bankSelect.addEventListener('change', toggleCustomBank);
+        }
+    });
+</script>
+
+<script>
+// Function to update fund code and bank info when account is selected
+function updateAccountInfo() {
+    var accountId = document.getElementById('account_name').value;
+    
+    if (accountId) {
+        // Show loading indicator or disable fields
+        var fundCodeField = document.getElementById('fund_code');
+        var bankInfoField = document.getElementById('bank_info');
+        
+        if (fundCodeField) fundCodeField.disabled = true;
+        if (bankInfoField) bankInfoField.disabled = true;
+        
+        // AJAX request to get account details
+        fetch('../api/get_account_details.php?account_id=' + accountId)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Account details received:', data);
+                    
+                    // Update fund code from database
+                    if (fundCodeField && data.fund_code) {
+                        fundCodeField.value = data.fund_code;
+                    }
+                    
+                    // Update bank info
+                    if (bankInfoField && data.account_number) {
+                        var bankInfo = "LAND BANK OF THE PHILIPPINES- KORONADAL BRANCH- " + data.account_number;
+                        bankInfoField.value = bankInfo;
+                        
+                        // Reset bank select
+                        var bankSelect = document.getElementById('bank_select');
+                        if (bankSelect) {
+                            bankSelect.value = "LBP-KORONADAL";
+                            toggleCustomBank();
+                        }
+                    }
+                } else {
+                    console.error('Error fetching account details:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('AJAX error:', error);
+            })
+            .finally(() => {
+                // Re-enable fields
+                if (fundCodeField) fundCodeField.disabled = false;
+                if (bankInfoField) bankInfoField.disabled = false;
+            });
+    } else {
+        // Clear fields if no account is selected
+        document.getElementById('fund_code').value = '';
+    }
+}
+
+// Add event listener to account_name select
+document.addEventListener('DOMContentLoaded', function() {
+    var accountSelect = document.getElementById('account_name');
+    if (accountSelect) {
+        accountSelect.addEventListener('change', updateAccountInfo);
+        
+        // Trigger change event if an account is already selected
+        if (accountSelect.value) {
+            updateAccountInfo();
+        }
+    }
+    
+    // Setup custom bank field
+    const customBankField = document.getElementById('bank_info_custom');
+    const bankInfoField = document.getElementById('bank_info');
+    
+    if (customBankField && bankInfoField) {
+        customBankField.addEventListener('input', function() {
+            bankInfoField.value = this.value;
+        });
+    }
+    
+    // Initialize bank select state
+    var bankSelect = document.getElementById('bank_select');
+    if (bankSelect) {
+        toggleCustomBank();
     }
 });
 </script>

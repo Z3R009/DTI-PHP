@@ -36,12 +36,12 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Dashboard - NiceAdmin Bootstrap Template</title>
+    <title>BookKeeper - Payee</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
     <!-- Favicons -->
-    <link href="../NiceAdmin/assets/img/favicon.png" rel="icon">
+    <link href="img/dti_logo.png" rel="icon">
     <link href="../NiceAdmin/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
     <!-- Google Fonts -->
