@@ -378,7 +378,23 @@
 </aside>
 
 <style>
+    :root {
+    --primary-color: #03045e;
+    --primary-dark: #023e8a;
+    --primary-light: #e0f2fe;
+    --secondary-color: #8d99ae;
+    --text-color: #2B2D42;
+    --light-text: #6c757d;
+    --border-color: #e2e8f0;
+    --light-bg: #f8f9fa;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --danger-color: #dc3545;
+    --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --hover-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+    --transition: all 0.3s ease;
 
+}
     .sidebar {
         position: fixed;
         top: 0;
@@ -435,14 +451,14 @@
 
     .sidebar-nav .nav-link:hover,
     .sidebar-nav .nav-link.active,
-    .sidebar-nav .nav-link ul .active{
-        background-color: rgba(10, 111, 253, 0.42);
+    .sidebar-nav .nav-link ul .active {
+        background-color:rgba(2, 61, 138, 0.7);
         color: white;
     }
 
     .sidebar-nav .nav-link:hover i,
     .sidebar-nav .nav-link.active i {
-        color:white;
+        color: white;
     }
 
     .sidebar-nav .nav-heading {
@@ -455,7 +471,7 @@
 
     .user-profile {
         padding: 20px;
-        background:  rgba(10, 111, 253, 0.42);
+        background:rgba(2, 61, 138, 0.7);
         border-radius: 15px;
         margin-bottom: 20px;
     }
@@ -481,7 +497,7 @@
         .sidebar {
             left: -280px;
         }
-        
+
         .toggle-sidebar .sidebar {
             left: 0;
         }

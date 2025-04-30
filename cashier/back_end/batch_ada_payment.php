@@ -277,42 +277,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
                     $update_stmt = $connection->prepare($update_dv);
                     $update_stmt->bind_param("i", $dv_id);
                     $update_stmt->execute();
-
-                    // Get bank account information from DV's account_id to update the draft_project balance
-                    $account_query = "SELECT d.account_id FROM dv d WHERE d.dv_id = ?";
-                    $account_stmt = $connection->prepare($account_query);
-                    $account_stmt->bind_param("i", $dv_id);
-                    $account_stmt->execute();
-                    $account_result = $account_stmt->get_result();
-                    
-                    if ($account_data = $account_result->fetch_assoc()) {
-                        $account_id = $account_data['account_id'];
-                        
-                        // Retrieve the current draft_project for this account
-                        $draft_query = "SELECT draft_id, balances FROM draft_project 
-                                       WHERE account_id = ? 
-                                       ORDER BY created_at DESC LIMIT 1";
-                        $draft_stmt = $connection->prepare($draft_query);
-                        $draft_stmt->bind_param("i", $account_id);
-                        $draft_stmt->execute();
-                        $draft_result = $draft_stmt->get_result();
-                        
-                        if ($draft_data = $draft_result->fetch_assoc()) {
-                            // Reduce the balance by the payment amount
-                            $new_balance = $draft_data['balances'] - $amount;
-                            
-                            // Ensure balance doesn't go negative
-                            if ($new_balance < 0) {
-                                $new_balance = 0;
-                            }
-                            
-                            // Update the draft_project balance
-                            $update_draft = "UPDATE draft_project SET balances = ? WHERE draft_id = ?";
-                            $update_draft_stmt = $connection->prepare($update_draft);
-                            $update_draft_stmt->bind_param("di", $new_balance, $draft_data['draft_id']);
-                            $update_draft_stmt->execute();
-                        }
-                    }
                 }
                 
                 // Process merged payee groups
@@ -408,42 +372,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
                             'withholding_tax' => $withholding_tax,
                             'net_amount' => $amount
                         ];
-
-                        // Get bank account information from DV's account_id to update the draft_project balance
-                        $account_query = "SELECT d.account_id FROM dv d WHERE d.dv_id = ?";
-                        $account_stmt = $connection->prepare($account_query);
-                        $account_stmt->bind_param("i", $dv_id);
-                        $account_stmt->execute();
-                        $account_result = $account_stmt->get_result();
-                        
-                        if ($account_data = $account_result->fetch_assoc()) {
-                            $account_id = $account_data['account_id'];
-                            
-                            // Retrieve the current draft_project for this account
-                            $draft_query = "SELECT draft_id, balances FROM draft_project 
-                                           WHERE account_id = ? 
-                                           ORDER BY created_at DESC LIMIT 1";
-                            $draft_stmt = $connection->prepare($draft_query);
-                            $draft_stmt->bind_param("i", $account_id);
-                            $draft_stmt->execute();
-                            $draft_result = $draft_stmt->get_result();
-                            
-                            if ($draft_data = $draft_result->fetch_assoc()) {
-                                // Reduce the balance by the payment amount
-                                $new_balance = $draft_data['balances'] - $amount;
-                                
-                                // Ensure balance doesn't go negative
-                                if ($new_balance < 0) {
-                                    $new_balance = 0;
-                                }
-                                
-                                // Update the draft_project balance
-                                $update_draft = "UPDATE draft_project SET balances = ? WHERE draft_id = ?";
-                                $update_draft_stmt = $connection->prepare($update_draft);
-                                $update_draft_stmt->bind_param("di", $new_balance, $draft_data['draft_id']);
-                                $update_draft_stmt->execute();
-                            }
-                        }
                     }
                     
                     // Add merged group to LDDAP data
@@ -481,6 +409,59 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
                     $total_net += $group_net;
                 }
                 
+                // Update the total in batch_ada
+                $update_batch_sql = "UPDATE batch_ada SET 
+                                    total_gross = ?, 
+                                    total_withholding = ?, 
+                                    total_net = ? 
+                                    WHERE batch_id = ?";
+                $update_batch_stmt = $connection->prepare($update_batch_sql);
+                $update_batch_stmt->bind_param(
+                    "dddi", 
+                    $total_gross, 
+                    $total_withholding, 
+                    $total_net,
+                    $batch_id
+                );
+                $update_batch_stmt->execute();
+                
+                // Update the selected account's draft project balance
+                if (!empty($account_id)) {
+                    // Retrieve the current draft_project for this account
+                    $draft_query = "SELECT draft_id, balances FROM draft_project 
+                                   WHERE account_id = ? 
+                                   ORDER BY created_at DESC LIMIT 1";
+                    $draft_stmt = $connection->prepare($draft_query);
+                    $draft_stmt->bind_param("i", $account_id);
+                    $draft_stmt->execute();
+                    $draft_result = $draft_stmt->get_result();
+                    
+                    if ($draft_data = $draft_result->fetch_assoc()) {
+                        // Reduce the balance by the total payment amount
+                        $new_balance = $draft_data['balances'] - $total_net;
+                        
+                        // Ensure balance doesn't go negative
+                        if ($new_balance < 0) {
+                            $new_balance = 0;
+                        }
+                        
+                        // Update the draft_project balance
+                        $update_draft = "UPDATE draft_project SET balances = ? WHERE draft_id = ?";
+                        $update_draft_stmt = $connection->prepare($update_draft);
+                        $update_draft_stmt->bind_param("di", $new_balance, $draft_data['draft_id']);
+                        $update_draft_stmt->execute();
+                        
+                        error_log("Updated draft project balance - Draft ID: " . $draft_data['draft_id'] . 
+                                 ", Previous Balance: " . $draft_data['balances'] . 
+                                 ", New Balance: " . $new_balance . 
+                                 ", Total payment: " . $total_net);
+                    } else {
+                        error_log("No draft project found for account ID: " . $account_id);
+                    }
+                } else {
+                    error_log("No account ID provided for batch payment");
+                }
+                
                 $lddap_data['totalGross'] = $total_gross;
                 $lddap_data['totalWithholding'] = $total_withholding;
                 $lddap_data['totalNet'] = $total_net;
@@ -514,6 +495,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
                 $response['redirect'] = "../pending_payments.php?success=3&lddap_ref=" . urlencode($formatted_ada_ref) . 
                                         "&storage_key=" . urlencode($storage_key) . 
                                         "&lddap_data=" . urlencode($lddap_data_json);
+                $response['data'] = [
+                    'batch_id' => $batch_id,
+                    'reference_no' => $formatted_ada_ref,
+                    'payment_date' => $payment_date,
+                    'total_gross' => $total_gross,
+                    'total_net' => $total_net
+                ];
+                
+                // If this is a regular form submission (not AJAX), redirect
+                if (!isset($_SERVER['HTTP_X_REQUESTED_WITH']) || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'xmlhttprequest') {
+                    $_SESSION['success_message'] = $response['message'];
+                    header('Location: ' . $response['redirect']);
+                    exit;
+                }
             } catch (Exception $e) {
                 $connection->rollback();
                 $response['message'] = "Error recording batch ADA payment: " . $e->getMessage();

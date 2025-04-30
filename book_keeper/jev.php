@@ -208,6 +208,7 @@ WHERE dv.status = 'Pending'
                                         <tr>
                                             <th>DV No.</th>
                                             <th>Date</th>
+                                            <th>Fund Cluster</th>
                                             <th>Payee Name</th>
                                             <th>Account Title</th>
                                             <th>Amount</th>
