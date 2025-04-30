@@ -148,13 +148,13 @@
                 <td colspan="9" class="annex">ANNEX A</td>
             </tr>
             <tr>
-                <td colspan="9" class="title">LIST OF DUE AND DEMANDABLE ACCOUNTS PAYABLE - ADVICE TO DEBIT ACCOUNTS (LDDAP-ADA)</td>
+                <td colspan="9" class="title" style="border-bottom: none;">LIST OF DUE AND DEMANDABLE ACCOUNTS PAYABLE - ADVICE TO DEBIT ACCOUNTS (LDDAP-ADA)</td>
             </tr>
             <tr>
                 <td colspan="9" style="padding: 0;">
                     <table class="department-info" style="border: none;">
                         <tr>
-                            <td style="width: 100px;">DEPARTMENT :</td>
+                            <td style="width: 100px;" >DEPARTMENT :</td>
                             <td colspan="7">DEPARTMENT OF TRADE AND INDUSTRY (22)</td>
                         </tr>
                         <tr>
@@ -180,26 +180,26 @@
                 <td colspan="9" class="center" style="padding-top: 0; padding-bottom: 0;background-color: rgba(158, 158, 158, 0.712);">CREDITOR</td>
             </tr>
             <tr>
-                <td colspan="3" class="center" style="padding-top: 0; padding-bottom: 0;">CREDITOR</td>
-                <td rowspan="2">Obligation <br>Request NO.</td>
-                <td rowspan="2">Allotment <br>Request NO.</td>
-                <td colspan="3" class="left">in peso</td>
-                <td rowspan="3">remarks</td>
+                <td colspan="3" class="center" style="padding-top: 0; padding-bottom: 0;"><strong>CREDITOR</strong> </td>
+                <td rowspan="2"><strong>Obligation <br>Request NO.</strong></td>
+                <td rowspan="2"><strong>Allotment <br>Request NO.</strong></td>
+                <td colspan="3" class="left"><strong>In Pesos</strong></td>
+                <td rowspan="3"><strong>REMARKS</strong></td>
             </tr>
             <tr>
                 <td rowspan="2" class="center">ADA</td>
-                <td rowspan="2" class="center">NAME</td>
-                <td rowspan="2" class="center">PREFERRED SERVICING<br>BANK/SAVINGS/CURRENT<br>ACCT. NO</td>
-                <td class="center">GROSS AMOUNT</td>
-                <td class="center">WITHHOLDING<br>TAX</td>
-                <td class="center">NET AMOUNT</td>
+                <td rowspan="2" class="center"><strong>NAME</strong></td>
+                <td rowspan="2" class="center"><strong>PREFERRED SERVICING<br>BANK/SAVINGS/CURRENT<br>ACCT. NO</strong></td>
+                <td class="center"><strong>GROSS AMOUNT</strong></td>
+                <td class="center"><strong>WITHHOLDING<br>TAX</strong></td>
+                <td class="center"><strong>NET AMOUNT</strong></td>
             </tr>
             <tr>
                 <!-- Empty row for alignment -->
             </tr>
             <tr>
                 <td colspan="8" class="left">I. Current Year A/Ps</td>
-                <td rowspan="9" id="remarks" style="border-bottom: none;">Cashier Remarks data</td>
+                <td rowspan="9" id="remarks" >Cashier Remarks data</td>
             </tr>
             
             <!-- DV rows will be inserted here -->
@@ -211,18 +211,18 @@
                     <td></td>
                     <td></td>
                     <td></td>
-                    <td class="right">-</td>
+                    <strong></strong><td class="right">-</td><strong>
                     <td class="right">-</td>
                     <td class="right">-</td>
                 </tr>
             </tbody>
-            
+           <strong>
             <tr>
                 <td colspan="5" class="left">TOTAL</td>
-               <td class="right" id="totalGross"> <strong>0.00</strong></td>
-                <td class="right" id="totalWithholding">0.00</td>
-                <td class="right" id="totalNet">0.00</td>
-            </tr>
+               <td class="right"> <strong><span  id="totalGross">0.00</span> </strong></td>
+                <td class="right" ><strong><span id="totalWithholding">0.00</span></strong></td>
+                <td class="right"><strong><span id="totalNet">0.00</span></strong></td>
+            </tr></strong>
             <tr>
                 <td colspan="4" style="vertical-align: top;">
                     <p>I hereby warrant that the above List of Due and Demandable A/Ps was prepared in accordance with existing budgeting, accounting and auditing rules and regulations.</p>
@@ -277,6 +277,7 @@
                     </div>
                 </td>
             </tr>
+         
             <tr>
                 <td colspan="9" class="center" style="padding-top: 0; padding-bottom: 0; text-align: left;"><strong>FOR MDS-GSB USE ONLY:</strong></td>
             </tr>
@@ -443,13 +444,13 @@
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${adaDisplay}</td>
-                    <td>${dv.payee_name}</td>
-                    <td>${dv.bank_account}</td>
+                    <td><strong>${dv.payee_name}</strong></td>
+                    <td><strong>${dv.bank_account}</strong></td>
                     <td>${dv.ors_no}</td>
                     <td>${dv.dv_no}</td>
-                    <td class="right">${formatCurrency(dv.gross_amount)}</td>
-                    <td class="right">${formatCurrency(dv.withholding_tax)}</td>
-                    <td class="right">${formatCurrency(dv.net_amount)}</td>
+                    <td class="right"><strong>${formatCurrency(dv.gross_amount)}</strong></td>
+                    <td class="right"><strong>${formatCurrency(dv.withholding_tax)}</strong></td>
+                    <td class="right"><strong>${formatCurrency(dv.net_amount)}</strong></td>
                 `;
                 dvRowsContainer.appendChild(row);
             });

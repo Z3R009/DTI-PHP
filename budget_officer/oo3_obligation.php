@@ -1,30 +1,20 @@
 <?php
 include '../DBConnection.php';
-
-// Get filter parameters
 $selected_month = isset($_GET['month']) ? intval($_GET['month']) : date('n');
 $selected_year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
-
-// Get oopap information
 $oopap_id = 4; 
 $oopap_query = "SELECT description FROM oopap WHERE oopap_id = $oopap_id";
 $oopap_result = mysqli_query($connection, $oopap_query);
 $oopap_data = mysqli_fetch_assoc($oopap_result);
 $oopap_description = $oopap_data['description'];
-
-// Base query for filtering obligations in the table
 $table_where_clause = "WHERE oopap_id = $oopap_id AND YEAR(ors.date) = $selected_year";
 if ($selected_month > 0) {
     $table_where_clause .= " AND MONTH(ors.date) = $selected_month";
 }
-
-// Query for total obligations up to selected month (for balance calculation)
 $balance_where_clause = "WHERE oopap_id = $oopap_id AND YEAR(ors.date) = $selected_year";
 if ($selected_month > 0) {
     $balance_where_clause .= " AND MONTH(ors.date) <= $selected_month";
 }
-
-// Get total obligations for balance calculation
 $total_obligations_query = "SELECT COALESCE(SUM(ors.total_amount), 0) as total_amount 
                            FROM obligation_history 
                            LEFT JOIN ors ON obligation_history.ors_id = ors.ors_id 
@@ -48,19 +38,13 @@ $select = mysqli_query(
      $table_where_clause
      ORDER BY ors.date ASC"
 );
-
-// Prepare filtered data for table display
 $filtered_data = [];
 while ($row = mysqli_fetch_assoc($select)) {
     $filtered_data[] = $row;
 }
-
-// Fetch total allotment
 $total_allotment_query = "SELECT SUM(allotment) AS total_allotment FROM project WHERE oopap_id = $oopap_id";
 $total_allotment_result = mysqli_query($connection, $total_allotment_query);
 $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'];
-
-// Calculate total balances based on total allotment minus total amount from ORS
 $total_balances = $total_allotment - $total_filtered_amount;
 ?>
 
@@ -96,6 +80,7 @@ $total_balances = $total_allotment - $total_filtered_amount;
 
     <!-- Template Main CSS File -->
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
 
 </head>
 

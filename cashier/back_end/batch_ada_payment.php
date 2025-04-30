@@ -53,8 +53,53 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
         $selected_merged_groups = isset($_POST['selected_merged_groups']) ? array_unique($_POST['selected_merged_groups']) : [];
         
         $use_common_ada = isset($_POST['use_common_ada']) && $_POST['use_common_ada'] == '1';
+        $account_id = isset($_POST['account_name']) ? $_POST['account_name'] : '';
+        
+        // Get account information if account_id is provided
         $fund_code = isset($_POST['fund_code']) ? $_POST['fund_code'] : '01101101';
         $bank_info = isset($_POST['bank_info']) ? $_POST['bank_info'] : 'LAND BANK OF THE PHILIPPINES- KORONADAL BRANCH- 2075-9006-81';
+        
+        // If account_id is provided, fetch account details
+        if (!empty($account_id)) {
+            $account_query = "SELECT * FROM account_name WHERE account_id = ?";
+            $account_stmt = $connection->prepare($account_query);
+            $account_stmt->bind_param("i", $account_id);
+            $account_stmt->execute();
+            $account_result = $account_stmt->get_result();
+            
+            if ($account_data = $account_result->fetch_assoc()) {
+                // Update bank_info based on account data
+                $bank_info = "LAND BANK OF THE PHILIPPINES- KORONADAL BRANCH- " . $account_data['account_number'];
+                
+                // Use fund_code from account_name table if it exists, otherwise determine by type
+                if (isset($account_data['fund_code'])) {
+                    $fund_code = $account_data['fund_code'];
+                } else if ($account_data['type'] == 'REGULAR LCCA') {
+                    $fund_code = '01091201';
+                } else {
+                    $fund_code = '01101101';
+                }
+                
+                // Store additional account information for later use
+                $nca_no = isset($account_data['NCA_NO']) ? $account_data['NCA_NO'] : '';
+                $nca_date = isset($account_data['NCA_DATE']) ? $account_data['NCA_DATE'] : null;
+                $fund_source = isset($account_data['FUND_SOURCE']) ? $account_data['FUND_SOURCE'] : '';
+                $description = isset($account_data['Description']) ? $account_data['Description'] : '';
+                
+                // Log the account information
+                error_log("Account information for ADA payment: " . json_encode([
+                    'account_id' => $account_id,
+                    'account_name' => $account_data['account_name'],
+                    'account_number' => $account_data['account_number'],
+                    'fund_code' => $fund_code,
+                    'nca_no' => $nca_no,
+                    'nca_date' => $nca_date,
+                    'fund_source' => $fund_source,
+                    'description' => $description
+                ]));
+            }
+        }
+        
         $common_reference_no = '';
         if(isset($_POST['batch_reference_no'])) {
             $common_reference_no = $_POST['batch_reference_no'];
@@ -152,7 +197,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
                     'totalNet' => 0,
                     'fundCode' => $fund_code,
                     'bankInfo' => $bank_info,
-                    'amountInWords' => ''
+                    'amountInWords' => '',
+                    // Add the account information
+                    'accountInfo' => [
+                        'account_id' => $account_id,
+                        'account_name' => isset($account_data['account_name']) ? $account_data['account_name'] : '',
+                        'account_number' => isset($account_data['account_number']) ? $account_data['account_number'] : '',
+                        'nca_no' => isset($nca_no) ? $nca_no : '',
+                        'nca_date' => isset($nca_date) ? $nca_date : '',
+                        'fund_source' => isset($fund_source) ? $fund_source : '',
+                        'description' => isset($description) ? $description : ''
+                    ]
                 ];
                 
                 $total_gross = 0;
@@ -222,6 +277,42 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
                     $update_stmt = $connection->prepare($update_dv);
                     $update_stmt->bind_param("i", $dv_id);
                     $update_stmt->execute();
+
+                    // Get bank account information from DV's account_id to update the draft_project balance
+                    $account_query = "SELECT d.account_id FROM dv d WHERE d.dv_id = ?";
+                    $account_stmt = $connection->prepare($account_query);
+                    $account_stmt->bind_param("i", $dv_id);
+                    $account_stmt->execute();
+                    $account_result = $account_stmt->get_result();
+                    
+                    if ($account_data = $account_result->fetch_assoc()) {
+                        $account_id = $account_data['account_id'];
+                        
+                        // Retrieve the current draft_project for this account
+                        $draft_query = "SELECT draft_id, balances FROM draft_project 
+                                       WHERE account_id = ? 
+                                       ORDER BY created_at DESC LIMIT 1";
+                        $draft_stmt = $connection->prepare($draft_query);
+                        $draft_stmt->bind_param("i", $account_id);
+                        $draft_stmt->execute();
+                        $draft_result = $draft_stmt->get_result();
+                        
+                        if ($draft_data = $draft_result->fetch_assoc()) {
+                            // Reduce the balance by the payment amount
+                            $new_balance = $draft_data['balances'] - $amount;
+                            
+                            // Ensure balance doesn't go negative
+                            if ($new_balance < 0) {
+                                $new_balance = 0;
+                            }
+                            
+                            // Update the draft_project balance
+                            $update_draft = "UPDATE draft_project SET balances = ? WHERE draft_id = ?";
+                            $update_draft_stmt = $connection->prepare($update_draft);
+                            $update_draft_stmt->bind_param("di", $new_balance, $draft_data['draft_id']);
+                            $update_draft_stmt->execute();
+                        }
+                    }
                 }
                 
                 // Process merged payee groups
@@ -317,6 +408,42 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
                             'withholding_tax' => $withholding_tax,
                             'net_amount' => $amount
                         ];
+
+                        // Get bank account information from DV's account_id to update the draft_project balance
+                        $account_query = "SELECT d.account_id FROM dv d WHERE d.dv_id = ?";
+                        $account_stmt = $connection->prepare($account_query);
+                        $account_stmt->bind_param("i", $dv_id);
+                        $account_stmt->execute();
+                        $account_result = $account_stmt->get_result();
+                        
+                        if ($account_data = $account_result->fetch_assoc()) {
+                            $account_id = $account_data['account_id'];
+                            
+                            // Retrieve the current draft_project for this account
+                            $draft_query = "SELECT draft_id, balances FROM draft_project 
+                                           WHERE account_id = ? 
+                                           ORDER BY created_at DESC LIMIT 1";
+                            $draft_stmt = $connection->prepare($draft_query);
+                            $draft_stmt->bind_param("i", $account_id);
+                            $draft_stmt->execute();
+                            $draft_result = $draft_stmt->get_result();
+                            
+                            if ($draft_data = $draft_result->fetch_assoc()) {
+                                // Reduce the balance by the payment amount
+                                $new_balance = $draft_data['balances'] - $amount;
+                                
+                                // Ensure balance doesn't go negative
+                                if ($new_balance < 0) {
+                                    $new_balance = 0;
+                                }
+                                
+                                // Update the draft_project balance
+                                $update_draft = "UPDATE draft_project SET balances = ? WHERE draft_id = ?";
+                                $update_draft_stmt = $connection->prepare($update_draft);
+                                $update_draft_stmt->bind_param("di", $new_balance, $draft_data['draft_id']);
+                                $update_draft_stmt->execute();
+                            }
+                        }
                     }
                     
                     // Add merged group to LDDAP data

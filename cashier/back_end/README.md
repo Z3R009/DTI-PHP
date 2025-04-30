@@ -7,16 +7,25 @@ This directory contains the backend processing scripts for the Cashier module of
 - `db_connection.php` - Database connection wrapper that includes the main DBConnection.php and handles session.
 - `utils.php` - Utility functions used across multiple backend files.
 - `get_pending_vouchers.php` - Retrieves pending vouchers for payment.
-- `submit_payment.php` - Processes individual payment submissions.
+- `process_payment.php` - Processes standard (Check/Cash) payment submissions.
+- `cash_advance_payment.php` - Processes Cash Advance payment submissions.
+- `ada_payment.php` - Processes individual ADA payments.
 - `batch_ada_payment.php` - Processes batch ADA payments.
+- `process_merged_payment.php` - Processes payments for merged payee groups.
 - `return_to_chief.php` - Handles returning DVs to the Chief Accountant.
 - `index.php` - Prevents directory listing and direct access.
 
 ## How it Works
 
 1. Frontend pages like `pending_payments.php` call these backend scripts for data processing.
-2. Each script handles a specific business function and returns appropriate responses/redirects.
-3. All scripts share common utilities and database connection.
+2. The `submit_payment_direct.php` file routes payment requests to the appropriate handler based on payment type.
+3. Each payment type has its own dedicated processor:
+   - `process_payment.php` - Standard Check/Cash payments
+   - `cash_advance_payment.php` - Cash Advance payments
+   - `ada_payment.php` - Individual ADA payments
+   - `batch_ada_payment.php` - Batch ADA payments
+   - `process_merged_payment.php` - Merged group payments
+4. All scripts share common utilities and database connection.
 
 ## Security Features
 
@@ -41,9 +50,10 @@ This directory contains the backend processing scripts for the Cashier module of
 Frontend form action:
 
 ```html
-<form method="POST" action="back_end/submit_payment.php">
+<form method="POST" action="submit_payment_direct.php">
     <!-- Form fields -->
-    <button type="submit" name="submit_payment">Submit</button>
+    <input type="hidden" name="payment_type" value="Cash Advance">
+    <button type="submit">Submit</button>
 </form>
 ```
 
@@ -51,4 +61,5 @@ Frontend form action:
 
 - Keep backend logic separated from presentation.
 - Update utility functions as needed for common operations.
-- Maintain consistent error handling and response formats. 
+- Maintain consistent error handling and response formats.
+- Add audit trail entries for all significant actions. 

@@ -3,21 +3,12 @@
     padding: 0;
     box-sizing: border-box;
   }
-  
-  body {
-    font-family: 'Inter', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-  }
+
   
   .login-container {
     width: 400px;
     padding: 40px;
-    background-color: rgba(255, 255, 255, 0.95);
+    background-color: rgba(255, 255, 255, .575);
     border-radius: 20px;
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
   }
@@ -95,7 +86,7 @@
   button:hover {
     transform: translateY(-1px);
     box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-    background: linear-gradient(135deg, #023e8a 0%, #0077b6 100%);
+    background: linear-gradient(135deg, #03045e 0%, #D90429 100%);
     color: #fff;
   }
   

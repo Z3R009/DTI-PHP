@@ -67,8 +67,6 @@ $select = mysqli_query(
      AND YEAR(dp.created_at) = $selected_year
      ORDER BY an.account_name ASC"
 );
-
-// Calculate beginning balance (previous month's remaining balance)
 $prev_month = $selected_month - 1;
 $prev_year = $selected_year;
 if ($prev_month == 0) {
@@ -76,11 +74,8 @@ if ($prev_month == 0) {
     $prev_year--;
 }
 
-// Determine current quarter and previous quarter
 $current_quarter = ceil($selected_month / 3);
 $prev_quarter = ceil($prev_month / 3);
-
-// Get beginning balance from previous month if in same quarter
 $beginning_balance = 0;
 if ($current_quarter == $prev_quarter) {
     $prev_balance_query = "SELECT SUM(balances) as prev_balance 
@@ -93,7 +88,6 @@ if ($current_quarter == $prev_quarter) {
     $beginning_balance = $prev_balance_row['prev_balance'] ?? 0;
 }
 
-// Get total cash allotment for current month
 $total_Cashallotment_query = "SELECT SUM(cash_allotment) AS total_Cashallotment 
                              FROM draft_project 
                              WHERE account_id = 2
@@ -101,12 +95,7 @@ $total_Cashallotment_query = "SELECT SUM(cash_allotment) AS total_Cashallotment
                              AND YEAR(created_at) = $selected_year";
 $total_Cashallotment_result = mysqli_query($connection, $total_Cashallotment_query);
 $total_Cashallotment = mysqli_fetch_assoc($total_Cashallotment_result)['total_Cashallotment'] ?? 0;
-
-// Add beginning balance to total cash allotment
 $total_Cashallotment += $beginning_balance;
-
-
-// Get total balances for current month
 $total_balances_query = "SELECT SUM(balances) AS total_balances 
                         FROM draft_project 
                         WHERE account_id = 2 
@@ -114,8 +103,6 @@ $total_balances_query = "SELECT SUM(balances) AS total_balances
                         AND YEAR(created_at) = $selected_year";
 $total_balances_result = mysqli_query($connection, $total_balances_query);
 $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'] ?? 0;
-
-// Add beginning balance to total balances
 $query_account = "SELECT account_id, account_name, account_number, type 
                  FROM account_name 
                  WHERE account_id = 2 

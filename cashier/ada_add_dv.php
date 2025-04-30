@@ -63,6 +63,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                     $update_stmt = $connection->prepare($update_dv);
                     $update_stmt->bind_param("i", $dv_id);
                     $update_stmt->execute();
+                    
+                    // Get account ID from DV to update the draft_project balance
+                    $account_query = "SELECT account_id FROM dv WHERE dv_id = ?";
+                    $account_stmt = $connection->prepare($account_query);
+                    $account_stmt->bind_param("i", $dv_id);
+                    $account_stmt->execute();
+                    $account_result = $account_stmt->get_result();
+                    
+                    if ($account_data = $account_result->fetch_assoc()) {
+                        $account_id = $account_data['account_id'];
+                        
+                        // Retrieve the current draft_project for this account
+                        $draft_query = "SELECT draft_id, balances FROM draft_project 
+                                       WHERE account_id = ? 
+                                       ORDER BY created_at DESC LIMIT 1";
+                        $draft_stmt = $connection->prepare($draft_query);
+                        $draft_stmt->bind_param("i", $account_id);
+                        $draft_stmt->execute();
+                        $draft_result = $draft_stmt->get_result();
+                        
+                        if ($draft_data = $draft_result->fetch_assoc()) {
+                            // Reduce the balance by the payment amount
+                            $new_balance = $draft_data['balances'] - $amount;
+                            
+                            // Ensure balance doesn't go negative
+                            if ($new_balance < 0) {
+                                $new_balance = 0;
+                            }
+                            
+                            // Update the draft_project balance
+                            $update_draft = "UPDATE draft_project SET balances = ? WHERE draft_id = ?";
+                            $update_draft_stmt = $connection->prepare($update_draft);
+                            $update_draft_stmt->bind_param("di", $new_balance, $draft_data['draft_id']);
+                            $update_draft_stmt->execute();
+                        }
+                    }
                 }
                 
                 $connection->commit();
