@@ -200,7 +200,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Disbursement Voucher - DTI Book Keeper</title>
+    <title>Disbursement Voucher - DTI  Book Keeper</title>
     <meta content="Disbursement Voucher Management System for DTI" name="description">
     <meta content="disbursement, voucher, dti, finance, accounting" name="keywords">
     <link href="img/dti_logo.png" rel="icon">

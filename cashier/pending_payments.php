@@ -691,11 +691,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                                     }
                                                                     ?>
                                                                 </select>
-                                                                <div class="alert alert-warning mt-2">
+                                                                <!-- <div class="alert alert-warning mt-2">
                                                                     <i class="bi bi-exclamation-triangle-fill me-2"></i>
                                                                     <strong>Important:</strong> The total payment amount will be deducted from the selected account's balance in the Chief Accountant's draft project.
                                                                 </div>
-                                                                <div class="form-text">Select the bank account for this ADA payment</div>
+                                                                <div class="form-text">Select the bank account for this ADA payment</div> -->
                                                             </div>
                                                             
                                                             <div class="mb-3">
@@ -761,10 +761,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                             <h5 class="card-title mb-0 text-success"><i class="bi bi-bank2 me-2"></i>ADA Reference</h5>
                                                         </div>
                                                         <div class="card-body">
-                                                            <div class="alert alert-secondary">
+                                                            <!-- <div class="alert alert-secondary">
                                                                 <small>The LDDAP-ADA reference format will be: <strong>fund_code-month-series-year</strong><br>
                                                                 Example: 01101101-07-001-2023</small>
-                                                            </div>
+                                                            </div> -->
                                                             
                                                             <div class="form-check mb-3">
                                                                 <input class="form-check-input" type="radio" name="ada_option" id="useCommonAda" value="common" checked>
@@ -2206,28 +2206,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script>
 
-    // Account name selection handling for batch ADA form
-    const accountNameSelect = document.getElementById('account_name');
-    if (accountNameSelect) {
-        accountNameSelect.addEventListener('change', function() {
+  // Add this JavaScript code after your HTML or in a separate script file
+document.addEventListener('DOMContentLoaded', function() {
+    const accountSelect = document.getElementById('account_name');
+    const fundCodeInput = document.getElementById('fund_code');
+    
+    // Update fund code when account selection changes
+    accountSelect.addEventListener('change', function() {
+        if (this.selectedIndex > 0) { // If an actual account is selected (not the placeholder)
             const selectedOption = this.options[this.selectedIndex];
+            const fundCode = selectedOption.getAttribute('data-fund-code');
             
-            if (this.value) {
-                // The updateAccountInfo function will handle everything
-                updateAccountInfo();
+            // Populate the fund code input with the selected account's fund source
+            if (fundCode) {
+                fundCodeInput.value = fundCode;
             } else {
-                // Reset fields
-                document.getElementById('fund_code').value = '';
-                document.getElementById('bank_info').value = '';
-                
-                // Reset warning message
-                const warningDiv = document.querySelector('#account_name').nextElementSibling;
-                if (warningDiv && warningDiv.classList.contains('alert-warning')) {
-                    warningDiv.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-2"></i><strong>Important:</strong> The total payment amount will be deducted from the selected account's balance in the Chief Accountant's draft project.`;
-                }
+                fundCodeInput.value = ''; // Clear if no fund code exists
             }
-        });
-    }
+        } else {
+            fundCodeInput.value = ''; // Clear when "--Select Account--" is selected
+        }
+    });
+});
     
    
 </script>
