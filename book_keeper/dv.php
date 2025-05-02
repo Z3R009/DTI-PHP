@@ -220,10 +220,70 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
     <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css"
         rel="stylesheet" />
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
-   
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+
     <link rel="stylesheet" href="css/dv.css">
     <link rel="stylesheet" href="csst/table.css">
-   
+    <style>
+        /* General Checkbox Styling */
+        .custom-checkbox {
+            position: relative;
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Hide the default checkbox */
+        .custom-checkbox input {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        /* Custom checkbox design */
+        .custom-checkbox .checkmark {
+            width: 20px;
+            height: 20px;
+            background-color: #fff;
+            border: 2px solid #007bff;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+
+        /* Add checkmark icon when checked */
+        .custom-checkbox input:checked+.checkmark::after {
+            content: '\2713';
+            /* Unicode checkmark */
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        /* Background color when checked */
+        .custom-checkbox input:checked+.checkmark {
+            background-color: #007bff;
+            border-color: #0056b3;
+        }
+
+        /* Hover Effect */
+        .custom-checkbox:hover .checkmark {
+            background-color: #e9f5ff;
+        }
+
+        /* Disabled checkbox */
+        .custom-checkbox input:disabled+.checkmark {
+            background-color: #ccc;
+            border-color: #aaa;
+            cursor: not-allowed;
+        }
+    </style>
+
 
 </head>
 
@@ -261,12 +321,32 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                 <div class="tab-content">
                     <!-- DV List Tab -->
                     <div>
+                        <!-- Bulk action button (initially hidden) -->
+                        <div id="bulkActionContainer" class="mb-3" style="display: none;">
+                            <button type="button" class="btn btn-primary bulk-create-dv" id="openDvModal">
+                                <i class="bi bi-file-earmark-plus"></i> Create DV for Selected Items
+                            </button>
+                            <label class="d-flex align-items-center gap-1">
+                                <input type="checkbox" id="unselectAllCheckbox">
+                                <span style="font-weight: 500;">Unselect All</span>
+                            </label>
+                            <div id="payeeMessage" style="color: red; font-size: 14px;"></div>
+
+                        </div>
+
                         <div class="card shadow-sm border-0">
                             <div class="card-body p-0">
                                 <!-- Table with enhanced styling -->
                                 <table class="enhanced-table datatable">
                                     <thead>
                                         <tr>
+                                            <th></th>
+                                            <!-- <th>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="selectAll">
+                                                    <label class="form-check-label" for="selectAll"></label>
+                                                </div>
+                                            </th> -->
                                             <th>ORS No.</th>
                                             <th>Date</th>
                                             <th>Payee Name</th>
@@ -282,6 +362,16 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                             while ($row = mysqli_fetch_assoc($select_ors)) {
                                                 ?>
                                                 <tr>
+                                                    <td>
+                                                        <label class="custom-checkbox">
+                                                            <input class="row-checkbox" type="checkbox"
+                                                                id="checkbox<?php echo $row['ors_id']; ?>"
+                                                                value="<?php echo $row['ors_id']; ?>"
+                                                                data-payee="<?php echo htmlspecialchars($row['payee_name']); ?>">
+                                                            <span class="checkmark"></span>
+                                                        </label>
+                                                    </td>
+
                                                     <td data-label="ORS No."><?php echo htmlspecialchars($row['ors_no']); ?>
                                                     </td>
                                                     <td data-label="Date">
@@ -313,7 +403,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                         } else {
                                             ?>
                                             <tr>
-                                                <td colspan="7" class="enhanced-table-empty">
+                                                <td colspan="8" class="enhanced-table-empty">
                                                     <i class="bi bi-inbox"></i>
                                                     <p>No pending ORS records found</p>
                                                     <small>All available ORS documents have been processed</small>
@@ -321,6 +411,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                             </tr>
                                         <?php } ?>
                                     </tbody>
+
                                 </table>
                             </div>
                         </div>
@@ -572,6 +663,10 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
         </div>
     </div>
 
+    <!-- modal for multiple -->
+
+
+
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center">
         <i class="bi bi-arrow-up-short"></i>
     </a>
@@ -585,6 +680,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
     <script src="../NiceAdmin/assets/vendor/simple-datatables/simple-datatables.js"></script>
     <script src="../NiceAdmin/assets/vendor/tinymce/tinymce.min.js"></script>
     <script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Select2 JS -->
@@ -731,33 +827,6 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
         document.head.appendChild(style);
     </script>
 
-    <!-- mode of payment -->
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const checkboxes = document.querySelectorAll('input[name="payment_mode"]');
-            const otherText = document.getElementById('otherText');
-
-            checkboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', function () {
-                    if (this.checked) {
-                        checkboxes.forEach(cb => {
-                            if (cb !== this) {
-                                cb.checked = false;
-                            }
-                        });
-
-                        // Enable/Disable text field based on "Others" selection
-                        if (this.id === "others") {
-                            otherText.disabled = false;
-                        } else {
-                            otherText.disabled = true;
-                            otherText.value = ""; // Clear input if another option is selected
-                        }
-                    }
-                });
-            });
-        });
-    </script>
     <!-- tax calculation -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -1236,6 +1305,108 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
             });
         });
     </script>
+
+    <!-- checkbox -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const rowCheckboxes = document.querySelectorAll('.row-checkbox');
+            const messageContainer = document.getElementById('payeeMessage');
+            const bulkActionContainer = document.getElementById('bulkActionContainer');
+            const unselectAllCheckbox = document.getElementById('unselectAllCheckbox');
+            let firstSelectedPayee = null;
+
+            function updateCheckboxStates(clickedCheckbox) {
+                const isChecked = clickedCheckbox.checked;
+                const clickedPayee = clickedCheckbox.dataset.payee;
+
+                if (isChecked) {
+                    if (!firstSelectedPayee) {
+                        firstSelectedPayee = clickedPayee;
+                    }
+
+                    rowCheckboxes.forEach(cb => {
+                        if (cb.dataset.payee !== firstSelectedPayee) {
+                            cb.checked = false;
+                            cb.disabled = true;
+                        } else {
+                            cb.disabled = false;
+                        }
+                    });
+                } else {
+                    const remainingChecked = Array.from(rowCheckboxes).filter(cb => cb.checked);
+                    if (remainingChecked.length === 0) {
+                        firstSelectedPayee = null;
+                        rowCheckboxes.forEach(cb => cb.disabled = false);
+                        messageContainer.style.display = 'none';
+                    }
+                }
+
+                updateBulkUI();
+            }
+
+            function updateBulkUI() {
+                const checkedBoxes = Array.from(rowCheckboxes).filter(cb => cb.checked);
+                const payees = checkedBoxes.map(cb => cb.dataset.payee);
+                const allSamePayee = new Set(payees).size <= 1;
+
+                if (checkedBoxes.length >= 2 && allSamePayee) {
+                    messageContainer.style.display = 'none';
+                    bulkActionContainer.style.display = 'block';
+                    unselectAllCheckbox.style.display = 'inline-block';
+                } else if (checkedBoxes.length >= 2 && !allSamePayee) {
+                    messageContainer.textContent = 'Cannot select multiple rows with different payees.';
+                    messageContainer.style.display = 'block';
+                    bulkActionContainer.style.display = 'none';
+                    unselectAllCheckbox.style.display = 'none';
+                } else {
+                    messageContainer.style.display = 'none';
+                    bulkActionContainer.style.display = 'none';
+                    unselectAllCheckbox.style.display = 'none';
+                }
+            }
+
+            if (unselectAllCheckbox) {
+                unselectAllCheckbox.addEventListener('change', function () {
+                    if (unselectAllCheckbox.checked) {
+                        rowCheckboxes.forEach(cb => {
+                            cb.checked = false;
+                            cb.disabled = false;
+                        });
+
+                        firstSelectedPayee = null;
+                        messageContainer.style.display = 'none';
+                        bulkActionContainer.style.display = 'none';
+                        unselectAllCheckbox.style.display = 'none';
+
+                        setTimeout(() => {
+                            unselectAllCheckbox.checked = false;
+                        }, 100);
+                    }
+                });
+            }
+
+            rowCheckboxes.forEach(cb => {
+                cb.addEventListener('change', function () {
+                    updateCheckboxStates(this);
+                });
+            });
+        });
+    </script>
+
+    <!-- multiple button -->
+
+    <script>
+        document.getElementById('openDvModal').addEventListener('click', function () {
+            const selected = Array.from(document.querySelectorAll('.row-checkbox:checked'))
+                .map(cb => cb.value);
+
+            const params = new URLSearchParams();
+            selected.forEach(id => params.append('ids[]', id));
+            window.location.href = 'dv_multiple_ors.php?' + params.toString();
+        });
+    </script>
+
 
 
     <!-- set the main account in the first row -->
