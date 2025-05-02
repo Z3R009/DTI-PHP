@@ -80,6 +80,7 @@ $monthly_amounts = array_reverse($monthly_amounts);
 
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
     <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/table.css">
 </head>
 
 <body>
@@ -230,8 +231,8 @@ $monthly_amounts = array_reverse($monthly_amounts);
                         </div>
                         <div class="card-body">
                             <h5 class="card-title">Recent ORS</h5>
-                            <div class="table-responsive">
-                                <table class="table table-borderless datatable">
+                            <div class="datatable">
+                                <table class="datatable">
                                     <thead>
                                         <tr>
                                             <th scope="col">ORS No.</th>
@@ -284,8 +285,8 @@ $monthly_amounts = array_reverse($monthly_amounts);
                         </div>
                         <div class="card-body">
                             <h5 class="card-title">Recent DV</h5>
-                            <div class="table-responsive">
-                                <table class="table table-borderless datatable">
+                            <div class="datatable">
+                                <table class="datatable">
                                     <thead>
                                         <tr>
                                             <th scope="col">DV No.</th>
@@ -336,8 +337,8 @@ $monthly_amounts = array_reverse($monthly_amounts);
                         </div>
                         <div class="card-body">
                             <h5 class="card-title">Recent JEV</h5>
-                            <div class="table-responsive">
-                                <table class="table table-borderless datatable">
+                            <div class="datatable">
+                                <table class="datatable">
                                     <thead>
                                         <tr>
                                             <th scope="col">JEV No.</th>
