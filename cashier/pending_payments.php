@@ -640,6 +640,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <div class="modal fade" id="batchAdaModal" tabindex="-1" aria-labelledby="batchAdaModalLabel" aria-hidden="true">
                                 <div class="modal-dialog modal-xl">
                                     <div class="modal-content">
+                                        <form method="POST" action="back_end/batch_ada_payment.php" id="batchAdaForm">
                                         <div class="modal-header bg-primary text-white">
                                             <h5 class="modal-title" id="batchAdaModalLabel"><i class="bi bi-bank me-2"></i>Create ADA Payment</h5>
                                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -746,6 +747,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                                 <label for="batch_remarks" class="form-label fw-medium">Payment Remarks</label>
                                                                 <textarea class="form-control" id="batch_remarks" name="batch_remarks" rows="3" placeholder="Enter any additional notes or comments about this batch payment"></textarea>
                                                             </div>
+                                                            
+                                                            <!-- Hidden input for submission -->
+                                                            <input type="hidden" name="submit_batch_ada" value="1">
+                                                            
                                                         </div>
                                                     </div>
                                                 </div>
@@ -784,6 +789,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                                 </label>
                                                                 <p class="text-muted small mt-1">You'll be able to specify an ADA reference number for each DV below.</p>
                                                             </div>
+                                                            
+                                                            <input type="hidden" name="use_common_ada" id="use_common_ada" value="1">
+                                                            
+                                                            <script>
+                                                                // Update the use_common_ada field when radio buttons change
+                                                                document.getElementById('useCommonAda').addEventListener('change', function() {
+                                                                    document.getElementById('use_common_ada').value = '1';
+                                                                    document.getElementById('commonAdaSection').style.display = 'block';
+                                                                });
+                                                                
+                                                                document.getElementById('useMultipleAda').addEventListener('change', function() {
+                                                                    document.getElementById('use_common_ada').value = '0';
+                                                                    document.getElementById('commonAdaSection').style.display = 'none';
+                                                                });
+                                                            </script>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -830,6 +850,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                 <i class="bi bi-save me-1"></i> Process Batch Payment
                                             </button>
                                         </div>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
@@ -1643,215 +1664,70 @@ document.addEventListener('DOMContentLoaded', function() {
     if (submitBatchAdaBtn) {
         submitBatchAdaBtn.addEventListener('click', function(e) {
             e.preventDefault();
-            console.log('Submit Batch ADA button clicked');
             
-            // Get selected DVs and selected merged groups
-            const selectedDVs = getSelectedDVs();
-            const selectedMergedGroups = getSelectedMergedGroups();
-            const accountName = document.getElementById('account_name').value;
-            const paymentDate = document.getElementById('batch_date').value;
-            const remarks = document.getElementById('batch_remarks').value;
-            const useCommon = document.getElementById('use_common_ada').checked;
-            const commonReferenceNo = document.getElementById('common_ada_ref').value;
+            // Get form data
+            const accountId = document.getElementById('account_name').value;
+            const batchDate = document.getElementById('batch_date').value;
             
-            // Validate form
-            if (!paymentDate) {
-                alert('Please enter a payment date');
-                return;
-            }
-            
-            if (!accountName) {
-                alert('Please select an account');
-                return;
-            }
-            
-            if (useCommon && !commonReferenceNo) {
-                alert('Please enter an ADA reference number');
-                return;
-            }
-            
-            if (selectedDVs.length === 0 && selectedMergedGroups.length === 0) {
-                alert('Please select at least one DV or merged group for batch payment');
-                return;
-            }
-            
-            // Calculate total payment amount
-            let totalAmount = 0;
-            
-            // Add up amounts from individual DVs
-            selectedDVs.forEach(dv => {
-                totalAmount += parseFloat(dv.amount);
-            });
-            
-            // Add up amounts from merged groups
-            selectedMergedGroups.forEach(group => {
-                totalAmount += parseFloat(group.amount);
-            });
-
-            // Check if we have account balance data to compare against
-            fetch('../api/get_account_balance.php?account_id=' + accountName)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        const accountBalance = parseFloat(data.balance);
-                        
-                        // Format amounts for display
-                        const formattedBalance = new Intl.NumberFormat('en-PH', {
-                            style: 'currency',
-                            currency: 'PHP'
-                        }).format(accountBalance);
-                        
-                        const formattedTotal = new Intl.NumberFormat('en-PH', {
-                            style: 'currency',
-                            currency: 'PHP'
-                        }).format(totalAmount);
-                        
-                        // If payment amount exceeds balance, show warning
-                        if (totalAmount > accountBalance) {
-                            Swal.fire({
-                                title: 'Warning: Insufficient Balance',
-                                html: `The total payment amount <strong>${formattedTotal}</strong> exceeds the current account balance <strong>${formattedBalance}</strong>.<br><br>Do you want to proceed anyway?`,
-                                icon: 'warning',
-                                showCancelButton: true,
-                                confirmButtonText: 'Yes, proceed',
-                                cancelButtonText: 'Cancel'
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    submitBatchAdaForm(selectedDVs, selectedMergedGroups, accountName, paymentDate, remarks, useCommon, commonReferenceNo);
-                                }
-                            });
-                        } else {
-                            // If balance is sufficient, just confirm the payment
-                            Swal.fire({
-                                title: 'Confirm Batch Payment',
-                                html: `You are about to process a batch payment for <strong>${formattedTotal}</strong>.<br>Current account balance: <strong>${formattedBalance}</strong>.<br><br>Do you want to proceed?`,
-                                icon: 'question',
-                                showCancelButton: true,
-                                confirmButtonText: 'Yes, proceed',
-                                cancelButtonText: 'Cancel'
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    submitBatchAdaForm(selectedDVs, selectedMergedGroups, accountName, paymentDate, remarks, useCommon, commonReferenceNo);
-                                }
-                            });
-                        }
-                    } else {
-                        // If we couldn't get the balance, just show a simple confirmation
-                        Swal.fire({
-                            title: 'Confirm Batch Payment',
-                            text: 'Are you sure you want to process this batch payment?',
-                            icon: 'question',
-                            showCancelButton: true,
-                            confirmButtonText: 'Yes, proceed',
-                            cancelButtonText: 'Cancel'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                submitBatchAdaForm(selectedDVs, selectedMergedGroups, accountName, paymentDate, remarks, useCommon, commonReferenceNo);
-                            }
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching account balance:', error);
-                    // If there's an error, just show a simple confirmation
-                    Swal.fire({
-                        title: 'Confirm Batch Payment',
-                        text: 'Are you sure you want to process this batch payment?',
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonText: 'Yes, proceed',
-                        cancelButtonText: 'Cancel'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            submitBatchAdaForm(selectedDVs, selectedMergedGroups, accountName, paymentDate, remarks, useCommon, commonReferenceNo);
-                        }
-                    });
-                });
-        });
-    }
-    
-    // Function to actually submit the form
-    function submitBatchAdaForm(selectedDVs, selectedMergedGroups, accountName, paymentDate, remarks, useCommon, commonReferenceNo) {
-        const form = document.getElementById('batchAdaForm');
-        if (!form) {
-            console.error('Batch ADA form not found');
-            return;
-        }
-        
-        // Create form data with all selected DVs and merged groups
-        const formData = new FormData();
-        
-        // Add submitted flag
-        formData.append('submit_batch_ada', '1');
-        
-        // Add selected DVs
-        selectedDVs.forEach(dv => {
-            formData.append('selected_dvs[]', dv.id);
-            if (!useCommon) {
-                formData.append(`ada_references[dv_${dv.id}]`, dv.reference || '');
-            }
-        });
-        
-        // Add selected merged groups
-        selectedMergedGroups.forEach(group => {
-            formData.append('selected_merged_groups[]', group.id);
-            if (!useCommon) {
-                formData.append(`ada_references[merge_${group.id}]`, group.reference || '');
-            }
-        });
-        
-        // Add common reference if using common ADA
-        if (useCommon) {
-            formData.append('use_common_ada', '1');
-            formData.append('batch_reference_no', commonReferenceNo);
-        }
-        
-        // Add account info
-        formData.append('account_name', accountName);
-        formData.append('fund_code', document.getElementById('fund_code').value);
-        formData.append('bank_info', document.getElementById('bank_info').value);
-        
-        // Add payment details
-        formData.append('batch_payment_date', paymentDate);
-        formData.append('batch_remarks', remarks);
-        
-        // Submit form via AJAX
-        const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
-        loadingModal.show();
-        
-        fetch('back_end/batch_ada_payment.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            loadingModal.hide();
-            if (data.success) {
+            // Validate required fields
+            if (!accountId || !batchDate) {
                 Swal.fire({
-                    title: 'Success!',
-                    text: data.message || 'Batch payment processed successfully',
-                    icon: 'success',
-                    confirmButtonText: 'OK'
-                }).then(() => {
-                    window.location.href = data.redirect || 'pending_payments.php';
-                });
-            } else {
-                Swal.fire({
-                    title: 'Error',
-                    text: data.message || 'An error occurred while processing the payment',
                     icon: 'error',
-                    confirmButtonText: 'OK'
+                    title: 'Missing Information',
+                    text: 'Please select an account and payment date.',
+                    confirmButtonColor: '#0d6efd'
                 });
+                return;
             }
-        })
-        .catch(error => {
-            loadingModal.hide();
-            console.error('AJAX error:', error);
+            
+            // Check for ADA reference when using common ADA
+            const useCommonAda = document.getElementById('useCommonAda').checked;
+            const commonAdaRef = document.getElementById('common_ada_ref').value;
+            
+            if (useCommonAda && !commonAdaRef) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Missing ADA Reference',
+                    text: 'Please enter an ADA reference number.',
+                    confirmButtonColor: '#0d6efd'
+                });
+                return;
+            }
+            
+            // Get selected DVs and merged groups
+            const selectedDVs = document.querySelectorAll('.dv-checkbox:checked');
+            const selectedGroups = document.querySelectorAll('.merged-group-checkbox:checked');
+            
+            // Validate at least one item is selected
+            if (selectedDVs.length === 0 && selectedGroups.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No Items Selected',
+                    text: 'Please select at least one payment to process.',
+                    confirmButtonColor: '#0d6efd'
+                });
+                return;
+            }
+            
+            // Show confirmation
             Swal.fire({
-                title: 'Error',
-                text: 'An unexpected error occurred. Please try again.',
-                icon: 'error',
-                confirmButtonText: 'OK'
+                icon: 'question',
+                title: 'Confirm Batch Payment',
+                text: `Are you sure you want to process ${selectedDVs.length + selectedGroups.length} payment(s)?`,
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Process Payment',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#0d6efd',
+                cancelButtonColor: '#6c757d'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Show loading modal
+                    const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+                    loadingModal.show();
+                    
+                    // Submit the form
+                    document.getElementById('batchAdaForm').submit();
+                }
             });
         });
     }
