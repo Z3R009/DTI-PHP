@@ -220,11 +220,10 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
     <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css"
         rel="stylesheet" />
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
 
     <link rel="stylesheet" href="css/dv.css">
-    <link rel="stylesheet" href="csst/table.css">
+    <link rel="stylesheet" href="css/table.css">
     <style>
         /* General Checkbox Styling */
         .custom-checkbox {
@@ -289,7 +288,8 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
 
 <body>
 
-    <?php include "Includes/header.php"; ?>
+    <?php include "Includes/header.php"; ?>'
+
 
     <?php include "Includes/sidebar.php"; ?>
 
@@ -662,10 +662,6 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
             </div>
         </div>
     </div>
-
-    <!-- modal for multiple -->
-
-
 
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center">
         <i class="bi bi-arrow-up-short"></i>
