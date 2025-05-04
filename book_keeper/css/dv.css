@@ -15,9 +15,12 @@
     --transition: all 0.3s ease;
 
 }
+
 .amount-column {
-    color: var(--success-color) !important; /* Change to any color you want */
-  }
+    color: var(--success-color) !important;
+    /* Change to any color you want */
+}
+
 body {
     font-family: 'Nunito', sans-serif;
     color: var(--text-color);
@@ -71,7 +74,8 @@ body {
     margin: 0 -10px;
     margin-bottom: 15px;
 }
-.amount-column{
+
+.amount-column {
     color: var(--success-color);
 }
 
@@ -180,7 +184,7 @@ body {
 }
 
 .btn-primary:active {
-        transform: translateY(0);
+    transform: translateY(0);
     box-shadow: 0 2px 3px rgba(0, 119, 182, 0.2);
 }
 
@@ -362,6 +366,9 @@ body {
     position: relative;
     animation: modalopen 0.4s;
     border: 1px solid var(--border-color);
+
+    max-height: 90vh;
+    overflow-y: auto;
 }
 
 @keyframes modalopen {
@@ -560,7 +567,7 @@ body {
     .form-group.half-width {
         flex: 0 0 100%;
     }
-    
+
     .modal-content {
         width: 95%;
         margin: 20px auto;
@@ -615,12 +622,12 @@ body {
         text-align: left;
         color: var(--light-text);
     }
-    
+
     .pagetitle {
         flex-direction: column;
         gap: 15px;
     }
-    
+
     .pagetitle .ms-auto {
         margin-left: 0 !important;
     }
@@ -645,7 +652,7 @@ body {
         margin: 0;
         max-width: 100%;
     }
-    
+
     .enhanced-table {
         box-shadow: none;
     }

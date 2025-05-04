@@ -200,7 +200,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Disbursement Voucher - DTI  Book Keeper</title>
+    <title>Disbursement Voucher - DTI Book Keeper</title>
     <meta content="Disbursement Voucher Management System for DTI" name="description">
     <meta content="disbursement, voucher, dti, finance, accounting" name="keywords">
     <link href="img/dti_logo.png" rel="icon">
@@ -281,6 +281,43 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
             border-color: #aaa;
             cursor: not-allowed;
         }
+
+
+        .modal-content {
+            background-color: white;
+            margin: 3% auto;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            width: 85%;
+            max-width: 1000px;
+            position: relative;
+            animation: modalopen 0.4s;
+            border: 1px solid var(--border-color);
+
+        }
+
+        .sticky-input {
+            position: sticky;
+            top: 0;
+            background: white;
+            padding: 10px;
+            z-index: 10;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .sticky-wrapper {
+            position: sticky;
+            top: 0;
+            /* Sticks to top */
+            background-color: white;
+            z-index: 999;
+            /* Stays on top of other fields */
+            padding: 1rem;
+            display: flex;
+            gap: 1rem;
+            border-bottom: 1px solid #ccc;
+        }
     </style>
 
 
@@ -319,6 +356,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                 </div>
 
                 <div class="tab-content">
+
                     <!-- DV List Tab -->
                     <div>
                         <!-- Bulk action button (initially hidden) -->
@@ -495,7 +533,8 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                 </div>
 
                                 <!-- tax -->
-                                <div class="form-section">
+                                <div class="modal-content"">
+                                    <div class=" form-section">
                                     <h3><i class="bi bi-calculator me-2"></i>Breakdown of Expenses</h3>
                                     <div class="form-row">
                                         <div class="form-group half-width">
@@ -511,9 +550,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                         </div>
                                     </div>
 
-                                    <div id="tax_fields_container" class="tax-fields">
-                                        <div class="form-row"></div>
-
+                                    <div id="tax_fields_container" class="tax-fields d-flex">
                                         <div class="form-group half-width">
                                             <label class="form-label">VAT <input type="number" class="tax-percentage"
                                                     id="vat_percentage" name="vat" value="12" min="0" max="100"
@@ -521,38 +558,52 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                             <input type="number" class="form-control calculation-field" id="vat_amount"
                                                 name="vat_amount" step="0.01" readonly>
                                         </div>
-                                    </div>
-                                    <div class="form-row">
+
                                         <div class="form-group">
                                             <label class="form-label">Tax Base</label>
                                             <input type="number" class="form-control calculation-field" id="tax_base"
                                                 name="tax_base" step="0.01">
                                         </div>
-                                        <div class="form-group">
-                                            <label class="form-label">Less: <input type="number" class="tax-percentage"
-                                                    id="tax1_percentage" name="tax_1" value="5" min="0" max="100"> %
-                                                Tax</label>
-                                            <input type="number" class="form-control calculation-field" id="tax_1"
-                                                name="tax_1_amount" step="0.01">
+                                    </div>
+
+
+
+                                    <div class="sticky-wrapper">
+                                        <div class="sticky-input" style="flex: 1;">
+                                            <div class="form-group">
+                                                <label class="form-label">Less:
+                                                    <input type="number" class="tax-percentage" id="tax1_percentage"
+                                                        name="tax_1" value="5" min="0" max="100"> % Tax
+                                                </label>
+                                                <input type="number" class="form-control calculation-field" id="tax_1"
+                                                    name="tax_1_amount" step="0.01">
+                                            </div>
                                         </div>
-                                        <div class="form-group">
-                                            <label class="form-label">Less: <input type="number" class="tax-percentage"
-                                                    id="tax2_percentage" name="tax_2" value="2" min="0" max="100"> %
-                                                Tax</label>
-                                            <input type="number" class="form-control calculation-field" id="tax_2"
-                                                name="tax_2_amount" step="0.01">
+
+                                        <div class="sticky-input" style="flex: 1;">
+                                            <div class="form-group">
+                                                <label class="form-label">Less:
+                                                    <input type="number" class="tax-percentage" id="tax2_percentage"
+                                                        name="tax_2" value="2" min="0" max="100"> % Tax
+                                                </label>
+                                                <input type="number" class="form-control calculation-field" id="tax_2"
+                                                    name="tax_2_amount" step="0.01">
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label class="form-label">Net Amount</label>
-                                        <input type="number" class="form-control calculation-field" id="net_amount"
-                                            name="net_amount" step="0.01" readonly>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label">Net Amount</label>
+                                            <input type="number" class="form-control calculation-field" id="net_amount"
+                                                name="net_amount" step="0.01" readonly>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+
+
+
 
                             <div class="form-section">
                                 <h3><i class="bi bi-journal-text me-2"></i>Accounting Entry</h3>
@@ -571,7 +622,8 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                                 <td colspan="2">
                                                     <select class="form-control account-select" name="account_titles[]"
                                                         required>
-                                                        <option selected disabled value="">Select Account</option>
+                                                        <option selected disabled value="">Select Account
+                                                        </option>
                                                         <?php
                                                         $account_query = "SELECT * FROM account_title ORDER BY account_title ASC";
                                                         $account_result = $connection->query($account_query);
@@ -593,7 +645,8 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                             <tr>
                                                 <td colspan="2">
                                                     <select class="form-control account-select" name="account_titles[]">
-                                                        <option selected disabled>Select Cash Account</option>
+                                                        <option selected disabled>Select Cash Account
+                                                        </option>
                                                         <?php
                                                         // Define the specific account codes we want to show
                                                         $cashAccountCodes = ['1010404000', '1010405000', '1010406000'];
@@ -656,7 +709,6 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                     <i class="bi bi-printer me-1"></i> Print DV
                                 </button>
                             </div>
-                        </div>
                     </form>
                 </div>
             </div>

@@ -263,7 +263,7 @@ $ors_result = $connection->query($ors_query);
 
     <!-- Template Main CSS File -->
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
-   <link rel="stylesheet" href="css/ors.css">
+    <link rel="stylesheet" href="css/ors.css">
 </head>
 
 <body>
@@ -298,8 +298,8 @@ $ors_result = $connection->query($ors_query);
                                     <div class="form-row">
                                         <div class="form-group">
                                             <label class="form-label">Fund Cluster</label>
-                                            <select class="form-control" name="fund_cluster_id">
-                                                <option selected disabled>Select Fund Cluster</option>
+                                            <select class="form-control" name="fund_cluster_id" required>
+                                                <option selected disabled value="">Select Fund Cluster</option>
                                                 <?php
                                                 while ($row = $result_fund_cluster->fetch_assoc()) {
                                                     echo "<option value='" . htmlspecialchars($row['fund_cluster_id']) . "'>" . htmlspecialchars($row['fund_cluster_name']) . "</option>";
@@ -433,8 +433,8 @@ $ors_result = $connection->query($ors_query);
                                                                     while ($row = $result_account->fetch_assoc()) {
                                                                         echo "<option value='" . htmlspecialchars($row['account_id']) . "' 
                               data-code='" . htmlspecialchars($row['account_code']) . "' 
-                              data-oopap='" . htmlspecialchars($row['oopap_id']) . "'>" 
-                              . htmlspecialchars($row['account_title']) . "</option>";
+                              data-oopap='" . htmlspecialchars($row['oopap_id']) . "'>"
+                                                                            . htmlspecialchars($row['account_title']) . "</option>";
                                                                     }
                                                                     ?>
                 </select>
@@ -479,7 +479,7 @@ $ors_result = $connection->query($ors_query);
                                         <div class="form-group">
                                             <label class="form-label">Approver</label>
                                             <select class="form-control" name="approver_id" id="approver">
-                                                <option selected disabled>Select Approver</option>
+                                                <option selected disabled value="">Select Approver</option>
                                                 <?php
                                                 // Reset the result pointer
                                                 $result_approvers->data_seek(0);
@@ -538,11 +538,11 @@ $ors_result = $connection->query($ors_query);
     <script src="js/accounting-entry.js"></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Initialize form elements
             const dateInput = document.getElementById('dvDate');
             const orsNoInput = document.getElementById('ors_no');
-            
+
             // Set default date to today if empty
             if (!dateInput.value) {
                 const today = new Date();
@@ -552,11 +552,11 @@ $ors_result = $connection->query($ors_query);
             // Generate ORS Number based on date
             function generateORSNumber(dateStr) {
                 if (!dateStr) return '';
-                
+
                 const date = new Date(dateStr);
                 const year = date.getFullYear();
                 const month = String(date.getMonth() + 1).padStart(2, '0');
-                
+
                 // Format: ORS-YEAR-MONTH-SEQUENCE
                 return `ORS-${year}-${month}-<?php echo $new_sequence; ?>`;
             }
@@ -565,7 +565,7 @@ $ors_result = $connection->query($ors_query);
             orsNoInput.value = generateORSNumber(dateInput.value);
 
             // Update ORS number when date changes
-            dateInput.addEventListener('change', function() {
+            dateInput.addEventListener('change', function () {
                 orsNoInput.value = generateORSNumber(this.value);
             });
 
@@ -574,15 +574,15 @@ $ors_result = $connection->query($ors_query);
             const tinInput = document.getElementById('tin_no');
             const addressInput = document.getElementById('address');
 
-            payeeSelect.addEventListener('change', function() {
+            payeeSelect.addEventListener('change', function () {
                 const selectedOption = this.options[this.selectedIndex];
                 tinInput.value = selectedOption.getAttribute('data-tin');
                 addressInput.value = selectedOption.getAttribute('data-address');
-                
+
                 // Add animation effect
                 tinInput.classList.add('highlight-effect');
                 addressInput.classList.add('highlight-effect');
-                
+
                 // Remove effect after animation completes
                 setTimeout(() => {
                     tinInput.classList.remove('highlight-effect');
@@ -596,7 +596,7 @@ $ors_result = $connection->query($ors_query);
             const addEntryButton = document.getElementById('add-entry-button');
 
             // Add a new entry row with animation
-            addEntryButton.addEventListener('click', function() {
+            addEntryButton.addEventListener('click', function () {
                 const newRow = document.createElement('tr');
                 newRow.className = 'entry-row';
                 newRow.style.opacity = '0';
@@ -606,8 +606,8 @@ $ors_result = $connection->query($ors_query);
                         <select class="form-control" name="account_id[]" required>
                             <option selected disabled>Select Account</option>
                             ${Array.from(document.querySelector('select[name="account_id[]"]').options)
-                                .map(opt => opt.outerHTML)
-                                .join('')}
+                        .map(opt => opt.outerHTML)
+                        .join('')}
                         </select>
                     </td>
                     <td class="account-code"></td>
@@ -621,17 +621,17 @@ $ors_result = $connection->query($ors_query);
                     </td>
                 `;
                 tableBody.appendChild(newRow);
-                
+
                 // Animate row appearance
                 setTimeout(() => {
                     newRow.style.transition = 'all 0.3s ease';
                     newRow.style.opacity = '1';
                     newRow.style.transform = 'translateY(0)';
                 }, 10);
-                
+
                 // Add event listeners to the new row
                 initializeRowEvents(newRow);
-                
+
                 // Filter accounts based on selected OOPAP
                 filterAccountsByOOPAP();
             });
@@ -644,7 +644,7 @@ $ors_result = $connection->query($ors_query);
                 const removeButton = row.querySelector('.remove-entry');
 
                 // Update account code when account changes
-                accountSelect.addEventListener('change', function() {
+                accountSelect.addEventListener('change', function () {
                     const selectedOption = this.options[this.selectedIndex];
                     if (selectedOption.value !== '') {
                         accountCodeCell.textContent = selectedOption.getAttribute('data-code');
@@ -656,19 +656,19 @@ $ors_result = $connection->query($ors_query);
                     } else {
                         accountCodeCell.textContent = '';
                     }
-                    
+
                     // Filter accounts based on selected OOPAP
                     filterAccountsByOOPAP();
                 });
 
                 // Remove row when delete button is clicked
-                removeButton.addEventListener('click', function() {
+                removeButton.addEventListener('click', function () {
                     if (tableBody.querySelectorAll('.entry-row').length > 1) {
                         // Animate removal
                         row.style.transition = 'all 0.3s ease';
                         row.style.opacity = '0';
                         row.style.transform = 'translateY(-10px)';
-                        
+
                         setTimeout(() => {
                             row.remove();
                             calculateTotal();
@@ -679,13 +679,13 @@ $ors_result = $connection->query($ors_query);
                         setTimeout(() => {
                             row.classList.remove('shake-effect');
                         }, 500);
-                        
+
                         // Show error message with tooltip
                         const tooltip = document.createElement('div');
                         tooltip.className = 'error-tooltip';
                         tooltip.textContent = 'At least one entry is required';
                         row.appendChild(tooltip);
-                        
+
                         setTimeout(() => {
                             tooltip.remove();
                         }, 3000);
@@ -693,9 +693,9 @@ $ors_result = $connection->query($ors_query);
                 });
 
                 // Calculate total when amount changes
-                amountInput.addEventListener('input', function() {
+                amountInput.addEventListener('input', function () {
                     calculateTotal();
-                    
+
                     // Highlight total amount with animation
                     totalAmountInput.classList.add('highlight-effect');
                     setTimeout(() => {
@@ -707,21 +707,21 @@ $ors_result = $connection->query($ors_query);
             // Calculate total amount with currency formatting
             function calculateTotal() {
                 const amountInputs = document.querySelectorAll('.amount-input');
-                    let total = 0;
-                
+                let total = 0;
+
                 amountInputs.forEach(input => {
                     const value = parseFloat(input.value) || 0;
                     total += value;
                 });
-                
+
                 totalAmountInput.value = total.toFixed(2);
-                
+
                 // Update total display with currency formatting
                 const formattedTotal = new Intl.NumberFormat('en-PH', {
                     style: 'currency',
                     currency: 'PHP'
                 }).format(total);
-                
+
                 // If there's a total display element, update it
                 const totalDisplay = document.querySelector('.total-display');
                 if (totalDisplay) {
@@ -733,19 +733,19 @@ $ors_result = $connection->query($ors_query);
             function filterAccountsByOOPAP() {
                 const oopapSelect = document.querySelector('select[name="oopap_id"]');
                 if (!oopapSelect) return;
-                
+
                 const selectedOopapId = oopapSelect.value;
                 if (!selectedOopapId || selectedOopapId === '') return;
-                
+
                 // Update account dropdowns
                 const accountSelects = document.querySelectorAll('select[name="account_id[]"]');
-                
+
                 accountSelects.forEach(select => {
                     const options = select.querySelectorAll('option');
-                    
+
                     options.forEach(option => {
                         if (option.value === "") return;
-                        
+
                         const optionOopapId = option.getAttribute('data-oopap');
                         if (optionOopapId === selectedOopapId) {
                             option.style.display = '';
@@ -784,23 +784,23 @@ $ors_result = $connection->query($ors_query);
             function loadServices() {
                 const fundClusterId = fundClusterSelect.value;
                 const oopapId = oopapSelect ? oopapSelect.value : '';
-                
+
                 // Clear current options
                 servicesSelect.innerHTML = '<option selected disabled>Select Services</option>';
-                
+
                 // Only continue if both values are selected
                 if (!fundClusterId || !oopapId) return;
-                
+
                 // Add loading indicator
                 servicesSelect.innerHTML = '<option>Loading services...</option>';
-                
+
                 // Fetch services from the server
                 fetch(`get_services.php?fund_cluster_id=${fundClusterId}&oopap_id=${oopapId}`)
                     .then(response => response.json())
                     .then(data => {
                         // Clear loading indicator
                         servicesSelect.innerHTML = '<option selected disabled>Select Services</option>';
-                        
+
                         if (data.length === 0) {
                             const option = document.createElement('option');
                             option.textContent = 'No services available';
@@ -820,28 +820,28 @@ $ors_result = $connection->query($ors_query);
                         servicesSelect.innerHTML = '<option disabled selected>Error loading services</option>';
                     });
             }
-            
+
             // Form validation
             const form = document.querySelector('form');
-            form.addEventListener('submit', function(e) {
+            form.addEventListener('submit', function (e) {
                 let isValid = true;
                 const requiredFields = form.querySelectorAll('[required]');
-                
+
                 requiredFields.forEach(field => {
                     if (!field.value.trim()) {
                         isValid = false;
                         field.classList.add('is-invalid');
-                        
+
                         // Create error message
                         const errorDiv = document.createElement('div');
                         errorDiv.className = 'invalid-feedback';
                         errorDiv.textContent = 'This field is required';
-                        
+
                         // Only add if it doesn't exist already
                         if (!field.nextElementSibling || !field.nextElementSibling.classList.contains('invalid-feedback')) {
                             field.parentNode.insertBefore(errorDiv, field.nextElementSibling);
                         }
-                        } else {
+                    } else {
                         field.classList.remove('is-invalid');
                         // Remove error message if exists
                         if (field.nextElementSibling && field.nextElementSibling.classList.contains('invalid-feedback')) {
@@ -849,7 +849,7 @@ $ors_result = $connection->query($ors_query);
                         }
                     }
                 });
-                
+
                 if (!isValid) {
                     e.preventDefault();
                     // Scroll to first error
@@ -859,19 +859,19 @@ $ors_result = $connection->query($ors_query);
                     }
                 }
             });
-            
+
             // Clear invalid status when field changes
             form.querySelectorAll('[required]').forEach(field => {
-                field.addEventListener('input', function() {
+                field.addEventListener('input', function () {
                     this.classList.remove('is-invalid');
                     // Remove error message if exists
                     if (this.nextElementSibling && this.nextElementSibling.classList.contains('invalid-feedback')) {
                         this.nextElementSibling.remove();
                     }
                 });
-                });
             });
-        </script>
+        });
+    </script>
 
     <!-- approver -->
 
@@ -880,13 +880,13 @@ $ors_result = $connection->query($ors_query);
             const approverSelect = document.getElementById("approver");
 
             if (approverSelect) {
-            approverSelect.addEventListener("change", function () {
-                const selectedOption = approverSelect.options[approverSelect.selectedIndex];
+                approverSelect.addEventListener("change", function () {
+                    const selectedOption = approverSelect.options[approverSelect.selectedIndex];
                     const designation = selectedOption.textContent.split(' - ')[1] || '';
 
                     // You can display the designation somewhere if needed
                     console.log('Selected designation:', designation);
-            });
+                });
             }
         });
     </script>
