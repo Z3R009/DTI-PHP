@@ -369,7 +369,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                                 <i class="bi bi-save me-1"></i> Save Payment
                                                             </button>
                                                         </div>
-                                                    </form>
                                                 </div>
                                             </div>
                                         </div>
@@ -522,7 +521,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                                     <i class="bi bi-arrow-return-left me-1"></i> Return DV
                                                                 </button>
                                                             </div>
-                                                        </form>
                                                     </div>
                                                 </div>
                                             </div>
@@ -799,7 +797,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                     <i class="bi bi-save me-1"></i> Process Batch Payment
                                                 </button>
                                             </div>
-                                        </form>
                                     </div>
                                 </div>
                             </div>
@@ -892,7 +889,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                     <i class="bi bi-people me-1"></i> Create Merged Payee
                                                 </button>
                                             </div>
-                                        </form>
                                     </div>
                                 </div>
                             </div>
@@ -958,7 +954,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                                         <button type="submit" class="btn btn-sm btn-outline-danger delete-merge-btn">
                                                                             <i class="bi bi-trash"></i> Delete this group
                                                                         </button>
-                                                                    </form>
                                                                 </div>
                                                                 
                                                                 <?php if (!empty($group['dvs'])): ?>
@@ -1110,11 +1105,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                     <i class="bi bi-save me-1"></i> Process Payment
                                                 </button>
                                             </div>
-                                        </form>
                                     </div>
                                 </div>
                             </div>
-                        </form>
                     </div>
                 </div>
             </div>
