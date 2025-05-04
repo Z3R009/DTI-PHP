@@ -309,8 +309,8 @@ $ors_result = $connection->query($ors_query);
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label">OO/PAP</label>
-                                            <select class="form-control" name="oopap_id">
-                                                <option selected disabled>Select OO/PAP</option>
+                                            <select class="form-control" name="oopap_id" required>
+                                                <option selected disabled value="">Select OO/PAP</option>
                                                 <?php
                                                 while ($row = $result_oopap->fetch_assoc()) {
                                                     echo "<option value='" . htmlspecialchars($row['oopap_id']) . "'>" . htmlspecialchars($row['oopap_name']) . "</option>";
@@ -320,8 +320,8 @@ $ors_result = $connection->query($ors_query);
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label">Services</label>
-                                            <select class="form-control" name="services_id" id="services">
-                                                <option selected disabled>Select Services</option>
+                                            <select class="form-control" name="services_id" id="services" required>
+                                                <option selected disabled value="">Select Services</option>
                                             </select>
                                         </div>
                                         <div class="form-group">
@@ -343,8 +343,8 @@ $ors_result = $connection->query($ors_query);
                                     <div class="form-row">
                                         <div class="form-group">
                                             <label class="form-label">Payee Name</label>
-                                            <select class="form-control" name="payee_id" id="payee_id">
-                                                <option selected disabled>Select Payee</option>
+                                            <select class="form-control" name="payee_id" id="payee_id" required>
+                                                <option selected disabled value="">Select Payee</option>
                                                 <?php
                                                 while ($row = $result_payee->fetch_assoc()) {
                                                     echo "<option value='" . htmlspecialchars($row['payee_id']) . "' 
@@ -386,14 +386,15 @@ $ors_result = $connection->query($ors_query);
                                     <div class="form-row">
                                         <div class="form-group full-width">
 
-                                            <textarea class="form-control" name="notes" placeholder="Enter Purpose"></textarea autocomplete="off">
+                                            <textarea class="form-control" name="notes" placeholder="Enter Purpose"
+                                                required></textarea autocomplete="off">
                                                 </div>
                                             </div>
                                             <div class="form-row">
                                             <div class="form-group">
                                                     <label class="form-label">Responsibility Center</label>
-                                                    <select class="form-control" name="rc_id">
-                                                        <option selected disabled>Select Responsibility Center</option>
+                                                    <select class="form-control" name="rc_id" required>
+                                                        <option selected disabled value="">Select Responsibility Center</option>
                                                         <?php
                                                         while ($row = $result_responsibility_center->fetch_assoc()) {
                                                             echo "<option value='" . htmlspecialchars($row['rc_id']) . "'>"
@@ -478,7 +479,7 @@ $ors_result = $connection->query($ors_query);
                                     <div class="form-row">
                                         <div class="form-group">
                                             <label class="form-label">Approver</label>
-                                            <select class="form-control" name="approver_id" id="approver">
+                                            <select class="form-control" name="approver_id" id="approver" required>
                                                 <option selected disabled value="">Select Approver</option>
                                                 <?php
                                                 // Reset the result pointer
