@@ -1,7 +1,7 @@
 <?php
-$host = "localhost";
-$username = "root";
-$password = "";
+$host = "10.20.19.154";
+$username = "host_pc";
+$password = "dti";
 $database = "dti-php";
 
 $connection = new mysqli($host, $username, $password, $database);
