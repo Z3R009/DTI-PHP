@@ -32,7 +32,7 @@ $select = mysqli_query($connection, "SELECT * FROM fund_cluster ");
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Dashboard - NiceAdmin Bootstrap Template</title>
+    <title>Bookkepper - Fund Cluster Management</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
@@ -51,6 +51,7 @@ $select = mysqli_query($connection, "SELECT * FROM fund_cluster ");
     <link href="../NiceAdmin/assets/vendor/simple-datatables/style.css" rel="stylesheet">
 
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/UACS.css">
     <link rel="stylesheet" href="css/table.css">
 
 </head>

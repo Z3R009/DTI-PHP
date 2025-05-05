@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 24, 2025 at 08:26 AM
+-- Generation Time: May 05, 2025 at 03:34 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -31,6 +31,9 @@ CREATE TABLE `account_name` (
   `account_id` int(11) NOT NULL,
   `account_name` varchar(100) NOT NULL,
   `account_number` varchar(50) NOT NULL,
+  `NCA_NO` int(123) NOT NULL,
+  `NCA_DATE` timestamp NOT NULL DEFAULT current_timestamp(),
+  `FUND_SOURCE` varchar(123) NOT NULL,
   `type` enum('EMDS','REGULAR LCCA') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -38,16 +41,16 @@ CREATE TABLE `account_name` (
 -- Dumping data for table `account_name`
 --
 
-INSERT INTO `account_name` (`account_id`, `account_name`, `account_number`, `type`) VALUES
-(1, 'DTI RO XI', '2075-9006-81', 'EMDS'),
-(2, 'DTI XI RAPID GOT COUNTERPART', '2075-9020-61', 'EMDS'),
-(3, 'DTI COCONUT LEVY FUND', '2075-9020-70', 'EMDS'),
-(4, 'DTI XII MSMEDC', '2075-9020-88', 'EMDS'),
-(5, 'DTI XII (TRUST)', '2075-9015-88', 'EMDS'),
-(6, 'DTI YAMAN GENSAN', '2075-9021-93', 'EMDS'),
-(7, 'DTI RAPID LOAN PROCEEDS', '0752-1120-45', 'REGULAR LCCA'),
-(8, 'DTI RAPID GRANT', '0752-0952-99', 'REGULAR LCCA'),
-(9, 'DTI BSMED_RTCXII_ADMIN EXPENSEFUND FOR CFIDP IMPLEMENTATION', '0752-2103-22', 'REGULAR LCCA');
+INSERT INTO `account_name` (`account_id`, `account_name`, `account_number`, `NCA_NO`, `NCA_DATE`, `FUND_SOURCE`, `type`) VALUES
+(1, 'DTI RO XI', '2075-9006-81', 878, '2025-04-30 01:11:42', '01101101', 'EMDS'),
+(2, 'DTI XI RAPID GOT COUNTERPART', '2075-9020-61', 0, '2025-04-30 01:11:42', '02101151', 'EMDS'),
+(3, 'DTI COCONUT LEVY FUND', '2075-9020-70', 0, '2025-04-30 01:11:42', '07308601', 'EMDS'),
+(4, 'DTI XII MSMEDC', '2075-9020-88', 0, '2025-04-30 01:11:42', '03104362', 'EMDS'),
+(5, 'DTI XII (TRUST)', '2075-9015-88', 0, '2025-04-30 01:11:42', '07308601', 'EMDS'),
+(6, 'DTI YAMAN GENSAN', '2075-9021-93', 0, '2025-04-30 01:11:42', '07308601', 'EMDS'),
+(7, 'DTI RAPID LOAN PROCEEDS', '0752-1120-45', 0, '2025-04-30 01:11:42', '', 'REGULAR LCCA'),
+(8, 'DTI RAPID GRANT', '0752-0952-99', 0, '2025-04-30 01:11:42', '', 'REGULAR LCCA'),
+(9, 'DTI BSMED_RTCXII_ADMIN EXPENSEFUND FOR CFIDP IMPLEMENTATION', '0752-2103-22', 0, '2025-04-30 01:11:42', '', 'REGULAR LCCA');
 
 -- --------------------------------------------------------
 
@@ -69,7 +72,6 @@ INSERT INTO `account_title` (`account_id`, `account_title`, `account_code`) VALU
 (245, 'Cash - Collecting Officers', '1010101000'),
 (246, 'Petty Cash Fund', '1010102000'),
 (247, 'Cash in Bank - Local Currency, Current Account', '1010202024'),
-(248, 'Cash - National Treasury - MDS', '1010404000'),
 (249, 'Loans Receivables-Others', '1030101000'),
 (250, 'Due from NGAs', '1030301000'),
 (251, 'Due from NGOs and POs', '1030303000'),
@@ -212,7 +214,9 @@ INSERT INTO `account_title` (`account_id`, `account_title`, `account_code`) VALU
 (392, 'Postage & Deliveries Expenses', '5029905001'),
 (393, 'Other MOOE', '50299990'),
 (394, 'RM - Motor Vehicles', '5021306001'),
-(395, 'Other Supplies and Materials', '5020399000');
+(395, 'Other Supplies and Materials', '5020399000'),
+(396, 'Cash - Modified Disbursement System (MDS), Special Account', '1010405000'),
+(397, 'Cash - Modified Disbursement System (MDS), Trust', '1010406000');
 
 -- --------------------------------------------------------
 
@@ -301,15 +305,6 @@ CREATE TABLE `batch_ada_dvs` (
   `net_amount` decimal(15,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `batch_ada_dvs`
---
-
-INSERT INTO `batch_ada_dvs` (`id`, `batch_id`, `dv_id`, `reference_no`, `gross_amount`, `withholding_tax`, `net_amount`) VALUES
-(43, 36, 98, '101-04-001-2025', 100.00, 0.00, 100.00),
-(44, 36, 97, '101-04-002-2025', 100.00, 0.00, 100.00),
-(45, 36, 99, '101-04-003-2025', 100.00, 0.00, 100.00);
-
 -- --------------------------------------------------------
 
 --
@@ -363,17 +358,6 @@ CREATE TABLE `dv` (
   `payment_type` varchar(123) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `dv`
---
-
-INSERT INTO `dv` (`dv_id`, `date`, `ors_id`, `account_id`, `dv_no`, `vat`, `vat_amount`, `tax_base`, `tax_1`, `tax_1_amount`, `tax_2`, `tax_2_amount`, `net_amount`, `total_amount`, `chief_accountant`, `regional_director`, `status`, `endorsement_date`, `endorsement_remarks`, `check_no`, `ada_no`, `payment_type`) VALUES
-(97, '2025-04-24', 105, 1, '1-25-04-001', 12.00, 0.00, 100.00, 0.00, 0.00, 0.00, 0.00, 100.00, 100.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', '', '2025-04-24 03:27:11', '', '', '', ''),
-(98, '2025-04-24', 106, 1, '3-25-04-001', 12.00, 0.00, 100.00, 0.00, 0.00, 0.00, 0.00, 100.00, 100.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', '', '2025-04-24 03:27:11', '', '', '', ''),
-(99, '2025-04-24', 107, 1, '2-25-04-001', 12.00, 0.00, 100.00, 0.00, 0.00, 0.00, 0.00, 100.00, 100.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', '', '2025-04-24 03:27:11', '', '', '', ''),
-(100, '2025-04-24', 108, 1, '2-25-04-002', 12.00, 0.00, 100.00, 0.00, 0.00, 0.00, 0.00, 100.00, 100.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', '', '2025-04-24 03:41:22', '', '', '', ''),
-(101, '2025-04-24', 109, 1, '1-25-04-002', 12.00, 0.00, 100.00, 0.00, 0.00, 0.00, 0.00, 100.00, 100.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', 'Pending', '2025-04-24 03:49:02', '', '', '', '');
-
 -- --------------------------------------------------------
 
 --
@@ -388,21 +372,50 @@ CREATE TABLE `dv_history` (
   `amount` double(40,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- --------------------------------------------------------
+
 --
--- Dumping data for table `dv_history`
+-- Table structure for table `dv_non_ors`
 --
 
-INSERT INTO `dv_history` (`dvhis_id`, `dv_id`, `account_id`, `type`, `amount`) VALUES
-(85, 97, 276, 'debit', 100.00),
-(86, 97, 248, 'credit', 100.00),
-(87, 98, 315, 'debit', 100.00),
-(88, 98, 382, 'credit', 100.00),
-(89, 99, 276, 'debit', 100.00),
-(90, 99, 382, 'credit', 100.00),
-(91, 100, 270, 'debit', 100.00),
-(92, 100, 382, 'credit', 100.00),
-(93, 101, 276, 'debit', 100.00),
-(94, 101, 382, 'credit', 100.00);
+CREATE TABLE `dv_non_ors` (
+  `dv_non_ors_id` int(11) NOT NULL,
+  `fund_cluster_id` int(255) NOT NULL,
+  `oopap_id` int(255) NOT NULL,
+  `date` date NOT NULL,
+  `dv_no` varchar(255) NOT NULL,
+  `payee_id` int(255) NOT NULL,
+  `rc_id` int(255) NOT NULL,
+  `purpose` varchar(255) NOT NULL,
+  `notes` varchar(255) NOT NULL,
+  `total_amount` double(40,2) NOT NULL,
+  `tax_base` double(40,2) NOT NULL,
+  `vat` int(255) NOT NULL,
+  `vat_amount` double(40,2) NOT NULL,
+  `tax_1` double(40,2) NOT NULL,
+  `tax_1_amount` double(40,2) NOT NULL,
+  `tax_2` double(40,2) NOT NULL,
+  `tax_2_amount` double(40,2) NOT NULL,
+  `net_amount` double(40,2) NOT NULL,
+  `approver_id` int(255) NOT NULL,
+  `chief_accountant` varchar(255) NOT NULL,
+  `regional_director` varchar(255) NOT NULL,
+  `status` enum('Pending','Endorsed') NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `dv_non_ors_entry`
+--
+
+CREATE TABLE `dv_non_ors_entry` (
+  `dv_non_ors_entry_id` int(11) NOT NULL,
+  `dv_non_ors_id` int(11) NOT NULL,
+  `account_id` int(11) NOT NULL,
+  `type` enum('debit','credit') NOT NULL,
+  `amount` double(40,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -462,6 +475,13 @@ CREATE TABLE `merged_payees` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Stores merged payee groups';
 
+--
+-- Dumping data for table `merged_payees`
+--
+
+INSERT INTO `merged_payees` (`merge_id`, `merge_name`, `description`, `payee_type`, `created_by`, `created_at`, `updated_at`) VALUES
+(1, 'dti', 'asgag', 'Internal', 'Cashier', '2025-04-30 00:37:30', '2025-04-30 00:37:30');
+
 -- --------------------------------------------------------
 
 --
@@ -501,17 +521,6 @@ CREATE TABLE `obligation_history` (
   `project_id` int(255) NOT NULL,
   `net` double(40,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `obligation_history`
---
-
-INSERT INTO `obligation_history` (`id`, `ors_id`, `project_id`, `net`) VALUES
-(70, 105, 380, 100.00),
-(71, 106, 378, 100.00),
-(72, 107, 378, 100.00),
-(73, 108, 378, 100.00),
-(74, 109, 378, 100.00);
 
 -- --------------------------------------------------------
 
@@ -569,17 +578,6 @@ CREATE TABLE `ors` (
   `status` enum('Pending','Endorsed') NOT NULL DEFAULT 'Pending'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `ors`
---
-
-INSERT INTO `ors` (`ors_id`, `fund_cluster_id`, `services_id`, `date`, `ors_no`, `payee_id`, `notes`, `purpose`, `rc_id`, `account_id`, `oopap_id`, `total_amount`, `approver_id`, `budget_officer`, `status`) VALUES
-(105, 3, 11, '2025-04-24', 'ADMINPOLICY-25-04-001', 16, 'jbfkanf', 'To Payment of', 1, 381, 1, 100.00, 2, 'CONNIE M. BARNACHEA', 'Endorsed'),
-(106, 5, 8, '2025-04-24', 'PMS-25-04-001', 22, 'asfnasf', 'To Payment of', 10, 379, 1, 100.00, 4, 'CONNIE M. BARNACHEA', 'Endorsed'),
-(107, 4, 15, '2025-04-24', 'MSSD-25-04-001', 20, 'alsnf;asf', 'To Payment of', 8, 379, 1, 100.00, 4, 'CONNIE M. BARNACHEA', 'Endorsed'),
-(108, 4, 19, '2025-04-24', 'MSSD-KM-25-04-001', 20, 'asfasf', 'To Payment of', 10, 379, 1, 100.00, 5, 'CONNIE M. BARNACHEA', 'Endorsed'),
-(109, 3, 11, '2025-04-24', 'ADMINPOLICY-25-04-002', 19, 'asfnalskfn', 'To Payment of', 12, 379, 1, 100.00, 3, 'CONNIE M. BARNACHEA', 'Endorsed');
-
 -- --------------------------------------------------------
 
 --
@@ -635,16 +633,6 @@ CREATE TABLE `payment` (
   `status` enum('Pending','Completed','Returned') NOT NULL DEFAULT 'Pending'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `payment`
---
-
-INSERT INTO `payment` (`payment_id`, `dv_id`, `ada_no`, `payment_date`, `payment_type`, `reference_no`, `amount`, `remarks`, `created_by`, `is_merged_payment`, `merge_id`, `created_at`, `status`) VALUES
-(45, 98, 101, '2025-04-24', 'ADA', '101-04-001-2025', 100.00, 'jafk', 'Cashier', 0, NULL, '2025-04-24 03:27:11', 'Pending'),
-(46, 97, 101, '2025-04-24', 'ADA', '101-04-002-2025', 100.00, 'jafk', 'Cashier', 0, NULL, '2025-04-24 03:27:11', 'Pending'),
-(47, 99, 101, '2025-04-24', 'ADA', '101-04-003-2025', 100.00, 'jafk', 'Cashier', 0, NULL, '2025-04-24 03:27:11', 'Pending'),
-(48, 100, 0, '2025-04-24', 'ADA', '101-04-002-2025', 100.00, 'jafk', 'Cashier', 0, NULL, '2025-04-24 03:41:22', 'Pending');
-
 -- --------------------------------------------------------
 
 --
@@ -679,13 +667,13 @@ CREATE TABLE `project` (
 --
 
 INSERT INTO `project` (`project_id`, `oopap_id`, `account_id`, `allotment`, `balances`, `created_at`) VALUES
-(56, 1, 311, 1562000.00, 1560238.00, '2025-03-31'),
-(57, 1, 313, 800000.00, 799988.00, '2025-03-31'),
-(58, 1, 314, 196000.00, 195988.00, '2025-03-31'),
+(56, 1, 311, 1562000.00, 1562000.00, '2025-03-31'),
+(57, 1, 313, 800000.00, 800000.00, '2025-03-31'),
+(58, 1, 314, 196000.00, 196000.00, '2025-03-31'),
 (59, 1, 315, 21000.00, 21000.00, '2025-03-31'),
 (60, 1, 355, 130000.00, 130000.00, '2025-03-31'),
-(61, 1, 317, 140000.00, 139900.00, '2025-03-31'),
-(63, 1, 318, 200000.00, 194800.00, '2025-03-31'),
+(61, 1, 317, 140000.00, 140000.00, '2025-03-31'),
+(63, 1, 318, 200000.00, 200000.00, '2025-03-31'),
 (64, 1, 319, 200000.00, 200000.00, '2025-03-31'),
 (65, 1, 320, 50000.00, 50000.00, '2025-03-31'),
 (66, 1, 357, 125000.00, 125000.00, '2025-03-31'),
@@ -700,7 +688,7 @@ INSERT INTO `project` (`project_id`, `oopap_id`, `account_id`, `allotment`, `bal
 (75, 1, 330, 2464000.00, 2464000.00, '2025-03-31'),
 (76, 1, 358, 282000.00, 282000.00, '2025-03-31'),
 (77, 1, 359, 17000.00, 17000.00, '2025-03-31'),
-(78, 1, 332, 10000.00, -2000.00, '2025-03-31'),
+(78, 1, 332, 10000.00, 10000.00, '2025-03-31'),
 (79, 1, 360, 5000.00, 5000.00, '2025-03-31'),
 (80, 1, 361, 190000.00, 190000.00, '2025-03-31'),
 (81, 1, 333, 400000.00, 400000.00, '2025-03-31'),
@@ -954,9 +942,6 @@ INSERT INTO `project` (`project_id`, `oopap_id`, `account_id`, `allotment`, `bal
 (374, 9, 364, 0.00, 0.00, '2025-03-31'),
 (375, 9, 314, 50000.00, 50000.00, '2025-03-31'),
 (376, 9, 346, 50000.00, 50000.00, '2025-03-31'),
-(378, 1, 379, 100000.00, 87303.00, '2025-04-02'),
-(379, 1, 380, 100000.00, 94900.00, '2025-04-02'),
-(380, 1, 381, 0.00, -1830.00, '2025-04-02'),
 (381, 11, 295, 3817000.00, 3817000.00, '2025-04-06'),
 (382, 11, 383, 144000.00, 144000.00, '2025-04-06'),
 (383, 11, 298, 120000.00, 120000.00, '2025-04-06'),
@@ -1227,6 +1212,25 @@ ALTER TABLE `dv_history`
   ADD KEY `account_id` (`account_id`);
 
 --
+-- Indexes for table `dv_non_ors`
+--
+ALTER TABLE `dv_non_ors`
+  ADD PRIMARY KEY (`dv_non_ors_id`),
+  ADD KEY `fund_cluster_id` (`fund_cluster_id`),
+  ADD KEY `oopap_id` (`oopap_id`),
+  ADD KEY `approver_id` (`approver_id`),
+  ADD KEY `payee_id` (`payee_id`),
+  ADD KEY `rc_id` (`rc_id`);
+
+--
+-- Indexes for table `dv_non_ors_entry`
+--
+ALTER TABLE `dv_non_ors_entry`
+  ADD PRIMARY KEY (`dv_non_ors_entry_id`),
+  ADD KEY `account_id` (`account_id`),
+  ADD KEY `dv_non_ors_id` (`dv_non_ors_id`);
+
+--
 -- Indexes for table `fund_cluster`
 --
 ALTER TABLE `fund_cluster`
@@ -1349,7 +1353,7 @@ ALTER TABLE `account_name`
 -- AUTO_INCREMENT for table `account_title`
 --
 ALTER TABLE `account_title`
-  MODIFY `account_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=396;
+  MODIFY `account_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=398;
 
 --
 -- AUTO_INCREMENT for table `allotment`
@@ -1385,13 +1389,25 @@ ALTER TABLE `draft_project`
 -- AUTO_INCREMENT for table `dv`
 --
 ALTER TABLE `dv`
-  MODIFY `dv_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=102;
+  MODIFY `dv_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=107;
 
 --
 -- AUTO_INCREMENT for table `dv_history`
 --
 ALTER TABLE `dv_history`
-  MODIFY `dvhis_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=95;
+  MODIFY `dvhis_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=111;
+
+--
+-- AUTO_INCREMENT for table `dv_non_ors`
+--
+ALTER TABLE `dv_non_ors`
+  MODIFY `dv_non_ors_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+
+--
+-- AUTO_INCREMENT for table `dv_non_ors_entry`
+--
+ALTER TABLE `dv_non_ors_entry`
+  MODIFY `dv_non_ors_entry_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT for table `fund_cluster`
@@ -1409,19 +1425,19 @@ ALTER TABLE `jev`
 -- AUTO_INCREMENT for table `merged_payees`
 --
 ALTER TABLE `merged_payees`
-  MODIFY `merge_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `merge_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `merged_payee_items`
 --
 ALTER TABLE `merged_payee_items`
-  MODIFY `item_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `obligation_history`
 --
 ALTER TABLE `obligation_history`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=75;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=78;
 
 --
 -- AUTO_INCREMENT for table `oopap`
@@ -1433,7 +1449,7 @@ ALTER TABLE `oopap`
 -- AUTO_INCREMENT for table `ors`
 --
 ALTER TABLE `ors`
-  MODIFY `ors_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=110;
+  MODIFY `ors_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=113;
 
 --
 -- AUTO_INCREMENT for table `payee`
@@ -1513,6 +1529,23 @@ ALTER TABLE `dv`
 ALTER TABLE `dv_history`
   ADD CONSTRAINT `dv_history_ibfk_1` FOREIGN KEY (`dv_id`) REFERENCES `dv` (`dv_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `dv_history_ibfk_2` FOREIGN KEY (`account_id`) REFERENCES `account_title` (`account_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `dv_non_ors`
+--
+ALTER TABLE `dv_non_ors`
+  ADD CONSTRAINT `dv_non_ors_ibfk_1` FOREIGN KEY (`fund_cluster_id`) REFERENCES `fund_cluster` (`fund_cluster_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `dv_non_ors_ibfk_2` FOREIGN KEY (`oopap_id`) REFERENCES `oopap` (`oopap_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `dv_non_ors_ibfk_4` FOREIGN KEY (`approver_id`) REFERENCES `approver` (`approver_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `dv_non_ors_ibfk_5` FOREIGN KEY (`payee_id`) REFERENCES `payee` (`payee_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `dv_non_ors_ibfk_7` FOREIGN KEY (`rc_id`) REFERENCES `responsibility_center` (`rc_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `dv_non_ors_entry`
+--
+ALTER TABLE `dv_non_ors_entry`
+  ADD CONSTRAINT `dv_non_ors_entry_ibfk_1` FOREIGN KEY (`account_id`) REFERENCES `account_title` (`account_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `dv_non_ors_entry_ibfk_2` FOREIGN KEY (`dv_non_ors_id`) REFERENCES `dv_non_ors` (`dv_non_ors_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `jev`

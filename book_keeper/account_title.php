@@ -63,7 +63,9 @@ if (isset($_POST['submit'])) {
 
     <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet"
         type="text/css">
+        <link rel="stylesheet" href="css/UACS.css">
         <link rel="stylesheet" href="css/table.css">
+       
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 

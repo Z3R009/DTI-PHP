@@ -59,53 +59,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
         $fund_code = isset($_POST['fund_code']) ? $_POST['fund_code'] : '01101101';
         $bank_info = isset($_POST['bank_info']) ? $_POST['bank_info'] : 'LAND BANK OF THE PHILIPPINES- KORONADAL BRANCH- 2075-9006-81';
         
-        // If account_id is provided, fetch account details
-        if (!empty($account_id)) {
-            $account_query = "SELECT * FROM account_name WHERE account_id = ?";
-            $account_stmt = $connection->prepare($account_query);
-            $account_stmt->bind_param("i", $account_id);
-            $account_stmt->execute();
-            $account_result = $account_stmt->get_result();
-            
-            if ($account_data = $account_result->fetch_assoc()) {
-                // Update bank_info based on account data
-                $bank_info = "LAND BANK OF THE PHILIPPINES- KORONADAL BRANCH- " . $account_data['account_number'];
-                
-                // Use fund_code from account_name table if it exists, otherwise determine by type
-                if (isset($account_data['fund_code'])) {
-                    $fund_code = $account_data['fund_code'];
-                } else if ($account_data['type'] == 'REGULAR LCCA') {
-                    $fund_code = '01091201';
-                } else {
-                    $fund_code = '01101101';
-                }
-                
-                // Store additional account information for later use
-                $nca_no = isset($account_data['NCA_NO']) ? $account_data['NCA_NO'] : '';
-                $nca_date = isset($account_data['NCA_DATE']) ? $account_data['NCA_DATE'] : null;
-                $fund_source = isset($account_data['FUND_SOURCE']) ? $account_data['FUND_SOURCE'] : '';
-                $description = isset($account_data['Description']) ? $account_data['Description'] : '';
-                
-                // Log the account information
-                error_log("Account information for ADA payment: " . json_encode([
-                    'account_id' => $account_id,
-                    'account_name' => $account_data['account_name'],
-                    'account_number' => $account_data['account_number'],
-                    'fund_code' => $fund_code,
-                    'nca_no' => $nca_no,
-                    'nca_date' => $nca_date,
-                    'fund_source' => $fund_source,
-                    'description' => $description
-                ]));
-            }
+        // Validate required fields
+        $errors = [];
+        
+        if (empty($account_id)) {
+            $errors[] = "Account selection is required.";
         }
         
-        $common_reference_no = '';
-        if(isset($_POST['batch_reference_no'])) {
-            $common_reference_no = $_POST['batch_reference_no'];
-        } elseif(isset($_POST['common_ada_ref'])) {
-            $common_reference_no = $_POST['common_ada_ref'];
-        }
         $payment_date = '';
         if(isset($_POST['batch_payment_date'])) {
             $payment_date = $_POST['batch_payment_date'];
@@ -113,6 +73,45 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
             $payment_date = $_POST['batch_date'];
         }
         
+        if (empty($payment_date)) {
+            $errors[] = "Payment date is required.";
+        }
+        
+        // Validate ADA references
+        if ($use_common_ada) {
+            if (!isset($_POST['common_ada_ref']) || empty($_POST['common_ada_ref'])) {
+                $errors[] = "Common ADA reference number is required.";
+            }
+        } else {
+            // Check individual references
+            foreach ($selected_dvs as $dv_id) {
+                if (!isset($_POST['ada_references']["dv_".$dv_id]) || empty($_POST['ada_references']["dv_".$dv_id])) {
+                    $errors[] = "ADA reference number is required for DV ID: " . $dv_id;
+                }
+            }
+            
+            foreach ($selected_merged_groups as $merge_id) {
+                if (!isset($_POST['ada_references']["merge_".$merge_id]) || empty($_POST['ada_references']["merge_".$merge_id])) {
+                    $errors[] = "ADA reference number is required for Merged Group ID: " . $merge_id;
+                }
+            }
+        }
+        
+        if (!empty($errors)) {
+            $error_message = "Form validation failed:\n- " . implode("\n- ", $errors);
+            error_log("Batch ADA validation errors: " . $error_message);
+            
+            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => $error_message]);
+                exit;
+            } else {
+                header('Location: ../pending_payments.php?error=' . urlencode($error_message));
+                exit;
+            }
+        }
+        
+        // If validation passes, proceed with the rest of the code
         $remarks = isset($_POST['batch_remarks']) ? $_POST['batch_remarks'] : '';
         $month = date('m', strtotime($payment_date));
         $year = date('Y', strtotime($payment_date));
@@ -122,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
         // Get reference numbers for regular DVs
         foreach($selected_dvs as $dv_id) {
             if ($use_common_ada) {
-                $reference_numbers[] = $common_reference_no;
+                $reference_numbers[] = $_POST['common_ada_ref'];
             } else {
                 $individual_ref = isset($_POST['ada_references']["dv_".$dv_id]) ? $_POST['ada_references']["dv_".$dv_id] : '';
                 $reference_numbers[] = $individual_ref;
@@ -132,7 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
         // Get reference numbers for merged groups
         foreach($selected_merged_groups as $merge_id) {
             if ($use_common_ada) {
-                $reference_numbers[] = $common_reference_no;
+                $reference_numbers[] = $_POST['common_ada_ref'];
             } else {
                 $individual_ref = isset($_POST['ada_references']["merge_".$merge_id]) ? $_POST['ada_references']["merge_".$merge_id] : '';
                 $reference_numbers[] = $individual_ref;
@@ -150,11 +149,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
             'selected_dvs_count' => count($selected_dvs),
             'selected_merged_groups_count' => count($selected_merged_groups)
         ]));
-        if ($use_common_ada && empty($common_reference_no)) {
+        if ($use_common_ada && empty($_POST['common_ada_ref'])) {
             $response['message'] = "ADA reference number is required for batch payment.";
         } elseif (empty($payment_date)) {
             $response['message'] = "Payment date is required.";
-        } else {
+        } elseif (empty($account_id)) {
+            $response['message'] = "Account selection is required.";
+        } elseif (!$use_common_ada) {
+            // Validate individual reference numbers for each DV and merged group
+            $missing_refs = [];
+            
+            // Check DVs
+            foreach ($selected_dvs as $dv_id) {
+                if (!isset($_POST['ada_references']["dv_".$dv_id]) || empty($_POST['ada_references']["dv_".$dv_id])) {
+                    $missing_refs[] = "DV ID: " . $dv_id;
+                }
+            }
+            
+            // Check merged groups
+            foreach ($selected_merged_groups as $merge_id) {
+                if (!isset($_POST['ada_references']["merge_".$merge_id]) || empty($_POST['ada_references']["merge_".$merge_id])) {
+                    $missing_refs[] = "Merged Group ID: " . $merge_id;
+                }
+            }
+            
+            if (!empty($missing_refs)) {
+                $response['message'] = "Reference numbers are required for: " . implode(", ", $missing_refs);
+            }
+        }
+        
+        if (empty($response['message'])) {
             $connection->begin_transaction();
             
             try {
@@ -277,42 +301,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
                     $update_stmt = $connection->prepare($update_dv);
                     $update_stmt->bind_param("i", $dv_id);
                     $update_stmt->execute();
-
-                    // Get bank account information from DV's account_id to update the draft_project balance
-                    $account_query = "SELECT d.account_id FROM dv d WHERE d.dv_id = ?";
-                    $account_stmt = $connection->prepare($account_query);
-                    $account_stmt->bind_param("i", $dv_id);
-                    $account_stmt->execute();
-                    $account_result = $account_stmt->get_result();
-                    
-                    if ($account_data = $account_result->fetch_assoc()) {
-                        $account_id = $account_data['account_id'];
-                        
-                        // Retrieve the current draft_project for this account
-                        $draft_query = "SELECT draft_id, balances FROM draft_project 
-                                       WHERE account_id = ? 
-                                       ORDER BY created_at DESC LIMIT 1";
-                        $draft_stmt = $connection->prepare($draft_query);
-                        $draft_stmt->bind_param("i", $account_id);
-                        $draft_stmt->execute();
-                        $draft_result = $draft_stmt->get_result();
-                        
-                        if ($draft_data = $draft_result->fetch_assoc()) {
-                            // Reduce the balance by the payment amount
-                            $new_balance = $draft_data['balances'] - $amount;
-                            
-                            // Ensure balance doesn't go negative
-                            if ($new_balance < 0) {
-                                $new_balance = 0;
-                            }
-                            
-                            // Update the draft_project balance
-                            $update_draft = "UPDATE draft_project SET balances = ? WHERE draft_id = ?";
-                            $update_draft_stmt = $connection->prepare($update_draft);
-                            $update_draft_stmt->bind_param("di", $new_balance, $draft_data['draft_id']);
-                            $update_draft_stmt->execute();
-                        }
-                    }
                 }
                 
                 // Process merged payee groups
@@ -351,7 +339,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
                         $merge_reference_no = $formatted_ada_ref;
                     } else {
                         $individual_ref = isset($_POST['ada_references']["merge_".$merge_id]) ? $_POST['ada_references']["merge_".$merge_id] : '';
-                        $merge_reference_no = $short_fund_code . "-" . $month . "-" . $individual_ref . "-" . $year;
+                        if (!empty($individual_ref)) {
+                            $merge_reference_no = $short_fund_code . "-" . $month . "-" . $individual_ref . "-" . $year;
+                        } else {
+                            throw new Exception("Reference number is required for merged group ID: " . $merge_id);
+                        }
                     }
                     
                     $group_gross = 0;
@@ -408,42 +400,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
                             'withholding_tax' => $withholding_tax,
                             'net_amount' => $amount
                         ];
-
-                        // Get bank account information from DV's account_id to update the draft_project balance
-                        $account_query = "SELECT d.account_id FROM dv d WHERE d.dv_id = ?";
-                        $account_stmt = $connection->prepare($account_query);
-                        $account_stmt->bind_param("i", $dv_id);
-                        $account_stmt->execute();
-                        $account_result = $account_stmt->get_result();
-                        
-                        if ($account_data = $account_result->fetch_assoc()) {
-                            $account_id = $account_data['account_id'];
-                            
-                            // Retrieve the current draft_project for this account
-                            $draft_query = "SELECT draft_id, balances FROM draft_project 
-                                           WHERE account_id = ? 
-                                           ORDER BY created_at DESC LIMIT 1";
-                            $draft_stmt = $connection->prepare($draft_query);
-                            $draft_stmt->bind_param("i", $account_id);
-                            $draft_stmt->execute();
-                            $draft_result = $draft_stmt->get_result();
-                            
-                            if ($draft_data = $draft_result->fetch_assoc()) {
-                                // Reduce the balance by the payment amount
-                                $new_balance = $draft_data['balances'] - $amount;
-                                
-                                // Ensure balance doesn't go negative
-                                if ($new_balance < 0) {
-                                    $new_balance = 0;
-                                }
-                                
-                                // Update the draft_project balance
-                                $update_draft = "UPDATE draft_project SET balances = ? WHERE draft_id = ?";
-                                $update_draft_stmt = $connection->prepare($update_draft);
-                                $update_draft_stmt->bind_param("di", $new_balance, $draft_data['draft_id']);
-                                $update_draft_stmt->execute();
-                            }
-                        }
                     }
                     
                     // Add merged group to LDDAP data
@@ -481,6 +437,59 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
                     $total_net += $group_net;
                 }
                 
+                // Update the total in batch_ada
+                $update_batch_sql = "UPDATE batch_ada SET 
+                                    total_gross = ?, 
+                                    total_withholding = ?, 
+                                    total_net = ? 
+                                    WHERE batch_id = ?";
+                $update_batch_stmt = $connection->prepare($update_batch_sql);
+                $update_batch_stmt->bind_param(
+                    "dddi", 
+                    $total_gross, 
+                    $total_withholding, 
+                    $total_net,
+                    $batch_id
+                );
+                $update_batch_stmt->execute();
+                
+                // Update the selected account's draft project balance
+                if (!empty($account_id)) {
+                    // Retrieve the current draft_project for this account
+                    $draft_query = "SELECT draft_id, balances FROM draft_project 
+                                   WHERE account_id = ? 
+                                   ORDER BY created_at DESC LIMIT 1";
+                    $draft_stmt = $connection->prepare($draft_query);
+                    $draft_stmt->bind_param("i", $account_id);
+                    $draft_stmt->execute();
+                    $draft_result = $draft_stmt->get_result();
+                    
+                    if ($draft_data = $draft_result->fetch_assoc()) {
+                        // Reduce the balance by the total payment amount
+                        $new_balance = $draft_data['balances'] - $total_net;
+                        
+                        // Ensure balance doesn't go negative
+                        if ($new_balance < 0) {
+                            $new_balance = 0;
+                        }
+                        
+                        // Update the draft_project balance
+                        $update_draft = "UPDATE draft_project SET balances = ? WHERE draft_id = ?";
+                        $update_draft_stmt = $connection->prepare($update_draft);
+                        $update_draft_stmt->bind_param("di", $new_balance, $draft_data['draft_id']);
+                        $update_draft_stmt->execute();
+                        
+                        error_log("Updated draft project balance - Draft ID: " . $draft_data['draft_id'] . 
+                                 ", Previous Balance: " . $draft_data['balances'] . 
+                                 ", New Balance: " . $new_balance . 
+                                 ", Total payment: " . $total_net);
+                    } else {
+                        error_log("No draft project found for account ID: " . $account_id);
+                    }
+                } else {
+                    error_log("No account ID provided for batch payment");
+                }
+                
                 $lddap_data['totalGross'] = $total_gross;
                 $lddap_data['totalWithholding'] = $total_withholding;
                 $lddap_data['totalNet'] = $total_net;
@@ -514,6 +523,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
                 $response['redirect'] = "../pending_payments.php?success=3&lddap_ref=" . urlencode($formatted_ada_ref) . 
                                         "&storage_key=" . urlencode($storage_key) . 
                                         "&lddap_data=" . urlencode($lddap_data_json);
+                $response['data'] = [
+                    'batch_id' => $batch_id,
+                    'reference_no' => $formatted_ada_ref,
+                    'payment_date' => $payment_date,
+                    'total_gross' => $total_gross,
+                    'total_net' => $total_net
+                ];
+                
+                // If this is a regular form submission (not AJAX), redirect
+                if (!isset($_SERVER['HTTP_X_REQUESTED_WITH']) || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'xmlhttprequest') {
+                    $_SESSION['success_message'] = $response['message'];
+                    header('Location: ' . $response['redirect']);
+                    exit;
+                }
             } catch (Exception $e) {
                 $connection->rollback();
                 $response['message'] = "Error recording batch ADA payment: " . $e->getMessage();

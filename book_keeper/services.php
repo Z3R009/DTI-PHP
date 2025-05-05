@@ -54,6 +54,7 @@ $result_oopap = $connection->query($sql_oopap);
     <link href="../NiceAdmin/assets/vendor/remixicon/remixicon.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/simple-datatables/style.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/UACS.css">
     <link rel="stylesheet" href="css/table.css">
 
 </head>
