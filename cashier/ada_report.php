@@ -343,10 +343,12 @@ $result = $connection->query($query);
                 printAdaForm(reference);
             });
             
+            // Print Report button click handler
             $('#printReportBtn').on('click', function() {
                 window.print();
             });
             
+            // Export to Excel button click handler
             $('#exportExcelBtn').on('click', function() {
                 exportTableToExcel('ada_payments_report');
             });
