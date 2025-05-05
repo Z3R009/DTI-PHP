@@ -125,6 +125,9 @@ $months = [
     <main id="main" class="main">
         <div class="pagetitle">
             <h1>OO1-PERSONNEL REPORTS</h1>
+            <a href="personnelReport.php">
+                <button type="button">Next Page</button>
+            </a>
         </div>
 
         <section class="section dashboard">

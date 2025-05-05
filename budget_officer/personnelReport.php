@@ -17,7 +17,7 @@ $select = mysqli_query(
         account_title.account_code
      FROM project 
      LEFT JOIN account_title ON project.account_id = account_title.account_id 
-     WHERE project.oopap_id = 1 
+     WHERE project.oopap_id = 11 
      AND YEAR(project.created_at) = $selected_year
      ORDER BY account_title.account_title ASC"
 );
@@ -31,7 +31,7 @@ function getObligations($connection, $account_id, $year, $start_month, $end_mont
                   SELECT project_id 
                   FROM project 
                   WHERE account_id = ? 
-                  AND oopap_id = 1
+                  AND oopap_id = 11
               )
               AND YEAR(ors.date) = ?
               AND MONTH(ors.date) BETWEEN ? AND ?";
@@ -93,7 +93,7 @@ $months = [
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>GAS REPORTS</title>
+    <title>OO1-Personnel Reports</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
@@ -124,15 +124,18 @@ $months = [
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1>GAS REPORTS</h1>
+            <h1>OO1-PERSONNEL REPORTS</h1>
+            <a href="oo1_personnelReport.php">
+                <button type="button">Back</button>
+            </a>
         </div>
 
         <section class="section dashboard">
             <!-- Filter Card -->
             <div class="card mb-3">
                 <div class="card-body">
-                    <h5 class="card-title">SUMMARY OF OBLIGATION (GAS) <?php echo $months[$selected_month] . ' ' . $selected_year; ?></h5>
-                    <form method="get" action="gasReport.php" class="row g-3">
+                    <h5 class="card-title">SUMMARY OF OBLIGATION (OO1-PERSONNEL) <?php echo $months[$selected_month] . ' ' . $selected_year; ?></h5>
+                    <form method="get" action="oo1_personnelReport.php" class="row g-3">
                         <div class="col-md-4">
                             <label for="year" class="form-label">Year</label>
                             <select class="form-select" id="year" name="year" required>
@@ -164,44 +167,33 @@ $months = [
             </div>
 
             <?php if (!empty($filtered_data)): ?>
-            
-
             <!-- Report Card -->
             <div class="card">
                 <div class="card-body">
                 <h5 class="card-title"></h5>
-  
+                    
                     <div class="table-responsive">
                         <table class="table table-bordered">
                             <thead>
                                 <tr>
-                                    <th rowspan="2" style="vertical-align: middle;">UACS CODE</th>
-                                    <th rowspan="2" style="vertical-align: middle;">PROJECT/PROGRAM/ACTIVITIES</th>
-                                    <th rowspan="2" style="vertical-align: middle;" class="text-end">ALLOTMENT</th>
+                                    <th rowspan="2" style="vertical-align: middle;">DATE</th>
+                                    <th rowspan="2" style="vertical-align: middle;">SERIAL NUMBER/OBLIGATION NUMBER</th>
+                                    <th rowspan="2" style="vertical-align: middle;">P.A.P</th>
+                                    <th rowspan="2" style="vertical-align: middle;" class="text-end">PARTICULARS</th>
                                     <th colspan="3" class="text-center">OBLIGATIONS</th>
                                     <th rowspan="2" style="vertical-align: middle;" class="text-end">BALANCES</th>
                                 </tr>
                                 <tr>
                                     <th class="text-end" style="background-color: #B8CCE4;">LAST MONTH</th>
-                                    <th class="text-end" style="background-color: #FCD5B4;">THIS MONTH <br><?php echo $months[$selected_month] ?></th>
+                                    <th class="text-end" style="background-color: #FCD5B4;">THIS MONTH <br><?php echo $months[$selected_month]?></th>
                                     <th class="text-end" style="background-color: #E6B8B7;">TO DATE</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td colspan="7"><strong>GAS</strong></td>
+                                    <td colspan="7"><strong>PERSONNEL</strong></td>
                                 </tr>
-                                <?php foreach ($filtered_data as $row): ?>
-                                    <tr>
-                                        <td><?php echo htmlspecialchars($row['account_code']); ?></td>
-                                        <td><?php echo htmlspecialchars($row['account_title']); ?></td>
-                                        <td class="text-end">₱<?php echo number_format($row['allotment'], 2); ?></td>
-                                        <td class="text-end" style="background-color: #B8CCE4;">₱<?php echo number_format($row['last_month'], 2); ?></td>
-                                        <td class="text-end" style="background-color: #FCD5B4;">₱<?php echo number_format($row['this_month'], 2); ?></td>
-                                        <td class="text-end" style="background-color: #E6B8B7;">₱<?php echo number_format($row['to_date'], 2); ?></td>
-                                        <td class="text-end">₱<?php echo number_format($row['balances'], 2); ?></td>
-                                    </tr>
-                                <?php endforeach; ?>
+                                
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -302,7 +294,6 @@ $months = [
                     </script>
                 </div>
             </div>
-
             <?php else: ?>
                 <div class="alert alert-info">
                     No projects found for the selected year.
