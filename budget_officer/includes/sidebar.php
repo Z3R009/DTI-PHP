@@ -56,47 +56,47 @@
                     <ul id="mooe-nav" class="nav-content collapse" data-bs-parent="#status-nav">
                         <li>
                             <a href="gas.php">
-                                <i class="bi bi-circle"></i><span>GAS</span>
+                                <i class="bi bi-circle"></i><span>GAS-General Administration and Support</span>
                             </a>
                         </li>
                         <li>
                             <a href="oo1.php">
-                                <i class="bi bi-circle"></i><span>OO1</span>
+                                <i class="bi bi-circle"></i><span>OO1-Exports and Investment Program</span>
                             </a>
                         </li>
                         <li>
                             <a href="oo2.php">
-                                <i class="bi bi-circle"></i><span>OO2</span>
+                                <i class="bi bi-circle"></i><span>OO2-Industry Development Program</span>
                             </a>
                         </li>
                         <li>
                             <a href="oo3.php">
-                                <i class="bi bi-circle"></i><span>OO3</span>
+                                <i class="bi bi-circle"></i><span>OO3-MSME Development Program</span>
                             </a>
                         </li>
                         <li>
                             <a href="oo3_1.php">
-                                <i class="bi bi-circle"></i><span>OO3.1</span>
+                                <i class="bi bi-circle"></i><span>OO3.1-Negosyo Centers</span>
                             </a>
                         </li>
                         <li>
                             <a href="oo3_2.php">
-                                <i class="bi bi-circle"></i><span>OO3.2</span>
+                                <i class="bi bi-circle"></i><span>OO3.2-OTOP Next Gen</span>
                             </a>
                         </li>
                         <li>
                             <a href="oo3_3.php">
-                                <i class="bi bi-circle"></i><span>OO3.3</span>
+                                <i class="bi bi-circle"></i><span>OO3.3-Shared Service Facilities</span>
                             </a>
                         </li>
                         <li>
                             <a href="oo4_1_1.php">
-                                <i class="bi bi-circle"></i><span>OO4.1.1</span>
+                                <i class="bi bi-circle"></i><span>OO4.1.1-Monitoring and Enforcement</span>
                             </a>
                         </li>
                         <li>
                             <a href="oo4_1_2.php">
-                                <i class="bi bi-circle"></i><span>OO4.1.2</span>
+                                <i class="bi bi-circle"></i><span>OO4.1.2-Accreditation and Issuance of BN</span>
                             </a>
                         </li>
                     </ul>
