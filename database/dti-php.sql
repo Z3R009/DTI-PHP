@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 05, 2025 at 02:06 AM
+-- Generation Time: May 05, 2025 at 03:34 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -72,7 +72,6 @@ INSERT INTO `account_title` (`account_id`, `account_title`, `account_code`) VALU
 (245, 'Cash - Collecting Officers', '1010101000'),
 (246, 'Petty Cash Fund', '1010102000'),
 (247, 'Cash in Bank - Local Currency, Current Account', '1010202024'),
-(248, 'Cash - National Treasury - MDS', '1010404000'),
 (249, 'Loans Receivables-Others', '1030101000'),
 (250, 'Due from NGAs', '1030301000'),
 (251, 'Due from NGOs and POs', '1030303000'),
@@ -215,7 +214,9 @@ INSERT INTO `account_title` (`account_id`, `account_title`, `account_code`) VALU
 (392, 'Postage & Deliveries Expenses', '5029905001'),
 (393, 'Other MOOE', '50299990'),
 (394, 'RM - Motor Vehicles', '5021306001'),
-(395, 'Other Supplies and Materials', '5020399000');
+(395, 'Other Supplies and Materials', '5020399000'),
+(396, 'Cash - Modified Disbursement System (MDS), Special Account', '1010405000'),
+(397, 'Cash - Modified Disbursement System (MDS), Trust', '1010406000');
 
 -- --------------------------------------------------------
 
@@ -1352,7 +1353,7 @@ ALTER TABLE `account_name`
 -- AUTO_INCREMENT for table `account_title`
 --
 ALTER TABLE `account_title`
-  MODIFY `account_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=396;
+  MODIFY `account_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=398;
 
 --
 -- AUTO_INCREMENT for table `allotment`
@@ -1388,13 +1389,13 @@ ALTER TABLE `draft_project`
 -- AUTO_INCREMENT for table `dv`
 --
 ALTER TABLE `dv`
-  MODIFY `dv_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=104;
+  MODIFY `dv_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=107;
 
 --
 -- AUTO_INCREMENT for table `dv_history`
 --
 ALTER TABLE `dv_history`
-  MODIFY `dvhis_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=99;
+  MODIFY `dvhis_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=111;
 
 --
 -- AUTO_INCREMENT for table `dv_non_ors`
@@ -1436,7 +1437,7 @@ ALTER TABLE `merged_payee_items`
 -- AUTO_INCREMENT for table `obligation_history`
 --
 ALTER TABLE `obligation_history`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=77;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=78;
 
 --
 -- AUTO_INCREMENT for table `oopap`
@@ -1448,7 +1449,7 @@ ALTER TABLE `oopap`
 -- AUTO_INCREMENT for table `ors`
 --
 ALTER TABLE `ors`
-  MODIFY `ors_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=112;
+  MODIFY `ors_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=113;
 
 --
 -- AUTO_INCREMENT for table `payee`
