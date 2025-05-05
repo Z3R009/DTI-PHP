@@ -200,7 +200,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Disbursement Voucher - DTI  Book Keeper</title>
+    <title>Disbursement Voucher - DTI Book Keeper</title>
     <meta content="Disbursement Voucher Management System for DTI" name="description">
     <meta content="disbursement, voucher, dti, finance, accounting" name="keywords">
     <link href="img/dti_logo.png" rel="icon">
@@ -281,6 +281,44 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
             border-color: #aaa;
             cursor: not-allowed;
         }
+
+
+
+
+        .sticky-input {
+            position: sticky;
+            top: 0;
+            background: white;
+            padding: 10px;
+            z-index: 10;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .sticky-wrapper {
+            position: sticky;
+            top: 0;
+            /* Sticks to top */
+            background-color: white;
+            z-index: 999;
+            /* Stays on top of other fields */
+            padding: 1rem;
+            display: flex;
+            gap: 1rem;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .custom-check .form-check-input {
+            width: 25px;
+            height: 25px;
+            border: 2px solid #0d6efd;
+            background-color: #f0f8ff;
+            cursor: pointer;
+        }
+
+        .custom-check .form-check-input:checked {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
     </style>
 
 
@@ -319,6 +357,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                 </div>
 
                 <div class="tab-content">
+
                     <!-- DV List Tab -->
                     <div>
                         <!-- Bulk action button (initially hidden) -->
@@ -495,7 +534,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                 </div>
 
                                 <!-- tax -->
-                                <div class="form-section">
+                                <div class=" form-section">
                                     <h3><i class="bi bi-calculator me-2"></i>Breakdown of Expenses</h3>
                                     <div class="form-row">
                                         <div class="form-group half-width">
@@ -511,9 +550,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                         </div>
                                     </div>
 
-                                    <div id="tax_fields_container" class="tax-fields">
-                                        <div class="form-row"></div>
-
+                                    <div id="tax_fields_container" class="tax-fields d-flex">
                                         <div class="form-group half-width">
                                             <label class="form-label">VAT <input type="number" class="tax-percentage"
                                                     id="vat_percentage" name="vat" value="12" min="0" max="100"
@@ -521,142 +558,172 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                             <input type="number" class="form-control calculation-field" id="vat_amount"
                                                 name="vat_amount" step="0.01" readonly>
                                         </div>
-                                    </div>
-                                    <div class="form-row">
+
                                         <div class="form-group">
                                             <label class="form-label">Tax Base</label>
                                             <input type="number" class="form-control calculation-field" id="tax_base"
                                                 name="tax_base" step="0.01">
                                         </div>
+                                    </div>
+
+
+
+                                    <div class="sticky-wrapper">
+                                        <div class="sticky-input" style="flex: 1;">
+                                            <div class="form-group">
+                                                <label class="form-label">Less:
+                                                    <input type="number" class="tax-percentage" id="tax1_percentage"
+                                                        name="tax_1" value="5" min="0" max="100"> % Tax
+                                                </label>
+                                                <input type="number" class="form-control calculation-field" id="tax_1"
+                                                    name="tax_1_amount" step="0.01">
+                                            </div>
+                                        </div>
+
+                                        <div class="sticky-input" style="flex: 1;">
+                                            <div class="form-group">
+                                                <label class="form-label">Less:
+                                                    <input type="number" class="tax-percentage" id="tax2_percentage"
+                                                        name="tax_2" value="2" min="0" max="100"> % Tax
+                                                </label>
+                                                <input type="number" class="form-control calculation-field" id="tax_2"
+                                                    name="tax_2_amount" step="0.01">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-row">
                                         <div class="form-group">
-                                            <label class="form-label">Less: <input type="number" class="tax-percentage"
-                                                    id="tax1_percentage" name="tax_1" value="5" min="0" max="100"> %
-                                                Tax</label>
-                                            <input type="number" class="form-control calculation-field" id="tax_1"
-                                                name="tax_1_amount" step="0.01">
+                                            <label class="form-label">Net Amount</label>
+                                            <input type="number" class="form-control calculation-field" id="net_amount"
+                                                name="net_amount" step="0.01" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+
+                                <div class="form-section">
+                                    <h3><i class="bi bi-journal-text me-2"></i>Accounting Entry</h3>
+                                    <div class="table-responsive">
+                                        <table class="accounting-entry-table">
+                                            <thead>
+                                                <tr>
+                                                    <th colspan="2">Account Title</th>
+                                                    <th>Debit Amount</th>
+                                                    <th>Credit Amount</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="accountingTableBody">
+                                                <tr>
+                                                    <td colspan="2">
+                                                        <select class="form-control account-select"
+                                                            name="account_titles[]" required>
+                                                            <option selected disabled value="">Select Account
+                                                            </option>
+                                                            <?php
+                                                            $account_query = "SELECT * FROM account_title ORDER BY account_title ASC";
+                                                            $account_result = $connection->query($account_query);
+                                                            while ($account = $account_result->fetch_assoc()) {
+                                                                echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
+                                                            }
+                                                            ?>
+                                                        </select>
+                                                    </td>
+                                                    <td><input type="number" class="form-control debit-amount"
+                                                            name="debit_amounts[]" step="0.01"></td>
+                                                    <td><input type="number" class="form-control credit-amount"
+                                                            name="credit_amounts[]" step="0.01"></td>
+                                                    <td><button type="button"
+                                                            class="btn btn-danger btn-sm delete-row"><i
+                                                                class="bi bi-trash"></i></button></td>
+                                                </tr>
+                                            </tbody>
+                                            <tfoot>
+                                                <tr>
+                                                    <td colspan="2">
+                                                        <select class="form-control account-select"
+                                                            name="account_titles[]">
+                                                            <option selected disabled>Select Cash Account
+                                                            </option>
+                                                            <?php
+                                                            // Define the specific account codes we want to show
+                                                            $cashAccountCodes = ['1010404000', '1010405000', '1010406000'];
+
+                                                            // Query only the specific cash accounts
+                                                            $cash_account_query = "SELECT * FROM account_title WHERE account_code IN ('1010404000', '1010405000', '1010406000') ORDER BY account_title ASC";
+                                                            $cash_account_result = $connection->query($cash_account_query);
+
+                                                            while ($account = $cash_account_result->fetch_assoc()) {
+                                                                echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
+                                                            }
+                                                            ?>
+                                                        </select>
+                                                    </td>
+                                                    <td><input type="number" class="form-control debit-amount"
+                                                            name="debit_amounts[]" step="0.01" readonly></td>
+                                                    <td><input type="number" class="form-control credit-amount"
+                                                            name="credit_amounts[]" step="0.01" readonly></td>
+                                                    <td><button type="button"
+                                                            class="btn btn-danger btn-sm delete-row"><i
+                                                                class="bi bi-trash"></i></button></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <button type="button" id="addAccountRow"
+                                                            class="btn btn-secondary">
+                                                            <i class="bi bi-plus-lg"></i> Add Row
+                                                        </button>
+                                                    </td>
+                                                    <td colspan="3"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <div class="form-check custom-check">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="selectAll"> &nbsp
+                                                            <label class="form-check-label" for="selectAll">Include
+                                                                Tax</label>
+                                                        </div>
+
+                                                    </td>
+                                                    <td colspan="3"></td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!-- Approver Section -->
+                                <div class="form-section">
+                                    <h3><i class="bi bi-person-check me-2"></i>Approver Details</h3>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label">Chief Accountant</label>
+                                            <select class="form-control" name="chief_accountant">
+                                                <option>NEIL ANTHONY T. MORALA</option>
+                                            </select>
                                         </div>
                                         <div class="form-group">
-                                            <label class="form-label">Less: <input type="number" class="tax-percentage"
-                                                    id="tax2_percentage" name="tax_2" value="2" min="0" max="100"> %
-                                                Tax</label>
-                                            <input type="number" class="form-control calculation-field" id="tax_2"
-                                                name="tax_2_amount" step="0.01">
+                                            <label class="form-label">Regional Director</label>
+                                            <select class="form-control" name="regional_director">
+                                                <option>FLORA D. POLITUD-GABUNALES, CESO V</option>
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label class="form-label">Net Amount</label>
-                                        <input type="number" class="form-control calculation-field" id="net_amount"
-                                            name="net_amount" step="0.01" readonly>
-                                    </div>
+                                <!-- Buttons -->
+                                <div class="btn-container">
+                                    <button type="button" class="btn btn-secondary" onclick="closeModal()">
+                                        <i class="bi bi-x-circle me-1"></i> Cancel
+                                    </button>
+                                    <button type="submit" class="btn btn-primary" name="submit">
+                                        <i class="bi bi-printer me-1"></i> Print DV
+                                    </button>
                                 </div>
-                            </div>
-
-                            <div class="form-section">
-                                <h3><i class="bi bi-journal-text me-2"></i>Accounting Entry</h3>
-                                <div class="table-responsive">
-                                    <table class="accounting-entry-table">
-                                        <thead>
-                                            <tr>
-                                                <th colspan="2">Account Title</th>
-                                                <th>Debit Amount</th>
-                                                <th>Credit Amount</th>
-                                                <th>Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="accountingTableBody">
-                                            <tr>
-                                                <td colspan="2">
-                                                    <select class="form-control account-select" name="account_titles[]"
-                                                        required>
-                                                        <option selected disabled value="">Select Account</option>
-                                                        <?php
-                                                        $account_query = "SELECT * FROM account_title ORDER BY account_title ASC";
-                                                        $account_result = $connection->query($account_query);
-                                                        while ($account = $account_result->fetch_assoc()) {
-                                                            echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
-                                                        }
-                                                        ?>
-                                                    </select>
-                                                </td>
-                                                <td><input type="number" class="form-control debit-amount"
-                                                        name="debit_amounts[]" step="0.01"></td>
-                                                <td><input type="number" class="form-control credit-amount"
-                                                        name="credit_amounts[]" step="0.01"></td>
-                                                <td><button type="button" class="btn btn-danger btn-sm delete-row"><i
-                                                            class="bi bi-trash"></i></button></td>
-                                            </tr>
-                                        </tbody>
-                                        <tfoot>
-                                            <tr>
-                                                <td colspan="2">
-                                                    <select class="form-control account-select" name="account_titles[]">
-                                                        <option selected disabled>Select Cash Account</option>
-                                                        <?php
-                                                        // Define the specific account codes we want to show
-                                                        $cashAccountCodes = ['1010404000', '1010405000', '1010406000'];
-
-                                                        // Query only the specific cash accounts
-                                                        $cash_account_query = "SELECT * FROM account_title WHERE account_code IN ('1010404000', '1010405000', '1010406000') ORDER BY account_title ASC";
-                                                        $cash_account_result = $connection->query($cash_account_query);
-
-                                                        while ($account = $cash_account_result->fetch_assoc()) {
-                                                            echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
-                                                        }
-                                                        ?>
-                                                    </select>
-                                                </td>
-                                                <td><input type="number" class="form-control debit-amount"
-                                                        name="debit_amounts[]" step="0.01" readonly></td>
-                                                <td><input type="number" class="form-control credit-amount"
-                                                        name="credit_amounts[]" step="0.01" readonly></td>
-                                                <td><button type="button" class="btn btn-danger btn-sm delete-row"><i
-                                                            class="bi bi-trash"></i></button></td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    <button type="button" id="addAccountRow" class="btn btn-secondary">
-                                                        <i class="bi bi-plus-lg"></i> Add Row
-                                                    </button>
-                                                </td>
-                                                <td colspan="3"></td>
-                                            </tr>
-                                        </tfoot>
-                                    </table>
-                                </div>
-                            </div>
-
-                            <!-- Approver Section -->
-                            <div class="form-section">
-                                <h3><i class="bi bi-person-check me-2"></i>Approver Details</h3>
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label class="form-label">Chief Accountant</label>
-                                        <select class="form-control" name="chief_accountant">
-                                            <option>NEIL ANTHONY T. MORALA</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Regional Director</label>
-                                        <select class="form-control" name="regional_director">
-                                            <option>FLORA D. POLITUD-GABUNALES, CESO V</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Buttons -->
-                            <div class="btn-container">
-                                <button type="button" class="btn btn-secondary" onclick="closeModal()">
-                                    <i class="bi bi-x-circle me-1"></i> Cancel
-                                </button>
-                                <button type="submit" class="btn btn-primary" name="submit">
-                                    <i class="bi bi-printer me-1"></i> Print DV
-                                </button>
-                            </div>
-                        </div>
                     </form>
                 </div>
             </div>
@@ -1612,6 +1679,85 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
         });
     });
 </script> -->
+
+    <!-- new script for adding a row with a specific credit amount -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+
+            const tax1Input = document.getElementById('tax_1');
+            const tax2Input = document.getElementById('tax_2');
+            const tableBody = document.getElementById('accountingTableBody');
+            const checkbox = document.getElementById('selectAll');
+
+            // Utility: Create select options from PHP
+            const accountOptions = `<?php
+            $account_result->data_seek(0);
+            while ($account = $account_result->fetch_assoc()) {
+                echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
+            }
+            ?>`;
+
+            // Helper to remove previously added tax rows
+            function removeTaxRows() {
+                const rows = tableBody.querySelectorAll('tr[data-tax="true"]');
+                rows.forEach(row => row.remove());
+            }
+
+            // Function to add tax credit rows
+            function addRowWithCredit(creditAmount, label = '', accountId = '') {
+                const newRow = document.createElement('tr');
+                newRow.setAttribute('data-tax', 'true');
+
+                newRow.innerHTML = `
+        <td colspan="2">
+           
+
+            <select class="form-control account-select"
+                                  name="account_titles[]">
+                                <option selected disabled value ="">Select Account
+                            </option>
+                            <?php
+                            // Define the specific account codes we want to show
+                            $accountCodes = ['2020101000'];
+
+                            // Query only the specific cash accounts
+                            $cash_account_query = "SELECT * FROM account_title WHERE account_code IN ('2020101000') ORDER BY account_title ASC";
+                            $cash_account_result = $connection->query($cash_account_query);
+
+                            while ($account = $cash_account_result->fetch_assoc()) {
+                                echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
+                            }
+                            ?>
+                                    </select>
+
+        </td>
+        <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01" readonly></td>
+        <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01" value="${creditAmount.toFixed(2)}" readonly></td>
+        <td><button type="button" class="btn btn-danger btn-sm delete-row"><i class="bi bi-trash"></i></button></td>
+    `;
+                tableBody.appendChild(newRow);
+            }
+
+
+            // Checkbox handler
+            checkbox.addEventListener('change', function () {
+                removeTaxRows(); // Always clean before adding
+
+                if (this.checked) {
+                    const tax1Amount = parseFloat(tax1Input.value) || 0;
+                    const tax2Amount = parseFloat(tax2Input.value) || 0;
+
+                    if (tax1Amount > 0) {
+                        addRowWithCredit(tax1Amount, 'Tax 1');
+                    }
+                    if (tax2Amount > 0) {
+                        addRowWithCredit(tax2Amount, 'Tax 2');
+                    }
+                }
+            });
+        });
+    </script>
 
 
 </body>
