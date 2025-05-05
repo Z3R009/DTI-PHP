@@ -39,7 +39,6 @@ $select = mysqli_query(
             ors.ors_no, 
             ors.payee_id, 
             ors.notes, 
-            ors.total_amount,
             ors.oopap_id,
             payee.payee_name 
      FROM obligation_history 
@@ -198,7 +197,7 @@ $total_balances = $total_allotment - $total_filtered_amount;
                                     <td><?php echo htmlspecialchars($row['ors_no']); ?></td>
                                     <td><?php echo htmlspecialchars($row['payee_name']); ?></td>
                                     <td><?php echo htmlspecialchars($row['notes']); ?></td>
-                                    <td><?php echo htmlspecialchars(number_format($row['total_amount'], 2)); ?></td>
+                                    <td><?php echo htmlspecialchars(number_format($row['net'], 2)); ?></td>
                                     <td>
                                         <button type="button" class="btn btn-primary view-details" onclick="window.location.href='ors_form.php?ors_no=<?php echo $row['ors_no']; ?>'">
                                             <i class="bi bi-eye" data-bs-toggle="tooltip" data-bs-placement="top" title="View Details"></i>
