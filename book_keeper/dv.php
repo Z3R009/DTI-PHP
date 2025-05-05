@@ -306,6 +306,19 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
             gap: 1rem;
             border-bottom: 1px solid #ccc;
         }
+
+        .custom-check .form-check-input {
+            width: 25px;
+            height: 25px;
+            border: 2px solid #0d6efd;
+            background-color: #f0f8ff;
+            cursor: pointer;
+        }
+
+        .custom-check .form-check-input:checked {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
     </style>
 
 
@@ -663,6 +676,18 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                                             class="btn btn-secondary">
                                                             <i class="bi bi-plus-lg"></i> Add Row
                                                         </button>
+                                                    </td>
+                                                    <td colspan="3"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <div class="form-check custom-check">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="selectAll"> &nbsp
+                                                            <label class="form-check-label" for="selectAll">Include
+                                                                Tax</label>
+                                                        </div>
+
                                                     </td>
                                                     <td colspan="3"></td>
                                                 </tr>
@@ -1654,6 +1679,85 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
         });
     });
 </script> -->
+
+    <!-- new script for adding a row with a specific credit amount -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+
+            const tax1Input = document.getElementById('tax_1');
+            const tax2Input = document.getElementById('tax_2');
+            const tableBody = document.getElementById('accountingTableBody');
+            const checkbox = document.getElementById('selectAll');
+
+            // Utility: Create select options from PHP
+            const accountOptions = `<?php
+            $account_result->data_seek(0);
+            while ($account = $account_result->fetch_assoc()) {
+                echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
+            }
+            ?>`;
+
+            // Helper to remove previously added tax rows
+            function removeTaxRows() {
+                const rows = tableBody.querySelectorAll('tr[data-tax="true"]');
+                rows.forEach(row => row.remove());
+            }
+
+            // Function to add tax credit rows
+            function addRowWithCredit(creditAmount, label = '', accountId = '') {
+                const newRow = document.createElement('tr');
+                newRow.setAttribute('data-tax', 'true');
+
+                newRow.innerHTML = `
+        <td colspan="2">
+           
+
+            <select class="form-control account-select"
+                                  name="account_titles[]">
+                                <option selected disabled value ="">Select Account
+                            </option>
+                            <?php
+                            // Define the specific account codes we want to show
+                            $accountCodes = ['2020101000'];
+
+                            // Query only the specific cash accounts
+                            $cash_account_query = "SELECT * FROM account_title WHERE account_code IN ('2020101000') ORDER BY account_title ASC";
+                            $cash_account_result = $connection->query($cash_account_query);
+
+                            while ($account = $cash_account_result->fetch_assoc()) {
+                                echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
+                            }
+                            ?>
+                                    </select>
+
+        </td>
+        <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01" readonly></td>
+        <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01" value="${creditAmount.toFixed(2)}" readonly></td>
+        <td><button type="button" class="btn btn-danger btn-sm delete-row"><i class="bi bi-trash"></i></button></td>
+    `;
+                tableBody.appendChild(newRow);
+            }
+
+
+            // Checkbox handler
+            checkbox.addEventListener('change', function () {
+                removeTaxRows(); // Always clean before adding
+
+                if (this.checked) {
+                    const tax1Amount = parseFloat(tax1Input.value) || 0;
+                    const tax2Amount = parseFloat(tax2Input.value) || 0;
+
+                    if (tax1Amount > 0) {
+                        addRowWithCredit(tax1Amount, 'Tax 1');
+                    }
+                    if (tax2Amount > 0) {
+                        addRowWithCredit(tax2Amount, 'Tax 2');
+                    }
+                }
+            });
+        });
+    </script>
 
 
 </body>
