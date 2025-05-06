@@ -68,7 +68,7 @@ $select = mysqli_query(
         $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'];
 
         $update_balances_query = "UPDATE project p 
-                                SET p.balances = p.balances - (
+                                SET p.allotment = p.allotment - (
                                     SELECT COALESCE(SUM(ors.total_amount), 0) 
                                     FROM obligation_history oh 
                                     JOIN ors ON oh.ors_id = ors.ors_id 
@@ -103,6 +103,7 @@ $select = mysqli_query(
     <link
         href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
         rel="stylesheet">
+        
     <link href="../NiceAdmin/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
@@ -396,7 +397,7 @@ $select = mysqli_query(
                 </nav>
             </div>
             <div class="d-flex align-items-center">
-            <form method="get" action="gas.php" class="d-flex align-items-center me-3 filter-form">
+            <form method="get" action="oo1.php" class="d-flex align-items-center me-3 filter-form">
                     <div class="input-group input-group-sm me-2 <?php echo ($selected_year != date('Y')) ? 'filter-active' : ''; ?>" data-bs-toggle="tooltip" data-bs-placement="top" title="Select year for total allotment">
                         <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
                         <select class="form-select form-select-sm" id="year" name="year" style="width: 80px;">
@@ -428,7 +429,7 @@ $select = mysqli_query(
                     <button type="submit" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Apply selected filters">
                         <i class="bi bi-funnel me-1"></i>Filter
                     </button>
-                    <a href="gas.php" class="btn btn-sm btn-outline-secondary ms-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Reset to current month and year" id="resetFilter">
+                    <a href="oo1.php" class="btn btn-sm btn-outline-secondary ms-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Reset to current month and year" id="resetFilter">
                         <i class="bi bi-arrow-counterclockwise me-1"></i>Reset
                     </a>
                 </form>
@@ -593,9 +594,12 @@ $select = mysqli_query(
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form method="post" id="editUserForm" action="update_oo1.php">
+                    <form method="post" id="editUserForm" action="update_SOF.php">
                         <input type="hidden" id="edit_project_id" name="project_id">
                         <input type="hidden" id="edit_account_id" name="edit_account_id">
+
+                        <!-- Add this hidden redirect field -->
+                        <input type="hidden" name="redirect" value="oo1.php">
 
                         <div class="mb-3">
                             <label for="edit_account_id" class="form-label">Project/Program/Activities</label>
@@ -691,9 +695,12 @@ $select = mysqli_query(
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form method="post" id="editUserForm" action="update_gas.php">
+                    <form method="post" id="editUserForm" action="update_SOF.php">
                         <input type="hidden" id="edit_project_id" name="project_id">
                         <input type="hidden" id="edit_account_id" name="edit_account_id">
+
+                         <!-- Add this hidden redirect field -->
+                         <input type="hidden" name="redirect" value="oo1.php">
 
                         <div class="mb-3">
                             <label for="edit_account_title" class="form-label">Project/Program/Activities</label>
@@ -840,7 +847,7 @@ $select = mysqli_query(
         });
     </script>
     <script>
-        function deleteUser(gasID) {
+        function deleteUser(oo1ID) {
             Swal.fire({
                 title: 'Are you sure?',
                 text: "You won't be able to revert this!",
@@ -860,7 +867,7 @@ $select = mysqli_query(
                             Swal.showLoading();
                         }
                     });
-                    window.location.href = 'gas.php?project_id=' + gasID + '&confirm=yes';
+                    window.location.href = 'oo1.php?project_id=' + oo1ID + '&confirm=yes';
                 }
             });
         }

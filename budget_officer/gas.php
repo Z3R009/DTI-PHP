@@ -29,7 +29,7 @@ if (isset($_POST['submit'])) {
     $project_id_query = "SELECT MAX(project_id) as max_id FROM project";
     $project_id_result = mysqli_query($connection, $project_id_query);
     $project_id_row = mysqli_fetch_assoc($project_id_result);
-    $project_id = ($project_id_row['max_id'] ?? 0) + 1;  
+    $project_id = ($project_id_row['max_id'] ?? 0) + 1;     
     $oopap_id = $_POST['oopap_id'];
     $account_id = $_POST['account_id'];
     $allotment = $_POST['allotment'];
@@ -74,7 +74,7 @@ $total_allotment_result = mysqli_query($connection, $total_allotment_query);
 $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'];
 
 $update_balances_query = "UPDATE project p 
-                         SET p.balances = p.allotment - (
+                         SET p.allotment = p.allotment - (
                              SELECT COALESCE(SUM(ors.total_amount), 0) 
                              FROM obligation_history oh 
                              JOIN ors ON oh.ors_id = ors.ors_id 

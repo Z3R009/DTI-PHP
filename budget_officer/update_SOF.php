@@ -62,14 +62,14 @@ if (isset($_POST['project_id']) && isset($_POST['allotment'])) {
 
     $connection->close();
 
-    $redirect_url = isset($_POST['redirect']) ? $_POST['redirect'] : 'oo1_personalServices.php';
+    $redirect_url = isset($_POST['redirect']) ? $_POST['redirect'] : 'gas.php';
     header("Location: $redirect_url");
     exit();
 
 } else {
     file_put_contents('../debug.log', date('Y-m-d H:i:s') . " - Required fields missing\n", FILE_APPEND);
     $_SESSION['error_message'] = "Required fields missing";
-    $redirect_url = isset($_POST['redirect']) ? $_POST['redirect'] : 'oo1_personalServices.php';
+    $redirect_url = isset($_POST['redirect']) ? $_POST['redirect'] : 'gas.php';
     header("Location: $redirect_url");
     exit();
 }

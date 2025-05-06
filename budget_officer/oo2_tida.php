@@ -74,7 +74,7 @@ $total_allotment_result = mysqli_query($connection, $total_allotment_query);
 $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'];
 
 $update_balances_query = "UPDATE project p 
-                         SET p.balances = p.balances - (
+                         SET p.allotment = p.allotment - (
                              SELECT COALESCE(SUM(ors.total_amount), 0) 
                              FROM obligation_history oh 
                              JOIN ors ON oh.ors_id = ors.ors_id 

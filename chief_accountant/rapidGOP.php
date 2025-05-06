@@ -21,6 +21,8 @@ if (isset($_GET['draft_id']) && $_GET['confirm'] == 'yes') {
         header('Location: rapidGOP.php');
         exit();
     }
+}else {
+    echo "Invalid request.";
 }
 
 //Add
@@ -93,6 +95,7 @@ $total_Cashallotment_query = "SELECT SUM(cash_allotment) AS total_Cashallotment
                              WHERE account_id = 2
                              AND MONTH(created_at) = $selected_month 
                              AND YEAR(created_at) = $selected_year";
+                             
 $total_Cashallotment_result = mysqli_query($connection, $total_Cashallotment_query);
 $total_Cashallotment = mysqli_fetch_assoc($total_Cashallotment_result)['total_Cashallotment'] ?? 0;
 $total_Cashallotment += $beginning_balance;

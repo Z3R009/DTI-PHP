@@ -214,3 +214,188 @@
 2025-04-23 03:58:53 - Current values: Allotment: 319000, Balance: 319000
 2025-04-23 03:58:53 - Calculated new balance: 318000
 2025-04-23 03:58:53 - Update successful
+2025-05-05 11:10:05 - Update request received
+2025-05-05 11:10:05 - Project ID: 442, Allotment: 3000
+2025-05-05 11:10:05 - Current values: Allotment: 2000, Balance: 2000
+2025-05-05 11:10:05 - Calculated new balance: 3000
+2025-05-05 11:10:05 - Update successful
+2025-05-05 11:10:15 - Update request received
+2025-05-05 11:10:15 - Project ID: 442, Allotment: 1000
+2025-05-05 11:10:15 - Current values: Allotment: 3000, Balance: 3000
+2025-05-05 11:10:15 - Calculated new balance: 1000
+2025-05-05 11:10:15 - Update successful
+2025-05-05 11:10:22 - Update request received
+2025-05-05 11:10:22 - Project ID: 442, Allotment: 1000.00
+2025-05-05 11:10:22 - Current values: Allotment: 1000, Balance: 1000
+2025-05-05 11:10:22 - Calculated new balance: 1000
+2025-05-05 11:10:22 - Update successful
+2025-05-05 11:12:25 - Update request received
+2025-05-05 11:12:25 - Project ID: 177, Allotment: 3000
+2025-05-05 11:12:25 - Current values: Allotment: 2000, Balance: 0
+2025-05-05 11:12:25 - Calculated new balance: 1000
+2025-05-05 11:12:25 - Update successful
+2025-05-05 11:13:22 - Update request received
+2025-05-05 11:13:22 - Project ID: 443, Allotment: 2000
+2025-05-05 11:13:22 - Current values: Allotment: 1000, Balance: 1000
+2025-05-05 11:13:22 - Calculated new balance: 2000
+2025-05-05 11:13:22 - Update successful
+2025-05-05 11:13:39 - Update request received
+2025-05-05 11:13:39 - Project ID: 443, Allotment: 3000
+2025-05-05 11:13:39 - Current values: Allotment: 2000, Balance: 2000
+2025-05-05 11:13:39 - Calculated new balance: 3000
+2025-05-05 11:13:39 - Update successful
+2025-05-05 11:15:31 - Update request received
+2025-05-05 11:15:31 - Project ID: 444, Allotment: 2000
+2025-05-05 11:15:31 - Current values: Allotment: 3000, Balance: 3000
+2025-05-05 11:15:31 - Calculated new balance: 2000
+2025-05-05 11:15:31 - Update successful
+2025-05-06 01:57:21 - Update request received
+2025-05-06 01:57:21 - Project ID: 441, Allotment: 1500
+2025-05-06 01:57:21 - Current values: Allotment: 2000, Balance: 2000
+2025-05-06 01:57:21 - Calculated new balance: 1500
+2025-05-06 01:57:21 - Update successful
+2025-05-06 02:00:15 - Update request received
+2025-05-06 02:00:15 - Project ID: 441, Allotment: 1100.00
+2025-05-06 02:00:15 - Current values: Allotment: 1500, Balance: 1500
+2025-05-06 02:00:15 - Calculated new balance: 1100
+2025-05-06 02:00:15 - Update successful
+2025-05-06 02:02:00 - Update request received
+2025-05-06 02:02:00 - Draft ID: 3, Payee: thank that, New Cash_Allotment: 1236.00
+2025-05-06 02:02:00 - Current values: Allotment: 1212, Balance: 964
+2025-05-06 02:02:00 - Calculated new balance: 988
+2025-05-06 02:02:00 - Update successful
+2025-05-06 02:02:25 - Update request received
+2025-05-06 02:02:25 - Draft ID: 3, Payee: thank that, New Cash_Allotment: 1248.00
+2025-05-06 02:02:25 - Current values: Allotment: 1236, Balance: 988
+2025-05-06 02:02:25 - Calculated new balance: 1000
+2025-05-06 02:02:25 - Update successful
+2025-05-06 02:05:14 - Update request received
+2025-05-06 02:05:14 - Project ID: 446, Allotment: 1400.00
+2025-05-06 02:05:14 - Current values: Allotment: 1500, Balance: 1500
+2025-05-06 02:05:14 - Calculated new balance: 1400
+2025-05-06 02:05:14 - Update successful
+2025-05-06 02:08:17 - Update request received
+2025-05-06 02:08:17 - Project ID: 446, Allotment: 1000.00
+2025-05-06 02:08:17 - Current values: Allotment: 1400, Balance: 1400
+2025-05-06 02:08:17 - Calculated new balance: 1000
+2025-05-06 02:08:17 - Update successful
+2025-05-06 02:16:22 - Update request received
+2025-05-06 02:16:22 - Project ID: 446, Allotment: 1100.00
+2025-05-06 02:16:22 - Current values: Allotment: 1000, Balance: 900
+2025-05-06 02:16:22 - Calculated new balance: 1000
+2025-05-06 02:16:22 - Update successful
+2025-05-06 02:16:36 - Update request received
+2025-05-06 02:16:36 - Project ID: 446, Allotment: 1000.00
+2025-05-06 02:16:36 - Current values: Allotment: 1100, Balance: 1000
+2025-05-06 02:16:36 - Calculated new balance: 900
+2025-05-06 02:16:36 - Update successful
+2025-05-06 02:23:32 - Update request received
+2025-05-06 02:23:32 - Project ID: 447, Allotment: 3000.00
+2025-05-06 02:23:32 - Current values: Allotment: 4000, Balance: 3000
+2025-05-06 02:23:32 - Calculated new balance: 2000
+2025-05-06 02:23:32 - Update successful
+2025-05-06 02:25:40 - Update request received
+2025-05-06 02:25:40 - Project ID: 447, Allotment: 1000
+2025-05-06 02:25:40 - Current values: Allotment: 3000, Balance: 2000
+2025-05-06 02:25:40 - Calculated new balance: 0
+2025-05-06 02:25:40 - Update successful
+2025-05-06 02:25:55 - Update request received
+2025-05-06 02:25:55 - Project ID: 447, Allotment: 4000.00
+2025-05-06 02:25:55 - Current values: Allotment: 1000, Balance: 0
+2025-05-06 02:25:55 - Calculated new balance: 3000
+2025-05-06 02:25:55 - Update successful
+2025-05-06 02:42:14 - Update request received
+2025-05-06 02:42:14 - Project ID: 448, Allotment: 2000.00
+2025-05-06 02:42:14 - Current values: Allotment: 4000, Balance: 3000
+2025-05-06 02:42:14 - Calculated new balance: 1000
+2025-05-06 02:42:14 - Update successful
+2025-05-06 02:48:41 - Update request received
+2025-05-06 02:48:41 - Project ID: 444, Allotment: 1000.00
+2025-05-06 02:48:41 - Current values: Allotment: 2000, Balance: 2000
+2025-05-06 02:48:41 - Calculated new balance: 1000
+2025-05-06 02:48:41 - Update successful
+2025-05-06 04:41:59 - Update request received
+2025-05-06 04:41:59 - Project ID: 448, Allotment: 3000.00
+2025-05-06 04:41:59 - Current values: Allotment: 5000, Balance: 3000
+2025-05-06 04:41:59 - Calculated new balance: 1000
+2025-05-06 04:41:59 - Update successful
+2025-05-06 04:47:47 - Update request received
+2025-05-06 04:47:47 - Project ID: 448, Allotment: 2000.00
+2025-05-06 04:47:47 - Current values: Allotment: 4000, Balance: 3000
+2025-05-06 04:47:47 - Calculated new balance: 1000
+2025-05-06 04:47:47 - Update successful
+2025-05-06 04:47:57 - Update request received
+2025-05-06 04:47:57 - Project ID: 448, Allotment: 3000.00
+2025-05-06 04:47:57 - Current values: Allotment: 2000, Balance: 1000
+2025-05-06 04:47:57 - Calculated new balance: 2000
+2025-05-06 04:47:57 - Update successful
+2025-05-06 04:56:07 - Update request received
+2025-05-06 04:56:08 - Project ID: 448, Allotment: 2000.00
+2025-05-06 04:56:08 - Current values: Allotment: 3000, Balance: 2000
+2025-05-06 04:56:08 - Calculated new balance: 1000
+2025-05-06 04:56:08 - Update successful
+2025-05-06 05:22:31 - Update request received
+2025-05-06 05:22:31 - Project ID: 448, Allotment: 3000.00
+2025-05-06 05:22:31 - Current values: Allotment: 4000, Balance: 3000
+2025-05-06 05:22:31 - Calculated new balance: 2000
+2025-05-06 05:22:31 - Update successful
+2025-05-06 05:22:40 - Update request received
+2025-05-06 05:22:40 - Project ID: 448, Allotment: 3500.00
+2025-05-06 05:22:40 - Current values: Allotment: 3000, Balance: 2000
+2025-05-06 05:22:40 - Calculated new balance: 2500
+2025-05-06 05:22:40 - Update successful
+2025-05-06 05:27:32 - Update request received
+2025-05-06 05:27:32 - Project ID: 448, Allotment: 6000.00
+2025-05-06 05:27:32 - Current values: Allotment: 5000, Balance: 4000
+2025-05-06 05:27:32 - Calculated new balance: 5000
+2025-05-06 05:27:32 - Update successful
+2025-05-06 05:27:38 - Update request received
+2025-05-06 05:27:38 - Project ID: 448, Allotment: 4000.00
+2025-05-06 05:27:38 - Current values: Allotment: 6000, Balance: 5000
+2025-05-06 05:27:38 - Calculated new balance: 3000
+2025-05-06 05:27:38 - Update successful
+2025-05-06 05:31:02 - Update request received
+2025-05-06 05:31:02 - Project ID: 448, Allotment: 200.00
+2025-05-06 05:31:02 - Current values: Allotment: 1000, Balance: 900
+2025-05-06 05:31:02 - Calculated new balance: 100
+2025-05-06 05:31:02 - Update successful
+2025-05-06 05:31:10 - Update request received
+2025-05-06 05:31:10 - Project ID: 448, Allotment: 300.00
+2025-05-06 05:31:10 - Current values: Allotment: 200, Balance: 100
+2025-05-06 05:31:10 - Calculated new balance: 200
+2025-05-06 05:31:10 - Update successful
+2025-05-06 05:32:44 - Update request received
+2025-05-06 05:32:44 - Project ID: 448, Allotment: 800.00
+2025-05-06 05:32:44 - Current values: Allotment: 1000, Balance: 800
+2025-05-06 05:32:44 - Calculated new balance: 600
+2025-05-06 05:32:44 - Update successful
+2025-05-06 05:32:50 - Update request received
+2025-05-06 05:32:50 - Project ID: 448, Allotment: 1000
+2025-05-06 05:32:50 - Current values: Allotment: 800, Balance: 600
+2025-05-06 05:32:50 - Calculated new balance: 800
+2025-05-06 05:32:50 - Update successful
+2025-05-06 05:41:12 - Update request received
+2025-05-06 05:41:12 - Project ID: 448, Allotment: 8000.00
+2025-05-06 05:41:12 - Current values: Allotment: 10000, Balance: 5000
+2025-05-06 05:41:12 - Calculated new balance: 3000
+2025-05-06 05:41:12 - Update successful
+2025-05-06 05:41:24 - Update request received
+2025-05-06 05:41:24 - Project ID: 448, Allotment: 11000
+2025-05-06 05:41:24 - Current values: Allotment: 8000, Balance: 3000
+2025-05-06 05:41:24 - Calculated new balance: 6000
+2025-05-06 05:41:24 - Update successful
+2025-05-06 05:49:54 - Update request received
+2025-05-06 05:49:54 - Project ID: 448, Allotment: 1000.00
+2025-05-06 05:49:54 - Current values: Allotment: 2000, Balance: 1000
+2025-05-06 05:49:54 - Calculated new balance: 0
+2025-05-06 05:49:54 - Update successful
+2025-05-06 05:50:04 - Update request received
+2025-05-06 05:50:04 - Project ID: 448, Allotment: 2000.00
+2025-05-06 05:50:04 - Current values: Allotment: 1000, Balance: 0
+2025-05-06 05:50:04 - Calculated new balance: 1000
+2025-05-06 05:50:04 - Update successful
+2025-05-06 05:55:38 - Update request received
+2025-05-06 05:55:38 - Project ID: 448, Allotment: 500
+2025-05-06 05:55:38 - Current values: Allotment: 222, Balance: 200
+2025-05-06 05:55:38 - Calculated new balance: 478
+2025-05-06 05:55:38 - Update successful

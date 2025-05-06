@@ -78,7 +78,7 @@ $total_allotment_result = mysqli_query($connection, $total_allotment_query);
 $total_allotment = mysqli_fetch_assoc($total_allotment_result)['total_allotment'];
 
 $update_balances_query = "UPDATE project p 
-                         SET p.balances = p.balances - (
+                         SET p.allotment = p.allotment - (
                              SELECT COALESCE(SUM(ors.total_amount), 0) 
                              FROM obligation_history oh 
                              JOIN ors ON oh.ors_id = ors.ors_id 
@@ -407,7 +407,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
             </div>
             <div class="d-flex align-items-center">
            
-                <form method="get" action="gas.php" class="d-flex align-items-center me-3 filter-form">
+                <form method="get" action="oo3_3.php" class="d-flex align-items-center me-3 filter-form">
                     <div class="input-group input-group-sm me-2 <?php echo ($selected_year != date('Y')) ? 'filter-active' : ''; ?>" data-bs-toggle="tooltip" data-bs-placement="top" title="Select year for total allotment">
                         <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
                         <select class="form-select form-select-sm" id="year" name="year" style="width: 80px;">
@@ -439,7 +439,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                     <button type="submit" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Apply selected filters">
                         <i class="bi bi-funnel me-1"></i>Filter
                     </button>
-                    <a href="gas.php" class="btn btn-sm btn-outline-secondary ms-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Reset to current month and year" id="resetFilter">
+                    <a href="oo3_3.php" class="btn btn-sm btn-outline-secondary ms-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Reset to current month and year" id="resetFilter">
                         <i class="bi bi-arrow-counterclockwise me-1"></i>Reset
                     </a>
                 </form>
@@ -623,7 +623,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                     <form method="post" id="addUserForm">
                         <div class="mb-3">
                             <input type="hidden" class="form-control" id="oopap_id" name="oopap_id"
-                                value="5" readonly required autocomplete="off">
+                                value="7" readonly required autocomplete="off">
                         </div>
                         <div class="mb-3">
                             <label for="account_id" class="form-label">Account Title <span class="text-danger">*</span></label>
@@ -682,9 +682,12 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form method="post" id="editUserForm" action="update_gas.php">
+                    <form method="post" id="editUserForm" action="update_SOF.php">
                         <input type="hidden" id="edit_project_id" name="project_id">
                         <input type="hidden" id="edit_account_id" name="edit_account_id">
+
+                         <!-- Add this hidden redirect field -->
+                         <input type="hidden" name="redirect" value="oo3_3.php">
 
                         <div class="mb-3">
                             <label for="edit_account_title" class="form-label">Project/Program/Activities</label>
@@ -831,7 +834,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
         });
     </script>
     <script>
-        function deleteUser(gasID) {
+        function deleteUser(oo3_3ID) {
             Swal.fire({
                 title: 'Are you sure?',
                 text: "You won't be able to revert this!",
@@ -851,7 +854,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
                             Swal.showLoading();
                         }
                     });
-                    window.location.href = 'gas.php?project_id=' + gasID + '&confirm=yes';
+                    window.location.href = 'oo3_3.php?project_id=' + oo3_3ID + '&confirm=yes';
                 }
             });
         }
