@@ -377,7 +377,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
                         $stmt->bind_param("isssds", $dv_id, $payment_date, $merge_reference_no, $merge_reference_no, $amount, $remarks);
                         $stmt->execute();
                         
-                        // Update DV status
+                        // Update DV status but don't delete from merged group
                         $update_dv = "UPDATE dv SET status = 'Processing' WHERE dv_id = ?";
                         $update_stmt = $connection->prepare($update_dv);
                         $update_stmt->bind_param("i", $dv_id);
@@ -435,6 +435,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
                     $total_gross += $group_gross;
                     $total_withholding += $group_withholding;
                     $total_net += $group_net;
+                }
+                
+                // Mark all processed merged payees as processed
+                if (!empty($selected_merged_groups)) {
+                    // Check if processed column exists in the merged_payees table
+                    $check_column_sql = "SHOW COLUMNS FROM merged_payees LIKE 'processed'";
+                    $column_exists = $connection->query($check_column_sql);
+                    
+                    if ($column_exists && $column_exists->num_rows > 0) {
+                        // The processed column exists, mark as processed
+                        $placeholders = str_repeat('?,', count($selected_merged_groups) - 1) . '?';
+                        $mark_processed_query = "UPDATE merged_payees SET processed = 1 WHERE merge_id IN ($placeholders)";
+                        $mark_processed_stmt = $connection->prepare($mark_processed_query);
+                        
+                        $types = str_repeat('i', count($selected_merged_groups));
+                        $mark_processed_stmt->bind_param($types, ...$selected_merged_groups);
+                        $mark_processed_stmt->execute();
+                    } else {
+                        // The processed column doesn't exist yet, log this condition
+                        error_log("Cannot mark merged payees as processed: 'processed' column does not exist in merged_payees table");
+                    }
                 }
                 
                 // Update the total in batch_ada

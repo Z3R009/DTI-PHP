@@ -27,6 +27,7 @@ function ensureMergedPayeesTables() {
                 description TEXT,
                 payee_type ENUM('Internal', 'External') DEFAULT 'Internal',
                 created_by VARCHAR(100) NOT NULL,
+                processed TINYINT(1) NOT NULL DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
             
@@ -85,7 +86,12 @@ function getMergedPayees() {
     $merged_payees = [];
     
     try {
-        // Query to get list of all merged payee groups with their totals
+        // Check if processed column exists in the merged_payees table
+        $check_column_sql = "SHOW COLUMNS FROM merged_payees LIKE 'processed'";
+        $column_exists = $connection->query($check_column_sql);
+        $has_processed_column = ($column_exists && $column_exists->num_rows > 0);
+        
+        // Build query base
         $merged_groups_sql = "
             SELECT 
                 mp.merge_id,
@@ -101,7 +107,15 @@ function getMergedPayees() {
             LEFT JOIN 
                 merged_payee_items mpi ON mp.merge_id = mpi.merge_id
             LEFT JOIN 
-                dv ON mpi.dv_id = dv.dv_id
+                dv ON mpi.dv_id = dv.dv_id";
+        
+        // Only add the processed filter if the column exists
+        if ($has_processed_column) {
+            $merged_groups_sql .= " WHERE (mp.processed = 0 OR mp.processed IS NULL)";
+        }
+        
+        // Add grouping and ordering
+        $merged_groups_sql .= "
             GROUP BY 
                 mp.merge_id
             ORDER BY 

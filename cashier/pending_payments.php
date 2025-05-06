@@ -34,6 +34,12 @@ if(isset($_GET['error']) && !empty($_GET['error'])) {
 }
 require_once 'back_end/get_pending_vouchers.php';
 $pending_result = getPendingVouchers();
+
+// Run fix script for merged payees table
+if (file_exists(__DIR__ . '/back_end/fix_merged_payees_column.php')) {
+    require_once 'back_end/fix_merged_payees_column.php';
+}
+
 try {
     if (file_exists(__DIR__ . '/back_end/get_merged_payees.php')) {
         require_once 'back_end/get_merged_payees.php';
@@ -2688,8 +2694,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         input.name = 'selected_merged_groups[]';
                         input.value = group.value;
                         form.appendChild(input);
-                        
-                        // Add reference number if using individual references
+
                         if (!useCommonAda) {
                             const refInput = document.querySelector(`.ada-reference-input[data-merge-id="${group.value}"]`);
                             if (refInput && refInput.value) {
