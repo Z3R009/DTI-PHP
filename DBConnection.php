@@ -13,7 +13,8 @@ if ($connection->connect_error) {
 
 $connection->set_charset("utf8mb4");
 
-function tableExists($connection, $tableName) {
+function tableExists($connection, $tableName)
+{
     $result = $connection->query("SHOW TABLES LIKE '$tableName'");
     return $result && $result->num_rows > 0;
 }

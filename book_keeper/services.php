@@ -143,18 +143,18 @@ $result_oopap = $connection->query($sql_oopap);
                     <table class="datatable">
                         <thead class="table-light">
                             <tr>
+                                <th scope="col">OO/PAP</th>
                                 <th scope="col">Service Name</th>
                                 <th scope="col">Code</th>
-                                <th scope="col">OO/PAP</th>
                                 <th scope="col">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php while ($row = mysqli_fetch_assoc($select)) { ?>
                                 <tr>
+                                    <td><?php echo htmlspecialchars($row['oopap_name']); ?></td>
                                     <td><?php echo htmlspecialchars($row['services_name']); ?></td>
                                     <td><?php echo htmlspecialchars($row['code']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['oopap_name']); ?></td>
                                     <td class="text-end">
                                         <div class="btn-group" role="group">
                                         <button type="button" class="btn btn-sm btn-outline-primary edit-btn" 

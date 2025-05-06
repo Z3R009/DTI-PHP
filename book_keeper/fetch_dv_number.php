@@ -18,7 +18,7 @@ if (isset($_POST['date']) && !empty($_POST['date'])) {
     $month = date("m");
 }
 
-$like_pattern = "$fund_cluster-$year-$month-%";
+$like_pattern = "$fund_cluster-$year-%";
 
 // Helper function to get the max series from a table
 function get_max_series($connection, $table, $like_pattern)

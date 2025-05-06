@@ -156,7 +156,7 @@ $result_fund_cluster = $connection->query($sql_fund_cluster);
 
 
 // retrieve oo/pap
-$sql_oopap = "SELECT oopap_id, oopap_name FROM oopap";
+$sql_oopap = "SELECT oopap_id, oopap_name, description	 FROM oopap";
 $result_oopap = $connection->query($sql_oopap);
 
 // retrieve services
@@ -313,9 +313,10 @@ $ors_result = $connection->query($ors_query);
                                                 <option selected disabled value="">Select OO/PAP</option>
                                                 <?php
                                                 while ($row = $result_oopap->fetch_assoc()) {
-                                                    echo "<option value='" . htmlspecialchars($row['oopap_id']) . "'>" . htmlspecialchars($row['oopap_name']) . "</option>";
+                                                    echo "<option value='" . htmlspecialchars($row['oopap_id']) . "'>" . htmlspecialchars($row['oopap_name']) . " - " . htmlspecialchars($row['description']) ."</option>";
                                                 }
                                                 ?>
+
                                             </select>
                                         </div>
                                         <div class="form-group">
@@ -381,6 +382,8 @@ $ors_result = $connection->query($ors_query);
                                             <option value="To Payment of">To Payment of</option>
                                             <option value="To Disburse">To Reimburse</option>
                                             <option value="To Cash Advance">To Cash Advance</option>
+<option value="To Transfer">To Transfer</option>
+
                                         </select>
                                     </div>
                                     <div class="form-row">

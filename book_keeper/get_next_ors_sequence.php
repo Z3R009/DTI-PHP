@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($service_code === 'ADMIN&POLICY') {
         $pattern = 'ADMIN&POLICY-' . $year . '-' . $month . '-%';
     } else {
-        $pattern = $service_code . "-" . $year . "-" . $month . "-%";
+        $pattern = $service_code . "-" . $year . "-%";
     }
     
     $stmt = $connection->prepare($sql);
