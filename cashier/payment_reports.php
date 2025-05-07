@@ -103,7 +103,7 @@ $payee_result = mysqli_query($connection, $payee_query);
 
 <!DOCTYPE html>
 <html lang="en">
-
+<link rel="stylesheet" href="css/table.css">
 <?php include 'includes/header.php'; ?>
 <?php include 'includes/sidebar.php'; ?>
 
@@ -351,7 +351,7 @@ $payee_result = mysqli_query($connection, $payee_query);
                                 </div>
                                 
                         <div class="table-responsive">
-                                    <table class="table table-hover align-middle datatable">
+                                    <table class="datatable">
                                 <thead>
                                             <tr class="bg-light">
                                         <th>Date</th>
@@ -361,7 +361,7 @@ $payee_result = mysqli_query($connection, $payee_query);
                                         <th>Payment Type</th>
                                         <th>Reference No</th>
                                         <th>Amount</th>
-                                        <th>Status</th>
+                                        <!-- <th>Status</th> -->
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -387,7 +387,7 @@ $payee_result = mysqli_query($connection, $payee_query);
                                                 </td>
                                         <td><?php echo $row['reference_no']; ?></td>
                                                 <td class="fw-bold">PHP <?php echo number_format($row['amount'], 2); ?></td>
-                                        <td>
+                                        <!-- <td>
                                             <?php if ($row['status'] == 'Completed') : ?>
                                                 <span class="badge bg-success">Completed</span>
                                             <?php elseif ($row['status'] == 'Pending') : ?>
@@ -395,7 +395,7 @@ $payee_result = mysqli_query($connection, $payee_query);
                                             <?php else : ?>
                                                 <span class="badge bg-secondary">Returned</span>
                                             <?php endif; ?>
-                                        </td>
+                                        </td> -->
                                     </tr>
                                     <?php endwhile; ?>
                                     <?php if (mysqli_num_rows($report_result) == 0) : ?>
