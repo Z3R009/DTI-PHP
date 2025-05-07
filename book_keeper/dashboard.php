@@ -1,5 +1,15 @@
 <?php
 include "../DBConnection.php";
+
+// if (isset($_SESSION['user_id'])) {
+//     $user_id = $_SESSION['user_id'];
+// } else {
+//     // Redirect to login if user_id is not set
+//     header('Location: ../index.php');
+//     exit();
+// }
+
+
 $ors_query = "SELECT COUNT(*) as total_ors, SUM(total_amount) as total_amount FROM ors";
 $ors_result = $connection->query($ors_query);
 $ors_data = $ors_result->fetch_assoc();

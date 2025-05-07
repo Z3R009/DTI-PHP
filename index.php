@@ -22,17 +22,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Redirect based on user type
             if ($_SESSION['role'] == 'Admin') {
-                header('Location: admin/dashboard.php');
+                header('Location: admin/dashboard.php?user_id=' . $_SESSION['user_id']);
             } elseif ($_SESSION['role'] == 'Bookkeeper') {
-                header('Location: book_keeper/dashboard.php');
+                header('Location: book_keeper/dashboard.php?user_id=' . $_SESSION['user_id']);
             } elseif ($_SESSION['role'] == 'Budget Officer') {
-                header('Location: budget_officer/dashboard.php');
+                header('Location: budget_officer/dashboard.php?user_id=' . $_SESSION['user_id']);
             } elseif ($_SESSION['role'] == 'Chief Accountant') {
-                header('Location: chief_accountant/dashboard.php');
+                header('Location: chief_accountant/dashboard.php?user_id=' . $_SESSION['user_id']);
             } elseif ($_SESSION['role'] == 'Guest') {
-                header('Location: guest/dashboard.php');
+                header('Location: guest/dashboard.php?user_id=' . $_SESSION['user_id']);
             } elseif ($_SESSION['role'] == 'Cashier') {
-                header('Location: cashier/dashboard.php');
+                header('Location: cashier/dashboard.php?user_id=' . $_SESSION['user_id']);
             } else {
                 echo "<script>alert('Invalid user type value');</script>";
             }
@@ -73,6 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         background-position: center;
         background-repeat: no-repeat;
     }
+
     .login-container {
         width: 400px;
         padding: 40px;
@@ -80,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         border-radius: 20px;
         box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
     }
-  
+
     .logo-container {
         perspective: 1000px;
         width: 120px;
@@ -133,77 +134,96 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     .absolute {
         position: absolute;
     }
+
     .inline-block {
         display: inline-block;
     }
+
     .loader {
         display: flex;
         margin: 0.25em 0;
     }
+
     .w-2 {
         width: 0.5em;
     }
+
     .dash {
         animation: dashArray 2s ease-in-out infinite,
             dashOffset 2s linear infinite;
     }
+
     .spin {
         animation: spinDashArray 2s ease-in-out infinite,
             spin 8s ease-in-out infinite,
             dashOffset 2s linear infinite;
         transform-origin: center;
     }
+
     @keyframes dashArray {
         0% {
             stroke-dasharray: 0 1 359 0;
         }
+
         50% {
             stroke-dasharray: 0 359 1 0;
         }
+
         100% {
             stroke-dasharray: 359 1 0 0;
         }
     }
+
     @keyframes spinDashArray {
         0% {
             stroke-dasharray: 270 90;
         }
+
         50% {
             stroke-dasharray: 0 360;
         }
+
         100% {
             stroke-dasharray: 270 90;
         }
     }
+
     @keyframes dashOffset {
         0% {
             stroke-dashoffset: 365;
         }
+
         100% {
             stroke-dashoffset: 5;
         }
     }
+
     @keyframes spin {
         0% {
             rotate: 0deg;
         }
+
         12.5%,
         25% {
             rotate: 270deg;
         }
+
         37.5%,
         50% {
             rotate: 540deg;
         }
+
         62.5%,
         75% {
             rotate: 810deg;
         }
+
         87.5%,
         100% {
             rotate: 1080deg;
         }
     }
+
     button:disabled {
         opacity: 0.7;
         cursor: not-allowed;
@@ -227,46 +247,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <linearGradient gradientUnits="userSpaceOnUse" y2="2" x2="0" y1="62" x1="0" id="blue-grad">
                         <stop stop-color="#0033CC" offset="0"></stop>
                         <stop stop-color="#66CCFF" offset="1"></stop>
-                        <animateTransform repeatCount="indefinite" keySplines=".42,0,.58,1;.42,0,.58,1;.42,0,.58,1;.42,0,.58,1;.42,0,.58,1;.42,0,.58,1;.42,0,.58,1;.42,0,.58,1" keyTimes="0; 0.125; 0.25; 0.375; 0.5; 0.625; 0.75; 0.875; 1" dur="8s" values="0 32 32;-270 32 32;-270 32 32;-540 32 32;-540 32 32;-810 32 32;-810 32 32;-1080 32 32;-1080 32 32" type="rotate" attributeName="gradientTransform"></animateTransform>
+                        <animateTransform repeatCount="indefinite"
+                            keySplines=".42,0,.58,1;.42,0,.58,1;.42,0,.58,1;.42,0,.58,1;.42,0,.58,1;.42,0,.58,1;.42,0,.58,1;.42,0,.58,1"
+                            keyTimes="0; 0.125; 0.25; 0.375; 0.5; 0.625; 0.75; 0.875; 1" dur="8s"
+                            values="0 32 32;-270 32 32;-270 32 32;-540 32 32;-540 32 32;-810 32 32;-810 32 32;-1080 32 32;-1080 32 32"
+                            type="rotate" attributeName="gradientTransform"></animateTransform>
                     </linearGradient>
-                    
+
                     <!-- Red gradient for T -->
                     <linearGradient gradientUnits="userSpaceOnUse" y2="0" x2="0" y1="64" x1="0" id="red-grad">
                         <stop stop-color="#FF0000" offset="0"></stop>
                         <stop stop-color="#FF9999" offset="1"></stop>
-                        <animateTransform repeatCount="indefinite" keySplines=".42,0,.58,1;.42,0,.58,1;.42,0,.58,1;.42,0,.58,1;.42,0,.58,1;.42,0,.58,1;.42,0,.58,1;.42,0,.58,1" keyTimes="0; 0.125; 0.25; 0.375; 0.5; 0.625; 0.75; 0.875; 1" dur="8s" values="0 32 32;-270 32 32;-270 32 32;-540 32 32;-540 32 32;-810 32 32;-810 32 32;-1080 32 32;-1080 32 32" type="rotate" attributeName="gradientTransform"></animateTransform>
+                        <animateTransform repeatCount="indefinite"
+                            keySplines=".42,0,.58,1;.42,0,.58,1;.42,0,.58,1;.42,0,.58,1;.42,0,.58,1;.42,0,.58,1;.42,0,.58,1;.42,0,.58,1"
+                            keyTimes="0; 0.125; 0.25; 0.375; 0.5; 0.625; 0.75; 0.875; 1" dur="8s"
+                            values="0 32 32;-270 32 32;-270 32 32;-540 32 32;-540 32 32;-810 32 32;-810 32 32;-1080 32 32;-1080 32 32"
+                            type="rotate" attributeName="gradientTransform"></animateTransform>
                     </linearGradient>
-                    
+
                     <!-- Yellow gradient for I -->
                     <linearGradient gradientUnits="userSpaceOnUse" y2="2" x2="0" y1="62" x1="0" id="yellow-grad">
-                    <stop stop-color="#0033CC" offset="0"></stop>
-                    <stop stop-color="#66CCFF" offset="1"></stop>
-                        <animateTransform repeatCount="indefinite" keySplines=".42,0,.58,1;.42,0,.58,1;.42,0,.58,1;.42,0,.58,1;.42,0,.58,1;.42,0,.58,1;.42,0,.58,1;.42,0,.58,1" keyTimes="0; 0.125; 0.25; 0.375; 0.5; 0.625; 0.75; 0.875; 1" dur="8s" values="0 32 32;-270 32 32;-270 32 32;-540 32 32;-540 32 32;-810 32 32;-810 32 32;-1080 32 32;-1080 32 32" type="rotate" attributeName="gradientTransform"></animateTransform>
+                        <stop stop-color="#0033CC" offset="0"></stop>
+                        <stop stop-color="#66CCFF" offset="1"></stop>
+                        <animateTransform repeatCount="indefinite"
+                            keySplines=".42,0,.58,1;.42,0,.58,1;.42,0,.58,1;.42,0,.58,1;.42,0,.58,1;.42,0,.58,1;.42,0,.58,1;.42,0,.58,1"
+                            keyTimes="0; 0.125; 0.25; 0.375; 0.5; 0.625; 0.75; 0.875; 1" dur="8s"
+                            values="0 32 32;-270 32 32;-270 32 32;-540 32 32;-540 32 32;-810 32 32;-810 32 32;-1080 32 32;-1080 32 32"
+                            type="rotate" attributeName="gradientTransform"></animateTransform>
                     </linearGradient>
                 </defs>
             </svg>
-            
+
             <!-- D Letter (Blue Gradient) -->
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 64 64" height="64" width="64" class="inline-block">
-                <path stroke-linejoin="round" stroke-linecap="round" stroke-width="8" stroke="url(#blue-grad)" 
-                    d="M 10,4 h 18 c 12,0 22,10 22,22 v 12 c 0,12 -10,22 -22,22 h -18 z" 
-                    class="dash" id="d" pathLength="360"></path>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 64 64" height="64" width="64"
+                class="inline-block">
+                <path stroke-linejoin="round" stroke-linecap="round" stroke-width="8" stroke="url(#blue-grad)"
+                    d="M 10,4 h 18 c 12,0 22,10 22,22 v 12 c 0,12 -10,22 -22,22 h -18 z" class="dash" id="d"
+                    pathLength="360"></path>
             </svg>
-            
+
             <!-- T Letter (Red Gradient) -->
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" style="--rotation-duration:0ms; --rotation-direction:normal;" viewBox="0 0 64 64" height="64" width="64" class="inline-block">
-                <path stroke-linejoin="round" stroke-linecap="round" stroke-width="10" stroke="url(#red-grad)" 
-                    d="M 16,10 h 32 M 32,10 v 50" 
-                    class="spin" id="t" pathLength="360"></path>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                style="--rotation-duration:0ms; --rotation-direction:normal;" viewBox="0 0 64 64" height="64" width="64"
+                class="inline-block">
+                <path stroke-linejoin="round" stroke-linecap="round" stroke-width="10" stroke="url(#red-grad)"
+                    d="M 16,10 h 32 M 32,10 v 50" class="spin" id="t" pathLength="360"></path>
             </svg>
-            
+
             <div class="w-2"></div>
-            
+
             <!-- I Letter (Yellow Gradient) -->
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" style="--rotation-duration:0ms; --rotation-direction:normal;" viewBox="0 0 64 64" height="64" width="64" class="inline-block">
-                <path stroke-linejoin="round" stroke-linecap="round" stroke-width="8" stroke="url(#yellow-grad)" 
-                    d="M 32,4 v 56" 
-                    class="dash" id="i" pathLength="360"></path>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                style="--rotation-duration:0ms; --rotation-direction:normal;" viewBox="0 0 64 64" height="64" width="64"
+                class="inline-block">
+                <path stroke-linejoin="round" stroke-linecap="round" stroke-width="8" stroke="url(#yellow-grad)"
+                    d="M 32,4 v 56" class="dash" id="i" pathLength="360"></path>
             </svg>
         </div>
     </div>
@@ -316,29 +351,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         currentRotation += 180;
         carousel.style.transform = `rotateY(${currentRotation}deg)`;
     }
-    
+
     function startAnimation() {
         animationInterval = setInterval(rotateLogo, animationSpeed);
     }
-    
+
     startAnimation();
-    
+
     const secondaryLogo = document.querySelector('.logo-back img');
-    secondaryLogo.onerror = function() {
-        this.src = 'img/dti_logo.png'; 
-        this.style.filter = 'hue-rotate(180deg)'; 
+    secondaryLogo.onerror = function () {
+        this.src = 'img/dti_logo.png';
+        this.style.filter = 'hue-rotate(180deg)';
     };
     const loginForm = document.getElementById('login-form');
     const loginButton = document.getElementById('login-button');
     const loaderContainer = document.getElementById('loader-container');
 
-    loginForm.addEventListener('submit', function(event) {
+    loginForm.addEventListener('submit', function (event) {
         loaderContainer.style.display = 'flex';
         loginButton.disabled = true;
     });
-    window.addEventListener('load', function() {
+    window.addEventListener('load', function () {
         loaderContainer.style.display = 'none';
         loginButton.disabled = false;
     });
 </script>
+
 </html>
