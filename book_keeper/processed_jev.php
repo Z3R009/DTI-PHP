@@ -4,8 +4,13 @@ include '../DBConnection.php';
 
 // retrieve ors
 $select = mysqli_query($connection, "
-    SELECT *
+    SELECT ors.*, jev.*,
+    payee.payee_name,
+    ors.total_amount
+
     FROM jev
+    LEFT JOIN ors ON jev.ors_id = ors.ors_id
+    LEFT JOIN payee ON ors.payee_id = payee.payee_id
 
 ");
 
@@ -687,6 +692,8 @@ $select = mysqli_query($connection, "
                                     <tr>
                                         <th>Date</th>
                                         <th>JEV No.</th>
+                                        <th>Payee Name</th>
+                                        <th>Amount</th>
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -700,6 +707,8 @@ $select = mysqli_query($connection, "
                                                 ?>
                                             </td>
                                             <td><?php echo htmlspecialchars($row['jev_no']); ?></td>
+                                            <td><?php echo htmlspecialchars($row['payee_name']); ?></td>
+                                            <td><?php echo htmlspecialchars($row['total_amount']); ?></td>
                                             <td>
                                                 <a href="jev_form.php?jev_no=<?php echo urlencode($row['jev_no']); ?>"
                                                     class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top"

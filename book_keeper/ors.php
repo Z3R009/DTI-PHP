@@ -313,7 +313,7 @@ $ors_result = $connection->query($ors_query);
                                                 <option selected disabled value="">Select OO/PAP</option>
                                                 <?php
                                                 while ($row = $result_oopap->fetch_assoc()) {
-                                                    echo "<option value='" . htmlspecialchars($row['oopap_id']) . "'>" . htmlspecialchars($row['oopap_name']) . " - " . htmlspecialchars($row['description']) ."</option>";
+                                                    echo "<option value='" . htmlspecialchars($row['oopap_id']) . "'>" . htmlspecialchars($row['oopap_name']) . " - " . htmlspecialchars($row['description']) . "</option>";
                                                 }
                                                 ?>
 
@@ -382,7 +382,7 @@ $ors_result = $connection->query($ors_query);
                                             <option value="To Payment of">To Payment of</option>
                                             <option value="To Disburse">To Reimburse</option>
                                             <option value="To Cash Advance">To Cash Advance</option>
-<option value="To Transfer">To Transfer</option>
+                                            <option value="To Transfer">To Transfer</option>
 
                                         </select>
                                     </div>
@@ -447,6 +447,7 @@ $ors_result = $connection->query($ors_query);
             <td>
                 <input type="number" step="0.01" class="form-control amount-input" name="amount[]" required>
             </td>
+          
           
         </tr>
         <!-- Total row will be added dynamically -->

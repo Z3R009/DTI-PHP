@@ -127,6 +127,8 @@ if (isset($ors_form['purpose'])) {
         $prefix = "To Recognize Cash Advance of";
     } elseif (stripos($ors_form['purpose'], 'reimburse') !== false) {
         $prefix = "To Recognize Reimbursement of";
+    } elseif (stripos($ors_form['purpose'], 'transfer') !== false) {
+        $prefix = "To Recognize Transfer of";
     }
 }
 ?>
