@@ -292,7 +292,7 @@ $ors_result = $connection->query($ors_query);
                 <div class="tab-content">
                     <div>
                         <div id="ors_form">
-                            <form method="post">
+                            <form method="post" id="orsForm">
                                 <div class="form-section">
                                     <h3><i class="bi bi-info-circle me-2"></i>General Information</h3>
                                     <div class="form-row">
@@ -513,6 +513,9 @@ $ors_result = $connection->query($ors_query);
                                         </button>
                                     </div>
                                 </div>
+
+                                <button type="submit" name="submit" id="realSubmitBtn" style="display: none;"></button>
+
                                     </form>
                         </div>
                     </div>
@@ -520,6 +523,27 @@ $ors_result = $connection->query($ors_query);
                             </div>
                         </div>
     </main><!-- End #main -->
+
+
+
+    <!-- confirmation modal -->
+    <div class="modal fade" id="confirmSubmitModal" tabindex="-1" aria-labelledby="confirmSubmitLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmSubmitLabel">Confirm Submission</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to submit this form?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="confirmBtn">Yes, Submit</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 
 
@@ -1314,6 +1338,29 @@ $ors_result = $connection->query($ors_query);
             window.updateAccountOptions = updateAccountOptions;
         });
     </script>
+
+
+<!-- confirmation -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('orsForm');
+            const submitButton = document.querySelector('button[type="submit"][name="submit"]');
+            const realSubmitBtn = document.getElementById('realSubmitBtn');
+            const confirmBtn = document.getElementById('confirmBtn');
+
+            submitButton.addEventListener('click', function (e) {
+                e.preventDefault(); // Stop immediate form submission
+                const modal = new bootstrap.Modal(document.getElementById('confirmSubmitModal'));
+                modal.show(); // Show confirmation modal
+            });
+
+            confirmBtn.addEventListener('click', function () {
+                // Submit form if user confirms
+                realSubmitBtn.click();
+            });
+        });
+    </script>
+
 
 </body>
 
