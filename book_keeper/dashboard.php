@@ -44,7 +44,7 @@ $monthly_labels = [];
 $monthly_counts = [];
 $monthly_amounts = [];
 
-while($row = $monthly_data_result->fetch_assoc()) {
+while ($row = $monthly_data_result->fetch_assoc()) {
     $monthly_labels[] = date('M Y', strtotime($row['month']));
     $monthly_counts[] = $row['count'];
     $monthly_amounts[] = $row['amount'];
@@ -93,30 +93,12 @@ $monthly_amounts = array_reverse($monthly_amounts);
 
         <div class="pagetitle">
             <h1>Dashboard</h1>
-            <nav>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-                    <li class="breadcrumb-item active">Dashboard</li>
-                </ol>
-            </nav>
+
         </div><!-- End Page Title -->
 
         <section class="section dashboard">
             <!-- Quick Action Buttons -->
-            <div class="quick-actions">
-                <a href="ors.php" class="quick-action-btn">
-                    <i class="bi bi-file-earmark-plus"></i> New ORS
-                </a>
-                <a href="dv.php" class="quick-action-btn">
-                    <i class="bi bi-cash-stack"></i> New DV
-                </a>
-                <a href="jev.php" class="quick-action-btn">
-                    <i class="bi bi-journal-plus"></i> New JEV
-                </a>
-                <a href="processed_ors.php" class="quick-action-btn">
-                    <i class="bi bi-check-circle"></i> Processed ORS
-                </a>
-            </div>
+
 
             <div class="row">
                 <!-- ORS Card -->
@@ -130,7 +112,8 @@ $monthly_amounts = array_reverse($monthly_amounts);
                                 </div>
                                 <div class="ps-3">
                                     <h6><?php echo $ors_data['total_ors']; ?></h6>
-                                    <span class="text-success small pt-1 fw-bold">₱<?php echo number_format($ors_data['total_amount'], 2); ?></span>
+                                    <span
+                                        class="text-success small pt-1 fw-bold">₱<?php echo number_format($ors_data['total_amount'], 2); ?></span>
                                 </div>
                             </div>
                         </div>
@@ -148,7 +131,8 @@ $monthly_amounts = array_reverse($monthly_amounts);
                                 </div>
                                 <div class="ps-3">
                                     <h6><?php echo $dv_data['total_dv']; ?></h6>
-                                    <span class="text-success small pt-1 fw-bold">₱<?php echo number_format($dv_data['total_amount'], 2); ?></span>
+                                    <span
+                                        class="text-success small pt-1 fw-bold">₱<?php echo number_format($dv_data['total_amount'], 2); ?></span>
                                 </div>
                             </div>
                         </div>
@@ -245,22 +229,24 @@ $monthly_amounts = array_reverse($monthly_amounts);
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php while($ors = $recent_ors_result->fetch_assoc()): ?>
-                                        <tr>
-                                            <td><a href="ors.php?ors_id=<?php echo $ors['ors_id']; ?>"><?php echo $ors['ors_no']; ?></a></td>
-                                            <td><?php echo date('M d, Y', strtotime($ors['date'])); ?></td>
-                                            <td><?php echo $ors['payee_name']; ?></td>
-                                            <td><?php echo $ors['fund_cluster_name']; ?></td>
-                                            <td><?php echo $ors['services_name']; ?></td>
-                                            <td>₱<?php echo number_format($ors['total_amount'], 2); ?></td>
-                                            <td>
-                                                <?php if($ors['status'] == 'Pending'): ?>
-                                                    <span class="badge bg-warning">Pending</span>
-                                                <?php else: ?>
-                                                    <span class="badge bg-success">Endorsed</span>
-                                                <?php endif; ?>
-                                            </td>
-                                        </tr>
+                                        <?php while ($ors = $recent_ors_result->fetch_assoc()): ?>
+                                            <tr>
+                                                <td><a
+                                                        href="ors.php?ors_id=<?php echo $ors['ors_id']; ?>"><?php echo $ors['ors_no']; ?></a>
+                                                </td>
+                                                <td><?php echo date('M d, Y', strtotime($ors['date'])); ?></td>
+                                                <td><?php echo $ors['payee_name']; ?></td>
+                                                <td><?php echo $ors['fund_cluster_name']; ?></td>
+                                                <td><?php echo $ors['services_name']; ?></td>
+                                                <td>₱<?php echo number_format($ors['total_amount'], 2); ?></td>
+                                                <td>
+                                                    <?php if ($ors['status'] == 'Pending'): ?>
+                                                        <span class="badge bg-warning">Pending</span>
+                                                    <?php else: ?>
+                                                        <span class="badge bg-success">Endorsed</span>
+                                                    <?php endif; ?>
+                                                </td>
+                                            </tr>
                                         <?php endwhile; ?>
                                     </tbody>
                                 </table>
@@ -298,21 +284,23 @@ $monthly_amounts = array_reverse($monthly_amounts);
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php while($dv = $recent_dv_result->fetch_assoc()): ?>
-                                        <tr>
-                                            <td><a href="dv.php?dv_id=<?php echo $dv['dv_id']; ?>"><?php echo $dv['dv_no']; ?></a></td>
-                                            <td><?php echo date('M d, Y', strtotime($dv['date'])); ?></td>
-                                            <td><?php echo $dv['ors_no']; ?></td>
-                                            <td><?php echo $dv['purpose']; ?></td>
-                                            <td>₱<?php echo number_format($dv['total_amount'], 2); ?></td>
-                                            <td>
-                                                <?php if($dv['status'] == 'Pending'): ?>
-                                                    <span class="badge bg-warning">Pending</span>
-                                                <?php else: ?>
-                                                    <span class="badge bg-success">Endorsed</span>
-                                                <?php endif; ?>
-                                            </td>
-                                        </tr>
+                                        <?php while ($dv = $recent_dv_result->fetch_assoc()): ?>
+                                            <tr>
+                                                <td><a
+                                                        href="dv.php?dv_id=<?php echo $dv['dv_id']; ?>"><?php echo $dv['dv_no']; ?></a>
+                                                </td>
+                                                <td><?php echo date('M d, Y', strtotime($dv['date'])); ?></td>
+                                                <td><?php echo $dv['ors_no']; ?></td>
+                                                <td><?php echo $dv['purpose']; ?></td>
+                                                <td>₱<?php echo number_format($dv['total_amount'], 2); ?></td>
+                                                <td>
+                                                    <?php if ($dv['status'] == 'Pending'): ?>
+                                                        <span class="badge bg-warning">Pending</span>
+                                                    <?php else: ?>
+                                                        <span class="badge bg-success">Endorsed</span>
+                                                    <?php endif; ?>
+                                                </td>
+                                            </tr>
                                         <?php endwhile; ?>
                                     </tbody>
                                 </table>
@@ -350,15 +338,17 @@ $monthly_amounts = array_reverse($monthly_amounts);
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php while($jev = $recent_jev_result->fetch_assoc()): ?>
-                                        <tr>
-                                            <td><a href="jev.php?jev_id=<?php echo $jev['jev_id']; ?>"><?php echo $jev['jev_no']; ?></a></td>
-                                            <td><?php echo date('M d, Y', strtotime($jev['date'])); ?></td>
-                                            <td><?php echo $jev['dv_no']; ?></td>
-                                            <td><?php echo $jev['ors_no']; ?></td>
-                                            <td><?php echo $jev['administrative_aide']; ?></td>
-                                            <td><?php echo $jev['accountant']; ?></td>
-                                        </tr>
+                                        <?php while ($jev = $recent_jev_result->fetch_assoc()): ?>
+                                            <tr>
+                                                <td><a
+                                                        href="jev.php?jev_id=<?php echo $jev['jev_id']; ?>"><?php echo $jev['jev_no']; ?></a>
+                                                </td>
+                                                <td><?php echo date('M d, Y', strtotime($jev['date'])); ?></td>
+                                                <td><?php echo $jev['dv_no']; ?></td>
+                                                <td><?php echo $jev['ors_no']; ?></td>
+                                                <td><?php echo $jev['administrative_aide']; ?></td>
+                                                <td><?php echo $jev['accountant']; ?></td>
+                                            </tr>
                                         <?php endwhile; ?>
                                     </tbody>
                                 </table>
