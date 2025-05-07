@@ -138,7 +138,7 @@ $result = $connection->query($query);
                             </div>
                             
                             <div class="table-responsive">
-                                <table class="table table-bordered table-hover datatable">
+                                <table class="datatable">
                                     <thead class="table-light">
                                         <tr>
                                             <th>Reference No</th>
@@ -146,8 +146,8 @@ $result = $connection->query($query);
                                             <th>Account</th>
                                             <th>Vouchers</th>
                                             <th class="text-end">Total Amount</th>
-                                            <th class="text-end">Previous Balance</th>
-                                            <th class="text-end">Current Balance</th>
+                                            <!-- <th class="text-end">Previous Balance</th>
+                                            <th class="text-end">Current Balance</th> -->
                                             <!-- <th>Status</th> -->
                                             <th width="10%" class="text-center">Actions</th>
                                         </tr>
@@ -173,8 +173,8 @@ $result = $connection->query($query);
                                                     <span class="badge bg-secondary"><?php echo $row['dv_count']; ?> vouchers</span>
                                                 </td>
                                                 <td class="text-end fw-medium text-danger">₱<?php echo number_format($row['total_net'] ?? 0, 2); ?></td>
-                                                <td class="text-end fw-medium">₱<?php echo number_format($previous_balance, 2); ?></td>
-                                                <td class="text-end fw-medium text-success">₱<?php echo number_format($current_balance, 2); ?></td>
+                                                    <!-- <td class="text-end fw-medium">₱<?php echo number_format($previous_balance, 2); ?></td>
+                                                    <td class="text-end fw-medium text-success">₱<?php echo number_format($current_balance, 2); ?></td> -->
                                                 <!-- <td>
                                                     <?php 
                                                     switch($row['status']) {

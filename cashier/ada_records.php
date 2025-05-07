@@ -599,7 +599,7 @@ if (isset($_GET['regenerate_lddap']) && isset($_GET['reference'])) {
                                         </div>
                                         <div class="mb-2">
                                             <span class="text-muted">Date:</span>
-                                            <span class="fw-medium ms-2"><?php echo date('F d, Y', strtotime($row['payment_date'])); ?></span>
+                                            <span class="fw-medium ms-2"><?php echo date('F d, Y h:i A', strtotime($row['payment_date'])); ?></span>
                                         </div>
                                         <div class="mb-2">
                                             <span class="text-muted">DV Count:</span>
