@@ -264,6 +264,7 @@ $ors_result = $connection->query($ors_query);
     <!-- Template Main CSS File -->
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
     <link rel="stylesheet" href="css/ors.css">
+
 </head>
 
 <body>
@@ -444,9 +445,15 @@ $ors_result = $connection->query($ors_query);
                 </select>
             </td>
             <td class="account-code"></td>
+            
             <td>
                 <input type="number" step="0.01" class="form-control amount-input" name="amount[]" required>
             </td>
+            <td>
+                        <button type="button" class="btn btn-danger btn-sm remove-entry">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
           
           
         </tr>
@@ -564,7 +571,7 @@ $ors_result = $connection->query($ors_query);
     <script src="../NiceAdmin/assets/js/main.js"></script>
 
     <!-- Custom Accounting Entry JS -->
-    <script src="js/accounting-entry.js"></script>
+    
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
