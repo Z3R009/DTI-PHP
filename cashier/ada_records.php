@@ -37,11 +37,8 @@ $query = "SELECT
             a.reference_no,
             a.status,
             SUBSTRING_INDEX(a.reference_no, '-', -1) as batch_number,
-            (SELECT COUNT(*) FROM batch_ada_dvs WHERE batch_ada_dvs.reference_no COLLATE utf8mb4_general_ci = a.reference_no COLLATE utf8mb4_general_ci) as dv_count,
-            (SELECT SUM(p.amount) FROM payment p 
-             JOIN batch_ada_dvs d ON p.dv_id = d.dv_id 
-             WHERE d.reference_no COLLATE utf8mb4_general_ci = a.reference_no COLLATE utf8mb4_general_ci 
-             AND p.reference_no COLLATE utf8mb4_general_ci = a.reference_no COLLATE utf8mb4_general_ci) as total_amount
+            (SELECT COUNT(*) FROM batch_ada_dvs WHERE batch_ada_dvs.batch_id = a.batch_id) as dv_count,
+            (SELECT SUM(bad.net_amount) FROM batch_ada_dvs bad WHERE bad.batch_id = a.batch_id) as total_amount
           FROM batch_ada a
           WHERE 1=1";
 
@@ -86,170 +83,199 @@ $totals = mysqli_fetch_assoc($total_result);
 if (isset($_GET['regenerate_lddap']) && isset($_GET['reference'])) {
     $reference_no = mysqli_real_escape_string($connection, $_GET['reference']);
     
-    $payments_query = "SELECT p.*, d.dv_no, d.net_amount as dv_net, d.vat_amount, d.tax_1_amount, d.tax_2_amount, 
-                      p.amount, pa.payee_name, pa.bank_acc_no, o.ors_no, o.purpose, o.notes
-                      FROM payment p
-                      JOIN dv d ON p.dv_id = d.dv_id
-                      JOIN ors o ON d.ors_id = o.ors_id
-                      JOIN payee pa ON o.payee_id = pa.payee_id
-                      WHERE p.reference_no = ? AND p.payment_type = 'ADA'
-                      ORDER BY p.payment_id ASC";
+    // First get the batch ID
+    $batch_query = "SELECT batch_id FROM batch_ada WHERE reference_no = ?";
+    $batch_stmt = $connection->prepare($batch_query);
+    $batch_stmt->bind_param('s', $reference_no);
+    $batch_stmt->execute();
+    $batch_result = $batch_stmt->get_result();
     
-    $stmt = $connection->prepare($payments_query);
-    $stmt->bind_param('s', $reference_no);
-    $stmt->execute();
-    $payments_result = $stmt->get_result();
-    
-    if ($payments_result->num_rows > 0) {
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
-        $ada_numbers = [];
-        while ($row = $payments_result->fetch_assoc()) {
-            if (!empty($row['ada_no'])) {
-                $ada_numbers[] = $row['ada_no'];
+    if ($batch_result->num_rows > 0) {
+        $batch_row = $batch_result->fetch_assoc();
+        $batch_id = $batch_row['batch_id'];
+        
+        $payments_query = "SELECT bad.*, d.dv_no, d.net_amount as dv_net, d.vat_amount, d.tax_1_amount, d.tax_2_amount, 
+                          bad.net_amount as amount, pa.payee_name, pa.bank_acc_no, o.ors_no, o.purpose, o.notes,
+                          p.remarks, p.payment_date
+                          FROM batch_ada_dvs bad
+                          JOIN dv d ON bad.dv_id = d.dv_id
+                          JOIN ors o ON d.ors_id = o.ors_id
+                          JOIN payee pa ON o.payee_id = pa.payee_id
+                          LEFT JOIN payment p ON p.dv_id = d.dv_id AND p.payment_type = 'ADA'
+                          WHERE bad.batch_id = ?
+                          ORDER BY pa.payee_name ASC";
+        
+        $stmt = $connection->prepare($payments_query);
+        $stmt->bind_param('i', $batch_id);
+        $stmt->execute();
+        $payments_result = $stmt->get_result();
+        
+        if ($payments_result->num_rows > 0) {
+            if (session_status() == PHP_SESSION_NONE) {
+                session_start();
             }
-        }
-        sort($ada_numbers);
-        $ada_no = $reference_no;
-        if (!empty($ada_numbers)) {
-            $first_ada = $ada_numbers[0];
-            $last_ada = $ada_numbers[count($ada_numbers) - 1];
-            
-            if (count($ada_numbers) > 1 && $first_ada !== $last_ada) {
-                $parts = explode('-', $first_ada);
+            $ada_numbers = [];
+            while ($row = $payments_result->fetch_assoc()) {
+                if (!empty($row['ada_no'])) {
+                    $ada_numbers[] = $row['ada_no'];
+                }
+            }
+            sort($ada_numbers);
+            $ada_no = $reference_no;
+            if (!empty($ada_numbers)) {
+                $first_ada = $ada_numbers[0];
+                $last_ada = $ada_numbers[count($ada_numbers) - 1];
+                
+                if (count($ada_numbers) > 1 && $first_ada !== $last_ada) {
+                    $parts = explode('-', $first_ada);
+                    if (count($parts) >= 4) {
+                        $fund_code = $parts[0];
+                        $month = $parts[1];
+                        $year = $parts[count($parts) - 1];
+                        $first_series = $parts[2];
+                        $last_series = explode('-', $last_ada)[2];
+                        
+                        $ada_no = "$fund_code-$month-$first_series-$last_series-$year";
+                    }
+                }else {
+                    $ada_no = $first_ada;
+                }
+            } else {
+                $parts = explode('-', $reference_no);
                 if (count($parts) >= 4) {
                     $fund_code = $parts[0];
                     $month = $parts[1];
-                    $year = $parts[count($parts) - 1];
-                    $first_series = $parts[2];
-                    $last_series = explode('-', $last_ada)[2];
-                    
-                    $ada_no = "$fund_code-$month-$first_series-$last_series-$year";
+                    $series = $parts[2];
+                    $year = $parts[3];
+                    $ada_no = "$fund_code-$month-$series-$year";
                 }
-            }else {
-                $ada_no = $first_ada;
             }
-        } else {
-            $parts = explode('-', $reference_no);
-            if (count($parts) >= 4) {
-                $fund_code = $parts[0];
-                $month = $parts[1];
-                $series = $parts[2];
-                $year = $parts[3];
-                $ada_no = "$fund_code-$month-$series-$year";
-            }
-        }
-        
-        $_SESSION['lddap_data'] = [
-            'reference_no' => $reference_no,
-            'ada_no' => $ada_no,
-            'payment_date' => '',
-            'remarks' => '',
-            'dvs' => [],
-            'total_gross' => 0,
-            'total_withholding' => 0,
-            'total_net' => 0,
-            'fundCode' => '01101101',
-            'bankInfo' => 'LAND BANK OF THE PHILIPPINES- KORONADAL BRANCH- 2075-9006-81',
-            'has_multiple_references' => count($ada_numbers) > 1
-        ];
-        
-        $total_gross = 0;
-        $total_withholding = 0;
-        $total_net = 0;
-        $first_payment = $payments_result->fetch_assoc();
-        $_SESSION['lddap_data']['payment_date'] = $first_payment['payment_date'];
-        $_SESSION['lddap_data']['remarks'] = $first_payment['remarks'];
-        $payments_result->data_seek(0);
-        
-        while ($row = $payments_result->fetch_assoc()) {
-            $gross_amount = $row['dv_net'] + $row['vat_amount'] + $row['tax_1_amount'] + $row['tax_2_amount'];
-            $net_amount = $row['amount'];
-            $withholding_tax = $gross_amount - $row['dv_net'];
             
-            $_SESSION['lddap_data']['dvs'][] = [
-                'dv_id' => $row['dv_id'],
-                'dv_no' => $row['dv_no'],
-                'payee_name' => $row['payee_name'],
-                'bank_account' => $row['bank_acc_no'] ?? 'N/A',
-                'ors_no' => $row['ors_no'],
-                'purpose' => $row['purpose'],
-                'notes' => $row['notes'],
-                'gross_amount' => $gross_amount,
-                'withholding_tax' => $withholding_tax,
-                'net_amount' => $net_amount,
-                'reference_no' => $reference_no
+            $_SESSION['lddap_data'] = [
+                'reference_no' => $reference_no,
+                'ada_no' => $ada_no,
+                'payment_date' => '',
+                'remarks' => '',
+                'dvs' => [],
+                'total_gross' => 0,
+                'total_withholding' => 0,
+                'total_net' => 0,
+                'fundCode' => '01101101',
+                'bankInfo' => 'LAND BANK OF THE PHILIPPINES- KORONADAL BRANCH- 2075-9006-81',
+                'has_multiple_references' => count($ada_numbers) > 1
             ];
             
-            $total_gross += $gross_amount;
-            $total_withholding += $withholding_tax;
-            $total_net += $net_amount;
-        }
-        
-        $_SESSION['lddap_data']['total_gross'] = $total_gross;
-        $_SESSION['lddap_data']['total_withholding'] = $total_withholding;
-        $_SESSION['lddap_data']['total_net'] = $total_net;
-        
-        function numberToWords($number) {
-            $ones = array(
-                0 => "Zero", 1 => "One", 2 => "Two", 3 => "Three", 4 => "Four", 
-                5 => "Five", 6 => "Six", 7 => "Seven", 8 => "Eight", 9 => "Nine", 
-                10 => "Ten", 11 => "Eleven", 12 => "Twelve", 13 => "Thirteen", 14 => "Fourteen", 
-                15 => "Fifteen", 16 => "Sixteen", 17 => "Seventeen", 18 => "Eighteen", 19 => "Nineteen"
-            );
-            $tens = array(
-                2 => "Twenty", 3 => "Thirty", 4 => "Forty", 5 => "Fifty", 
-                6 => "Sixty", 7 => "Seventy", 8 => "Eighty", 9 => "Ninety"
-            );
-            $hundreds = array(
-                "Hundred", "Thousand", "Million", "Billion", "Trillion", "Quadrillion"
-            );
+            $total_gross = 0;
+            $total_withholding = 0;
+            $total_net = 0;
+            $first_payment = $payments_result->fetch_assoc();
             
-            $num = number_format($number, 2, '.', '');
-            $num_arr = explode('.', $num);
-            $wholenum = $num_arr[0];
-            $decnum = $num_arr[1];
-            $whole_arr = array_reverse(explode(',', $wholenum));
-            krsort($whole_arr);
-            $rettext = "";
+            // Get payment date from batch_ada as a fallback
+            if (empty($first_payment['payment_date'])) {
+                $ada_date_query = "SELECT payment_date, remarks FROM batch_ada WHERE batch_id = ?";
+                $ada_date_stmt = $connection->prepare($ada_date_query);
+                $ada_date_stmt->bind_param('i', $batch_id);
+                $ada_date_stmt->execute();
+                $ada_date_result = $ada_date_stmt->get_result();
+                $ada_date_row = $ada_date_result->fetch_assoc();
+                
+                $_SESSION['lddap_data']['payment_date'] = $ada_date_row['payment_date'] ?? '';
+                $_SESSION['lddap_data']['remarks'] = $ada_date_row['remarks'] ?? '';
+            } else {
+                $_SESSION['lddap_data']['payment_date'] = $first_payment['payment_date'];
+                $_SESSION['lddap_data']['remarks'] = $first_payment['remarks'] ?? '';
+            }
             
-            foreach($whole_arr as $key => $i) {
-                if($i < 20) {
-                    $rettext .= $ones[$i];
-                } elseif($i < 100) {
-                    $rettext .= $tens[substr($i, 0, 1)];
-                    $rettext .= " ".$ones[substr($i, 1, 1)];
-                } else {
-                    $rettext .= $ones[substr($i, 0, 1)]." ".$hundreds[0];
-                    $tmp = substr($i, 1, 2);
-                    if($tmp > 0) {
-                        $rettext .= " and ".numberToWords($tmp);
+            $payments_result->data_seek(0);
+            
+            while ($row = $payments_result->fetch_assoc()) {
+                $gross_amount = $row['dv_net'] + $row['vat_amount'] + $row['tax_1_amount'] + $row['tax_2_amount'];
+                $net_amount = $row['amount'];
+                $withholding_tax = $gross_amount - $row['dv_net'];
+                
+                $_SESSION['lddap_data']['dvs'][] = [
+                    'dv_id' => $row['dv_id'],
+                    'dv_no' => $row['dv_no'],
+                    'payee_name' => $row['payee_name'],
+                    'bank_account' => $row['bank_acc_no'] ?? 'N/A',
+                    'ors_no' => $row['ors_no'],
+                    'purpose' => $row['purpose'],
+                    'notes' => $row['notes'],
+                    'gross_amount' => $gross_amount,
+                    'withholding_tax' => $withholding_tax,
+                    'net_amount' => $net_amount,
+                    'reference_no' => $reference_no
+                ];
+                
+                $total_gross += $gross_amount;
+                $total_withholding += $withholding_tax;
+                $total_net += $net_amount;
+            }
+            
+            $_SESSION['lddap_data']['total_gross'] = $total_gross;
+            $_SESSION['lddap_data']['total_withholding'] = $total_withholding;
+            $_SESSION['lddap_data']['total_net'] = $total_net;
+            
+            function numberToWords($number) {
+                $ones = array(
+                    0 => "Zero", 1 => "One", 2 => "Two", 3 => "Three", 4 => "Four", 
+                    5 => "Five", 6 => "Six", 7 => "Seven", 8 => "Eight", 9 => "Nine", 
+                    10 => "Ten", 11 => "Eleven", 12 => "Twelve", 13 => "Thirteen", 14 => "Fourteen", 
+                    15 => "Fifteen", 16 => "Sixteen", 17 => "Seventeen", 18 => "Eighteen", 19 => "Nineteen"
+                );
+                $tens = array(
+                    2 => "Twenty", 3 => "Thirty", 4 => "Forty", 5 => "Fifty", 
+                    6 => "Sixty", 7 => "Seventy", 8 => "Eighty", 9 => "Ninety"
+                );
+                $hundreds = array(
+                    "Hundred", "Thousand", "Million", "Billion", "Trillion", "Quadrillion"
+                );
+                
+                $num = number_format($number, 2, '.', '');
+                $num_arr = explode('.', $num);
+                $wholenum = $num_arr[0];
+                $decnum = $num_arr[1];
+                $whole_arr = array_reverse(explode(',', $wholenum));
+                krsort($whole_arr);
+                $rettext = "";
+                
+                foreach($whole_arr as $key => $i) {
+                    if($i < 20) {
+                        $rettext .= $ones[$i];
+                    } elseif($i < 100) {
+                        $rettext .= $tens[substr($i, 0, 1)];
+                        $rettext .= " ".$ones[substr($i, 1, 1)];
+                    } else {
+                        $rettext .= $ones[substr($i, 0, 1)]." ".$hundreds[0];
+                        $tmp = substr($i, 1, 2);
+                        if($tmp > 0) {
+                            $rettext .= " and ".numberToWords($tmp);
+                        }
+                    }
+                    if($key > 0) {
+                        $rettext .= " ".$hundreds[$key]." ";
                     }
                 }
-                if($key > 0) {
-                    $rettext .= " ".$hundreds[$key]." ";
+                
+                if($decnum > 0) {
+                    $rettext .= " and ";
+                    if($decnum < 20) {
+                        $rettext .= $ones[$decnum];
+                    } elseif($decnum < 100) {
+                        $rettext .= $tens[substr($decnum, 0, 1)];
+                        $rettext .= " ".$ones[substr($decnum, 1, 1)];
+                    }
+                    $rettext .= " Centavos";
                 }
+                
+                return $rettext . " Pesos Only";
             }
             
-            if($decnum > 0) {
-                $rettext .= " and ";
-                if($decnum < 20) {
-                    $rettext .= $ones[$decnum];
-                } elseif($decnum < 100) {
-                    $rettext .= $tens[substr($decnum, 0, 1)];
-                    $rettext .= " ".$ones[substr($decnum, 1, 1)];
-                }
-                $rettext .= " Centavos";
-            }
+            $_SESSION['lddap_data']['amountInWords'] = numberToWords($total_net);
             
-            return $rettext . " Pesos Only";
+            header('Location: generate_lddap.php?ref=' . urlencode($reference_no));
+            exit();
         }
-        
-        $_SESSION['lddap_data']['amountInWords'] = numberToWords($total_net);
-        
-        header('Location: generate_lddap.php?ref=' . urlencode($reference_no));
-        exit();
     }
 }
 
@@ -523,14 +549,30 @@ if (isset($_GET['regenerate_lddap']) && isset($_GET['reference'])) {
     while ($row = mysqli_fetch_assoc($ada_result)):
         $reference_no = $row['reference_no'];
         $modal_id = md5($reference_no);
-        $detail_query = "SELECT p.*, d.dv_no, o.ors_no, pa.payee_name, o.purpose, o.notes
-                       FROM payment p
-                       JOIN dv d ON p.dv_id = d.dv_id
+        
+        // First get the batch_id
+        $batch_query = "SELECT batch_id FROM batch_ada WHERE reference_no = ?";
+        $batch_stmt = $connection->prepare($batch_query);
+        $batch_stmt->bind_param("s", $reference_no);
+        $batch_stmt->execute();
+        $batch_result = $batch_stmt->get_result();
+        $batch_row = $batch_result->fetch_assoc();
+        $batch_id = $batch_row['batch_id'];
+        
+        // Now use batch_id for joins to avoid collation issues
+        $detail_query = "SELECT bad.*, d.dv_no, o.ors_no, pa.payee_name, o.purpose, o.notes, 
+                          p.remarks, p.payment_date, p.amount
+                       FROM batch_ada_dvs bad
+                       JOIN dv d ON bad.dv_id = d.dv_id
+                       LEFT JOIN payment p ON p.dv_id = d.dv_id 
                        JOIN ors o ON d.ors_id = o.ors_id
                        JOIN payee pa ON o.payee_id = pa.payee_id
-                       WHERE p.reference_no = '$reference_no'
+                       WHERE bad.batch_id = ?
                        ORDER BY pa.payee_name";
-        $detail_result = mysqli_query($connection, $detail_query);
+        $detail_stmt = $connection->prepare($detail_query);
+        $detail_stmt->bind_param("i", $batch_id);
+        $detail_stmt->execute();
+        $detail_result = $detail_stmt->get_result();
     ?>
     <div class="modal fade" id="detailsModal<?php echo $modal_id; ?>" tabindex="-1">
         <div class="modal-dialog modal-lg">
@@ -557,7 +599,7 @@ if (isset($_GET['regenerate_lddap']) && isset($_GET['reference'])) {
                                         </div>
                                         <div class="mb-2">
                                             <span class="text-muted">Date:</span>
-                                            <span class="fw-medium ms-2"><?php echo date('F d, Y', strtotime($row['payment_date'])); ?></span>
+                                            <span class="fw-medium ms-2"><?php echo date('F d, Y h:i A', strtotime($row['payment_date'])); ?></span>
                                         </div>
                                         <div class="mb-2">
                                             <span class="text-muted">DV Count:</span>

@@ -16,16 +16,27 @@ if(isset($_GET['error']) && !empty($_GET['error'])) {
     $error_message = urldecode($_GET['error']);
 }
 
-$query = "SELECT 
-    ba.batch_id, ba.reference_no, ba.payment_date, ba.fund_code, 
-    ba.total_gross, ba.total_withholding, ba.total_net, ba.status,
-    ba.created_at, ba.bank_info, an.account_name, an.account_number, 
-    dp.balances AS current_balance, dp.cash_allotment, dp.draft_id,
+$query = "SELECT
+    ba.batch_id,
+    ba.reference_no,
+    ba.payment_date,
+    ba.fund_code,
+    ba.total_gross,
+    ba.total_withholding,
+    ba.total_net,
+    ba.status,
+    ba.created_at,
+    ba.bank_info,
+    an.account_name,
+    an.account_number,
+    dp.balances AS current_balance,
+    dp.cash_allotment,
+    dp.draft_id,
     (SELECT COUNT(*) FROM batch_ada_dvs WHERE batch_id = ba.batch_id) AS dv_count
 FROM batch_ada ba
-JOIN batch_ada_dvs bad ON bad.batch_id = ba.batch_id
-JOIN dv ON dv.dv_id = bad.dv_id
-JOIN account_name an ON an.account_id = dv.account_id
+LEFT JOIN batch_ada_dvs bad ON bad.batch_id = ba.batch_id
+LEFT JOIN dv ON dv.dv_id = bad.dv_id
+LEFT JOIN account_name an ON an.account_id = dv.account_id
 LEFT JOIN draft_project dp ON dp.account_id = an.account_id
     AND dp.draft_id = (
         SELECT MAX(dp2.draft_id) FROM draft_project dp2 
@@ -127,7 +138,7 @@ $result = $connection->query($query);
                             </div>
                             
                             <div class="table-responsive">
-                                <table class="table table-bordered table-hover datatable">
+                                <table class="datatable">
                                     <thead class="table-light">
                                         <tr>
                                             <th>Reference No</th>
@@ -135,8 +146,8 @@ $result = $connection->query($query);
                                             <th>Account</th>
                                             <th>Vouchers</th>
                                             <th class="text-end">Total Amount</th>
-                                            <th class="text-end">Previous Balance</th>
-                                            <th class="text-end">Current Balance</th>
+                                            <!-- <th class="text-end">Previous Balance</th>
+                                            <th class="text-end">Current Balance</th> -->
                                             <!-- <th>Status</th> -->
                                             <th width="10%" class="text-center">Actions</th>
                                         </tr>
@@ -145,7 +156,9 @@ $result = $connection->query($query);
                                         <?php if ($result && $result->num_rows > 0): ?>
                                             <?php 
                                             while ($row = $result->fetch_assoc()): 
-                                                $previous_balance = $row['current_balance'] + $row['total_net'];
+                                                // Previous balance should be current_balance + total_net (balance before deduction)
+                                                $previous_balance = ($row['current_balance'] ?? 0) + ($row['total_net'] ?? 0);
+                                                $current_balance = $row['current_balance'] ?? 0;
                                             ?>
                                             <tr>
                                                 <td>
@@ -159,9 +172,9 @@ $result = $connection->query($query);
                                                 <td>
                                                     <span class="badge bg-secondary"><?php echo $row['dv_count']; ?> vouchers</span>
                                                 </td>
-                                                <td class="text-end fw-medium text-danger">₱<?php echo number_format($row['total_net'], 2); ?></td>
-                                                <td class="text-end fw-medium">₱<?php echo number_format($previous_balance, 2); ?></td>
-                                                <td class="text-end fw-medium text-success">₱<?php echo number_format($row['current_balance'] ?? 0, 2); ?></td>
+                                                <td class="text-end fw-medium text-danger">₱<?php echo number_format($row['total_net'] ?? 0, 2); ?></td>
+                                                    <!-- <td class="text-end fw-medium">₱<?php echo number_format($previous_balance, 2); ?></td>
+                                                    <td class="text-end fw-medium text-success">₱<?php echo number_format($current_balance, 2); ?></td> -->
                                                 <!-- <td>
                                                     <?php 
                                                     switch($row['status']) {
@@ -236,12 +249,13 @@ $result = $connection->query($query);
                                 <h6 class="text-success fw-bold mb-2">Account Details</h6>
                                 <p class="mb-1 fs-5" id="accountName"></p>
                                 <p class="text-muted" id="accountNumber"></p>
+                                <p class="text-muted" id="voucherCount"><strong>Vouchers:</strong> <span class="badge bg-secondary">0</span></p>
                             </div>
                         </div>
                     </div>
                     
                     <div class="row mb-4">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="card border-secondary h-100">
                                 <div class="card-body">
                                     <h6 class="card-title text-secondary">Gross Amount</h6>
@@ -249,7 +263,7 @@ $result = $connection->query($query);
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="card border-info h-100">
                                 <div class="card-body">
                                     <h6 class="card-title text-info">Withholding Tax</h6>
@@ -257,11 +271,20 @@ $result = $connection->query($query);
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="card border-success h-100">
                                 <div class="card-body">
                                     <h6 class="card-title text-success">Net Amount</h6>
                                     <h3 class="card-text" id="totalNet">₱0.00</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card border-primary h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title text-primary">Account Balance</h6>
+                                    <p class="mb-1"><small>Previous: <span id="previousBalance" class="fw-medium">₱0.00</span></small></p>
+                                    <p class="mb-0"><small>Current: <span id="currentBalance" class="fw-medium text-success">₱0.00</span></small></p>
                                 </div>
                             </div>
                         </div>
@@ -274,6 +297,7 @@ $result = $connection->query($query);
                                 <tr>
                                     <th>DV No</th>
                                     <th>Payee</th>
+                                    <th>Status</th>
                                     <th>Purpose</th>
                                     <th class="text-end">Gross Amount</th>
                                     <th class="text-end">Withholding</th>
@@ -285,7 +309,7 @@ $result = $connection->query($query);
                             </tbody>
                             <tfoot class="table-light">
                                 <tr>
-                                    <td colspan="3" class="text-end fw-bold">Totals:</td>
+                                    <td colspan="4" class="text-end fw-bold">Totals:</td>
                                     <td class="text-end fw-bold" id="totalGrossFooter">₱0.00</td>
                                     <td class="text-end fw-bold" id="totalWithholdingFooter">₱0.00</td>
                                     <td class="text-end fw-bold" id="totalNetFooter">₱0.00</td>
@@ -356,7 +380,9 @@ $result = $connection->query($query);
             // Function to load ADA details into modal
             function loadAdaDetails(batchId) {
                 // Show loading spinner
-                $('#adaVouchersBody').html('<tr><td colspan="6" class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></td></tr>');
+                $('#adaVouchersBody').html('<tr><td colspan="7" class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></td></tr>');
+                
+                console.log('Loading ADA details for batch ID:', batchId);
                 
                 // Fetch ADA details via AJAX
                 $.ajax({
@@ -365,8 +391,18 @@ $result = $connection->query($query);
                     data: { batch_id: batchId },
                     dataType: 'json',
                     success: function(response) {
+                        console.log('ADA details response:', response);
+                        
                         if (response.success) {
                             const data = response.data;
+                            
+                            // Log debug info if available
+                            if (data.debug) {
+                                console.log('Debug info:', data.debug);
+                            }
+                            
+                            // Log voucher data
+                            console.log('Vouchers data:', data.vouchers);
                             
                             // Update header information
                             $('#adaReferenceNo').text(data.reference_no);
@@ -374,10 +410,20 @@ $result = $connection->query($query);
                             $('#accountName').text(data.account_name || 'Unknown Account');
                             $('#accountNumber').text(data.account_number || '');
                             
+                            // Update voucher count
+                            let voucherCount = data.vouchers ? data.vouchers.length : 0;
+                            $('#voucherCount').html(`<strong>Vouchers:</strong> <span class="badge bg-secondary">${voucherCount}</span>`);
+                            
                             // Update totals
                             $('#totalGross').text('₱' + parseFloat(data.total_gross).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
                             $('#totalWithholding').text('₱' + parseFloat(data.total_withholding).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
                             $('#totalNet').text('₱' + parseFloat(data.total_net).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                            
+                            // Update balance information
+                            const previousBalance = parseFloat(data.previous_balance || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                            const currentBalance = parseFloat(data.current_balance || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                            $('#previousBalance').text('₱' + previousBalance);
+                            $('#currentBalance').text('₱' + currentBalance);
                             
                             // Update footer totals
                             $('#totalGrossFooter').text('₱' + parseFloat(data.total_gross).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
@@ -386,29 +432,60 @@ $result = $connection->query($query);
                             
                             // Populate vouchers table
                             let vouchersHtml = '';
+                            let validVouchers = 0;
                             
                             if (data.vouchers && data.vouchers.length > 0) {
                                 data.vouchers.forEach(function(voucher) {
+                                    // Check if we have valid data for this voucher
+                                    if (!voucher.dv_id) {
+                                        console.warn('Missing DV ID for voucher:', voucher);
+                                        return; // Skip this voucher
+                                    }
+                                    
+                                    validVouchers++;
+                                    
+                                    // Check if this voucher is part of a merged group
+                                    const isMerged = voucher.is_merged === "1" || voucher.is_merged === 1;
+                                    const mergeStatus = isMerged 
+                                        ? `<span class="badge bg-info" data-bs-toggle="tooltip" title="This DV is part of merged payee group${voucher.merge_name ? ': '+voucher.merge_name : ''}">Merged</span>` 
+                                        : `<span class="badge bg-light text-dark border">Individual</span>`;
+                                    
+                                    // Ensure numeric values
+                                    const grossAmount = parseFloat(voucher.gross_amount) || 0;
+                                    const withholdingTax = parseFloat(voucher.withholding_tax) || 0;
+                                    const netAmount = parseFloat(voucher.net_amount) || 0;
+                                    
+                                    // Get the DV number with fallback
+                                    const dvNo = voucher.dv_no || ('DV ID: ' + voucher.dv_id);
+                                    
                                     vouchersHtml += `
-                                        <tr>
-                                            <td>${voucher.dv_no || 'N/A'}</td>
-                                            <td>${voucher.payee_name || 'N/A'}</td>
+                                        <tr ${isMerged ? 'class="table-info bg-opacity-25"' : ''}>
+                                            <td>${dvNo}</td>
+                                            <td>${voucher.payee_name || 'Unknown'}</td>
+                                            <td>${mergeStatus}</td>
                                             <td>
                                                 <span class="text-truncate d-inline-block" style="max-width: 250px;" data-bs-toggle="tooltip" title="${voucher.purpose || ''}">
                                                     ${voucher.purpose ? (voucher.purpose.length > 50 ? voucher.purpose.substring(0, 50) + '...' : voucher.purpose) : 'N/A'}
                                                 </span>
                                             </td>
-                                            <td class="text-end">₱${parseFloat(voucher.gross_amount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                                            <td class="text-end">₱${parseFloat(voucher.withholding_tax).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                                            <td class="text-end">₱${parseFloat(voucher.net_amount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                            <td class="text-end">₱${grossAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                            <td class="text-end">₱${withholdingTax.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                            <td class="text-end">₱${netAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                                         </tr>
                                     `;
                                 });
+                                
+                                if (validVouchers === 0) {
+                                    vouchersHtml = '<tr><td colspan="7" class="text-center">No valid voucher data found. Data may be incomplete.</td></tr>';
+                                }
                             } else {
-                                vouchersHtml = '<tr><td colspan="6" class="text-center">No vouchers found for this ADA payment.</td></tr>';
+                                vouchersHtml = '<tr><td colspan="7" class="text-center">No vouchers found for this ADA payment.</td></tr>';
                             }
                             
                             $('#adaVouchersBody').html(vouchersHtml);
+                            
+                            // Update voucher count in the header
+                            $('#voucherCount').html(`<strong>Vouchers:</strong> <span class="badge bg-secondary">${validVouchers}</span>`);
                             
                             // Initialize tooltips
                             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
