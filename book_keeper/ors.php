@@ -822,7 +822,7 @@ $ors_result = $connection->query($ors_query);
                 const oopapId = oopapSelect ? oopapSelect.value : '';
 
                 // Clear current options
-                servicesSelect.innerHTML = '<option selected disabled>Select Services</option>';
+                servicesSelect.innerHTML = '<option selected disabled value = "">Select Services</option>';
 
                 // Only continue if both values are selected
                 if (!fundClusterId || !oopapId) return;
@@ -835,7 +835,7 @@ $ors_result = $connection->query($ors_query);
                     .then(response => response.json())
                     .then(data => {
                         // Clear loading indicator
-                        servicesSelect.innerHTML = '<option selected disabled>Select Services</option>';
+                        servicesSelect.innerHTML = '<option selected disabled value = "">Select Services</option>';
 
                         if (data.length === 0) {
                             const option = document.createElement('option');

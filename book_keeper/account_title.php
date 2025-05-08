@@ -24,14 +24,14 @@ if (isset($_POST['submit'])) {
     }
 
 }
-    $search = isset($_GET['search']) ? $_GET['search'] : '';
-    $where = '';
-    if (!empty($search)) {
-        $search = mysqli_real_escape_string($connection, $search);
-        $where = "WHERE account_title LIKE '%$search%' OR account_code LIKE '%$search%'";
-    }
+$search = isset($_GET['search']) ? $_GET['search'] : '';
+$where = '';
+if (!empty($search)) {
+    $search = mysqli_real_escape_string($connection, $search);
+    $where = "WHERE account_title LIKE '%$search%' OR account_code LIKE '%$search%'";
+}
 
-    $select = mysqli_query($connection, "SELECT * FROM account_title $where ORDER BY CAST(account_code AS UNSIGNED)");
+$select = mysqli_query($connection, "SELECT * FROM account_title $where ORDER BY CAST(account_code AS UNSIGNED)");
 ?>
 
 
@@ -49,7 +49,9 @@ if (isset($_POST['submit'])) {
     <link href="../NiceAdmin/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
     <link href="https://fonts.gstatic.com" rel="preconnect">
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+        rel="stylesheet">
 
     <link href="../NiceAdmin/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
@@ -63,9 +65,9 @@ if (isset($_POST['submit'])) {
 
     <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet"
         type="text/css">
-        <link rel="stylesheet" href="css/UACS.css">
-        <link rel="stylesheet" href="css/table.css">
-       
+    <link rel="stylesheet" href="css/UACS.css">
+    <link rel="stylesheet" href="css/table.css">
+
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -264,7 +266,7 @@ if (isset($_POST['submit'])) {
     </script>
 
     <script>
-     
+
         function clearForm() {
             document.getElementById('addUserForm').reset();
         }

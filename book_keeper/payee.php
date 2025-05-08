@@ -2,7 +2,6 @@
 
 include '../DBConnection.php';
 
-
 if (isset($_POST['submit'])) {
     $payee_name = $_POST['payee_name'];
     $bank_acc_no = $_POST['bank_acc_no'];
@@ -12,15 +11,40 @@ if (isset($_POST['submit'])) {
     $contact_no = $_POST['contact_no'];
     $payee_type = $_POST['payee_type'];
 
-    $sql = "INSERT INTO payee (payee_name, bank_acc_no, tin_no, address, nature, contact_no, payee_type) VALUES (?, ?, ?, ?, ?, ?,?)";
-    $stmt = $connection->prepare($sql);
-    $stmt->bind_param("sssssss", $payee_name, $bank_acc_no, $tin_no, $address, $nature, $contact_no, $payee_type);
+    // Check if the payee_name already exists
+    $check_sql = "SELECT COUNT(*) FROM payee WHERE payee_name = ?";
+    $check_stmt = $connection->prepare($check_sql);
+    $check_stmt->bind_param("s", $payee_name);
+    $check_stmt->execute();
+    $check_stmt->store_result(); // Store the result to avoid the "Commands out of sync" error
+    $check_stmt->bind_result($count);
+    $check_stmt->fetch();
 
-    if ($stmt->execute()) {
-        header('Location: payee.php');
+    if ($count > 0) {
+        // If a duplicate exists, display an error message
+        echo "<script>alert('Payee name already exists!');</script>";
     } else {
-        echo "Error: " . $stmt->error;
+        // If no duplicate, proceed with insertion
+        $insert_sql = "INSERT INTO payee (payee_name, bank_acc_no, tin_no, address, nature, contact_no, payee_type) VALUES (?, ?, ?, ?, ?, ?,?)";
+        $stmt = $connection->prepare($insert_sql);
+
+        // Check if the prepare statement for the insert query was successful
+        if ($stmt === false) {
+            echo "Error preparing the statement: " . $connection->error;
+        } else {
+            $stmt->bind_param("sssssss", $payee_name, $bank_acc_no, $tin_no, $address, $nature, $contact_no, $payee_type);
+
+            if ($stmt->execute()) {
+                header('Location: payee.php');
+            } else {
+                echo "Error: " . $stmt->error;
+            }
+            $stmt->close(); // Close the statement after execution
+        }
     }
+
+    // Close the check statement
+    $check_stmt->close();
 }
 
 // retrieve payee
@@ -205,9 +229,11 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                                         <td class="d-none expandable-col"><?php echo htmlspecialchars($row['nature']); ?>
                                         </td>
                                         <td class="d-none expandable-col">
-                                            <?php echo htmlspecialchars($row['contact_no']); ?></td>
+                                            <?php echo htmlspecialchars($row['contact_no']); ?>
+                                        </td>
                                         <td class="d-none expandable-col">
-                                            <?php echo htmlspecialchars($row['payee_type']); ?></td>
+                                            <?php echo htmlspecialchars($row['payee_type']); ?>
+                                        </td>
                                         <td class="text-end">
                                             <button type="button" class="btn btn-sm btn-outline-primary edit-btn"
                                                 data-bs-toggle="modal" data-bs-target="#editUserModal"
