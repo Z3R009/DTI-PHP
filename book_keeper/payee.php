@@ -1,6 +1,7 @@
 <?php
-
 include '../DBConnection.php';
+
+$alert = ""; // Store alert script here
 
 if (isset($_POST['submit'])) {
     $payee_name = $_POST['payee_name'];
@@ -11,46 +12,63 @@ if (isset($_POST['submit'])) {
     $contact_no = $_POST['contact_no'];
     $payee_type = $_POST['payee_type'];
 
-    // Check if the payee_name already exists
     $check_sql = "SELECT COUNT(*) FROM payee WHERE payee_name = ?";
     $check_stmt = $connection->prepare($check_sql);
     $check_stmt->bind_param("s", $payee_name);
     $check_stmt->execute();
-    $check_stmt->store_result(); // Store the result to avoid the "Commands out of sync" error
+    $check_stmt->store_result();
     $check_stmt->bind_result($count);
     $check_stmt->fetch();
 
     if ($count > 0) {
-        // If a duplicate exists, display an error message
-        echo "<script>alert('Payee name already exists!');</script>";
+        $alert = "
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Duplicate Payee',
+                        text: 'Payee name already exists!',
+                        confirmButtonColor: '#d33'
+                    });
+                });
+            </script>
+        ";
     } else {
-        // If no duplicate, proceed with insertion
-        $insert_sql = "INSERT INTO payee (payee_name, bank_acc_no, tin_no, address, nature, contact_no, payee_type) VALUES (?, ?, ?, ?, ?, ?,?)";
+        $insert_sql = "INSERT INTO payee (payee_name, bank_acc_no, tin_no, address, nature, contact_no, payee_type) VALUES (?, ?, ?, ?, ?, ?, ?)";
         $stmt = $connection->prepare($insert_sql);
 
-        // Check if the prepare statement for the insert query was successful
         if ($stmt === false) {
-            echo "Error preparing the statement: " . $connection->error;
+            $alert = "<script>alert('Error preparing the statement: " . $connection->error . "');</script>";
         } else {
             $stmt->bind_param("sssssss", $payee_name, $bank_acc_no, $tin_no, $address, $nature, $contact_no, $payee_type);
-
             if ($stmt->execute()) {
-                header('Location: payee.php');
+                $alert = "
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: 'Payee has been added successfully.',
+                                confirmButtonColor: '#3085d6'
+                            }).then(() => {
+                                window.location.href = 'payee.php';
+                            });
+                        });
+                    </script>
+                ";
             } else {
-                echo "Error: " . $stmt->error;
+                $alert = "<script>alert('Error: " . $stmt->error . "');</script>";
             }
-            $stmt->close(); // Close the statement after execution
+            $stmt->close();
         }
     }
 
-    // Close the check statement
     $check_stmt->close();
 }
 
 // retrieve payee
 
 $select = mysqli_query($connection, "SELECT * FROM payee");
-
 ?>
 
 <!DOCTYPE html>
@@ -79,6 +97,80 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
     <link rel="stylesheet" href="css/UACS.css">
     <link rel="stylesheet" href="css/table.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+    <style>
+        .expandable-row {
+            background-color: #f8f9fa;
+        }
+
+        .expandable-row .card-body {
+            padding: 1rem;
+        }
+
+        .expand-row:focus {
+            box-shadow: none;
+        }
+
+        .expand-row {
+            padding: 0.25rem 0.5rem;
+        }
+
+        .modal-content {
+            border-radius: 0.5rem;
+        }
+
+        .modal-header {
+            border-radius: 0.5rem 0.5rem 0 0;
+        }
+
+        .form-floating>.form-control:focus~label,
+        .form-floating>.form-control:not(:placeholder-shown)~label {
+            color: #0d6efd;
+        }
+
+        .form-floating>.form-control:focus,
+        .form-floating>.form-control:not(:placeholder-shown) {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+
+        .form-select:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+
+        .btn-close-white {
+            opacity: 0.8;
+        }
+
+        .btn-close-white:hover {
+            opacity: 1;
+        }
+
+        .modal-footer {
+            background-color: #f8f9fa;
+        }
+
+        .expandable-row .card {
+            border: 1px solid #0d6efd;
+            border-radius: 0.375rem;
+            margin: 0.5rem 0;
+            box-shadow: 0 0.125rem 0.25rem rgba(13, 110, 253, 0.1);
+        }
+
+        .expandable-row .card-body {
+            background-color: #f0f7ff;
+            border-radius: 0.375rem;
+        }
+
+        .expandable-row .card-body strong {
+            color: #0d6efd;
+        }
+    </style>
+
 </head>
 
 <body>
@@ -312,33 +404,32 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                             </div>
                             <div class="col-md-6">
                                 <div class="form-floating mb-3">
-                                    <input type="text" class="form-control" id="edit_bank_acc_no" name="bank_acc_no"
-                                        required>
+                                    <input type="text" class="form-control" id="edit_bank_acc_no" name="bank_acc_no">
                                     <label for="edit_bank_acc_no">Bank Account No.</label>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-floating mb-3">
-                                    <input type="text" class="form-control" id="edit_tin_no" name="tin_no" required>
+                                    <input type="text" class="form-control" id="edit_tin_no" name="tin_no">
                                     <label for="edit_tin_no">TIN/Employee No.</label>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-floating mb-3">
-                                    <input type="text" class="form-control" id="edit_address" name="address" required>
+                                    <input type="text" class="form-control" id="edit_address" name="address">
                                     <label for="edit_address">Address</label>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-floating mb-3">
-                                    <input type="text" class="form-control" id="edit_nature" name="nature" required>
+                                    <input type="text" class="form-control" id="edit_nature" name="nature">
                                     <label for="edit_nature">Nature of Business</label>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-floating mb-3">
                                     <input type="text" class="form-control" id="edit_contact_no" name="contact_no"
-                                        required maxlength="13" autocomplete="off" placeholder="Enter Contact Number">
+                                        maxlength="13" autocomplete="off" placeholder="Enter Contact Number">
                                     <label for="edit_contact_no">Contact Number</label>
                                     <span id="editErrorMsg" class="text-danger small" style="display: none;">Please
                                         enter numbers only</span>
@@ -386,6 +477,9 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
     <!-- Template Main JS File -->
     <script src="../NiceAdmin/assets/js/main.js"></script>
 
+    <?php echo $alert; ?>
+
+
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const editButtons = document.querySelectorAll(".edit-btn");
@@ -424,13 +518,27 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
         });
     </script>
 
+    <!-- delete confirmation -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         function deleteUser(userID) {
-            if (confirm("Are you sure you want to delete this user?")) {
-                window.location.href = 'delete_payee.php?payee_id=' + userID + '&confirm=yes';
-            }
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This action cannot be undone.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = 'delete_payee.php?payee_id=' + userID + '&confirm=yes';
+                }
+            });
         }
     </script>
+
 
     <script>
         function clearForm() {
@@ -477,75 +585,32 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
         document.getElementById("edit_payee_type").value = payee_type;
     </script>
 
-    <style>
-        .expandable-row {
-            background-color: #f8f9fa;
-        }
+    <!-- alert for delete -->
+    <?php if (isset($_GET['deleted'])): ?>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            Swal.fire({
+                icon: '<?php echo $_GET["deleted"] === "success" ? "success" : "error"; ?>',
+                title: '<?php echo $_GET["deleted"] === "success" ? "Deleted!" : "Error!"; ?>',
+                text: '<?php echo $_GET["deleted"] === "success" ? "Payee has been deleted successfully." : "There was a problem deleting the payee."; ?>',
+                confirmButtonColor: '#3085d6'
+            });
+        </script>
+    <?php endif; ?>
 
-        .expandable-row .card-body {
-            padding: 1rem;
-        }
+    <!-- alert for update -->
+    <?php if (isset($_GET['updated'])): ?>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            Swal.fire({
+                icon: '<?php echo $_GET["updated"] === "success" ? "success" : "error"; ?>',
+                title: '<?php echo $_GET["updated"] === "success" ? "Updated!" : "Error!"; ?>',
+                text: '<?php echo $_GET["updated"] === "success" ? "Payee has been updated successfully." : "There was a problem updating the payee."; ?>',
+                confirmButtonColor: '#3085d6'
+            });
+        </script>
+    <?php endif; ?>
 
-        .expand-row:focus {
-            box-shadow: none;
-        }
-
-        .expand-row {
-            padding: 0.25rem 0.5rem;
-        }
-
-        .modal-content {
-            border-radius: 0.5rem;
-        }
-
-        .modal-header {
-            border-radius: 0.5rem 0.5rem 0 0;
-        }
-
-        .form-floating>.form-control:focus~label,
-        .form-floating>.form-control:not(:placeholder-shown)~label {
-            color: #0d6efd;
-        }
-
-        .form-floating>.form-control:focus,
-        .form-floating>.form-control:not(:placeholder-shown) {
-            border-color: #0d6efd;
-            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-        }
-
-        .form-select:focus {
-            border-color: #0d6efd;
-            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-        }
-
-        .btn-close-white {
-            opacity: 0.8;
-        }
-
-        .btn-close-white:hover {
-            opacity: 1;
-        }
-
-        .modal-footer {
-            background-color: #f8f9fa;
-        }
-
-        .expandable-row .card {
-            border: 1px solid #0d6efd;
-            border-radius: 0.375rem;
-            margin: 0.5rem 0;
-            box-shadow: 0 0.125rem 0.25rem rgba(13, 110, 253, 0.1);
-        }
-
-        .expandable-row .card-body {
-            background-color: #f0f7ff;
-            border-radius: 0.375rem;
-        }
-
-        .expandable-row .card-body strong {
-            color: #0d6efd;
-        }
-    </style>
 
 </body>
 
