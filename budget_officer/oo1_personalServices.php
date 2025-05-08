@@ -103,7 +103,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     <meta content="" name="description">
     <meta content="" name="keywords">
 
-    <link href="../NiceAdmin/assets/img/favicon.png" rel="icon">
+    <link href="img/dti_logo.png" rel="icon">
     <link href="../NiceAdmin/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
     <link href="https://fonts.gstatic.com" rel="preconnect">
