@@ -4,34 +4,68 @@ if (isset($_POST['submit'])) {
     $account_title = $_POST['account_title'];
     $account_code = $_POST['account_code'];
 
-    // Check for duplicates
-    // $check_duplicate = mysqli_query($connection, "SELECT * FROM account_title WHERE account_title = '$account_title' OR account_code = '$account_code'");
+    $check_sql = "SELECT COUNT(*) FROM account_title WHERE account_title = ? OR account_code = ?";
+    $check_stmt = $connection->prepare($check_sql);
+    $check_stmt->bind_param("ss", $account_title, $account_code);
+    $check_stmt->execute();
+    $check_stmt->store_result();
+    $check_stmt->bind_result($count);
+    $check_stmt->fetch();
 
-    // if (mysqli_num_rows($check_duplicate) > 0) {
-    //     echo "<script>
-    //         alert('Error: Account Title or Account Code already exists!');
-    //         window.location.href='account_title.php';
-    //     </script>";
-    // } else {
-    $sql = "INSERT INTO account_title (account_title, account_code) VALUES (?, ?)";
-    $stmt = $connection->prepare($sql);
-    $stmt->bind_param("si", $account_title, $account_code);
 
-    if ($stmt->execute()) {
-        header('Location: account_title.php');
+    if ($count > 0) {
+        $alert = "
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Duplicate Payee',
+                        text: 'Account Title already exists!',
+                        confirmButtonColor: '#d33'
+                    });
+                });
+            </script>
+        ";
     } else {
-        echo "Error: " . $stmt->error;
+        $insert_sql = "INSERT INTO account_title (account_title, account_code) VALUES (?, ?)";
+        $stmt = $connection->prepare($insert_sql);
+
+        if ($stmt === false) {
+            $alert = "<script>alert('Error preparing the statement: " . $connection->error . "');</script>";
+        } else {
+            $stmt->bind_param("ss", $account_title, $account_code);
+            if ($stmt->execute()) {
+                $alert = "
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: 'Account Title has been added successfully.',
+                                confirmButtonColor: '#3085d6'
+                            }).then(() => {
+                                window.location.href = 'account_title.php';
+                            });
+                        });
+                    </script>
+                ";
+            } else {
+                $alert = "<script>alert('Error: " . $stmt->error . "');</script>";
+            }
+            $stmt->close();
+        }
     }
+    $check_stmt->close();
 
 }
-    $search = isset($_GET['search']) ? $_GET['search'] : '';
-    $where = '';
-    if (!empty($search)) {
-        $search = mysqli_real_escape_string($connection, $search);
-        $where = "WHERE account_title LIKE '%$search%' OR account_code LIKE '%$search%'";
-    }
+$search = isset($_GET['search']) ? $_GET['search'] : '';
+$where = '';
+if (!empty($search)) {
+    $search = mysqli_real_escape_string($connection, $search);
+    $where = "WHERE account_title LIKE '%$search%' OR account_code LIKE '%$search%'";
+}
 
-    $select = mysqli_query($connection, "SELECT * FROM account_title $where ORDER BY CAST(account_code AS UNSIGNED)");
+$select = mysqli_query($connection, "SELECT * FROM account_title $where ORDER BY CAST(account_code AS UNSIGNED)");
 ?>
 
 
@@ -49,7 +83,9 @@ if (isset($_POST['submit'])) {
     <link href="../NiceAdmin/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
     <link href="https://fonts.gstatic.com" rel="preconnect">
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+        rel="stylesheet">
 
     <link href="../NiceAdmin/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
@@ -63,9 +99,9 @@ if (isset($_POST['submit'])) {
 
     <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet"
         type="text/css">
-        <link rel="stylesheet" href="css/UACS.css">
-        <link rel="stylesheet" href="css/table.css">
-       
+    <link rel="stylesheet" href="css/UACS.css">
+    <link rel="stylesheet" href="css/table.css">
+
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -231,6 +267,9 @@ if (isset($_POST['submit'])) {
     <script src="../NiceAdmin/assets/vendor/tinymce/tinymce.min.js"></script>
     <script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
     <script src="../NiceAdmin/assets/js/main.js"></script>
+
+    <?php echo $alert; ?>
+
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             try {
@@ -264,7 +303,7 @@ if (isset($_POST['submit'])) {
     </script>
 
     <script>
-     
+
         function clearForm() {
             document.getElementById('addUserForm').reset();
         }
@@ -334,6 +373,32 @@ if (isset($_POST['submit'])) {
             })
         }
     </script>
+
+    <!-- alert for delete -->
+    <?php if (isset($_GET['deleted'])): ?>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            Swal.fire({
+                icon: '<?php echo $_GET["deleted"] === "success" ? "success" : "error"; ?>',
+                title: '<?php echo $_GET["deleted"] === "success" ? "Deleted!" : "Error!"; ?>',
+                text: '<?php echo $_GET["deleted"] === "success" ? "Account Title has been deleted successfully." : "There was a problem deleting the payee."; ?>',
+                confirmButtonColor: '#3085d6'
+            });
+        </script>
+    <?php endif; ?>
+
+    <!-- alert for update -->
+    <?php if (isset($_GET['updated'])): ?>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            Swal.fire({
+                icon: '<?php echo $_GET["updated"] === "success" ? "success" : "error"; ?>',
+                title: '<?php echo $_GET["updated"] === "success" ? "Updated!" : "Error!"; ?>',
+                text: '<?php echo $_GET["updated"] === "success" ? "Payee has been updated successfully." : "There was a problem updating the payee."; ?>',
+                confirmButtonColor: '#3085d6'
+            });
+        </script>
+    <?php endif; ?>
 
 </body>
 

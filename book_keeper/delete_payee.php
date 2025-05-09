@@ -13,7 +13,7 @@ if (isset($_GET['payee_id']) && $_GET['confirm'] == 'yes') {
     // Execute both deletion queries
     if ($stmtUser->execute()) {
         // Redirect to the manage members page after successful deletion
-        header('Location: payee.php');
+        header('Location: payee.php?deleted=success');
         exit();
     } else {
         // Handle error if either query fails

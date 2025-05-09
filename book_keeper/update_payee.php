@@ -16,7 +16,8 @@ if (isset($_POST['update'])) {
     $stmt->bind_param("sssssssi", $payee_name, $tin_no, $bank_acc_no, $address, $nature, $contact_no, $payee_type, $payee_id);
 
     if ($stmt->execute()) {
-        header('Location: payee.php');
+        header('Location: payee.php?updated=success');
+
     } else {
         echo "Error: " . $stmt->error;
     }

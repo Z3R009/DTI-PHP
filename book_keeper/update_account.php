@@ -11,7 +11,8 @@ if (isset($_POST['update'])) {
     $stmt->bind_param("ssi", $account_title, $account_code, $account_id);
 
     if ($stmt->execute()) {
-        header('Location: account_title.php');
+        header('Location: account_title.php?updated=success');
+
     } else {
         echo "Error: " . $stmt->error;
     }
