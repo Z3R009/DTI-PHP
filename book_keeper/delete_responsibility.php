@@ -13,7 +13,7 @@ if (isset($_GET['rc_id']) && $_GET['confirm'] == 'yes') {
     // Execute both deletion queries
     if ($stmtUser->execute()) {
         // Redirect to the manage members page after successful deletion
-        header('Location: responsibility.php');
+        header('Location: responsibility.php?deleted=success');
         exit();
     } else {
         // Handle error if either query fails

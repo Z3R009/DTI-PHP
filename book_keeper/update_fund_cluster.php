@@ -12,7 +12,7 @@ if (isset($_POST['update'])) {
     $stmt->bind_param("sisi", $fund_cluster_name, $uacs_code, $status, $fund_cluster_id);
 
     if ($stmt->execute()) {
-        header('Location: fund_cluster.php');
+        header('Location: fund_cluster.php?updated=success');
     } else {
         echo "Error: " . $stmt->error;
     }

@@ -19,7 +19,7 @@ if (isset($_POST['submit'])) {
                 document.addEventListener('DOMContentLoaded', function() {
                     Swal.fire({
                         icon: 'error',
-                        title: 'Duplicate Payee',
+                        title: 'Duplicate Account Title',
                         text: 'Account Title already exists!',
                         confirmButtonColor: '#d33'
                     });

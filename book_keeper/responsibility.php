@@ -2,6 +2,7 @@
 
 include '../DBConnection.php';
 
+$alert = "";
 
 if (isset($_POST['submit'])) {
     $code = $_POST['code'];
@@ -10,15 +11,58 @@ if (isset($_POST['submit'])) {
     $acronym = $_POST['acronym'];
     $description = $_POST['description'];
 
-    $sql = "INSERT INTO responsibility_center (code, parent_code, type, acronym, description) VALUES (?, ?, ?, ?, ?)";
-    $stmt = $connection->prepare($sql);
-    $stmt->bind_param("sssss", $code, $parent_code, $type, $acronym, $description);
+    $check_sql = "SELECT COUNT(*) FROM responsibility_center WHERE code = ?";
+    $check_stmt = $connection->prepare($check_sql);
+    $check_stmt->bind_param("s", $code);
+    $check_stmt->execute();
+    $check_stmt->store_result();
+    $check_stmt->bind_result($count);
+    $check_stmt->fetch();
 
-    if ($stmt->execute()) {
-        header('Location: responsibility.php');
+    if ($count > 0) {
+        $alert = "
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Duplicate Responsibility Center',
+                        text: 'Responsibility Center already exists!',
+                        confirmButtonColor: '#d33'
+                    });
+                });
+            </script>
+        ";
     } else {
-        echo "Error: " . $stmt->error;
+        $insert_sql = "INSERT INTO responsibility_center (code, parent_code, type, acronym, description) VALUES (?, ?, ?, ?, ?)";
+        $stmt = $connection->prepare($insert_sql);
+
+        if ($stmt === false) {
+            $alert = "<script>alert('Error preparing the statement: " . $connection->error . "');</script>";
+        } else {
+            $stmt->bind_param("sssss", $code, $parent_code, $type, $acronym, $description);
+            if ($stmt->execute()) {
+                $alert = "
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: 'Responsibility Center has been added successfully.',
+                                confirmButtonColor: '#3085d6'
+                            }).then(() => {
+                                window.location.href = 'responsibility.php';
+                            });
+                        });
+                    </script>
+                ";
+            } else {
+                $alert = "<script>alert('Error: " . $stmt->error . "');</script>";
+            }
+            $stmt->close();
+        }
     }
+
+    $check_stmt->close();
 }
 
 $select = mysqli_query($connection, "SELECT * FROM responsibility_center");
@@ -39,7 +83,9 @@ $select = mysqli_query($connection, "SELECT * FROM responsibility_center");
     <link href="img/dti_logo.png" rel="icon">
     <link href="../NiceAdmin/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
     <link href="https://fonts.gstatic.com" rel="preconnect">
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+        rel="stylesheet">
 
     <link href="../NiceAdmin/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
@@ -51,13 +97,15 @@ $select = mysqli_query($connection, "SELECT * FROM responsibility_center");
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
     <link rel="stylesheet" href="css/UACS.css">
     <link rel="stylesheet" href="css/table.css">
-  
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </head>
 
 <body>
 
-    <?php include "Includes/header.php";?>
-    <?php include "Includes/sidebar.php";?>
+    <?php include "Includes/header.php"; ?>
+    <?php include "Includes/sidebar.php"; ?>
 
     <main id="main" class="main">
         <div class="pagetitle">
@@ -75,50 +123,53 @@ $select = mysqli_query($connection, "SELECT * FROM responsibility_center");
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h5 class="card-title mb-0">Responsibility Centers List</h5>
-                        <button type="button" class="btn btn-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                        <button type="button" class="btn btn-primary rounded-pill" data-bs-toggle="modal"
+                            data-bs-target="#addUserModal">
                             <i class="bi bi-plus-circle me-1"></i> Add Responsibility Center
                         </button>
                     </div>
 
                     <!-- Modal for Add User Form -->
-                    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+                    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel"
+                        aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content border-0 shadow">
-                            <div class="modal-header border-0 pb-0 mb-3">
+                            <div class="modal-content border-0 shadow">
+                                <div class="modal-header border-0 pb-0 mb-3">
                                     <h5 class="modal-title fw-bold" id="addUserModalLabel">Add New Account Title</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body pt-0">
                                     <form method="post" id="addCluster" class="needs-validation" novalidate>
                                         <div class="mb-3">
                                             <label for="code" class="form-label">Code</label>
-                                            <input type="text" class="form-control " id="code" name="code" 
+                                            <input type="text" class="form-control " id="code" name="code"
                                                 placeholder="Enter Code" required autocomplete="off">
                                             <div class="invalid-feedback">Please enter a code.</div>
                                         </div>
                                         <div class="mb-3">
                                             <label for="parent_code" class="form-label">Parent Code</label>
-                                            <input type="text" class="form-control " id="parent_code" 
-                                                name="parent_code" placeholder="Enter Parent Code" required autocomplete="off">
+                                            <input type="text" class="form-control " id="parent_code" name="parent_code"
+                                                placeholder="Enter Parent Code" required autocomplete="off">
                                             <div class="invalid-feedback">Please enter a parent code.</div>
                                         </div>
                                         <div class="mb-3">
                                             <label for="type" class="form-label">Type</label>
-                                            <input type="text" class="form-control" id="type" name="type" 
+                                            <input type="text" class="form-control" id="type" name="type"
                                                 placeholder="Enter Type" required autocomplete="off">
                                             <div class="invalid-feedback">Please enter a type.</div>
                                         </div>
                                         <div class="mb-3">
                                             <label for="acronym" class="form-label">Acronym</label>
-                                            <input type="text" class="form-control " id="acronym" name="acronym" 
+                                            <input type="text" class="form-control " id="acronym" name="acronym"
                                                 placeholder="Enter Acronym" required autocomplete="off">
                                             <div class="invalid-feedback">Please enter an acronym.</div>
                                         </div>
                                         <div class="mb-3">
                                             <label for="description" class="form-label">Description</label>
-                                            <input type="text" class="form-control" id="description" 
-                                                name="description" placeholder="Enter Description" required autocomplete="off">
-                                                <div class="invalid-feedback">Please enter an account code.</div>
+                                            <input type="text" class="form-control" id="description" name="description"
+                                                placeholder="Enter Description" required autocomplete="off">
+                                            <div class="invalid-feedback">Please enter an account code.</div>
                                         </div>
                                         <div class="modal-footer border-0 pt-0">
                                             <button type="button" class="btn btn-light" onclick="clearForm()">
@@ -157,19 +208,21 @@ $select = mysqli_query($connection, "SELECT * FROM responsibility_center");
                                         <td><?php echo htmlspecialchars($row['description']); ?></td>
                                         <td class="text-end">
                                             <div class="btn-group" role="group">
-                                                <button type="button" class="btn btn-sm btn-outline-primary edit-btn" 
-                                                    data-bs-toggle="modal" data-bs-target="#editUserModal" 
+                                                <button type="button" class="btn btn-sm btn-outline-primary edit-btn"
+                                                    data-bs-toggle="modal" data-bs-target="#editUserModal"
                                                     data-id="<?php echo $row['rc_id']; ?>"
                                                     data-code="<?php echo htmlspecialchars($row['code']); ?>"
                                                     data-parent_code="<?php echo htmlspecialchars($row['parent_code']); ?>"
                                                     data-type="<?php echo htmlspecialchars($row['type']); ?>"
                                                     data-acronym="<?php echo htmlspecialchars($row['acronym']); ?>"
                                                     data-description="<?php echo htmlspecialchars($row['description']); ?>">
-                                                    <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"></i>
+                                                    <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top"
+                                                        title="Edit"></i>
                                                 </button>
-                                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                <button type="button" class="btn btn-sm btn-outline-danger"
                                                     onclick="deleteUser(<?php echo $row['rc_id']; ?>)">
-                                                    <i class="bi bi-trash" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"></i>
+                                                    <i class="bi bi-trash" data-bs-toggle="tooltip" data-bs-placement="top"
+                                                        title="Delete"></i>
                                                 </button>
                                             </div>
                                         </td>
@@ -185,14 +238,16 @@ $select = mysqli_query($connection, "SELECT * FROM responsibility_center");
 
     <!-- Edit Modal -->
     <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header border-0 pb-0">
                     <h5 class="modal-title" id="editUserModalLabel">Edit Responsibility Center</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <div class="modal-body pt-0">
-                    <form method="post" id="editUserForm" action="update_responsibility.php" class="needs-validation" novalidate>
+                    <form method="post" id="editUserForm" action="update_responsibility.php" class="needs-validation"
+                        novalidate>
                         <input type="hidden" id="edit_rc_id" name="rc_id">
                         <div class="mb-3">
                             <label for="edit_code" class="form-label">Code</label>
@@ -249,6 +304,44 @@ $select = mysqli_query($connection, "SELECT * FROM responsibility_center");
     <!-- Template Main JS File -->
     <script src="../NiceAdmin/assets/js/main.js"></script>
 
+    <?php echo $alert; ?>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const editButtons = document.querySelectorAll(".edit-btn");
+
+            editButtons.forEach(button => {
+                button.addEventListener("click", function () {
+                    const id = this.getAttribute("data-id");
+                    const code = this.getAttribute("data-code");
+                    const parent_code = this.getAttribute("data-parent_code");
+                    const type = this.getAttribute("data-type");
+                    const acronym = this.getAttribute("data-acronym");
+                    const description = this.getAttribute("data-description");
+
+                    document.getElementById("edit_rc_id").value = id;
+                    document.getElementById("edit_code").value = code;
+                    document.getElementById("edit_parent_code").value = parent_code;
+                    document.getElementById("edit_type").value = type;
+                    document.getElementById("edit_acronym").value = acronym;
+                    document.getElementById("edit_description").value = description;
+                });
+            });
+
+            const expandButtons = document.querySelectorAll('.expand-row');
+            expandButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const icon = this.querySelector('i');
+                    if (icon.classList.contains('bi-chevron-down')) {
+                        icon.classList.replace('bi-chevron-down', 'bi-chevron-up');
+                    } else {
+                        icon.classList.replace('bi-chevron-up', 'bi-chevron-down');
+                    }
+                });
+            });
+        });
+    </script>
+
     <script>
         // Form validation
         (function () {
@@ -268,20 +361,48 @@ $select = mysqli_query($connection, "SELECT * FROM responsibility_center");
         // Enhanced delete confirmation
         function deleteUser(userID) {
             Swal.fire({
-                title: 'Are you sure?',
+                title: 'Delete Account Title?',
                 text: "This action cannot be undone!",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, delete it!'
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel',
+                reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = 'delete_responsibility.php?id=' + userID;
+                    window.location.href = 'delete_responsibility.php?rc_id=' + userID + '&confirm=yes';
                 }
             })
         }
     </script>
+
+    <!-- alert for delete -->
+    <?php if (isset($_GET['deleted'])): ?>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            Swal.fire({
+                icon: '<?php echo $_GET["deleted"] === "success" ? "success" : "error"; ?>',
+                title: '<?php echo $_GET["deleted"] === "success" ? "Deleted!" : "Error!"; ?>',
+                text: '<?php echo $_GET["deleted"] === "success" ? "Responsibilitity Center has been deleted successfully." : "There was a problem deleting the payee."; ?>',
+                confirmButtonColor: '#3085d6'
+            });
+        </script>
+    <?php endif; ?>
+
+    <!-- alert for update -->
+    <?php if (isset($_GET['updated'])): ?>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            Swal.fire({
+                icon: '<?php echo $_GET["updated"] === "success" ? "success" : "error"; ?>',
+                title: '<?php echo $_GET["updated"] === "success" ? "Updated!" : "Error!"; ?>',
+                text: '<?php echo $_GET["updated"] === "success" ? "Responsibilitity Center has been updated successfully." : "There was a problem updating the payee."; ?>',
+                confirmButtonColor: '#3085d6'
+            });
+        </script>
+    <?php endif; ?>
 
 </body>
 

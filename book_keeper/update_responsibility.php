@@ -14,7 +14,7 @@ if (isset($_POST['update'])) {
     $stmt->bind_param("sssssi", $code, $parent_code, $type, $acronym, $description, $rc_id);
 
     if ($stmt->execute()) {
-        header('Location: responsibility.php');
+        header('Location: responsibility.php?updated=success');
     } else {
         echo "Error: " . $stmt->error;
     }

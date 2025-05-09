@@ -2,6 +2,7 @@
 
 include '../DBConnection.php';
 
+$alert = "";
 
 if (isset($_POST['submit'])) {
     $fund_cluster_name = $_POST['fund_cluster_name'];
@@ -9,15 +10,57 @@ if (isset($_POST['submit'])) {
     $status = $_POST['status'];
 
 
-    $sql = "INSERT INTO fund_cluster (fund_cluster_name, uacs_code, status) VALUES (?, ?, ?)";
-    $stmt = $connection->prepare($sql);
-    $stmt->bind_param("sss", $fund_cluster_name, $uacs_code, $status);
+    $check_sql = "SELECT COUNT(*) FROM fund_cluster WHERE fund_cluster_name = ?";
+    $check_stmt = $connection->prepare($check_sql);
+    $check_stmt->bind_param("s", $fund_cluster_name);
+    $check_stmt->execute();
+    $check_stmt->store_result();
+    $check_stmt->bind_result($count);
+    $check_stmt->fetch();
 
-    if ($stmt->execute()) {
-        header('Location: fund_cluster.php');
+    if ($count > 0) {
+        $alert = "
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Duplicate Fund Cluster',
+                        text: 'Fund Cluster already exists!',
+                        confirmButtonColor: '#d33'
+                    });
+                });
+            </script>
+        ";
     } else {
-        echo "Error: " . $stmt->error;
+        $insert_sql = "INSERT INTO fund_cluster (fund_cluster_name, uacs_code, status) VALUES (?, ?, ?)";
+        $stmt = $connection->prepare($insert_sql);
+
+        if ($stmt === false) {
+            $alert = "<script>alert('Error preparing the statement: " . $connection->error . "');</script>";
+        } else {
+            $stmt->bind_param("sss", $fund_cluster_name, $uacs_code, $status);
+            if ($stmt->execute()) {
+                $alert = "
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: 'Fund Cluster has been added successfully.',
+                                confirmButtonColor: '#3085d6'
+                            }).then(() => {
+                                window.location.href = 'fund_cluster.php';
+                            });
+                        });
+                    </script>
+                ";
+            } else {
+                $alert = "<script>alert('Error: " . $stmt->error . "');</script>";
+            }
+            $stmt->close();
+        }
     }
+    $check_stmt->close();
 }
 
 
@@ -40,7 +83,9 @@ $select = mysqli_query($connection, "SELECT * FROM fund_cluster ");
     <link href="../NiceAdmin/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
     <link href="https://fonts.gstatic.com" rel="preconnect">
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"  rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+        rel="stylesheet">
 
     <link href="../NiceAdmin/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
@@ -53,6 +98,8 @@ $select = mysqli_query($connection, "SELECT * FROM fund_cluster ");
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
     <link rel="stylesheet" href="css/UACS.css">
     <link rel="stylesheet" href="css/table.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 </head>
 
@@ -78,31 +125,35 @@ $select = mysqli_query($connection, "SELECT * FROM fund_cluster ");
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h5 class="card-title mb-0">Fund Clusters List</h5>
-                        <button type="button" class="btn btn-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                        <button type="button" class="btn btn-primary rounded-pill" data-bs-toggle="modal"
+                            data-bs-target="#addUserModal">
                             <i class="bi bi-plus-circle me-1"></i> Add Fund Cluster
                         </button>
                     </div>
 
                     <!-- Modal for Add User Form -->
-                    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content border-0 shadow">
-                        <div class="modal-header border-0 pb-0">
+                    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content border-0 shadow">
+                                <div class="modal-header border-0 pb-0">
                                     <h5 class="modal-title" id="addUserModalLabel">Add New Fund Cluster</h5>
-                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body pt-0">
                                     <form method="post" id="addCluster" class="needs-validation" novalidate>
                                         <div class="mb-3">
                                             <label for="fund_cluster_name" class="form-label">Fund Cluster Name</label>
-                                            <input type="text" class="form-control" id="fund_cluster_name" 
-                                                name="fund_cluster_name" placeholder="Enter Fund Cluster Name" required autocomplete="off">
+                                            <input type="text" class="form-control" id="fund_cluster_name"
+                                                name="fund_cluster_name" placeholder="Enter Fund Cluster Name" required
+                                                autocomplete="off">
                                             <div class="invalid-feedback">Please enter a fund cluster name.</div>
                                         </div>
                                         <div class="mb-4">
                                             <label for="uacs_code" class="form-label">UACS Code</label>
-                                            <input type="text" class="form-control" id="uacs_code" 
-                                                name="uacs_code" placeholder="Enter UACS Code" required autocomplete="off">
+                                            <input type="text" class="form-control" id="uacs_code" name="uacs_code"
+                                                placeholder="Enter UACS Code" required autocomplete="off">
                                             <div class="invalid-feedback">Please enter a UACS code.</div>
                                         </div>
                                         <div class="mb-4">
@@ -145,23 +196,26 @@ $select = mysqli_query($connection, "SELECT * FROM fund_cluster ");
                                         <td><?php echo htmlspecialchars($row['fund_cluster_name']); ?></td>
                                         <td><?php echo htmlspecialchars($row['uacs_code']); ?></td>
                                         <td>
-                                            <span class="badge bg-<?php echo $row['status'] === 'Active' ? 'success' : 'danger'; ?>">
+                                            <span
+                                                class="badge bg-<?php echo $row['status'] === 'Active' ? 'success' : 'danger'; ?>">
                                                 <?php echo htmlspecialchars($row['status']); ?>
                                             </span>
                                         </td>
                                         <td class="text-end">
                                             <div class="btn-group" role="group">
-                                                <button type="button" class="btn btn-sm btn-outline-primary edit-btn" 
-                                                    data-bs-toggle="modal" data-bs-target="#editModal" 
+                                                <button type="button" class="btn btn-sm btn-outline-primary edit-btn"
+                                                    data-bs-toggle="modal" data-bs-target="#editModal"
                                                     data-id="<?php echo $row['fund_cluster_id']; ?>"
                                                     data-name="<?php echo htmlspecialchars($row['fund_cluster_name']); ?>"
                                                     data-uacs="<?php echo htmlspecialchars($row['uacs_code']); ?>"
                                                     data-status="<?php echo htmlspecialchars($row['status']); ?>">
-                                                    <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"></i>
+                                                    <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top"
+                                                        title="Edit"></i>
                                                 </button>
-                                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                <button type="button" class="btn btn-sm btn-outline-danger"
                                                     onclick="deleteUser(<?php echo $row['fund_cluster_id']; ?>)">
-                                                    <i class="bi bi-trash" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"></i>
+                                                    <i class="bi bi-trash" data-bs-toggle="tooltip" data-bs-placement="top"
+                                                        title="Delete"></i>
                                                 </button>
                                             </div>
                                         </td>
@@ -181,21 +235,22 @@ $select = mysqli_query($connection, "SELECT * FROM fund_cluster ");
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="editModalLabel">Edit Fund Cluster</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form method="post" id="editUserForm" action="update_fund_cluster.php" class="needs-validation" novalidate>
+                    <form method="post" id="editUserForm" action="update_fund_cluster.php" class="needs-validation"
+                        novalidate>
                         <input type="hidden" id="edit_fund_cluster_id" name="fund_cluster_id">
                         <div class="mb-4">
                             <label for="edit_fund_cluster_name" class="form-label">Fund Cluster Name</label>
-                            <input type="text" class="form-control" id="edit_fund_cluster_name" 
-                                name="fund_cluster_name" required>
+                            <input type="text" class="form-control" id="edit_fund_cluster_name" name="fund_cluster_name"
+                                required>
                             <div class="invalid-feedback">Please enter a fund cluster name.</div>
                         </div>
                         <div class="mb-4">
                             <label for="edit_uacs_code" class="form-label">UACS Code</label>
-                            <input type="text" class="form-control " id="edit_uacs_code" 
-                                name="uacs_code" required>
+                            <input type="text" class="form-control " id="edit_uacs_code" name="uacs_code" required>
                             <div class="invalid-feedback">Please enter a UACS code.</div>
                         </div>
                         <div class="mb-4">
@@ -234,6 +289,8 @@ $select = mysqli_query($connection, "SELECT * FROM fund_cluster ");
     <script src="../NiceAdmin/assets/vendor/tinymce/tinymce.min.js"></script>
     <script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
 
+    <?php echo $alert; ?>
+
     <!-- Template Main JS File -->
     <script src="../NiceAdmin/assets/js/main.js"></script>
 
@@ -267,14 +324,6 @@ $select = mysqli_query($connection, "SELECT * FROM fund_cluster ");
         });
     </script>
 
-    <!-- delete -->
-    <script>
-        function deleteUser(fundClusterID) {
-            if (confirm("Are you sure you want to delete this Fund Cluster?")) {
-                window.location.href = 'delete_fund_cluster.php?fund_cluster_id=' + fundClusterID + '&confirm=yes';
-            }
-        }
-    </script>
 
 
     <script>
@@ -307,20 +356,49 @@ $select = mysqli_query($connection, "SELECT * FROM fund_cluster ");
         // Enhanced delete confirmation
         function deleteUser(userID) {
             Swal.fire({
-                title: 'Are you sure?',
+                title: 'Delete Fund Cluster?',
                 text: "This action cannot be undone!",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, delete it!'
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel',
+                reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = 'delete_fund_cluster.php?id=' + userID;
+                    window.location.href = 'delete_fund_cluster.php?fund_cluster_id=' + userID + '&confirm=yes';
                 }
             })
         }
     </script>
+
+    <!-- alert for delete -->
+    <?php if (isset($_GET['deleted'])): ?>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            Swal.fire({
+                icon: '<?php echo $_GET["deleted"] === "success" ? "success" : "error"; ?>',
+                title: '<?php echo $_GET["deleted"] === "success" ? "Deleted!" : "Error!"; ?>',
+                text: '<?php echo $_GET["deleted"] === "success" ? "Fund Cluster has been deleted successfully." : "There was a problem deleting the payee."; ?>',
+                confirmButtonColor: '#3085d6'
+            });
+        </script>
+    <?php endif; ?>
+
+    <!-- alert for update -->
+    <?php if (isset($_GET['updated'])): ?>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            Swal.fire({
+                icon: '<?php echo $_GET["updated"] === "success" ? "success" : "error"; ?>',
+                title: '<?php echo $_GET["updated"] === "success" ? "Updated!" : "Error!"; ?>',
+                text: '<?php echo $_GET["updated"] === "success" ? "Fund Cluster has been updated successfully." : "There was a problem updating the payee."; ?>',
+                confirmButtonColor: '#3085d6'
+            });
+        </script>
+    <?php endif; ?>
+
 
 </body>
 
