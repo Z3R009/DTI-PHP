@@ -102,7 +102,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
     <meta content="" name="description">
     <meta content="" name="keywords">
 
-    <link href="img/dti_logo.png" rel="icon">
+    <link href="/img/dti_logo.png" rel="icon">
     <link href="../NiceAdmin/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
     <link href="https://fonts.gstatic.com" rel="preconnect">
@@ -538,6 +538,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
             }
         });
     </script>
+
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const editButtons = document.querySelectorAll(".edit-btn");
@@ -571,6 +572,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
             });
         });
     </script>
+
     <script>
         function deleteUser(gasID) {
             Swal.fire({
@@ -625,6 +627,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
             return false;
         }
     </script>
+
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -633,12 +636,14 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
             });
         });
     </script>
+
     <script>
         function updateBalances() {
             var allotmentValue = document.getElementById('allotment').value;
             document.getElementById('balances').value = allotmentValue;
         }
     </script>
+    
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <script>
