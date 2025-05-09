@@ -523,19 +523,20 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
     <script>
         function deleteUser(userID) {
             Swal.fire({
-                title: 'Are you sure?',
-                text: "This action cannot be undone.",
+                title: 'Delete Account Title?',
+                text: "This action cannot be undone!",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
                 confirmButtonText: 'Yes, delete it!',
-                cancelButtonText: 'Cancel'
+                cancelButtonText: 'Cancel',
+                reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = 'delete_payee.php?payee_id=' + userID + '&confirm=yes';
+                    window.location.href = 'delete_account.php?account_id=' + userID + '&confirm=yes';
                 }
-            });
+            })
         }
     </script>
 
@@ -605,7 +606,7 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
             Swal.fire({
                 icon: '<?php echo $_GET["updated"] === "success" ? "success" : "error"; ?>',
                 title: '<?php echo $_GET["updated"] === "success" ? "Updated!" : "Error!"; ?>',
-                text: '<?php echo $_GET["updated"] === "success" ? "Payee has been updated successfully." : "There was a problem updating the payee."; ?>',
+                text: '<?php echo $_GET["updated"] === "success" ? "Account Title has been updated successfully." : "There was a problem updating the payee."; ?>',
                 confirmButtonColor: '#3085d6'
             });
         </script>
