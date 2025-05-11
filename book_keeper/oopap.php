@@ -1,21 +1,65 @@
 <?php
 include '../DBConnection.php';
 
+$alert = "";
+
 if (isset($_POST['submit'])) {
     $oopap_name = $_POST['oopap_name'];
     $description = $_POST['description'];
 
 
+    $check_sql = "SELECT COUNT(*) FROM oopap WHERE oopap_name = ?";
+    $check_stmt = $connection->prepare($check_sql);
+    $check_stmt->bind_param("s", $oopap_name);
+    $check_stmt->execute();
+    $check_stmt->store_result();
+    $check_stmt->bind_result($count);
+    $check_stmt->fetch();
 
-    $sql = "INSERT INTO oopap (oopap_name, description) VALUES (?, ?)";
-    $stmt = $connection->prepare($sql);
-    $stmt->bind_param("ss", $oopap_name, $description);
-
-    if ($stmt->execute()) {
-        header('Location: oopap.php');
+    if ($count > 0) {
+        $alert = "
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Duplicate OO/PAP',
+                        text: 'OO/PAP already exists!',
+                        confirmButtonColor: '#d33'
+                    });
+                });
+            </script>
+        ";
     } else {
-        echo "Error: " . $stmt->error;
+        $insert_sql = "INSERT INTO oopap (oopap_name, description) VALUES (?, ?)";
+        $stmt = $connection->prepare($insert_sql);
+
+        if ($stmt === false) {
+            $alert = "<script>alert('Error preparing the statement: " . $connection->error . "');</script>";
+        } else {
+            $stmt->bind_param("ss", $oopap_name, $description);
+            if ($stmt->execute()) {
+                $alert = "
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: 'OO/PAP has been added successfully.',
+                                confirmButtonColor: '#3085d6'
+                            }).then(() => {
+                                window.location.href = 'oopap.php';
+                            });
+                        });
+                    </script>
+                ";
+            } else {
+                $alert = "<script>alert('Error: " . $stmt->error . "');</script>";
+            }
+            $stmt->close();
+        }
     }
+
+    $check_stmt->close();
 }
 
 $select = mysqli_query($connection, "SELECT * FROM oopap");
@@ -35,7 +79,9 @@ $select = mysqli_query($connection, "SELECT * FROM oopap");
     <link href="img/dti_logo.png" rel="icon">
     <link href="../NiceAdmin/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
     <link href="https://fonts.gstatic.com" rel="preconnect">
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+        rel="stylesheet">
 
     <link href="../NiceAdmin/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
@@ -47,6 +93,8 @@ $select = mysqli_query($connection, "SELECT * FROM oopap");
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
     <link rel="stylesheet" href="css/UACS.css">
     <link rel="stylesheet" href="css/table.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 </head>
 
@@ -60,7 +108,7 @@ $select = mysqli_query($connection, "SELECT * FROM oopap");
 
         <div class="pagetitle">
             <h1>OO/PAP</h1>
-              <nav>
+            <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="index.php">Home</a></li>
                     <li class="breadcrumb-item active">OO/PAP</li>
@@ -70,12 +118,12 @@ $select = mysqli_query($connection, "SELECT * FROM oopap");
         <section class="section dashboard">
             <div class="card">
                 <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="card-title mb-0">OO/PAP</h5>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="card-title mb-0">OO/PAP</h5>
                         <button type="button" class="btn btn-primary rounded-pill" data-bs-toggle="modal"
                             data-bs-target="#addUserModal">
                             <i class="bi bi-plus-circle me-1"></i>Add OO/PAP</button>
-                </div>
+                    </div>
 
 
                     <!-- Modal for Add User Form -->
@@ -83,9 +131,10 @@ $select = mysqli_query($connection, "SELECT * FROM oopap");
                         aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content">
-                            <div class="modal-header bg-primary text-white">
+                                <div class="modal-header bg-primary text-white">
                                     <h5 class="modal-title" id="addUserModalLabel">Add OO/PAP</h5>
-                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
                                     <form method="post" id="addUserForm">
@@ -129,8 +178,9 @@ $select = mysqli_query($connection, "SELECT * FROM oopap");
                                     <td><?php echo htmlspecialchars($row['oopap_name']); ?></td>
                                     <td><?php echo htmlspecialchars($row['description']); ?></td>
                                     <td>
-                                        <button type="button" class="btn btn-sm btn-outline-primary edit-btn" data-bs-toggle="modal"
-                                            data-bs-target="#editModal" data-id="<?php echo $row['oopap_id']; ?>"
+                                        <button type="button" class="btn btn-sm btn-outline-primary edit-btn"
+                                            data-bs-toggle="modal" data-bs-target="#editModal"
+                                            data-id="<?php echo $row['oopap_id']; ?>"
                                             data-oopap_name="<?php echo htmlspecialchars($row['oopap_name']); ?>"
                                             data-description="<?php echo htmlspecialchars($row['description']); ?>">
                                             <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top"
@@ -207,6 +257,8 @@ $select = mysqli_query($connection, "SELECT * FROM oopap");
     <script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
     <script src="../NiceAdmin/assets/js/main.js"></script>
 
+    <?php echo $alert; ?>
+
     <script>
 
         function clearForm() {
@@ -233,13 +285,6 @@ $select = mysqli_query($connection, "SELECT * FROM oopap");
             });
         });
     </script>
-    <script>
-        function deleteUser(oopapID) {
-            if (confirm("Are you sure you want to delete this OO/PAP?")) {
-                window.location.href = 'delete_oopap.php?oopap_id=' + oopapID + '&confirm=yes';
-            }
-        }
-    </script>
 
 
     <script>
@@ -251,6 +296,54 @@ $select = mysqli_query($connection, "SELECT * FROM oopap");
         });
 
     </script>
+
+    <!-- delete confirmation -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function deleteUser(userID) {
+            Swal.fire({
+                title: 'Delete OO/PAP?',
+                text: "This action cannot be undone!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = 'delete_oopap.php?oopap_id=' + userID + '&confirm=yes';
+                }
+            })
+        }
+    </script>
+
+    <!-- alert for delete -->
+    <?php if (isset($_GET['deleted'])): ?>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            Swal.fire({
+                icon: '<?php echo $_GET["deleted"] === "success" ? "success" : "error"; ?>',
+                title: '<?php echo $_GET["deleted"] === "success" ? "Deleted!" : "Error!"; ?>',
+                text: '<?php echo $_GET["deleted"] === "success" ? "OO/PAP has been deleted successfully." : "There was a problem deleting the payee."; ?>',
+                confirmButtonColor: '#3085d6'
+            });
+        </script>
+    <?php endif; ?>
+
+    <!-- alert for update -->
+    <?php if (isset($_GET['updated'])): ?>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            Swal.fire({
+                icon: '<?php echo $_GET["updated"] === "success" ? "success" : "error"; ?>',
+                title: '<?php echo $_GET["updated"] === "success" ? "Updated!" : "Error!"; ?>',
+                text: '<?php echo $_GET["updated"] === "success" ? "OO/PAP has been updated successfully." : "There was a problem updating the payee."; ?>',
+                confirmButtonColor: '#3085d6'
+            });
+        </script>
+    <?php endif; ?>
 
 
 </body>

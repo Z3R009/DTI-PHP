@@ -11,7 +11,7 @@ if (isset($_POST['update'])) {
     $stmt->bind_param("ssi", $oopap_name, $description, $oopap_id);
 
     if ($stmt->execute()) {
-        header('Location: oopap.php');
+        header('Location: oopap.php?updated=success');
     } else {
         echo "Error: " . $stmt->error;
     }

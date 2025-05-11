@@ -361,7 +361,7 @@ $select = mysqli_query($connection, "SELECT * FROM responsibility_center");
         // Enhanced delete confirmation
         function deleteUser(userID) {
             Swal.fire({
-                title: 'Delete Account Title?',
+                title: 'Delete Respnsibility Center?',
                 text: "This action cannot be undone!",
                 icon: 'warning',
                 showCancelButton: true,
