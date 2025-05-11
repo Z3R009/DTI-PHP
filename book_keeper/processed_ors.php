@@ -154,7 +154,7 @@ if ($ors_result->num_rows === 0) {
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
     <link rel="stylesheet" href="css/processed_ors.css">
     <link rel="stylesheet" href="css/table.css">
- 
+
 </head>
 
 <body>
@@ -263,7 +263,7 @@ if ($ors_result->num_rows === 0) {
                 <!-- ors list -->
                 <div>
                     <div class="table-responsive">
-                        <table class="table table-striped">
+                        <table class="datatable">
                             <thead>
                                 <tr>
                                     <th>ORS No.</th>
