@@ -2,6 +2,7 @@
 
 include '../DBConnection.php';
 
+$alert = "";
 
 if (isset($_POST['submit'])) {
     $services_name = $_POST['services_name'];
@@ -9,26 +10,70 @@ if (isset($_POST['submit'])) {
     $oopap_id = $_POST['oopap_id'];
 
 
-    $sql = "INSERT INTO services (services_name, code, oopap_id) VALUES (?, ?, ?)";
-    $stmt = $connection->prepare($sql);
-    $stmt->bind_param("ssi", $services_name, $code, $oopap_id);
+    $check_sql = "SELECT COUNT(*) FROM services WHERE services_name = ?";
+    $check_stmt = $connection->prepare($check_sql);
+    $check_stmt->bind_param("s", $services_name);
+    $check_stmt->execute();
+    $check_stmt->store_result();
+    $check_stmt->bind_result($count);
+    $check_stmt->fetch();
 
-    if ($stmt->execute()) {
-        header('Location: services.php');
+    if ($count > 0) {
+        $alert = "
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Duplicate Services',
+                        text: 'Services already exists!',
+                        confirmButtonColor: '#d33'
+                    });
+                });
+            </script>
+        ";
     } else {
-        echo "Error: " . $stmt->error;
+        $insert_sql = "INSERT INTO oservices (services_name, code, oopap_id) VALUES (?, ?, ?)";
+        $stmt = $connection->prepare($insert_sql);
+
+        if ($stmt === false) {
+            $alert = "<script>alert('Error preparing the statement: " . $connection->error . "');</script>";
+        } else {
+            $stmt->bind_param("sss", $services_name, $code, $oopap_id);
+            if ($stmt->execute()) {
+                $alert = "
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: 'Services has been added successfully.',
+                                confirmButtonColor: '#3085d6'
+                            }).then(() => {
+                                window.location.href = 'services.php';
+                            });
+                        });
+                    </script>
+                ";
+            } else {
+                $alert = "<script>alert('Error: " . $stmt->error . "');</script>";
+            }
+            $stmt->close();
+        }
     }
+
+    $check_stmt->close();
 }
 
-    $select = mysqli_query(
-        $connection,
+$select = mysqli_query(
+    $connection,
 
-        "SELECT services.*, oopap.oopap_name FROM services 
-                LEFT JOIN oopap ON services.oopap_id = oopap.oopap_id"
-    );
+    "SELECT services.*, oopap.oopap_name FROM services 
+            LEFT JOIN oopap ON services.oopap_id = oopap.oopap_id"
+);
 
 $sql_oopap = "SELECT oopap_id, oopap_name FROM oopap";
 $result_oopap = $connection->query($sql_oopap);
+
 
 ?>
 
@@ -40,12 +85,14 @@ $result_oopap = $connection->query($sql_oopap);
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
     <title>Book Keeper - Service</title>
-    <meta content="" name="description">
+    <meta content="" name="code">
     <meta content="" name="keywords">
     <link href="img/dti_logo.png" rel="icon">
     <link href="../NiceAdmin/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
     <link href="https://fonts.gstatic.com" rel="preconnect">
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+        rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
@@ -56,6 +103,8 @@ $result_oopap = $connection->query($sql_oopap);
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
     <link rel="stylesheet" href="css/UACS.css">
     <link rel="stylesheet" href="css/table.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 </head>
 
@@ -80,11 +129,11 @@ $result_oopap = $connection->query($sql_oopap);
         <section class="section dashboard">
             <div class="card">
                 <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="card-title">SEVICES</h5>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="card-title">SEVICES</h5>
                         <button type="button " class="btn btn-primary rounded-pill" data-bs-toggle="modal"
-                            data-bs-target="#addUserModal">Add Services</button>                
-                        </div>
+                            data-bs-target="#addUserModal">Add Services</button>
+                    </div>
 
                     <!-- Modal for Add User Form -->
                     <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel"
@@ -118,7 +167,7 @@ $result_oopap = $connection->query($sql_oopap);
                                                 <option selected disabled>Select OO/PAP</option>
                                                 <?php
                                                 while ($row = $result_oopap->fetch_assoc()) {
-                                                    echo "<option value='" . htmlspecialchars($row['oopap_id']) . "'>" . htmlspecialchars($row['oopap_name']) . "</option>";
+                                                    echo "<option value='" . htmlspecialchars($row['oopap_id']) . "'>" . htmlspecialchars($row['services_name']) . "</option>";
                                                 }
                                                 ?>
                                             </select>
@@ -139,47 +188,47 @@ $result_oopap = $connection->query($sql_oopap);
                     </div>
 
                     <!-- Table with stripped rows -->
-                     <div class="table-responsive">
-                    <table class="datatable">
-                        <thead class="table-light">
-                            <tr>
-                                <th scope="col">OO/PAP</th>
-                                <th scope="col">Service Name</th>
-                                <th scope="col">Code</th>
-                                <th scope="col">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php while ($row = mysqli_fetch_assoc($select)) { ?>
+                    <div class="table-responsive">
+                        <table class="datatable">
+                            <thead class="table-light">
                                 <tr>
-                                    <td><?php echo htmlspecialchars($row['oopap_name']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['services_name']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['code']); ?></td>
-                                    <td class="text-end">
-                                        <div class="btn-group" role="group">
-                                        <button type="button" class="btn btn-sm btn-outline-primary edit-btn" 
-                                        data-bs-toggle="modal" data-bs-target="#editModal" 
-                                            data-id="<?php echo $row['services_id']; ?>"
-                                            data-name="<?php echo htmlspecialchars($row['services_name']); ?>"
-                                            data-code="<?php echo htmlspecialchars($row['code']); ?>"
-                                            data-oopap_id="<?php echo htmlspecialchars($row['oopap_id']); ?>">
-                                            <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top"
-                                                title="Edit"></i>
-                                        </button>
-
-                                        <button type="button" class="btn btn-sm btn-outline-danger"
-                                            onclick="deleteUser(<?php echo $row['services_id']; ?>)"><i class="bi bi-trash"
-                                                data-bs-toggle="tooltip" data-bs-placement="top"
-                                                title="Delete"></i></i></button>
-                            </div>
-                                    </td>
+                                    <th scope="col">OO/PAP</th>
+                                    <th scope="col">Service Name</th>
+                                    <th scope="col">Code</th>
+                                    <th scope="col">Actions</th>
                                 </tr>
-                            <?php } ?>
-                        </tbody>
+                            </thead>
+                            <tbody>
+                                <?php while ($row = mysqli_fetch_assoc($select)) { ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($row['oopap_name']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['services_name']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['code']); ?></td>
+                                        <td class="text-end">
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-sm btn-outline-primary edit-btn"
+                                                    data-bs-toggle="modal" data-bs-target="#editModal"
+                                                    data-id="<?php echo $row['services_id']; ?>"
+                                                    data-name="<?php echo htmlspecialchars($row['services_name']); ?>"
+                                                    data-code="<?php echo htmlspecialchars($row['code']); ?>"
+                                                    data-oopap_id="<?php echo htmlspecialchars($row['oopap_id']); ?>">
+                                                    <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top"
+                                                        title="Edit"></i>
+                                                </button>
 
-                    </table>
+                                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                                    onclick="deleteUser(<?php echo $row['services_id']; ?>)"><i
+                                                        class="bi bi-trash" data-bs-toggle="tooltip" data-bs-placement="top"
+                                                        title="Delete"></i></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php } ?>
+                            </tbody>
+
+                        </table>
+                    </div>
                 </div>
-            </div>
 
         </section>
 
@@ -216,7 +265,7 @@ $result_oopap = $connection->query($sql_oopap);
                                     echo "<option value='" . htmlspecialchars($row['oopap_id']) . "'>" . htmlspecialchars($row['oopap_name']) . "</option>";
                                 }
                                 ?>
-                             </select>
+                            </select>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -240,6 +289,8 @@ $result_oopap = $connection->query($sql_oopap);
     <script src="../NiceAdmin/assets/vendor/simple-datatables/simple-datatables.js"></script>
     <script src="../NiceAdmin/assets/vendor/tinymce/tinymce.min.js"></script>
     <script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
+
+    <?php echo $alert; ?>
 
     <!-- Template Main JS File -->
     <script src="../NiceAdmin/assets/js/main.js"></script>
@@ -274,16 +325,6 @@ $result_oopap = $connection->query($sql_oopap);
         });
     </script>
 
-    <!-- delete -->
-    <script>
-        function deleteUser(fundClusterID) {
-            if (confirm("Are you sure you want to delete this Service?")) {
-                window.location.href = 'delete_services.php?services_id=' + fundClusterID + '&confirm=yes';
-            }
-        }
-    </script>
-
-
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -293,6 +334,55 @@ $result_oopap = $connection->query($sql_oopap);
         });
 
     </script>
+
+    <!-- delete confirmation -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function deleteUser(userID) {
+            Swal.fire({
+                title: 'Delete OO/PAP?',
+                text: "This action cannot be undone!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = 'delete_oopap.php?oopap_id=' + userID + '&confirm=yes';
+                }
+            })
+        }
+    </script>
+
+    <!-- alert for delete -->
+    <?php if (isset($_GET['deleted'])): ?>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            Swal.fire({
+                icon: '<?php echo $_GET["deleted"] === "success" ? "success" : "error"; ?>',
+                title: '<?php echo $_GET["deleted"] === "success" ? "Deleted!" : "Error!"; ?>',
+                text: '<?php echo $_GET["deleted"] === "success" ? "OO/PAP has been deleted successfully." : "There was a problem deleting the payee."; ?>',
+                confirmButtonColor: '#3085d6'
+            });
+        </script>
+    <?php endif; ?>
+
+    <!-- alert for update -->
+    <?php if (isset($_GET['updated'])): ?>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            Swal.fire({
+                icon: '<?php echo $_GET["updated"] === "success" ? "success" : "error"; ?>',
+                title: '<?php echo $_GET["updated"] === "success" ? "Updated!" : "Error!"; ?>',
+                text: '<?php echo $_GET["updated"] === "success" ? "OO/PAP has been updated successfully." : "There was a problem updating the payee."; ?>',
+                confirmButtonColor: '#3085d6'
+            });
+        </script>
+    <?php endif; ?>
+
 
 </body>
 
