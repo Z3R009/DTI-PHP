@@ -345,17 +345,12 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
 
                     <!-- DV List Tab -->
                     <div>
-                        <!-- Bulk action button (initially hidden) -->
-                        <div id="bulkActionContainer" class="mb-3" style="display: none;">
-                            <button type="button" class="btn btn-primary bulk-create-dv" id="openDvModal">
-                                <i class="bi bi-file-earmark-plus"></i> Create DV for Selected Items
+                        <!-- Bulk action button and message container -->
+                        <div class="mb-3 d-flex align-items-center gap-3">
+                            <button type="button" class="btn btn-success" id="submitSelected" style="display: none;">
+                                <i class="bi bi-check-circle me-1"></i> Create DV for Selected
                             </button>
-                            <label class="d-flex align-items-center gap-1">
-                                <input type="checkbox" id="unselectAllCheckbox">
-                                <span style="font-weight: 500;">Unselect All</span>
-                            </label>
                             <div id="payeeMessage" style="color: red; font-size: 14px;"></div>
-
                         </div>
 
                         <div class="card shadow-sm border-0">
@@ -1377,8 +1372,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
             document.addEventListener('DOMContentLoaded', function () {
                 const rowCheckboxes = document.querySelectorAll('.row-checkbox');
                 const messageContainer = document.getElementById('payeeMessage');
-                const bulkActionContainer = document.getElementById('bulkActionContainer');
-                const unselectAllCheckbox = document.getElementById('unselectAllCheckbox');
+                const submitSelectedBtn = document.getElementById('submitSelected');
                 let firstSelectedPayee = null;
 
                 function updateCheckboxStates(clickedCheckbox) {
@@ -1417,38 +1411,19 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
 
                     if (checkedBoxes.length >= 2 && allSamePayee) {
                         messageContainer.style.display = 'none';
-                        bulkActionContainer.style.display = 'block';
-                        unselectAllCheckbox.style.display = 'inline-block';
-                    } else if (checkedBoxes.length >= 2 && !allSamePayee) {
+                        submitSelectedBtn.style.display = 'inline-block';
+                    } else if (checkedBoxes.length >= 1 && !allSamePayee) {
                         messageContainer.textContent = 'Cannot select multiple rows with different payees.';
                         messageContainer.style.display = 'block';
-                        bulkActionContainer.style.display = 'none';
-                        unselectAllCheckbox.style.display = 'none';
+                        submitSelectedBtn.style.display = 'none';
+                    } else if (checkedBoxes.length === 1) {
+                        messageContainer.textContent = 'Please select at least 2 ORS entries with the same payee.';
+                        messageContainer.style.display = 'block';
+                        submitSelectedBtn.style.display = 'none';
                     } else {
                         messageContainer.style.display = 'none';
-                        bulkActionContainer.style.display = 'none';
-                        unselectAllCheckbox.style.display = 'none';
+                        submitSelectedBtn.style.display = 'none';
                     }
-                }
-
-                if (unselectAllCheckbox) {
-                    unselectAllCheckbox.addEventListener('change', function () {
-                        if (unselectAllCheckbox.checked) {
-                            rowCheckboxes.forEach(cb => {
-                                cb.checked = false;
-                                cb.disabled = false;
-                            });
-
-                            firstSelectedPayee = null;
-                            messageContainer.style.display = 'none';
-                            bulkActionContainer.style.display = 'none';
-                            unselectAllCheckbox.style.display = 'none';
-
-                            setTimeout(() => {
-                                unselectAllCheckbox.checked = false;
-                            }, 100);
-                        }
-                    });
                 }
 
                 rowCheckboxes.forEach(cb => {
@@ -1456,19 +1431,20 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                         updateCheckboxStates(this);
                     });
                 });
-            });
-        </script>
 
-        <!-- multiple button -->
+                // Handle submit button click
+                submitSelectedBtn.addEventListener('click', function () {
+                    const selected = Array.from(document.querySelectorAll('.row-checkbox:checked'))
+                        .map(cb => cb.value);
 
-        <script>
-            document.getElementById('openDvModal').addEventListener('click', function () {
-                const selected = Array.from(document.querySelectorAll('.row-checkbox:checked'))
-                    .map(cb => cb.value);
-
-                const params = new URLSearchParams();
-                selected.forEach(id => params.append('ids[]', id));
-                window.location.href = 'dv_multiple_ors.php?' + params.toString();
+                    if (selected.length >= 2) {
+                        const params = new URLSearchParams();
+                        selected.forEach(id => params.append('ids[]', id));
+                        window.location.href = 'dv_multiple_ors.php?' + params.toString();
+                    } else {
+                        alert('Please select at least 2 ORS entries with the same payee.');
+                    }
+                });
             });
         </script>
 

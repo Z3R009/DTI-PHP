@@ -23,6 +23,11 @@ $like_pattern = "$fund_cluster-$year-%";
 // Helper function to get the max series from a table
 function get_max_series($connection, $table, $like_pattern)
 {
+    $allowed_tables = ['dv', 'dv_non_ors'];
+    if (!in_array($table, $allowed_tables)) {
+        throw new Exception("Invalid table name.");
+    }
+
     $query = "SELECT dv_no FROM $table WHERE dv_no LIKE ? ORDER BY dv_no DESC LIMIT 1";
     $stmt = $connection->prepare($query);
     $stmt->bind_param("s", $like_pattern);
@@ -31,10 +36,11 @@ function get_max_series($connection, $table, $like_pattern)
 
     if ($result->num_rows > 0) {
         $dv_no = $result->fetch_assoc()['dv_no'];
-        return (int) substr($dv_no, -3); // Get the last 3 digits (series)
+        return (int) substr($dv_no, -3);
     }
     return 0;
 }
+
 
 // Get max series from both tables
 $max_dv_series = get_max_series($connection, 'dv', $like_pattern);

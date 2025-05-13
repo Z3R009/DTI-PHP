@@ -1,5 +1,73 @@
 <?php
 include '../DBConnection.php';
+
+// Retrieve ORS IDs from URL
+$ors_ids = $_GET['ids'] ?? [];
+
+if (empty($ors_ids)) {
+    echo "No ORS selected.";
+    exit;
+}
+
+// Prepare a query to get details for the selected ORS
+$placeholders = implode(',', array_fill(0, count($ors_ids), '?'));
+$query = "SELECT 
+    ors.*, 
+    account_title.account_title, 
+    approver.approver_name,
+    CONCAT(fund_cluster.uacs_code, '-', fund_cluster.fund_cluster_name) AS fund_cluster,
+    responsibility_center.code,
+    oopap.oopap_name,
+    payee.payee_name,
+    payee.tin_no,
+    payee.address
+FROM ors
+LEFT JOIN account_title ON ors.account_id = account_title.account_id
+LEFT JOIN approver ON ors.approver_id = approver.approver_id
+LEFT JOIN fund_cluster ON ors.fund_cluster_id = fund_cluster.fund_cluster_id
+LEFT JOIN responsibility_center ON ors.rc_id = responsibility_center.rc_id
+LEFT JOIN oopap ON ors.oopap_id = oopap.oopap_id
+LEFT JOIN payee ON ors.payee_id = payee.payee_id
+WHERE ors.ors_id IN ($placeholders)";
+
+$stmt = $connection->prepare($query);
+$stmt->bind_param(str_repeat('i', count($ors_ids)), ...$ors_ids);
+$stmt->execute();
+$result = $stmt->get_result();
+
+// Fetch all ORS details
+$ors_details = $result->fetch_all(MYSQLI_ASSOC);
+
+if (empty($ors_details)) {
+    echo "No ORS details found.";
+    exit;
+}
+
+// Calculate totals and get common information
+$total_amount = 0;
+$payee_name = $ors_details[0]['payee_name'];
+$payee_tin = $ors_details[0]['tin_no'];
+$payee_address = $ors_details[0]['address'];
+$fund_cluster = $ors_details[0]['fund_cluster'];
+
+foreach ($ors_details as $ors) {
+    $total_amount += $ors['total_amount'];
+}
+
+// Generate DV number
+$current_date = date('Y-m-d');
+$dv_query = "SELECT MAX(CAST(SUBSTRING(dv_no, -4) AS UNSIGNED)) as max_number 
+             FROM dv 
+             WHERE dv_no LIKE ? 
+             AND DATE(date) = ?";
+$dv_stmt = $connection->prepare($dv_query);
+$dv_pattern = $fund_cluster . '-' . date('Y') . '-%';
+$dv_stmt->bind_param("ss", $dv_pattern, $current_date);
+$dv_stmt->execute();
+$dv_result = $dv_stmt->get_result();
+$dv_row = $dv_result->fetch_assoc();
+$next_number = ($dv_row['max_number'] ?? 0) + 1;
+$dv_no = $fund_cluster . '-' . date('Y') . '-' . str_pad($next_number, 4, '0', STR_PAD_LEFT);
 ?>
 
 <!DOCTYPE html>
@@ -9,7 +77,7 @@ include '../DBConnection.php';
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Disbursement Voucher - DTI Book Keeper</title>
+    <title>Create Multiple ORS DV</title>
     <meta content="Disbursement Voucher Management System for DTI" name="description">
     <meta content="disbursement, voucher, dti, finance, accounting" name="keywords">
     <link href="img/dti_logo.png" rel="icon">
@@ -35,6 +103,12 @@ include '../DBConnection.php';
     <link rel="stylesheet" href="css/dv.css">
     <link rel="stylesheet" href="csst/table.css">
 
+    <style>
+        input[readonly] {
+            background-color: #f5f5f5 !important;
+            color: #333 !important;
+        }
+    </style>
 
 </head>
 
@@ -43,7 +117,7 @@ include '../DBConnection.php';
     <div class="card shadow" style="max-width: 900px; margin: auto;">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h2 class="card-title mb-0">
-                <i class="bi bi-file-earmark-text me-2"></i>Disbursement Voucher
+                <i class="bi bi-file-earmark-text me-2"></i>Create Multiple ORS DV
             </h2>
             <button class="btn btn-primary" aria-label="Close" onclick="window.location.href='dv.php';">Back</button>
 
@@ -51,117 +125,134 @@ include '../DBConnection.php';
         </div>
 
         <div class="card-body">
-            <form method="post">
+            <form action="process_multiple_dv.php" method="post" id="dvForm">
+                <input type="hidden" name="ors_ids" value="<?php echo htmlspecialchars(json_encode($ors_ids)); ?>">
                 <div class="form-cntainer">
                     <div class="form-section">
                         <h3><i class="bi bi-info-circle me-2"></i>General Information</h3>
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">Fund Cluster</label>
-                                <input type="text" class="form-control" id="fund_cluster" readonly>
+                                <input type="text" class="form-control" name="fund_cluster"
+                                    value="<?php echo htmlspecialchars($fund_cluster); ?>" readonly>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Date</label>
-                                <input type="date" class="form-control" id="date" name="date">
+                                <input type="date" class="form-control" name="date" value="<?php echo date('Y-m-d'); ?>"
+                                    required>
                             </div>
                             <div class="form-group">
-                                <label class="form-label">ORS No.</label>
-                                <input type="text" class="form-control" id="ors_no" name="ors_id" readonly>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Disbursement Voucher No.</label>
-                                <input type="text" class="form-control" id="dv_no" name="dv_no" readonly>
+                                <label class="form-label">DV No.</label>
+                                <input type="text" class="form-control" name="dv_no"
+                                    value="<?php echo htmlspecialchars($dv_no); ?>" readonly>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="form-section">
-                    <!-- Payee Details Section -->
-                    <div class="form-section">
-                        <h3><i class="bi bi-person me-2"></i>Payee Details</h3>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">Payee Name</label>
-                                <input type="text" class="form-control" id="payee_name" readonly>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">TIN/Employee No.</label>
-                                <input type="text" class="form-control" id="tin_no" readonly>
-                            </div>
+                    <h3><i class="bi bi-person me-2"></i>Payee Details</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Payee Name</label>
+                            <input type="text" class="form-control" value="<?php echo htmlspecialchars($payee_name); ?>"
+                                readonly>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Address</label>
-                            <input type="text" class="form-control" id="address" readonly>
+                            <label class="form-label">TIN/Employee No.</label>
+                            <input type="text" class="form-control" value="<?php echo htmlspecialchars($payee_tin); ?>"
+                                readonly>
                         </div>
                     </div>
-                    <!-- Payment Details Section -->
-                    <div class="form-section">
-                        <h3><i class="bi bi-file-text me-2"></i>Purpose</h3>
-                        <div class="form-row">
-                            <div class="form-group full-width">
-                                <textarea class="form-control" id="notes" readonly></textarea>
-                            </div>
+                    <div class="form-group">
+                        <label class="form-label">Address</label>
+                        <input type="text" class="form-control" value="<?php echo htmlspecialchars($payee_address); ?>"
+                            readonly>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3><i class="bi bi-list-check me-2"></i>Selected ORS Details</h3>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>ORS No.</th>
+                                    <th>Date</th>
+                                    <th>Account Title</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($ors_details as $ors): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($ors['ors_no']); ?></td>
+                                        <td><?php echo date('F j, Y', strtotime($ors['date'])); ?></td>
+                                        <td><?php echo htmlspecialchars($ors['account_title']); ?></td>
+                                        <td class="text-end">₱<?php echo number_format($ors['total_amount'], 2); ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="3" class="text-end">Total Amount:</th>
+                                    <th class="text-end">₱<?php echo number_format($total_amount, 2); ?></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3><i class="bi bi-calculator me-2"></i>Breakdown of Expenses</h3>
+                    <div class="form-row">
+                        <div class="form-group half-width">
+                            <label class="form-label">Gross Amount</label>
+                            <input type="number" class="form-control" name="total_amount"
+                                value="<?php echo $total_amount; ?>" step="0.01" readonly>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">Responsibility Center</label>
-                                <input type="text" class="form-control" id="code" readonly>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">OO/PAP</label>
-                                <input type="text" class="form-control" id="oopap_name" readonly>
+                        <div class="form-group half-width">
+                            <div class="checkbox-item">
+                                <input type="checkbox" class="apply_taxes" id="apply_taxes">
+                                <label for="apply_taxes">With VAT</label>
                             </div>
                         </div>
                     </div>
 
-                    <!-- tax -->
+                    <div id="tax_fields_container" class="tax-fields d-flex">
+                        <div class="form-group half-width">
+                            <label class="form-label">VAT <input type="number" class="tax-percentage"
+                                    id="vat_percentage" name="vat" value="12" min="0" max="100" readonly>%</label>
+                            <input type="number" class="form-control calculation-field" id="vat_amount"
+                                name="vat_amount" step="0.01" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Tax Base</label>
+                            <input type="number" class="form-control calculation-field" id="tax_base" name="tax_base"
+                                step="0.01">
+                        </div>
+                    </div>
+
+
+
                     <div class="form-section">
-                        <h3><i class="bi bi-calculator me-2"></i>Breakdown of Expenses</h3>
-                        <div class="form-row">
-                            <div class="form-group half-width">
-                                <label class="form-label">Gross Amount</label>
-                                <input type="number" class="form-control" name="total_amount" id="total_amount"
-                                    step="0.01" readonly>
-                            </div>
-                            <div class="form-group half-width">
-                                <div class="checkbox-item">
-                                    <input type="checkbox" class="apply_taxes" id="apply_taxes">
-                                    <label for="apply_taxes">With VAT</label>
-                                </div>
-                            </div>
+                        <div class="form-group">
+                            <label class="form-label">Less:
+                                <input type="number" class="tax-percentage" id="tax1_percentage" name="tax_1" value="5"
+                                    min="0" max="100"> % Tax
+                            </label>
+                            <input type="number" class="form-control calculation-field" id="tax_1" name="tax_1_amount"
+                                step="0.01">
                         </div>
 
-                        <div id="tax_fields_container" class="tax-fields">
-                            <div class="form-row"></div>
-
-                            <div class="form-group half-width">
-                                <label class="form-label">VAT <input type="number" class="tax-percentage"
-                                        id="vat_percentage" name="vat" value="12" min="0" max="100" readonly>%</label>
-                                <input type="number" class="form-control calculation-field" id="vat_amount"
-                                    name="vat_amount" step="0.01" readonly>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">Tax Base</label>
-                                <input type="number" class="form-control calculation-field" id="tax_base"
-                                    name="tax_base" step="0.01">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Less: <input type="number" class="tax-percentage"
-                                        id="tax1_percentage" name="tax_1" value="5" min="0" max="100"> %
-                                    Tax</label>
-                                <input type="number" class="form-control calculation-field" id="tax_1"
-                                    name="tax_1_amount" step="0.01">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Less: <input type="number" class="tax-percentage"
-                                        id="tax2_percentage" name="tax_2" value="2" min="0" max="100"> %
-                                    Tax</label>
-                                <input type="number" class="form-control calculation-field" id="tax_2"
-                                    name="tax_2_amount" step="0.01">
-                            </div>
+                        <div class="form-group">
+                            <label class="form-label">Less:
+                                <input type="number" class="tax-percentage" id="tax2_percentage" name="tax_2" value="2"
+                                    min="0" max="100"> % Tax
+                            </label>
+                            <input type="number" class="form-control calculation-field" id="tax_2" name="tax_2_amount"
+                                step="0.01">
                         </div>
                     </div>
 
@@ -187,26 +278,23 @@ include '../DBConnection.php';
                                 </tr>
                             </thead>
                             <tbody id="accountingTableBody">
-                                <tr>
-                                    <td colspan="2">
-                                        <select class="form-control account-select" name="account_titles[]" required>
-                                            <option selected disabled value="">Select Account</option>
-                                            <?php
-                                            $account_query = "SELECT * FROM account_title ORDER BY account_title ASC";
-                                            $account_result = $connection->query($account_query);
-                                            while ($account = $account_result->fetch_assoc()) {
-                                                echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
-                                            }
-                                            ?>
-                                        </select>
-                                    </td>
-                                    <td><input type="number" class="form-control debit-amount" name="debit_amounts[]"
-                                            step="0.01"></td>
-                                    <td><input type="number" class="form-control credit-amount" name="credit_amounts[]"
-                                            step="0.01"></td>
-                                    <td><button type="button" class="btn btn-danger btn-sm delete-row"><i
-                                                class="bi bi-trash"></i></button></td>
-                                </tr>
+                                <?php foreach ($ors_details as $ors): ?>
+                                    <tr>
+                                        <td colspan="2">
+                                            <select class="form-control account-select" name="account_titles[]" required>
+                                                <option value="<?php echo $ors['account_id']; ?>" selected>
+                                                    <?php echo htmlspecialchars($ors['account_title']); ?>
+                                                </option>
+                                            </select>
+                                        </td>
+                                        <td><input type="number" class="form-control debit-amount" name="debit_amounts[]"
+                                                value="<?php echo $ors['total_amount']; ?>" step="0.01" readonly></td>
+                                        <td><input type="number" class="form-control credit-amount" name="credit_amounts[]"
+                                                step="0.01"></td>
+                                        <td><button type="button" class="btn btn-danger btn-sm delete-row"><i
+                                                    class="bi bi-trash"></i></button></td>
+                                    </tr>
+                                <?php endforeach; ?>
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -214,15 +302,10 @@ include '../DBConnection.php';
                                         <select class="form-control account-select" name="account_titles[]">
                                             <option selected disabled>Select Cash Account</option>
                                             <?php
-                                            // Define the specific account codes we want to show
-                                            $cashAccountCodes = ['1010404000', '1010405000', '1010406000'];
-
-                                            // Query only the specific cash accounts
                                             $cash_account_query = "SELECT * FROM account_title WHERE account_code IN ('1010404000', '1010405000', '1010406000') ORDER BY account_title ASC";
                                             $cash_account_result = $connection->query($cash_account_query);
-
                                             while ($account = $cash_account_result->fetch_assoc()) {
-                                                echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
+                                                echo "<option value='" . $account['account_id'] . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
                                             }
                                             ?>
                                         </select>
@@ -233,14 +316,6 @@ include '../DBConnection.php';
                                             step="0.01" readonly></td>
                                     <td><button type="button" class="btn btn-danger btn-sm delete-row"><i
                                                 class="bi bi-trash"></i></button></td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <button type="button" id="addAccountRow" class="btn btn-secondary">
-                                            <i class="bi bi-plus-lg"></i> Add Row
-                                        </button>
-                                    </td>
-                                    <td colspan="3"></td>
                                 </tr>
                             </tfoot>
                         </table>
@@ -265,16 +340,14 @@ include '../DBConnection.php';
                     </div>
                 </div>
 
-                <!-- Buttons -->
                 <div class="btn-container">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal()">
+                    <button type="button" class="btn btn-secondary" onclick="window.history.back()">
                         <i class="bi bi-x-circle me-1"></i> Cancel
                     </button>
                     <button type="submit" class="btn btn-primary" name="submit">
-                        <i class="bi bi-printer me-1"></i> Print DV
+                        <i class="bi bi-check-circle me-1"></i> Submit DV
                     </button>
                 </div>
-
             </form>
         </div>
     </div>
@@ -301,6 +374,230 @@ include '../DBConnection.php';
 
     <!-- Template Main JS File -->
     <script src="../NiceAdmin/assets/js/main.js"></script>
+
+    <!-- Tax calculation script -->
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const amountInput = document.getElementById("total_amount");
+        const applyTaxesCheckbox = document.getElementById("apply_taxes");
+        const vatPercentageInput = document.getElementById("vat_percentage");
+        const tax1PercentageInput = document.getElementById("tax1_percentage");
+        const tax2PercentageInput = document.getElementById("tax2_percentage");
+        const vatAmountInput = document.getElementById("vat_amount");
+        const taxBaseInput = document.getElementById("tax_base");
+        const tax1Input = document.getElementById("tax_1");
+        const tax2Input = document.getElementById("tax_2");
+        const netAmountInput = document.getElementById("net_amount");
+
+        function setTaxFieldsEditability() {
+            const isVatChecked = applyTaxesCheckbox.checked;
+            if (isVatChecked) {
+                tax1Input.setAttribute("readonly", "readonly");
+                tax2Input.setAttribute("readonly", "readonly");
+            } else {
+                tax1Input.removeAttribute("readonly");
+                tax2Input.removeAttribute("readonly");
+            }
+            tax1PercentageInput.style.backgroundColor = isVatChecked ? "#f0f0f0" : "white";
+            tax2PercentageInput.style.backgroundColor = isVatChecked ? "#f0f0f0" : "white";
+            tax1Input.style.backgroundColor = isVatChecked ? "#f0f0f0" : "white";
+            tax2Input.style.backgroundColor = isVatChecked ? "#f0f0f0" : "white";
+        }
+
+        function recalculateTaxAmounts() {
+            const grossAmount = parseFloat(taxBaseInput.value) || 0;
+            const tax1Percentage = parseFloat(tax1PercentageInput.value) || 0;
+            const tax2Percentage = parseFloat(tax2PercentageInput.value) || 0;
+            const tax1Amount = grossAmount * (tax1Percentage / 100);
+            const tax2Amount = grossAmount * (tax2Percentage / 100);
+            tax1Input.value = tax1Amount.toFixed(2);
+            tax2Input.value = tax2Amount.toFixed(2);
+            recalculateNetAmount();
+        }
+
+        function recalculateNetAmount() {
+            const grossAmount = parseFloat(amountInput.value) || 0;
+            const tax1Amount = parseFloat(tax1Input.value) || 0;
+            const tax2Amount = parseFloat(tax2Input.value) || 0;
+            const totalTaxes = tax1Amount + tax2Amount;
+            const netAmount = grossAmount - totalTaxes;
+            netAmountInput.value = netAmount.toFixed(2);
+        }
+
+        function calculate() {
+            const grossAmount = parseFloat(amountInput.value) || 0;
+            if (applyTaxesCheckbox.checked) {
+                const vatPercentage = 12;
+                const vatAmount = (grossAmount * vatPercentage) / (100 + vatPercentage);
+                const taxBase = grossAmount - vatAmount;
+                const tax1Amount = taxBase * 0.05;
+                const tax2Amount = taxBase * 0.02;
+                tax1PercentageInput.value = "5";
+                tax2PercentageInput.value = "2";
+                vatAmountInput.value = vatAmount.toFixed(2);
+                taxBaseInput.value = taxBase.toFixed(2);
+                tax1Input.value = tax1Amount.toFixed(2);
+                tax2Input.value = tax2Amount.toFixed(2);
+                netAmountInput.value = (grossAmount - tax1Amount - tax2Amount).toFixed(2);
+            } else {
+                if (tax1PercentageInput.value === "" || tax1PercentageInput.value === "5") {
+                    tax1PercentageInput.value = "0";
+                }
+                if (tax2PercentageInput.value === "" || tax2PercentageInput.value === "2") {
+                    tax2PercentageInput.value = "0";
+                }
+                const tax1Percentage = parseFloat(tax1PercentageInput.value) || 0;
+                const tax2Percentage = parseFloat(tax2PercentageInput.value) || 0;
+                const tax1Amount = grossAmount * (tax1Percentage / 100);
+                const tax2Amount = grossAmount * (tax2Percentage / 100);
+                vatAmountInput.value = "0.00";
+                taxBaseInput.value = grossAmount.toFixed(2);
+                tax1Input.value = tax1Amount.toFixed(2);
+                tax2Input.value = tax2Amount.toFixed(2);
+                netAmountInput.value = (grossAmount - tax1Amount - tax2Amount).toFixed(2);
+            }
+            setTaxFieldsEditability();
+        }
+
+        // Attach event listeners
+        amountInput.addEventListener("input", calculate);
+        applyTaxesCheckbox.addEventListener("change", calculate);
+        tax1PercentageInput.addEventListener("input", function () {
+            if (!applyTaxesCheckbox.checked) recalculateTaxAmounts();
+        });
+        tax2PercentageInput.addEventListener("input", function () {
+            if (!applyTaxesCheckbox.checked) recalculateTaxAmounts();
+        });
+        tax1Input.addEventListener("input", function () {
+            if (!applyTaxesCheckbox.checked) recalculateNetAmount();
+        });
+        tax2Input.addEventListener("input", function () {
+            if (!applyTaxesCheckbox.checked) recalculateNetAmount();
+        });
+        taxBaseInput.addEventListener("input", function () {
+            if (!applyTaxesCheckbox.checked) recalculateTaxAmounts();
+        });
+
+        // Force calculation on page load
+        setTaxFieldsEditability();
+        calculate();
+    });
+    </script>
+
+    <!-- Add row and calculate totals script -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const tableBody = document.getElementById('accountingTableBody');
+
+        // Function to setup account select with Select2
+        function setupAccountSelect(row) {
+            const accountSelect = row.querySelector('.account-select');
+            $(accountSelect).select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: 'Select Account',
+                allowClear: true
+            });
+        }
+
+        // Function to calculate totals
+        function calculateTotals() {
+            let totalDebit = 0;
+            let totalCredit = 0;
+
+            const debitInputs = document.querySelectorAll('tbody .debit-amount');
+            const creditInputs = document.querySelectorAll('tbody .credit-amount');
+
+            debitInputs.forEach(input => {
+                totalDebit += parseFloat(input.value || 0);
+            });
+
+            creditInputs.forEach(input => {
+                totalCredit += parseFloat(input.value || 0);
+            });
+
+            const difference = totalDebit - totalCredit;
+            const footerCreditInput = document.querySelector('tfoot .credit-amount');
+            if (footerCreditInput) {
+                footerCreditInput.value = difference.toFixed(2);
+            }
+        }
+
+        // Add event listener for the "Add Row" button
+        document.getElementById('addAccountRow').addEventListener('click', function () {
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+            <td colspan="2">
+                <select class="form-control account-select" name="account_titles[]" required>
+                    <option selected disabled value="">Select Account</option>
+                    <?php
+                    $account_result->data_seek(0);
+                    while ($account = $account_result->fetch_assoc()) {
+                        echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
+                    }
+                    ?>
+                </select>
+            </td>
+            <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
+            <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01"></td>
+            <td><button type="button" class="btn btn-danger btn-sm delete-row"><i class="bi bi-trash"></i></button></td>
+        `;
+
+            tableBody.appendChild(newRow);
+            setupAccountSelect(newRow);
+            setupCalculationListeners(newRow);
+        });
+
+        // Function to setup calculation listeners for a row
+        function setupCalculationListeners(row) {
+            const debitInput = row.querySelector('.debit-amount');
+            const creditInput = row.querySelector('.credit-amount');
+            const deleteButton = row.querySelector('.delete-row');
+
+            debitInput.addEventListener('input', function () {
+                if (this.value && parseFloat(this.value) > 0) {
+                    creditInput.value = '';
+                }
+                calculateTotals();
+            });
+
+            creditInput.addEventListener('input', function () {
+                if (this.value && parseFloat(this.value) > 0) {
+                    debitInput.value = '';
+                }
+                calculateTotals();
+            });
+
+            if (deleteButton) {
+                deleteButton.addEventListener('click', function () {
+                    if (tableBody.querySelectorAll('tr').length > 1) {
+                        row.remove();
+                        calculateTotals();
+                    } else {
+                        alert("Cannot delete the last row. At least one account entry is required.");
+                    }
+                });
+            }
+        }
+
+        // Setup initial rows
+        const initialRows = tableBody.querySelectorAll('tr');
+        initialRows.forEach(row => {
+            setupAccountSelect(row);
+            setupCalculationListeners(row);
+        });
+
+        // Initialize Select2 on existing account selects
+        $('.account-select').each(function () {
+            $(this).select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: 'Select Account',
+                allowClear: true
+            });
+        });
+    });
+    </script>
 </body>
 
 </html>
