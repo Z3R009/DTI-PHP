@@ -10,9 +10,9 @@ if (isset($_POST['submit'])) {
     $oopap_id = $_POST['oopap_id'];
 
 
-    $check_sql = "SELECT COUNT(*) FROM services WHERE services_name = ?";
+    $check_sql = "SELECT COUNT(*) FROM services WHERE services_name = ? AND oopap_id = ?";
     $check_stmt = $connection->prepare($check_sql);
-    $check_stmt->bind_param("s", $services_name);
+    $check_stmt->bind_param("si", $services_name, $oopap_id);
     $check_stmt->execute();
     $check_stmt->store_result();
     $check_stmt->bind_result($count);
@@ -32,7 +32,7 @@ if (isset($_POST['submit'])) {
             </script>
         ";
     } else {
-        $insert_sql = "INSERT INTO oservices (services_name, code, oopap_id) VALUES (?, ?, ?)";
+        $insert_sql = "INSERT INTO services (services_name, code, oopap_id) VALUES (?, ?, ?)";
         $stmt = $connection->prepare($insert_sql);
 
         if ($stmt === false) {
@@ -73,6 +73,13 @@ $select = mysqli_query(
 
 $sql_oopap = "SELECT oopap_id, oopap_name FROM oopap";
 $result_oopap = $connection->query($sql_oopap);
+
+// Store results in an array
+$oopap_options = [];
+while ($row = $result_oopap->fetch_assoc()) {
+    $oopap_options[] = $row;
+}
+
 
 
 ?>
@@ -166,10 +173,11 @@ $result_oopap = $connection->query($sql_oopap);
                                             <select class="form-control" name="oopap_id">
                                                 <option selected disabled>Select OO/PAP</option>
                                                 <?php
-                                                while ($row = $result_oopap->fetch_assoc()) {
-                                                    echo "<option value='" . htmlspecialchars($row['oopap_id']) . "'>" . htmlspecialchars($row['services_name']) . "</option>";
+                                                foreach ($oopap_options as $row) {
+                                                    echo "<option value='" . htmlspecialchars($row['oopap_id']) . "'>" . htmlspecialchars($row['oopap_name']) . "</option>";
                                                 }
                                                 ?>
+
                                             </select>
                                         </div>
                                         <div class="modal-footer">
@@ -261,10 +269,11 @@ $result_oopap = $connection->query($sql_oopap);
                             <select class="form-control" name="oopap_id" id="edit_oopap_id">
                                 <option selected disabled>Select OO/PAP</option>
                                 <?php
-                                while ($row = $result_oopap->fetch_assoc()) {
+                                foreach ($oopap_options as $row) {
                                     echo "<option value='" . htmlspecialchars($row['oopap_id']) . "'>" . htmlspecialchars($row['oopap_name']) . "</option>";
                                 }
                                 ?>
+
                             </select>
                         </div>
                         <div class="modal-footer">
@@ -306,23 +315,25 @@ $result_oopap = $connection->query($sql_oopap);
     <!-- show update -->
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const editButtons = document.querySelectorAll(".edit-btn");
+        document.querySelectorAll('.edit-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                const id = this.dataset.id;
+                const name = this.dataset.name;
+                const code = this.dataset.code;
+                const oopapId = this.dataset.oopap_id;
 
-            editButtons.forEach(button => {
-                button.addEventListener("click", function () {
-                    const id = this.getAttribute("data-id");
-                    const name = this.getAttribute("data-name");
-                    const code = this.getAttribute("data-code");
-                    const oopap_id = this.getAttribute("data-oopap_id");
+                document.getElementById('edit_services_id').value = id;
+                document.getElementById('edit_services_name').value = name;
+                document.getElementById('edit_code').value = code;
 
-                    document.getElementById("edit_services_id").value = id;
-                    document.getElementById("edit_services_name").value = name;
-                    document.getElementById("edit_code").value = code;
-                    document.getElementById("edit_oopap_id").value = oopap_id
-                });
+                // Set selected option
+                const select = document.getElementById('edit_oopap_id');
+                if (select) {
+                    select.value = oopapId;
+                }
             });
         });
+
     </script>
 
     <script>
@@ -340,7 +351,7 @@ $result_oopap = $connection->query($sql_oopap);
     <script>
         function deleteUser(userID) {
             Swal.fire({
-                title: 'Delete OO/PAP?',
+                title: 'Delete Services?',
                 text: "This action cannot be undone!",
                 icon: 'warning',
                 showCancelButton: true,
@@ -351,7 +362,7 @@ $result_oopap = $connection->query($sql_oopap);
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = 'delete_oopap.php?oopap_id=' + userID + '&confirm=yes';
+                    window.location.href = 'delete_services.php?services_id=' + userID + '&confirm=yes';
                 }
             })
         }
@@ -364,7 +375,7 @@ $result_oopap = $connection->query($sql_oopap);
             Swal.fire({
                 icon: '<?php echo $_GET["deleted"] === "success" ? "success" : "error"; ?>',
                 title: '<?php echo $_GET["deleted"] === "success" ? "Deleted!" : "Error!"; ?>',
-                text: '<?php echo $_GET["deleted"] === "success" ? "OO/PAP has been deleted successfully." : "There was a problem deleting the payee."; ?>',
+                text: '<?php echo $_GET["deleted"] === "success" ? "Services has been deleted successfully." : "There was a problem deleting the payee."; ?>',
                 confirmButtonColor: '#3085d6'
             });
         </script>
@@ -377,7 +388,7 @@ $result_oopap = $connection->query($sql_oopap);
             Swal.fire({
                 icon: '<?php echo $_GET["updated"] === "success" ? "success" : "error"; ?>',
                 title: '<?php echo $_GET["updated"] === "success" ? "Updated!" : "Error!"; ?>',
-                text: '<?php echo $_GET["updated"] === "success" ? "OO/PAP has been updated successfully." : "There was a problem updating the payee."; ?>',
+                text: '<?php echo $_GET["updated"] === "success" ? "Services has been updated successfully." : "There was a problem updating the payee."; ?>',
                 confirmButtonColor: '#3085d6'
             });
         </script>

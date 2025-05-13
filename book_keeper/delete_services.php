@@ -13,7 +13,7 @@ if (isset($_GET['services_id']) && $_GET['confirm'] == 'yes') {
     // Execute both deletion queries
     if ($stmtUser->execute()) {
         // Redirect to the manage members page after successful deletion
-        header('Location: services.php');
+        header('Location: services.php?deleted=success');
         exit();
     } else {
         // Handle error if either query fails
