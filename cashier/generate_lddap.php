@@ -1,12 +1,33 @@
 <?php
 
 include '../DBConnection.php';
+session_start();
 
-if (!isset($_SESSION['lddap_data'])) {
-    header('Location: pending_payments.php');
+// Check if we have a reference number in the URL
+if (!isset($_GET['ref']) || empty($_GET['ref'])) {
+    header('Location: ada_records.php');
     exit();
 }
 
+$reference_no = $_GET['ref'];
+
+// If no session data, try to prepare it
+if (!isset($_SESSION['lddap_data'])) {
+    // Make a request to prepare_lddap_data.php
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, "back_end/prepare_lddap_data.php?ref=" . urlencode($reference_no));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $response = curl_exec($ch);
+    curl_close($ch);
+    
+    $result = json_decode($response, true);
+    if (!$result || !$result['success']) {
+        header('Location: ada_records.php?error=1');
+        exit();
+    }
+}
+
+// Now get the LDDAP data from session
 $lddap_data = $_SESSION['lddap_data'];
 $reference_no = $lddap_data['reference_no'];
 $payment_date = $lddap_data['payment_date'];
@@ -123,10 +144,11 @@ function numberToWords($number) {
     }
     $amount_in_words .= " Pesos Only";
 
-$return_path = 'pending_payments.php?success=3';
+// Set the return path based on where the request came from
+$return_path = 'ada_records.php'; // Default to ada_records.php
 if (isset($_SERVER['HTTP_REFERER'])) {
-    if (strpos($_SERVER['HTTP_REFERER'], 'ada_records.php') !== false) {
-        $return_path = 'ada_records.php';
+    if (strpos($_SERVER['HTTP_REFERER'], 'pending_payments.php') !== false) {
+        $return_path = 'pending_payments.php?success=3';
     }
 }
 ?>

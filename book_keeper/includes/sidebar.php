@@ -235,7 +235,6 @@
         }
     }
 </style>
-<script src="../NiceAdmin/assets/js/main.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const currentPage = window.location.pathname.split('/').pop();

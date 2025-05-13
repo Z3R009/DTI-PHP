@@ -241,10 +241,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
                 // Process regular DVs
                 foreach($selected_dvs as $dv_id) {
                     $amount_query = "SELECT d.*, d.net_amount, d.vat_amount, d.tax_1_amount, d.tax_2_amount, 
-                                    p.payee_name, p.bank_acc_no, o.ors_no, o.purpose 
+                                    p.payee_name, p.bank_acc_no, o.ors_no, o.purpose, at.account_code 
                                     FROM dv d 
                                     JOIN ors o ON d.ors_id = o.ors_id 
                                     JOIN payee p ON o.payee_id = p.payee_id 
+                                    LEFT JOIN account_title at ON o.account_id = at.account_id
                                     WHERE d.dv_id = ?";
                     $amount_stmt = $connection->prepare($amount_query);
                     $amount_stmt->bind_param("i", $dv_id);
@@ -280,6 +281,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
                         'payee_name' => $dv_data['payee_name'],
                         'bank_account' => $dv_data['bank_acc_no'] ?? 'N/A',
                         'ors_no' => $dv_data['ors_no'],
+                        'account_code' => $dv_data['account_code'],
                         'purpose' => $dv_data['purpose'],
                         'gross_amount' => $gross_amount,
                         'withholding_tax' => $withholding_tax,
@@ -323,11 +325,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
                     
                     // Get all DVs in this merged group
                     $dvs_query = "SELECT d.*, d.net_amount, d.vat_amount, d.tax_1_amount, d.tax_2_amount,
-                                p.payee_name, p.bank_acc_no, o.ors_no, o.purpose
+                                p.payee_name, p.bank_acc_no, o.ors_no, o.purpose, at.account_code
                                 FROM merged_payee_items mpi
                                 JOIN dv d ON mpi.dv_id = d.dv_id
                                 JOIN ors o ON d.ors_id = o.ors_id
                                 JOIN payee p ON o.payee_id = p.payee_id
+                                LEFT JOIN account_title at ON o.account_id = at.account_id
                                 WHERE mpi.merge_id = ?";
                     $dvs_stmt = $connection->prepare($dvs_query);
                     $dvs_stmt->bind_param("i", $merge_id);
@@ -395,6 +398,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
                             'payee_name' => $dv_data['payee_name'],
                             'bank_account' => $dv_data['bank_acc_no'] ?? 'N/A',
                             'ors_no' => $dv_data['ors_no'],
+                            'account_code' => $dv_data['account_code'],
                             'purpose' => $dv_data['purpose'],
                             'gross_amount' => $gross_amount,
                             'withholding_tax' => $withholding_tax,
@@ -420,8 +424,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
                         'dv_id' => 'merge_' . $merge_id,
                         'dv_no' => 'MERGED',
                         'payee_name' => $merge_data['merge_name'] . ' (Merged Group)',
-                        'bank_account' => 'N/A',
-                        'ors_no' => 'MULTIPLE',
+                        'bank_account' => $merged_dvs[0]['bank_account'] ?? 'N/A', // Use first DV's bank account
+                        'ors_no' => $merged_dvs[0]['ors_no'] ?? 'MULTIPLE', // Use first ORS number
+                        'account_code' => $merged_dvs[0]['account_code'] ?? 'MULTIPLE', // Use first account code
                         'purpose' => $merge_data['description'] ?: 'Merged payment for multiple vouchers',
                         'gross_amount' => $group_gross,
                         'withholding_tax' => $group_withholding,

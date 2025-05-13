@@ -58,6 +58,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- icon -->
     <link href="img/dti_logo.png" rel="icon">
     <link rel="stylesheet" href="css/index.css">
+    <!-- Bootstrap and icons -->
+    <link href="bootstrap-5.2.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="NiceAdmin/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
 </head>
 <style>
     body {
@@ -236,9 +239,306 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     .login-text.hidden {
         display: none;
     }
+    
+    /* Payee Button Style */
+    .payee-btn {
+        position: fixed;
+        left: 20px;
+        top: 20px;
+        background-color: #03045e;
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 10px 20px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        z-index: 100;
+        width: 10%;
+    }
+    
+    .payee-btn i {
+        margin-right: 8px;
+        font-size: 16px;
+    }
+    
+    .payee-btn:hover {
+        background: linear-gradient(135deg, #03045e 0%, #D90429 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+    }
+    
+    .payee-btn:active {
+        transform: translateY(1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Modal Styles */
+    .payee-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .payee-modal-content {
+        background-color: white;
+        border-radius: 10px;
+        width: 90%;
+        max-width: 1000px;
+        max-height: 80vh;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .payee-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+        background-color: #03045e;
+        color: white;
+    }
+    
+    .payee-modal-title {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+    }
+    
+    .payee-modal-title i {
+        margin-right: 8px;
+    }
+    
+    .payee-close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+        opacity: 0.8;
+        transition: opacity 0.2s, transform 0.2s;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+    }
+    
+    .payee-close:hover {
+        opacity: 1;
+        transform: scale(1.1);
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .payee-close:active {
+        transform: scale(0.95);
+    }
+    
+    .payee-modal-body {
+        padding: 20px;
+        overflow-y: auto;
+        max-height: calc(80vh - 130px);
+    }
+    
+    .payee-search {
+        margin-bottom: 15px;
+        display: flex;
+        position: relative;
+    }
+    
+    .payee-search input {
+        width: 100%;
+        padding: 10px 15px 10px 40px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+    
+    .payee-search i {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #666;
+    }
+    
+    .payee-table {
+        width: 100%;
+        border-collapse: collapse;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        border-radius: 5px;
+        overflow: hidden;
+    }
+    
+    .payee-table th, .payee-table td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .payee-table th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+        position: sticky;
+        top: 0;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        color: #03045e;
+    }
+    
+    .payee-table tbody tr:hover {
+        background-color: #f5f5f5;
+    }
+    
+    .payee-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .payee-badge {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        color: white;
+    }
+    
+    .payee-badge-internal {
+        background-color: #0d6efd;
+    }
+    
+    .payee-badge-external {
+        background-color: #fd7e14;
+    }
+    
+    .payee-modal-footer {
+        padding: 15px 20px;
+        border-top: 1px solid #eee;
+        display: flex;
+        justify-content: flex-end;
+        background-color: #f8f9fa;
+    }
+    
+    .payee-modal-footer button {
+        padding: 8px 20px;
+        border: none;
+        border-radius: 5px;
+        background-color: #03045e;
+        color: white;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+    }
+    
+    .payee-modal-footer button:hover {
+        background-color: #D90429;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    .payee-modal-footer button:active {
+        transform: translateY(1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .payee-loader {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 30px;
+        flex-direction: column;
+    }
+    
+    .payee-loader-spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #03045e;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 15px;
+    }
+    
+    .payee-loader-text {
+        color: #666;
+        font-size: 14px;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
 </style>
 
 <body>
+    <!-- Payee Button -->
+    <button id="viewPayeesBtn" class="payee-btn">
+        <i class="bi bi-people-fill"></i> View Payees
+    </button>
+    
+    <!-- Payee Modal -->
+    <div id="payeeModal" class="payee-modal">
+        <div class="payee-modal-content">
+            <div class="payee-modal-header">
+                <h3 class="payee-modal-title">
+                    <i class="bi bi-people-fill"></i> All Payees
+                </h3>
+                <button class="payee-close" id="closePayeeModal"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="payee-modal-body">
+                <div class="payee-search">
+                    <i class="bi bi-search"></i>
+                    <input type="text" id="payeeSearch" placeholder="Search payee by name, TIN, address...">
+                </div>
+                <div class="payee-table-container">
+                    <table class="payee-table" id="payeeTable">
+                        <thead>
+                            <tr>
+                                <th>Payee Name</th>
+                          
+                                <th>Address</th>
+                                <th>Category</th>
+                                <th>Contact Number</th>
+                               
+                            </tr>
+                        </thead>
+                        <tbody id="payeeTableBody">
+                            <!-- Payee data will be loaded here via AJAX -->
+                            <tr>
+                                <td colspan="7">
+                                    <div class="payee-loader">
+                                        <div class="payee-loader-spinner"></div>
+                                        <div class="payee-loader-text">Loading payee data...</div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+           
+        </div>
+    </div>
+
     <div class="loader-container" id="loader-container">
         <div class="loader">
             <svg height="0" width="0" viewBox="0 0 64 64" class="absolute">
@@ -339,6 +639,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </button>
         </form>
     </div>
+    
+    <!-- Bootstrap Script -->
+    <script src="bootstrap-5.2.3/js/bootstrap.bundle.min.js"></script>
 </body>
 <script>
     const carousel = document.getElementById('logo-carousel');
@@ -374,6 +677,137 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     window.addEventListener('load', function () {
         loaderContainer.style.display = 'none';
         loginButton.disabled = false;
+    });
+    
+    // Payee Modal Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const viewPayeesBtn = document.getElementById('viewPayeesBtn');
+        const payeeModal = document.getElementById('payeeModal');
+        const closePayeeModal = document.getElementById('closePayeeModal');
+        const closePayeeModalBtn = document.getElementById('closePayeeModalBtn');
+        const payeeSearch = document.getElementById('payeeSearch');
+        const payeeTableBody = document.getElementById('payeeTableBody');
+        
+        // Open modal
+        viewPayeesBtn.addEventListener('click', function() {
+            payeeModal.style.display = 'flex';
+            fetchPayeeData();
+        });
+        
+        // Close modal
+        closePayeeModal.addEventListener('click', function() {
+            payeeModal.style.display = 'none';
+        });
+        
+        closePayeeModalBtn.addEventListener('click', function() {
+            payeeModal.style.display = 'none';
+        });
+        
+        // Close when clicking outside modal
+        window.addEventListener('click', function(event) {
+            if (event.target === payeeModal) {
+                payeeModal.style.display = 'none';
+            }
+        });
+        
+        // Search functionality
+        payeeSearch.addEventListener('input', function() {
+            const searchText = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#payeeTable tbody tr');
+            
+            rows.forEach(row => {
+                const rowText = row.textContent.toLowerCase();
+                if (rowText.includes(searchText)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+        
+        // Fetch payee data from server
+        function fetchPayeeData() {
+            // Show loading message
+            payeeTableBody.innerHTML = `
+            <tr>
+                <td colspan="7">
+                    <div class="payee-loader">
+                        <div class="payee-loader-spinner"></div>
+                        <div class="payee-loader-text">Loading payee data...</div>
+                    </div>
+                </td>
+            </tr>`;
+            
+            // Use AJAX to fetch data
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', 'get_payees.php', true);
+            
+            xhr.onload = function() {
+                if (this.status === 200) {
+                    try {
+                        const payees = JSON.parse(this.responseText);
+                        
+                        if (payees.length === 0) {
+                            payeeTableBody.innerHTML = `
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 30px;">
+                                    <i class="bi bi-exclamation-circle text-warning me-2" style="font-size: 24px;"></i>
+                                    <p>No payee data available</p>
+                                </td>
+                            </tr>`;
+                            return;
+                        }
+                        
+                        // Build the table rows
+                        let html = '';
+                        payees.forEach(payee => {
+                            html += `
+                            <tr>
+                                <td><strong>${payee.payee_name || ''}</strong></td>
+                             
+                                <td>${payee.address || ''}</td>
+                                <td>${payee.nature || ''}</td>
+                                <td>${payee.contact_no || ''}</td>
+                               
+                            </tr>
+                            `;
+                        });
+                        
+                        payeeTableBody.innerHTML = html;
+                        
+                    } catch (e) {
+                        payeeTableBody.innerHTML = `
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 30px;">
+                                <i class="bi bi-exclamation-triangle text-danger me-2" style="font-size: 24px;"></i>
+                                <p>Error loading payee data</p>
+                            </td>
+                        </tr>`;
+                        console.error('Error parsing payee data:', e);
+                    }
+                } else {
+                    payeeTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 30px;">
+                            <i class="bi bi-exclamation-triangle text-danger me-2" style="font-size: 24px;"></i>
+                            <p>Error loading payee data</p>
+                        </td>
+                    </tr>`;
+                }
+            };
+            
+            xhr.onerror = function() {
+                payeeTableBody.innerHTML = `
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 30px;">
+                        <i class="bi bi-wifi-off text-danger me-2" style="font-size: 24px;"></i>
+                        <p>Error connecting to server</p>
+                    </td>
+                </tr>`;
+            };
+            
+            xhr.send();
+        }
     });
 </script>
 

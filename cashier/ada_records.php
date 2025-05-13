@@ -758,7 +758,32 @@ if (isset($_GET['regenerate_lddap']) && isset($_GET['reference'])) {
     });
     
     function openLDDAPForm(referenceNo) {
-        window.open('LDDAP-APA.html?ref=' + referenceNo, '_blank');
+        // Show loading state
+        const loadingMsg = 'Preparing LDDAP data...';
+        console.log(loadingMsg);
+        
+        // First make an AJAX call to set up the session data
+        fetch('back_end/prepare_lddap_data.php?ref=' + encodeURIComponent(referenceNo))
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Server response:', data);
+                if (data.success) {
+                    window.open('generate_lddap.php?ref=' + encodeURIComponent(referenceNo), '_blank');
+                } else {
+                    const errorMsg = data.message || 'Unknown error occurred';
+                    console.error('Server error:', errorMsg);
+                    alert('Error preparing LDDAP data: ' + errorMsg);
+                }
+            })
+            .catch(error => {
+                console.error('Error details:', error);
+                alert('Error preparing LDDAP data: ' + error.message + '\nPlease check the console for more details.');
+            });
     }
     </script>
 </body>
