@@ -63,6 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="NiceAdmin/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
 </head>
 <style>
+    
     body {
         font-family: 'Inter', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
         margin: 0;
@@ -699,14 +700,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     required>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" style="margin-bottom: 10px;">
                 <label for="password">Password</label>
                 <ion-icon name="lock-closed-outline"></ion-icon>
                 <input type="password" id="password" name="password" placeholder="Enter your Password"
                     autocomplete="off" required>
             </div>
 
-            <button type="submit" id="login-button">
+            <button type="submit" id="login-button" style="border-radius: 10px; margin-top: 15px;">
                 <span class="login-text">Login</span>
             </button>
         </form>
@@ -715,13 +716,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="footer-content">
             <img src="img/DTI_short.png" alt="DTI Logo" height="16">
             <p>Copyright &copy; 2025 Department of Trade and Industry -     DTI Region 12 Financial Processing System</p>
-            <div class="footer-links">
+            <!-- <div class="footer-links">
                 <a href="#">Terms</a>
                 <span class="footer-divider">|</span>
                 <a href="#">Privacy</a>
                 <span class="footer-divider">|</span>
                 <a href="#">Contact</a>
-            </div>
+            </div> -->
         </div>
     </footer>
 
