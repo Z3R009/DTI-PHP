@@ -487,6 +487,78 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
     }
+
+    /* Footer Styles */
+    footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(5px);
+        padding: 10px 20px;
+        text-align: center;
+        font-size: 12px;
+        color: #666;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+        z-index: 90;
+    }
+    
+    .footer-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    
+    footer img {
+        vertical-align: middle;
+        margin-right: 5px;
+    }
+    
+    footer p {
+        margin: 0;
+    }
+    
+    .footer-links {
+        display: flex;
+        align-items: center;
+    }
+    
+    .footer-divider {
+        margin: 0 8px;
+        color: #ccc;
+        font-size: 10px;
+    }
+    
+    footer a {
+        color: #03045e;
+        text-decoration: none;
+        transition: color 0.3s;
+        font-weight: 500;
+    }
+    
+    footer a:hover {
+        color: #D90429;
+    }
+    
+    @media (max-width: 768px) {
+        footer {
+            padding: 8px 15px;
+            font-size: 11px;
+        }
+        
+        .footer-content {
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .footer-links {
+            margin-top: 5px;
+        }
+    }
 </style>
 
 <body>
@@ -638,7 +710,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <span class="login-text">Login</span>
             </button>
         </form>
-    </div>
+    </div> 
+    <footer>
+        <div class="footer-content">
+            <img src="img/DTI_short.png" alt="DTI Logo" height="16">
+            <p>Copyright &copy; 2025 Department of Trade and Industry -     DTI Region 12 Financial Processing System</p>
+            <div class="footer-links">
+                <a href="#">Terms</a>
+                <span class="footer-divider">|</span>
+                <a href="#">Privacy</a>
+                <span class="footer-divider">|</span>
+                <a href="#">Contact</a>
+            </div>
+        </div>
+    </footer>
+
     
     <!-- Bootstrap Script -->
     <script src="bootstrap-5.2.3/js/bootstrap.bundle.min.js"></script>
