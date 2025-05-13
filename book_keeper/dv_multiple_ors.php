@@ -108,6 +108,76 @@ $dv_no = $fund_cluster . '-' . date('Y') . '-' . str_pad($next_number, 4, '0', S
             background-color: #f5f5f5 !important;
             color: #333 !important;
         }
+
+        /* General Checkbox Styling */
+        .custom-checkbox {
+            position: relative;
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Hide the default checkbox */
+        .custom-checkbox input {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        /* Custom checkbox design */
+        .custom-checkbox .checkmark {
+            width: 20px;
+            height: 20px;
+            background-color: #fff;
+            border: 2px solid #007bff;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+
+        /* Add checkmark icon when checked */
+        .custom-checkbox input:checked+.checkmark::after {
+            content: '\2713';
+            /* Unicode checkmark */
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        /* Background color when checked */
+        .custom-checkbox input:checked+.checkmark {
+            background-color: #007bff;
+            border-color: #0056b3;
+        }
+
+        /* Hover Effect */
+        .custom-checkbox:hover .checkmark {
+            background-color: #e9f5ff;
+        }
+
+        /* Disabled checkbox */
+        .custom-checkbox input:disabled+.checkmark {
+            background-color: #ccc;
+            border-color: #aaa;
+            cursor: not-allowed;
+        }
+
+        .custom-check .form-check-input {
+            width: 25px;
+            height: 25px;
+            border: 2px solid #0d6efd;
+            background-color: #f0f8ff;
+            cursor: pointer;
+        }
+
+        .custom-check .form-check-input:checked {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
     </style>
 
 </head>
@@ -203,12 +273,13 @@ $dv_no = $fund_cluster . '-' . date('Y') . '-' . str_pad($next_number, 4, '0', S
                     </div>
                 </div>
 
-                <div class="form-section">
+                <!-- tax -->
+                <div class=" form-section">
                     <h3><i class="bi bi-calculator me-2"></i>Breakdown of Expenses</h3>
                     <div class="form-row">
                         <div class="form-group half-width">
                             <label class="form-label">Gross Amount</label>
-                            <input type="number" class="form-control" name="total_amount"
+                            <input type="number" class="form-control" name="total_amount" id="total_amount"
                                 value="<?php echo $total_amount; ?>" step="0.01" readonly>
                         </div>
                         <div class="form-group half-width">
@@ -265,6 +336,7 @@ $dv_no = $fund_cluster . '-' . date('Y') . '-' . str_pad($next_number, 4, '0', S
                     </div>
                 </div>
 
+
                 <div class="form-section">
                     <h3><i class="bi bi-journal-text me-2"></i>Accounting Entry</h3>
                     <div class="table-responsive">
@@ -316,6 +388,25 @@ $dv_no = $fund_cluster . '-' . date('Y') . '-' . str_pad($next_number, 4, '0', S
                                             step="0.01" readonly></td>
                                     <td><button type="button" class="btn btn-danger btn-sm delete-row"><i
                                                 class="bi bi-trash"></i></button></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <button type="button" id="addAccountRow" class="btn btn-secondary">
+                                            <i class="bi bi-plus-lg"></i> Add Row
+                                        </button>
+                                    </td>
+                                    <td colspan="3"></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="form-check custom-check">
+                                            <input class="form-check-input" type="checkbox" id="selectAll"> &nbsp
+                                            <label class="form-check-label" for="selectAll">Include
+                                                Tax</label>
+                                        </div>
+
+                                    </td>
+                                    <td colspan="3"></td>
                                 </tr>
                             </tfoot>
                         </table>
@@ -377,227 +468,456 @@ $dv_no = $fund_cluster . '-' . date('Y') . '-' . str_pad($next_number, 4, '0', S
 
     <!-- Tax calculation script -->
     <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const amountInput = document.getElementById("total_amount");
-        const applyTaxesCheckbox = document.getElementById("apply_taxes");
-        const vatPercentageInput = document.getElementById("vat_percentage");
-        const tax1PercentageInput = document.getElementById("tax1_percentage");
-        const tax2PercentageInput = document.getElementById("tax2_percentage");
-        const vatAmountInput = document.getElementById("vat_amount");
-        const taxBaseInput = document.getElementById("tax_base");
-        const tax1Input = document.getElementById("tax_1");
-        const tax2Input = document.getElementById("tax_2");
-        const netAmountInput = document.getElementById("net_amount");
+        document.addEventListener("DOMContentLoaded", function () {
+            const amountInput = document.getElementById("total_amount");
+            const applyTaxesCheckbox = document.getElementById("apply_taxes");
+            const vatPercentageInput = document.getElementById("vat_percentage");
+            const tax1PercentageInput = document.getElementById("tax1_percentage");
+            const tax2PercentageInput = document.getElementById("tax2_percentage");
+            const vatAmountInput = document.getElementById("vat_amount");
+            const taxBaseInput = document.getElementById("tax_base");
+            const tax1Input = document.getElementById("tax_1");
+            const tax2Input = document.getElementById("tax_2");
+            const netAmountInput = document.getElementById("net_amount");
 
-        function setTaxFieldsEditability() {
-            const isVatChecked = applyTaxesCheckbox.checked;
-            if (isVatChecked) {
-                tax1Input.setAttribute("readonly", "readonly");
-                tax2Input.setAttribute("readonly", "readonly");
-            } else {
-                tax1Input.removeAttribute("readonly");
-                tax2Input.removeAttribute("readonly");
+            function setTaxFieldsEditability() {
+                const isVatChecked = applyTaxesCheckbox.checked;
+                if (isVatChecked) {
+                    tax1Input.setAttribute("readonly", "readonly");
+                    tax2Input.setAttribute("readonly", "readonly");
+                } else {
+                    tax1Input.removeAttribute("readonly");
+                    tax2Input.removeAttribute("readonly");
+                }
+                tax1PercentageInput.style.backgroundColor = isVatChecked ? "#f0f0f0" : "white";
+                tax2PercentageInput.style.backgroundColor = isVatChecked ? "#f0f0f0" : "white";
+                tax1Input.style.backgroundColor = isVatChecked ? "#f0f0f0" : "white";
+                tax2Input.style.backgroundColor = isVatChecked ? "#f0f0f0" : "white";
             }
-            tax1PercentageInput.style.backgroundColor = isVatChecked ? "#f0f0f0" : "white";
-            tax2PercentageInput.style.backgroundColor = isVatChecked ? "#f0f0f0" : "white";
-            tax1Input.style.backgroundColor = isVatChecked ? "#f0f0f0" : "white";
-            tax2Input.style.backgroundColor = isVatChecked ? "#f0f0f0" : "white";
-        }
 
-        function recalculateTaxAmounts() {
-            const grossAmount = parseFloat(taxBaseInput.value) || 0;
-            const tax1Percentage = parseFloat(tax1PercentageInput.value) || 0;
-            const tax2Percentage = parseFloat(tax2PercentageInput.value) || 0;
-            const tax1Amount = grossAmount * (tax1Percentage / 100);
-            const tax2Amount = grossAmount * (tax2Percentage / 100);
-            tax1Input.value = tax1Amount.toFixed(2);
-            tax2Input.value = tax2Amount.toFixed(2);
-            recalculateNetAmount();
-        }
-
-        function recalculateNetAmount() {
-            const grossAmount = parseFloat(amountInput.value) || 0;
-            const tax1Amount = parseFloat(tax1Input.value) || 0;
-            const tax2Amount = parseFloat(tax2Input.value) || 0;
-            const totalTaxes = tax1Amount + tax2Amount;
-            const netAmount = grossAmount - totalTaxes;
-            netAmountInput.value = netAmount.toFixed(2);
-        }
-
-        function calculate() {
-            const grossAmount = parseFloat(amountInput.value) || 0;
-            if (applyTaxesCheckbox.checked) {
-                const vatPercentage = 12;
-                const vatAmount = (grossAmount * vatPercentage) / (100 + vatPercentage);
-                const taxBase = grossAmount - vatAmount;
-                const tax1Amount = taxBase * 0.05;
-                const tax2Amount = taxBase * 0.02;
-                tax1PercentageInput.value = "5";
-                tax2PercentageInput.value = "2";
-                vatAmountInput.value = vatAmount.toFixed(2);
-                taxBaseInput.value = taxBase.toFixed(2);
-                tax1Input.value = tax1Amount.toFixed(2);
-                tax2Input.value = tax2Amount.toFixed(2);
-                netAmountInput.value = (grossAmount - tax1Amount - tax2Amount).toFixed(2);
-            } else {
-                if (tax1PercentageInput.value === "" || tax1PercentageInput.value === "5") {
-                    tax1PercentageInput.value = "0";
-                }
-                if (tax2PercentageInput.value === "" || tax2PercentageInput.value === "2") {
-                    tax2PercentageInput.value = "0";
-                }
+            function recalculateTaxAmounts() {
+                const grossAmount = parseFloat(taxBaseInput.value) || 0;
                 const tax1Percentage = parseFloat(tax1PercentageInput.value) || 0;
                 const tax2Percentage = parseFloat(tax2PercentageInput.value) || 0;
                 const tax1Amount = grossAmount * (tax1Percentage / 100);
                 const tax2Amount = grossAmount * (tax2Percentage / 100);
-                vatAmountInput.value = "0.00";
-                taxBaseInput.value = grossAmount.toFixed(2);
                 tax1Input.value = tax1Amount.toFixed(2);
                 tax2Input.value = tax2Amount.toFixed(2);
-                netAmountInput.value = (grossAmount - tax1Amount - tax2Amount).toFixed(2);
+                recalculateNetAmount();
             }
+
+            function recalculateNetAmount() {
+                const grossAmount = parseFloat(amountInput.value) || 0;
+                const tax1Amount = parseFloat(tax1Input.value) || 0;
+                const tax2Amount = parseFloat(tax2Input.value) || 0;
+                const totalTaxes = tax1Amount + tax2Amount;
+                const netAmount = grossAmount - totalTaxes;
+                netAmountInput.value = netAmount.toFixed(2);
+            }
+
+            function calculate() {
+                const grossAmount = parseFloat(amountInput.value) || 0;
+                if (applyTaxesCheckbox.checked) {
+                    const vatPercentage = 12;
+                    const vatAmount = (grossAmount * vatPercentage) / (100 + vatPercentage);
+                    const taxBase = grossAmount - vatAmount;
+                    const tax1Amount = taxBase * 0.05;
+                    const tax2Amount = taxBase * 0.02;
+                    tax1PercentageInput.value = "5";
+                    tax2PercentageInput.value = "2";
+                    vatAmountInput.value = vatAmount.toFixed(2);
+                    taxBaseInput.value = taxBase.toFixed(2);
+                    tax1Input.value = tax1Amount.toFixed(2);
+                    tax2Input.value = tax2Amount.toFixed(2);
+                    netAmountInput.value = (grossAmount - tax1Amount - tax2Amount).toFixed(2);
+                } else {
+                    if (tax1PercentageInput.value === "" || tax1PercentageInput.value === "5") {
+                        tax1PercentageInput.value = "0";
+                    }
+                    if (tax2PercentageInput.value === "" || tax2PercentageInput.value === "2") {
+                        tax2PercentageInput.value = "0";
+                    }
+                    const tax1Percentage = parseFloat(tax1PercentageInput.value) || 0;
+                    const tax2Percentage = parseFloat(tax2PercentageInput.value) || 0;
+                    const tax1Amount = grossAmount * (tax1Percentage / 100);
+                    const tax2Amount = grossAmount * (tax2Percentage / 100);
+                    vatAmountInput.value = "0.00";
+                    taxBaseInput.value = grossAmount.toFixed(2);
+                    tax1Input.value = tax1Amount.toFixed(2);
+                    tax2Input.value = tax2Amount.toFixed(2);
+                    netAmountInput.value = (grossAmount - tax1Amount - tax2Amount).toFixed(2);
+                }
+                setTaxFieldsEditability();
+            }
+
+            // Attach event listeners
+            amountInput.addEventListener("input", calculate);
+            applyTaxesCheckbox.addEventListener("change", calculate);
+            tax1PercentageInput.addEventListener("input", function () {
+                if (!applyTaxesCheckbox.checked) recalculateTaxAmounts();
+            });
+            tax2PercentageInput.addEventListener("input", function () {
+                if (!applyTaxesCheckbox.checked) recalculateTaxAmounts();
+            });
+            tax1Input.addEventListener("input", function () {
+                if (!applyTaxesCheckbox.checked) recalculateNetAmount();
+            });
+            tax2Input.addEventListener("input", function () {
+                if (!applyTaxesCheckbox.checked) recalculateNetAmount();
+            });
+            taxBaseInput.addEventListener("input", function () {
+                if (!applyTaxesCheckbox.checked) recalculateTaxAmounts();
+            });
+
+            // Force calculation on page load
             setTaxFieldsEditability();
-        }
-
-        // Attach event listeners
-        amountInput.addEventListener("input", calculate);
-        applyTaxesCheckbox.addEventListener("change", calculate);
-        tax1PercentageInput.addEventListener("input", function () {
-            if (!applyTaxesCheckbox.checked) recalculateTaxAmounts();
+            calculate();
         });
-        tax2PercentageInput.addEventListener("input", function () {
-            if (!applyTaxesCheckbox.checked) recalculateTaxAmounts();
-        });
-        tax1Input.addEventListener("input", function () {
-            if (!applyTaxesCheckbox.checked) recalculateNetAmount();
-        });
-        tax2Input.addEventListener("input", function () {
-            if (!applyTaxesCheckbox.checked) recalculateNetAmount();
-        });
-        taxBaseInput.addEventListener("input", function () {
-            if (!applyTaxesCheckbox.checked) recalculateTaxAmounts();
-        });
-
-        // Force calculation on page load
-        setTaxFieldsEditability();
-        calculate();
-    });
     </script>
 
-    <!-- Add row and calculate totals script -->
+    <!-- dv number -->
+
     <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const tableBody = document.getElementById('accountingTableBody');
+        document.addEventListener("DOMContentLoaded", function () {
+            generateDVNumber(); // Call function when page loads
 
-        // Function to setup account select with Select2
-        function setupAccountSelect(row) {
-            const accountSelect = row.querySelector('.account-select');
-            $(accountSelect).select2({
-                theme: 'bootstrap-5',
-                width: '100%',
-                placeholder: 'Select Account',
-                allowClear: true
-            });
-        }
-
-        // Function to calculate totals
-        function calculateTotals() {
-            let totalDebit = 0;
-            let totalCredit = 0;
-
-            const debitInputs = document.querySelectorAll('tbody .debit-amount');
-            const creditInputs = document.querySelectorAll('tbody .credit-amount');
-
-            debitInputs.forEach(input => {
-                totalDebit += parseFloat(input.value || 0);
-            });
-
-            creditInputs.forEach(input => {
-                totalCredit += parseFloat(input.value || 0);
-            });
-
-            const difference = totalDebit - totalCredit;
-            const footerCreditInput = document.querySelector('tfoot .credit-amount');
-            if (footerCreditInput) {
-                footerCreditInput.value = difference.toFixed(2);
+            // Re-fetch DV number when fund cluster input changes
+            let fundClusterInput = document.getElementById("fund_cluster");
+            if (fundClusterInput) {
+                fundClusterInput.addEventListener("input", generateDVNumber);
+            } else {
+                console.error("Fund cluster input field not found!");
             }
-        }
 
-        // Add event listener for the "Add Row" button
-        document.getElementById('addAccountRow').addEventListener('click', function () {
-            const newRow = document.createElement('tr');
-            newRow.innerHTML = `
-            <td colspan="2">
-                <select class="form-control account-select" name="account_titles[]" required>
-                    <option selected disabled value="">Select Account</option>
-                    <?php
-                    $account_result->data_seek(0);
-                    while ($account = $account_result->fetch_assoc()) {
-                        echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
-                    }
-                    ?>
-                </select>
-            </td>
-            <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
-            <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01"></td>
-            <td><button type="button" class="btn btn-danger btn-sm delete-row"><i class="bi bi-trash"></i></button></td>
-        `;
-
-            tableBody.appendChild(newRow);
-            setupAccountSelect(newRow);
-            setupCalculationListeners(newRow);
+            // Re-fetch DV number when date input changes
+            let dateInput = document.getElementById("date");
+            if (dateInput) {
+                dateInput.addEventListener("change", generateDVNumber);
+            } else {
+                console.error("Date input field not found!");
+            }
         });
 
-        // Function to setup calculation listeners for a row
-        function setupCalculationListeners(row) {
-            const debitInput = row.querySelector('.debit-amount');
-            const creditInput = row.querySelector('.credit-amount');
-            const deleteButton = row.querySelector('.delete-row');
+        function generateDVNumber() {
+            let fundClusterInput = document.getElementById("fund_cluster");
+            let dateInput = document.getElementById("date");
 
-            debitInput.addEventListener('input', function () {
-                if (this.value && parseFloat(this.value) > 0) {
-                    creditInput.value = '';
-                }
-                calculateTotals();
-            });
+            if (!fundClusterInput) {
+                console.error("Fund cluster input field not found!");
+                return;
+            }
 
-            creditInput.addEventListener('input', function () {
-                if (this.value && parseFloat(this.value) > 0) {
-                    debitInput.value = '';
-                }
-                calculateTotals();
-            });
+            let fundClusterValue = fundClusterInput.value.trim();
+            let fundClusterNumber = fundClusterValue.match(/^\d+/); // Extract only the leading number
 
-            if (deleteButton) {
-                deleteButton.addEventListener('click', function () {
-                    if (tableBody.querySelectorAll('tr').length > 1) {
-                        row.remove();
-                        calculateTotals();
+            if (!fundClusterNumber) {
+                console.error("Fund cluster ID is missing or invalid!");
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append("fund_cluster_id", fundClusterNumber[0]); // Send only the number
+
+            // Add date parameter if available
+            if (dateInput && dateInput.value) {
+                formData.append("date", dateInput.value);
+            }
+
+            fetch("fetch_dv_number.php", {
+                method: "POST",
+                body: formData,
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Fetched DV Data:", data); // Debugging
+                    let dvNoInput = document.getElementById("dv_no");
+
+                    if (dvNoInput) {
+                        if (data.success) {
+                            dvNoInput.value = data.dv_no;
+                            console.log("DV No Set:", dvNoInput.value);
+                        } else {
+                            console.error("Error fetching DV number:", data.error);
+                        }
                     } else {
-                        alert("Cannot delete the last row. At least one account entry is required.");
+                        console.error("DV Number input field not found!");
+                    }
+                })
+                .catch(error => console.error("Fetch error:", error));
+        }
+
+
+    </script>
+
+
+    <!-- add row and calculate totals -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const tableBody = document.getElementById('accountingTableBody');
+
+            // Function to setup account select with Select2
+            function setupAccountSelect(row) {
+                const accountSelect = row.querySelector('.account-select');
+                const uacsInput = row.querySelector('.uacs-code');
+
+                // Initialize Select2
+                $(accountSelect).select2({
+                    theme: 'bootstrap-5',
+                    width: '100%',
+                    placeholder: 'Select Account',
+                    allowClear: true
+                });
+
+                // Update UACS code when selection changes
+                $(accountSelect).on('change', function () {
+                    const selectedOption = $(this).find('option:selected');
+                    if (uacsInput) {
+                        uacsInput.value = selectedOption.data('uacs') || '';
                     }
                 });
             }
-        }
 
-        // Setup initial rows
-        const initialRows = tableBody.querySelectorAll('tr');
-        initialRows.forEach(row => {
-            setupAccountSelect(row);
-            setupCalculationListeners(row);
-        });
+            // Function to calculate totals
+            function calculateTotals() {
+                let totalDebit = 0;
+                let totalCredit = 0;
 
-        // Initialize Select2 on existing account selects
-        $('.account-select').each(function () {
-            $(this).select2({
-                theme: 'bootstrap-5',
-                width: '100%',
-                placeholder: 'Select Account',
-                allowClear: true
+                // Get all debit and credit inputs except the footer row
+                const debitInputs = document.querySelectorAll('tbody .debit-amount');
+                const creditInputs = document.querySelectorAll('tbody .credit-amount');
+
+                // Sum up debit amounts
+                debitInputs.forEach(input => {
+                    totalDebit += parseFloat(input.value || 0);
+                });
+
+                // Sum up credit amounts
+                creditInputs.forEach(input => {
+                    totalCredit += parseFloat(input.value || 0);
+                });
+
+                // Calculate the difference (total debit - total credit)
+                const difference = totalDebit - totalCredit;
+
+                // Update the footer row's credit field with the difference
+                const footerCreditInput = document.querySelector('tfoot .credit-amount');
+                if (footerCreditInput) {
+                    footerCreditInput.value = difference.toFixed(2);
+                }
+            }
+
+            // Function to filter account titles
+            function filterAccountTitles(select, selectedType) {
+                const currentValue = $(select).val();
+
+                // Get all options
+                const options = $(select).find('option');
+
+                // Filter options based on selected type
+                options.each(function () {
+                    if ($(this).val() === "") return; // Skip the "Select Account" option
+
+                    const accountTitle = $(this).data('title')?.toLowerCase() || '';
+                    const accountCode = $(this).data('uacs') || '';
+
+                    if (selectedType === "cash_advance") {
+                        $(this).toggle(accountTitle.includes('advance'));
+                    } else if (selectedType === "transfer_fund") {
+                        $(this).toggle(accountTitle.includes('cash') && accountCode.startsWith('10'));
+                    } else {
+                        $(this).show();
+                    }
+                });
+
+                // Restore selection if it's still valid
+                if (currentValue && $(select).find(`option[value="${currentValue}"]`).length) {
+                    $(select).val(currentValue).trigger('change');
+                } else {
+                    $(select).val(null).trigger('change');
+                }
+            }
+
+            // Add event listener for the "Add Row" button
+            document.getElementById('addAccountRow').addEventListener('click', function () {
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                <td colspan="2">
+                    <select class="form-control account-select" name="account_titles[]" required>
+                        <option selected disabled value="">Select Account</option>
+                        <?php
+                        $account_result->data_seek(0);
+                        while ($account = $account_result->fetch_assoc()) {
+                            echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
+                        }
+                        ?>
+                    </select>
+                </td>
+                <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
+                <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01"></td>
+                <td><button type="button" class="btn btn-danger btn-sm delete-row"><i class="bi bi-trash"></i></button></td>
+            `;
+
+                tableBody.appendChild(newRow);
+                setupAccountSelect(newRow);
+                setupCalculationListeners(newRow);
+
+                // Filter account titles for the new row
+                const orsTypeSelect = document.getElementById("ors_type");
+                const accountSelect = newRow.querySelector('.account-select');
+                filterAccountTitles(accountSelect, orsTypeSelect.value);
+            });
+
+            // Function to setup calculation listeners for a row
+            function setupCalculationListeners(row) {
+                const debitInput = row.querySelector('.debit-amount');
+                const creditInput = row.querySelector('.credit-amount');
+                const deleteButton = row.querySelector('.delete-row');
+
+                debitInput.addEventListener('input', function () {
+                    if (this.value && parseFloat(this.value) > 0) {
+                        creditInput.value = ''; // Clear credit when debit has value
+                    }
+                    calculateTotals();
+                });
+
+                creditInput.addEventListener('input', function () {
+                    if (this.value && parseFloat(this.value) > 0) {
+                        debitInput.value = ''; // Clear debit when credit has value
+                    }
+                    calculateTotals();
+                });
+
+                if (deleteButton) {
+                    deleteButton.addEventListener('click', function () {
+                        // Don't delete if it's the only row in tbody
+                        if (tableBody.querySelectorAll('tr').length > 1) {
+                            row.remove();
+                            calculateTotals();
+                        } else {
+                            alert("Cannot delete the last row. At least one account entry is required.");
+                        }
+                    });
+                }
+            }
+
+            // Setup initial row
+            const initialRow = tableBody.querySelector('tr');
+            setupAccountSelect(initialRow);
+            setupCalculationListeners(initialRow);
+
+            // Add event listener for DV type changes
+            document.getElementById('ors_type').addEventListener('change', function () {
+                const selectedType = this.value;
+                const accountSelects = document.querySelectorAll('.account-select');
+                accountSelects.forEach(select => {
+                    filterAccountTitles(select, selectedType);
+                });
+            });
+
+            // Initialize Select2 on existing account selects when the page loads
+            document.addEventListener('DOMContentLoaded', function () {
+                // Initialize Select2 on all existing account selects
+                $('.account-select').each(function () {
+                    $(this).select2({
+                        theme: 'bootstrap-5',
+                        width: '100%',
+                        placeholder: 'Select Account',
+                        allowClear: true
+                    });
+                });
+
+                // Setup calculation listeners for existing rows
+                const existingRows = document.querySelectorAll('tbody tr');
+                existingRows.forEach(row => {
+                    setupCalculationListeners(row);
+                });
             });
         });
-    });
     </script>
+
+    <!-- checkbox -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const rowCheckboxes = document.querySelectorAll('.row-checkbox');
+            const messageContainer = document.getElementById('payeeMessage');
+            const submitSelectedBtn = document.getElementById('submitSelected');
+            let firstSelectedPayee = null;
+
+            function updateCheckboxStates(clickedCheckbox) {
+                const isChecked = clickedCheckbox.checked;
+                const clickedPayee = clickedCheckbox.dataset.payee;
+
+                if (isChecked) {
+                    if (!firstSelectedPayee) {
+                        firstSelectedPayee = clickedPayee;
+                    }
+
+                    rowCheckboxes.forEach(cb => {
+                        if (cb.dataset.payee !== firstSelectedPayee) {
+                            cb.checked = false;
+                            cb.disabled = true;
+                        } else {
+                            cb.disabled = false;
+                        }
+                    });
+                } else {
+                    const remainingChecked = Array.from(rowCheckboxes).filter(cb => cb.checked);
+                    if (remainingChecked.length === 0) {
+                        firstSelectedPayee = null;
+                        rowCheckboxes.forEach(cb => cb.disabled = false);
+                        messageContainer.style.display = 'none';
+                    }
+                }
+
+                updateBulkUI();
+            }
+
+            function updateBulkUI() {
+                const checkedBoxes = Array.from(rowCheckboxes).filter(cb => cb.checked);
+                const payees = checkedBoxes.map(cb => cb.dataset.payee);
+                const allSamePayee = new Set(payees).size <= 1;
+
+                if (checkedBoxes.length >= 2 && allSamePayee) {
+                    messageContainer.style.display = 'none';
+                    submitSelectedBtn.style.display = 'inline-block';
+                } else if (checkedBoxes.length >= 1 && !allSamePayee) {
+                    messageContainer.textContent = 'Cannot select multiple rows with different payees.';
+                    messageContainer.style.display = 'block';
+                    submitSelectedBtn.style.display = 'none';
+                } else if (checkedBoxes.length === 1) {
+                    messageContainer.textContent = 'Please select at least 2 ORS entries with the same payee.';
+                    messageContainer.style.display = 'block';
+                    submitSelectedBtn.style.display = 'none';
+                } else {
+                    messageContainer.style.display = 'none';
+                    submitSelectedBtn.style.display = 'none';
+                }
+            }
+
+            rowCheckboxes.forEach(cb => {
+                cb.addEventListener('change', function () {
+                    updateCheckboxStates(this);
+                });
+            });
+
+            // Handle submit button click
+            submitSelectedBtn.addEventListener('click', function () {
+                const selected = Array.from(document.querySelectorAll('.row-checkbox:checked'))
+                    .map(cb => cb.value);
+
+                if (selected.length >= 2) {
+                    const params = new URLSearchParams();
+                    selected.forEach(id => params.append('ids[]', id));
+                    window.location.href = 'dv_multiple_ors.php?' + params.toString();
+                } else {
+                    alert('Please select at least 2 ORS entries with the same payee.');
+                }
+            });
+        });
+    </script>
+
+
 </body>
 
 </html>

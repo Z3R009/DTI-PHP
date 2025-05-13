@@ -1,7 +1,7 @@
 <?php
 include '../DBConnection.php';
 
-$alert = ""; // Store alert script here
+$alert = "";
 
 if (isset($_POST['submit'])) {
     $payee_name = $_POST['payee_name'];
@@ -578,6 +578,7 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                     const address = this.getAttribute("data-address");
                     const nature = this.getAttribute("data-nature");
                     const contact_no = this.getAttribute("data-contact_no");
+                    const payee_type = this.getAttribute("data-payee_type");
 
                     document.getElementById("edit_payee_id").value = id;
                     document.getElementById("edit_payee_name").value = payee_name;
@@ -586,6 +587,7 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                     document.getElementById("edit_address").value = address;
                     document.getElementById("edit_nature").value = nature;
                     document.getElementById("edit_contact_no").value = contact_no;
+                    document.getElementById("edit_payee_type").value = payee_type;
                 });
             });
 
@@ -608,7 +610,7 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
     <script>
         function deleteUser(userID) {
             Swal.fire({
-                title: 'Delete Account Title?',
+                title: 'Delete Payee?',
                 text: "This action cannot be undone!",
                 icon: 'warning',
                 showCancelButton: true,
@@ -619,7 +621,7 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = 'delete_account.php?account_id=' + userID + '&confirm=yes';
+                    window.location.href = 'delete_payee.php?payee_id=' + userID + '&confirm=yes';
                 }
             })
         }
@@ -691,7 +693,7 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
             Swal.fire({
                 icon: '<?php echo $_GET["updated"] === "success" ? "success" : "error"; ?>',
                 title: '<?php echo $_GET["updated"] === "success" ? "Updated!" : "Error!"; ?>',
-                text: '<?php echo $_GET["updated"] === "success" ? "Account Title has been updated successfully." : "There was a problem updating the payee."; ?>',
+                text: '<?php echo $_GET["updated"] === "success" ? "Payee has been updated successfully." : "There was a problem updating the payee."; ?>',
                 confirmButtonColor: '#3085d6'
             });
         </script>
