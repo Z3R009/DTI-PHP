@@ -43,6 +43,10 @@ if (empty($ors_details)) {
     exit;
 }
 
+// Fetch all account titles for dropdown
+$account_query = "SELECT * FROM account_title ORDER BY account_title ASC";
+$account_result = $connection->query($account_query);
+
 // Calculate totals and get common information
 $total_amount = 0;
 $payee_name = $ors_details[0]['payee_name'];
@@ -658,8 +662,7 @@ $dv_no = $fund_cluster . '-' . date('Y') . '-' . str_pad($next_number, 4, '0', S
             // Function to setup account select with Select2
             function setupAccountSelect(row) {
                 const accountSelect = row.querySelector('.account-select');
-                const uacsInput = row.querySelector('.uacs-code');
-
+                
                 // Initialize Select2
                 $(accountSelect).select2({
                     theme: 'bootstrap-5',
@@ -667,105 +670,7 @@ $dv_no = $fund_cluster . '-' . date('Y') . '-' . str_pad($next_number, 4, '0', S
                     placeholder: 'Select Account',
                     allowClear: true
                 });
-
-                // Update UACS code when selection changes
-                $(accountSelect).on('change', function () {
-                    const selectedOption = $(this).find('option:selected');
-                    if (uacsInput) {
-                        uacsInput.value = selectedOption.data('uacs') || '';
-                    }
-                });
             }
-
-            // Function to calculate totals
-            function calculateTotals() {
-                let totalDebit = 0;
-                let totalCredit = 0;
-
-                // Get all debit and credit inputs except the footer row
-                const debitInputs = document.querySelectorAll('tbody .debit-amount');
-                const creditInputs = document.querySelectorAll('tbody .credit-amount');
-
-                // Sum up debit amounts
-                debitInputs.forEach(input => {
-                    totalDebit += parseFloat(input.value || 0);
-                });
-
-                // Sum up credit amounts
-                creditInputs.forEach(input => {
-                    totalCredit += parseFloat(input.value || 0);
-                });
-
-                // Calculate the difference (total debit - total credit)
-                const difference = totalDebit - totalCredit;
-
-                // Update the footer row's credit field with the difference
-                const footerCreditInput = document.querySelector('tfoot .credit-amount');
-                if (footerCreditInput) {
-                    footerCreditInput.value = difference.toFixed(2);
-                }
-            }
-
-            // Function to filter account titles
-            function filterAccountTitles(select, selectedType) {
-                const currentValue = $(select).val();
-
-                // Get all options
-                const options = $(select).find('option');
-
-                // Filter options based on selected type
-                options.each(function () {
-                    if ($(this).val() === "") return; // Skip the "Select Account" option
-
-                    const accountTitle = $(this).data('title')?.toLowerCase() || '';
-                    const accountCode = $(this).data('uacs') || '';
-
-                    if (selectedType === "cash_advance") {
-                        $(this).toggle(accountTitle.includes('advance'));
-                    } else if (selectedType === "transfer_fund") {
-                        $(this).toggle(accountTitle.includes('cash') && accountCode.startsWith('10'));
-                    } else {
-                        $(this).show();
-                    }
-                });
-
-                // Restore selection if it's still valid
-                if (currentValue && $(select).find(`option[value="${currentValue}"]`).length) {
-                    $(select).val(currentValue).trigger('change');
-                } else {
-                    $(select).val(null).trigger('change');
-                }
-            }
-
-            // Add event listener for the "Add Row" button
-            document.getElementById('addAccountRow').addEventListener('click', function () {
-                const newRow = document.createElement('tr');
-                newRow.innerHTML = `
-                <td colspan="2">
-                    <select class="form-control account-select" name="account_titles[]" required>
-                        <option selected disabled value="">Select Account</option>
-                        <?php
-                        $account_result->data_seek(0);
-                        while ($account = $account_result->fetch_assoc()) {
-                            echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
-                        }
-                        ?>
-                    </select>
-                </td>
-                <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
-                <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01"></td>
-                <td><button type="button" class="btn btn-danger btn-sm delete-row"><i class="bi bi-trash"></i></button></td>
-            `;
-
-                tableBody.appendChild(newRow);
-                setupAccountSelect(newRow);
-                setupCalculationListeners(newRow);
-
-                // Filter account titles for the new row
-                const orsTypeSelect = document.getElementById("ors_type");
-                const accountSelect = newRow.querySelector('.account-select');
-                filterAccountTitles(accountSelect, orsTypeSelect.value);
-            });
 
             // Function to setup calculation listeners for a row
             function setupCalculationListeners(row) {
@@ -800,37 +705,65 @@ $dv_no = $fund_cluster . '-' . date('Y') . '-' . str_pad($next_number, 4, '0', S
                 }
             }
 
-            // Setup initial row
-            const initialRow = tableBody.querySelector('tr');
-            setupAccountSelect(initialRow);
-            setupCalculationListeners(initialRow);
+            // Function to calculate totals
+            function calculateTotals() {
+                let totalDebit = 0;
+                let totalCredit = 0;
 
-            // Add event listener for DV type changes
-            document.getElementById('ors_type').addEventListener('change', function () {
-                const selectedType = this.value;
-                const accountSelects = document.querySelectorAll('.account-select');
-                accountSelects.forEach(select => {
-                    filterAccountTitles(select, selectedType);
+                // Get all debit and credit inputs except the footer row
+                const debitInputs = document.querySelectorAll('tbody .debit-amount');
+                const creditInputs = document.querySelectorAll('tbody .credit-amount');
+
+                // Sum up debit amounts
+                debitInputs.forEach(input => {
+                    totalDebit += parseFloat(input.value || 0);
                 });
+
+                // Sum up credit amounts
+                creditInputs.forEach(input => {
+                    totalCredit += parseFloat(input.value || 0);
+                });
+
+                // Calculate the difference (total debit - total credit)
+                const difference = totalDebit - totalCredit;
+
+                // Update the footer row's credit field with the difference
+                const footerCreditInput = document.querySelector('tfoot .credit-amount');
+                if (footerCreditInput) {
+                    footerCreditInput.value = difference.toFixed(2);
+                }
+            }
+
+            // Add event listener for the "Add Row" button
+            document.getElementById('addAccountRow').addEventListener('click', function () {
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td colspan="2">
+                        <select class="form-control account-select" name="account_titles[]" required>
+                            <option selected disabled value="">Select Account</option>
+                            <?php
+                            $account_result->data_seek(0);
+                            while ($account = $account_result->fetch_assoc()) {
+                                echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
+                            }
+                            ?>
+                        </select>
+                    </td>
+                    <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
+                    <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01"></td>
+                    <td><button type="button" class="btn btn-danger btn-sm delete-row"><i class="bi bi-trash"></i></button></td>
+                `;
+
+                tableBody.appendChild(newRow);
+                setupAccountSelect(newRow);
+                setupCalculationListeners(newRow);
             });
 
-            // Initialize Select2 on existing account selects when the page loads
-            document.addEventListener('DOMContentLoaded', function () {
-                // Initialize Select2 on all existing account selects
-                $('.account-select').each(function () {
-                    $(this).select2({
-                        theme: 'bootstrap-5',
-                        width: '100%',
-                        placeholder: 'Select Account',
-                        allowClear: true
-                    });
-                });
-
-                // Setup calculation listeners for existing rows
-                const existingRows = document.querySelectorAll('tbody tr');
-                existingRows.forEach(row => {
-                    setupCalculationListeners(row);
-                });
+            // Setup initial rows
+            const initialRows = tableBody.querySelectorAll('tr');
+            initialRows.forEach(row => {
+                setupAccountSelect(row);
+                setupCalculationListeners(row);
             });
         });
     </script>
