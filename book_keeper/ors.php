@@ -271,7 +271,7 @@ $ors_result = $connection->query($ors_query);
             position: relative;
             width: 100%;
         }
-        
+
         .dropdown-toggle {
             padding: 0.375rem 0.75rem;
             background-color: #fff;
@@ -283,7 +283,7 @@ $ors_result = $connection->query($ors_query);
             align-items: center;
             min-height: 38px;
         }
-        
+
         .dropdown-toggle::after {
             content: '';
             border-top: 0.3em solid;
@@ -293,7 +293,7 @@ $ors_result = $connection->query($ors_query);
             margin-left: 0.255em;
             vertical-align: 0.255em;
         }
-        
+
         .dropdown-menu {
             position: absolute;
             top: 100%;
@@ -304,15 +304,15 @@ $ors_result = $connection->query($ors_query);
             background-color: white;
             border: 1px solid #ddd;
             border-radius: 0.25rem;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
             max-height: 300px;
             overflow-y: auto;
         }
-        
+
         .dropdown-menu.show {
             display: block;
         }
-        
+
         .search-box {
             padding: 8px;
             border-bottom: 1px solid #ddd;
@@ -321,39 +321,44 @@ $ors_result = $connection->query($ors_query);
             background: white;
             z-index: 1;
         }
-        
+
         .search-box input {
             width: 100%;
             padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
         }
-        
+
         .dropdown-items {
             max-height: 250px;
             overflow-y: auto;
         }
-        
+
         .dropdown-item {
             padding: 8px 12px;
             cursor: pointer;
         }
-        
+
         .dropdown-item:hover {
             background-color: #f1f1f1;
         }
-        
+
         .dropdown-item.selected {
             background-color: #e2f0ff;
         }
-        
+
         .highlight-effect {
             animation: highlight 1s ease;
         }
-        
+
         @keyframes highlight {
-            0% { background-color: rgba(0, 89, 255, 0.27); }
-            100% { background-color: transparent; }
+            0% {
+                background-color: rgba(0, 89, 255, 0.27);
+            }
+
+            100% {
+                background-color: transparent;
+            }
         }
     </style>
 
@@ -728,16 +733,16 @@ $ors_result = $connection->query($ors_query);
                 // Create container
                 const dropdownContainer = document.createElement('div');
                 dropdownContainer.className = 'custom-dropdown';
-                
+
                 // Create toggle button
                 const dropdownToggle = document.createElement('div');
                 dropdownToggle.className = 'dropdown-toggle';
                 dropdownToggle.textContent = selectElement.options[selectElement.selectedIndex]?.textContent || 'Select Account';
-                
+
                 // Create dropdown menu
                 const dropdownMenu = document.createElement('div');
                 dropdownMenu.className = 'dropdown-menu';
-                
+
                 // Create search box
                 const searchBox = document.createElement('div');
                 searchBox.className = 'search-box';
@@ -745,45 +750,45 @@ $ors_result = $connection->query($ors_query);
                 searchInput.type = 'text';
                 searchInput.placeholder = 'Search account...';
                 searchBox.appendChild(searchInput);
-                
+
                 // Create dropdown items container
                 const dropdownItems = document.createElement('div');
                 dropdownItems.className = 'dropdown-items';
-                
+
                 // Clear any existing dropdown items to prevent duplication
                 dropdownItems.innerHTML = '';
-                
+
                 // Track processed values to prevent duplicates
                 const processedValues = new Set();
-                
+
                 // Add options as dropdown items
                 Array.from(selectElement.options).forEach(option => {
                     if (option.disabled && option.selected) return;
                     if (option.value === '') return; // Skip empty options
-                    
+
                     // Skip if this value has already been processed
                     if (processedValues.has(option.value)) return;
                     processedValues.add(option.value);
-                    
+
                     const item = document.createElement('div');
                     item.className = 'dropdown-item';
                     item.textContent = option.textContent;
                     item.dataset.value = option.value;
                     item.dataset.code = option.getAttribute('data-code') || '';
                     item.dataset.oopap = option.getAttribute('data-oopap') || '';
-                    
+
                     // Handle item selection
-                    item.addEventListener('click', function() {
+                    item.addEventListener('click', function () {
                         selectElement.value = this.dataset.value;
                         dropdownToggle.textContent = this.textContent;
                         dropdownMenu.classList.remove('show');
-                        
+
                         // Update selected state
                         dropdownItems.querySelectorAll('.dropdown-item').forEach(el => {
                             el.classList.remove('selected');
                         });
                         this.classList.add('selected');
-                        
+
                         // Update account code
                         const row = selectElement.closest('tr');
                         const codeCell = row.querySelector('.account-code');
@@ -794,43 +799,43 @@ $ors_result = $connection->query($ors_query);
                                 codeCell.classList.remove('highlight-effect');
                             }, 1000);
                         }
-                        
+
                         // Trigger change event
                         const event = new Event('change', { bubbles: true });
                         selectElement.dispatchEvent(event);
                     });
-                    
+
                     dropdownItems.appendChild(item);
                 });
-                
+
                 // Assemble dropdown
                 dropdownMenu.appendChild(searchBox);
                 dropdownMenu.appendChild(dropdownItems);
                 dropdownContainer.appendChild(dropdownToggle);
                 dropdownContainer.appendChild(dropdownMenu);
-                
+
                 // Replace select with custom dropdown
                 selectElement.style.display = 'none';
-                
+
                 // Remove any existing custom dropdown to prevent duplication
                 const existingDropdown = selectElement.previousElementSibling;
                 if (existingDropdown && existingDropdown.classList.contains('custom-dropdown')) {
                     existingDropdown.remove();
                 }
-                
+
                 selectElement.parentNode.insertBefore(dropdownContainer, selectElement);
-                
+
                 // Toggle dropdown on click
-                dropdownToggle.addEventListener('click', function(e) {
+                dropdownToggle.addEventListener('click', function (e) {
                     e.stopPropagation();
                     dropdownMenu.classList.toggle('show');
                     if (dropdownMenu.classList.contains('show')) {
                         searchInput.focus();
                     }
                 });
-                
+
                 // Filter items on search
-                searchInput.addEventListener('input', function() {
+                searchInput.addEventListener('input', function () {
                     const searchTerm = this.value.toLowerCase();
                     dropdownItems.querySelectorAll('.dropdown-item').forEach(item => {
                         const text = item.textContent.toLowerCase();
@@ -841,14 +846,14 @@ $ors_result = $connection->query($ors_query);
                         }
                     });
                 });
-                
+
                 // Close dropdown when clicking outside
-                document.addEventListener('click', function(e) {
+                document.addEventListener('click', function (e) {
                     if (!dropdownContainer.contains(e.target)) {
                         dropdownMenu.classList.remove('show');
                     }
                 });
-                
+
                 return dropdownContainer;
             }
 
@@ -858,32 +863,32 @@ $ors_result = $connection->query($ors_query);
                 newRow.className = 'entry-row';
                 newRow.style.opacity = '0';
                 newRow.style.transform = 'translateY(10px)';
-                
+
                 // Get the first select element as template
                 const firstSelect = document.querySelector('select[name="account_id[]"]');
-                
+
                 // Create a fresh select element for the new row
                 const newSelect = document.createElement('select');
                 newSelect.className = 'form-control';
                 newSelect.name = 'account_id[]';
                 newSelect.required = true;
-                
+
                 // Add the default option
                 const defaultOption = document.createElement('option');
                 defaultOption.selected = true;
                 defaultOption.disabled = true;
                 defaultOption.textContent = 'Select Account';
                 newSelect.appendChild(defaultOption);
-                
+
                 // Clone options from the first select but avoid duplicates
                 const addedValues = new Set();
                 Array.from(firstSelect.options).forEach(opt => {
                     if (opt.value === '') return; // Skip empty/default option
-                    
+
                     // Skip duplicates
                     if (addedValues.has(opt.value)) return;
                     addedValues.add(opt.value);
-                    
+
                     const option = document.createElement('option');
                     option.value = opt.value;
                     option.textContent = opt.textContent;
@@ -891,7 +896,7 @@ $ors_result = $connection->query($ors_query);
                     option.setAttribute('data-oopap', opt.getAttribute('data-oopap') || '');
                     newSelect.appendChild(option);
                 });
-                
+
                 // Create the row HTML
                 newRow.innerHTML = `
                     <td colspan="2">
@@ -907,12 +912,12 @@ $ors_result = $connection->query($ors_query);
                         </button>
                     </td>
                 `;
-                
+
                 // Insert the select into the first cell
                 const firstCell = newRow.querySelector('td');
                 firstCell.innerHTML = '';
                 firstCell.appendChild(newSelect);
-                
+
                 // Add to table
                 tableBody.appendChild(newRow);
 
@@ -1043,7 +1048,7 @@ $ors_result = $connection->query($ors_query);
                         const optionOopapId = option.getAttribute('data-oopap');
                         option.style.display = (optionOopapId === selectedOopapId) ? '' : 'none';
                     });
-                    
+
                     // Find and filter the corresponding custom dropdown
                     const dropdownContainer = select.previousElementSibling;
                     if (dropdownContainer && dropdownContainer.classList.contains('custom-dropdown')) {
@@ -1060,24 +1065,24 @@ $ors_result = $connection->query($ors_query);
             // Handle OOPAP change
             const oopapSelect = document.querySelector('select[name="oopap_id"]');
             if (oopapSelect) {
-                oopapSelect.addEventListener('change', function() {
+                oopapSelect.addEventListener('change', function () {
                     // Get the selected OOPAP ID
                     const selectedOopapId = this.value;
-                    
+
                     // Apply filtering to each account dropdown
                     document.querySelectorAll('select[name="account_id[]"]').forEach(select => {
                         // Filter original select options
                         let hasVisibleOptions = false;
                         Array.from(select.options).forEach(option => {
                             if (option.value === '') return; // Skip empty option
-                            
+
                             const optionOopapId = option.getAttribute('data-oopap');
                             const shouldShow = optionOopapId === selectedOopapId;
                             option.style.display = shouldShow ? '' : 'none';
-                            
+
                             if (shouldShow) hasVisibleOptions = true;
                         });
-                        
+
                         // Reset selection if current selection is now hidden
                         const currentValue = select.value;
                         if (currentValue) {
@@ -1086,22 +1091,22 @@ $ors_result = $connection->query($ors_query);
                                 select.value = '';
                             }
                         }
-                        
+
                         // Find and update the custom dropdown
                         const dropdown = select.previousElementSibling;
                         if (dropdown && dropdown.classList.contains('custom-dropdown')) {
                             // Update dropdown items visibility
                             const items = dropdown.querySelectorAll('.dropdown-item');
                             let visibleCount = 0;
-                            
+
                             items.forEach(item => {
                                 const itemOopapId = item.dataset.oopap;
                                 const shouldShow = itemOopapId === selectedOopapId;
                                 item.style.display = shouldShow ? '' : 'none';
-                                
+
                                 if (shouldShow) visibleCount++;
                             });
-                            
+
                             // Update dropdown toggle text if selection was reset
                             if (select.value === '') {
                                 const toggle = dropdown.querySelector('.dropdown-toggle');
@@ -1109,11 +1114,11 @@ $ors_result = $connection->query($ors_query);
                                     toggle.textContent = 'Select Account';
                                 }
                             }
-                            
+
                             // Show message if no items are visible
                             const dropdownItems = dropdown.querySelector('.dropdown-items');
                             let noItemsMsg = dropdown.querySelector('.no-items-message');
-                            
+
                             if (visibleCount === 0) {
                                 if (!noItemsMsg) {
                                     noItemsMsg = document.createElement('div');
@@ -1142,7 +1147,7 @@ $ors_result = $connection->query($ors_query);
                     createAccountSearchableDropdown(accountSelect);
                 }
             });
-            
+
             // Call the filter once all dropdowns are created
             if (oopapSelect && oopapSelect.value) {
                 // Trigger the change event to apply filtering
@@ -1176,8 +1181,14 @@ $ors_result = $connection->query($ors_query);
                 // Add loading indicator
                 servicesSelect.innerHTML = '<option>Loading services...</option>';
 
-                // Fetch services from the server
-                fetch(`get_services.php?fund_cluster_id=${fundClusterId}&oopap_id=${oopapId}`)
+                // Fetch services from the server using POST to get_filtered_services.php
+                fetch('get_filtered_services.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `fund_cluster_id=${fundClusterId}&oopap_id=${oopapId}`
+                })
                     .then(response => response.json())
                     .then(data => {
                         // Clear loading indicator
@@ -1574,7 +1585,7 @@ $ors_result = $connection->query($ors_query);
 
     <!-- Searchable Payee Dropdown Script -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Function to convert a select into a searchable dropdown
             function createSearchableDropdown(selectElement, updateCallback) {
                 // Create the custom dropdown container
@@ -1605,16 +1616,16 @@ $ors_result = $connection->query($ors_query);
                 // Add each option as a dropdown item
                 Array.from(selectElement.options).forEach(option => {
                     if (option.disabled && option.selected) return;
-                    
+
                     const item = document.createElement('div');
                     item.className = 'dropdown-item';
                     item.textContent = option.textContent;
                     item.dataset.value = option.value;
                     item.dataset.tin = option.getAttribute('data-tin') || '';
                     item.dataset.address = option.getAttribute('data-address') || '';
-                    
+
                     // Handle item click
-                    item.addEventListener('click', function() {
+                    item.addEventListener('click', function () {
                         selectElement.value = this.dataset.value;
                         dropdownToggle.textContent = this.textContent;
                         dropdownMenu.classList.remove('show');
@@ -1638,13 +1649,13 @@ $ors_result = $connection->query($ors_query);
                 dropdownMenu.appendChild(dropdownItems);
                 dropdownContainer.appendChild(dropdownToggle);
                 dropdownContainer.appendChild(dropdownMenu);
-                
+
                 // Replace the select with our custom dropdown
                 selectElement.style.display = 'none';
                 selectElement.parentNode.insertBefore(dropdownContainer, selectElement);
-                
+
                 // Toggle dropdown on click
-                dropdownToggle.addEventListener('click', function(e) {
+                dropdownToggle.addEventListener('click', function (e) {
                     e.stopPropagation();
                     dropdownMenu.classList.toggle('show');
                     if (dropdownMenu.classList.contains('show')) {
@@ -1653,7 +1664,7 @@ $ors_result = $connection->query($ors_query);
                 });
 
                 // Handle search filtering
-                searchInput.addEventListener('input', function() {
+                searchInput.addEventListener('input', function () {
                     const searchTerm = this.value.toLowerCase();
                     dropdownItems.querySelectorAll('.dropdown-item').forEach(item => {
                         const text = item.textContent.toLowerCase();
@@ -1666,7 +1677,7 @@ $ors_result = $connection->query($ors_query);
                 });
 
                 // Close dropdown when clicking outside
-                document.addEventListener('click', function(e) {
+                document.addEventListener('click', function (e) {
                     if (!dropdownContainer.contains(e.target)) {
                         dropdownMenu.classList.remove('show');
                     }
@@ -1684,20 +1695,20 @@ $ors_result = $connection->query($ors_query);
             const payeeSelect = document.getElementById('payee_id');
             const tinInput = document.getElementById('tin_no');
             const addressInput = document.getElementById('address');
-            
+
             function updatePayeeDetails() {
                 const selectedOption = payeeSelect.options[payeeSelect.selectedIndex];
                 if (selectedOption && !selectedOption.disabled) {
                     const tin = selectedOption.getAttribute('data-tin');
                     const address = selectedOption.getAttribute('data-address');
-                    
+
                     tinInput.value = tin || '';
                     addressInput.value = address || '';
-                    
+
                     // Add animation effect
                     tinInput.classList.add('highlight-effect');
                     addressInput.classList.add('highlight-effect');
-                    
+
                     // Remove effect after animation completes
                     setTimeout(() => {
                         tinInput.classList.remove('highlight-effect');
@@ -1705,9 +1716,43 @@ $ors_result = $connection->query($ors_query);
                     }, 1000);
                 }
             }
-            
+
             if (payeeSelect) {
                 createSearchableDropdown(payeeSelect, updatePayeeDetails);
+            }
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const fundClusterSelect = document.querySelector('select[name="fund_cluster_id"]');
+            const oopapSelect = document.querySelector('select[name="oopap_id"]');
+            const servicesSelect = document.getElementById('services');
+
+            fundClusterSelect.addEventListener('change', function () {
+                // Reset OO/PAP
+                if (oopapSelect) {
+                    oopapSelect.selectedIndex = 0; // Set to "Select OO/PAP"
+                    // If using a custom dropdown, update its display as well
+                    const dropdown = oopapSelect.previousElementSibling;
+                    if (dropdown && dropdown.classList.contains('custom-dropdown')) {
+                        const toggle = dropdown.querySelector('.dropdown-toggle');
+                        if (toggle) toggle.textContent = 'Select OO/PAP';
+                    }
+                }
+                // Reset Services
+                if (servicesSelect) {
+                    servicesSelect.selectedIndex = 0; // Set to "Select Services"
+                }
+            });
+
+            // Reset Services when OO/PAP changes
+            if (oopapSelect) {
+                oopapSelect.addEventListener('change', function () {
+                    if (servicesSelect) {
+                        servicesSelect.selectedIndex = 0; // Set to "Select Services"
+                    }
+                });
             }
         });
     </script>
