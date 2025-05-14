@@ -78,7 +78,7 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>BookKeeper - Payee</title>
+    <title>BookKeeper - Registry of Supplier</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
     <link href="img/dti_logo.png" rel="icon">
@@ -186,32 +186,27 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
     <main id="main" class="main">
 
         <div class="pagetitle">
-            <h1>Payee</h1>
-            <nav>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="index.php">Home</a></li>
-                    <li class="breadcrumb-item active">Payee Information</li>
-                </ol>
-            </nav>
+            <h1>Registry of Supplier</h1>
         </div>
 
         <section class="section dashboard">
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h5 class="card-title">Payee Information</h5>
+                        <h5 class="card-title"></h5>
                         <button type="button" class="btn btn-primary rounded-pill" data-bs-toggle="modal"
                             data-bs-target="#addUserModal">Add Payee</button>
                     </div>
-                    
+
                     <!-- Add custom search bar -->
                     <div class="mb-3">
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-search"></i></span>
-                            <input type="text" id="directTableSearch" class="form-control" placeholder="Search in table...">
+                            <input type="text" id="directTableSearch" class="form-control"
+                                placeholder="Search in table...">
                         </div>
                     </div>
-                    
+
                     <!-- Style to hide the library's search box -->
                     <style>
                         /* Hide the original search input from the library */
@@ -219,7 +214,7 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                             display: none !important;
                         }
                     </style>
-                    
+
                     <!-- Modal for Add User Form -->
                     <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel"
                         aria-hidden="true">
@@ -499,39 +494,39 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
 
     <!-- Template Main JS File -->
     <script src="../NiceAdmin/assets/js/main.js"></script>
-    
+
     <!-- Direct search implementation -->
     <script>
         // Wait for the document to be fully loaded
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Clear any existing search script
             window.dataTableSearchInitialized = false;
-            
+
             // Function to perform a direct search on the table
             function directTableSearch() {
                 // Get the search input and table
                 const searchInput = document.getElementById('directTableSearch');
                 if (!searchInput) return;
-                
+
                 // Pure JavaScript implementation that works regardless of the library
-                searchInput.addEventListener('input', function() {
+                searchInput.addEventListener('input', function () {
                     const searchText = this.value.toLowerCase();
-                    
+
                     // Get all table rows from the tbody
                     const tableRows = document.querySelectorAll('.datatable tbody tr');
                     if (!tableRows.length) return;
-                    
+
                     // Loop through all rows and check if they match the search
-                    tableRows.forEach(function(row) {
+                    tableRows.forEach(function (row) {
                         // Skip the expandable rows (the ones with the additional data)
                         if (row.classList.contains('expandable-row')) return;
-                        
+
                         let rowText = row.textContent.toLowerCase();
                         let matchFound = rowText.includes(searchText);
-                        
+
                         // Show/hide the row based on search match
                         row.style.display = matchFound ? '' : 'none';
-                        
+
                         // Also hide/show the corresponding expandable row
                         const rowIndex = row.rowIndex;
                         const expandableRow = document.querySelector('.datatable tbody tr.expandable-row:nth-of-type(' + (rowIndex + 1) + ')');
@@ -540,13 +535,13 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                         }
                     });
                 });
-                
+
                 console.log('Direct table search activated');
             }
-            
+
             // Initialize the search immediately
             directTableSearch();
-            
+
             // Also try again after a delay in case the table isn't loaded yet
             setTimeout(directTableSearch, 1000);
         });
@@ -555,10 +550,10 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
     <!-- Remove any existing scripts related to datatable search -->
     <script>
         // Clean up any existing event listeners when the page loads
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Remove any existing scripts that might be conflicting
             const existingScripts = document.querySelectorAll('script[data-search-script]');
-            existingScripts.forEach(function(script) {
+            existingScripts.forEach(function (script) {
                 script.remove();
             });
         });

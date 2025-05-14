@@ -110,19 +110,13 @@ $select = mysqli_query($connection, "SELECT * FROM responsibility_center");
     <main id="main" class="main">
         <div class="pagetitle">
             <h1>Responsibility Center Management</h1>
-            <nav>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="index.php">Home</a></li>
-                    <li class="breadcrumb-item active"> Responsibility Center Management</li>
-                </ol>
-            </nav>
         </div>
 
         <section class="section dashboard">
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h5 class="card-title mb-0">Responsibility Centers List</h5>
+                        <h5 class="card-title mb-0"></h5>
                         <button type="button" class="btn btn-primary rounded-pill" data-bs-toggle="modal"
                             data-bs-target="#addUserModal">
                             <i class="bi bi-plus-circle me-1"></i> Add Responsibility Center

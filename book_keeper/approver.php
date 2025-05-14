@@ -101,97 +101,98 @@ $select = mysqli_query($connection, "SELECT * FROM approver");
     <main id="main" class="main">
 
         <div class="pagetitle">
+            <h1>Approver</h1>
+        </div>
 
 
-            <section class="section dashboard">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h5 class="card-title">Approver</h5>
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                                data-bs-target="#addUserModal">Add Approver</button>
-                        </div>
-                        <p></p>
+        <section class="section dashboard">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="card-title"></h5>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#addUserModal">Add Approver</button>
+                    </div>
+                    <p></p>
 
-                        <!-- Modal for Add User Form -->
-                        <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel"
-                            aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="addUserModalLabel">Add Approver
-                                        </h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                            aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <form method="post" id="addUserForm">
-                                            <div class="mb-3">
-                                                <label for="approver_name" class="form-label">Approver Name</label>
-                                                <input type="text" class="form-control" id="approver_name"
-                                                    name="approver_name" placeholder="Enter Approver Name" required
-                                                    autocomplete="off">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="designation" class="form-label">Designation</label>
-                                                <input type="text" class="form-control" id="designation"
-                                                    name="designation" placeholder="Enter Designation" required
-                                                    autocomplete="off">
-                                            </div>
-                                            <div class="modal-footer">
-                                                <!-- <button type="button" class="btn btn-secondary"
-                                        data-bs-dismiss="modal">Close</button> -->
-                                                <button type="button" class="btn btn-secondary"
-                                                    onclick="clearForm()">Clear</button>
-                                                <button type="submit" id="submit" name="submit"
-                                                    class="btn btn-primary">Save</button>
-                                            </div>
-                                        </form>
-                                    </div>
-
+                    <!-- Modal for Add User Form -->
+                    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="addUserModalLabel">Add Approver
+                                    </h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
                                 </div>
+                                <div class="modal-body">
+                                    <form method="post" id="addUserForm">
+                                        <div class="mb-3">
+                                            <label for="approver_name" class="form-label">Approver Name</label>
+                                            <input type="text" class="form-control" id="approver_name"
+                                                name="approver_name" placeholder="Enter Approver Name" required
+                                                autocomplete="off">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="designation" class="form-label">Designation</label>
+                                            <input type="text" class="form-control" id="designation" name="designation"
+                                                placeholder="Enter Designation" required autocomplete="off">
+                                        </div>
+                                        <div class="modal-footer">
+                                            <!-- <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Close</button> -->
+                                            <button type="button" class="btn btn-secondary"
+                                                onclick="clearForm()">Clear</button>
+                                            <button type="submit" id="submit" name="submit"
+                                                class="btn btn-primary">Save</button>
+                                        </div>
+                                    </form>
+                                </div>
+
                             </div>
                         </div>
-
-                        <!-- Table with stripped rows -->
-                        <table class="datatable">
-                            <thead>
-                                <tr>
-                                    <th>Approver Name</th>
-                                    <th>Designation</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php while ($row = mysqli_fetch_assoc($select)) { ?>
-                                    <tr>
-                                        <td><?php echo htmlspecialchars($row['approver_name']); ?></td>
-                                        <td><?php echo htmlspecialchars($row['designation']); ?></td>
-                                        <td>
-                                            <button type="button" class="btn btn-sm btn-outline-primary edit-btn"
-                                                data-bs-toggle="modal" data-bs-target="#editUserModal"
-                                                data-id="<?php echo $row['approver_id']; ?>"
-                                                data-name="<?php echo htmlspecialchars($row['approver_name']); ?>"
-                                                data-designation="<?php echo htmlspecialchars($row['designation']); ?>"> <i
-                                                    class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top"
-                                                    title="Edit"></i>
-                                            </button>
-
-
-                                            <button type="button" class="btn btn-sm btn-outline-danger"
-                                                onclick="deleteUser(<?php echo $row['approver_id']; ?>)"><i
-                                                    class="bi bi-trash" data-bs-toggle="tooltip" data-bs-placement="top"
-                                                    title="Delete"></i></i></button>
-                                        </td>
-                                    </tr>
-                                <?php } ?>
-                            </tbody>
-
-                        </table>
                     </div>
-                </div>
 
-            </section>
+                    <!-- Table with stripped rows -->
+                    <table class="datatable">
+                        <thead>
+                            <tr>
+                                <th>Approver Name</th>
+                                <th>Designation</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php while ($row = mysqli_fetch_assoc($select)) { ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($row['approver_name']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['designation']); ?></td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-outline-primary edit-btn"
+                                            data-bs-toggle="modal" data-bs-target="#editUserModal"
+                                            data-id="<?php echo $row['approver_id']; ?>"
+                                            data-name="<?php echo htmlspecialchars($row['approver_name']); ?>"
+                                            data-designation="<?php echo htmlspecialchars($row['designation']); ?>"> <i
+                                                class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top"
+                                                title="Edit"></i>
+                                        </button>
+
+
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                            onclick="deleteUser(<?php echo $row['approver_id']; ?>)"><i class="bi bi-trash"
+                                                data-bs-toggle="tooltip" data-bs-placement="top"
+                                                title="Delete"></i></i></button>
+                                    </td>
+                                </tr>
+                            <?php } ?>
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+
+        </section>
 
     </main><!-- End #main -->
 

@@ -197,7 +197,7 @@ WHERE dv.status = 'Pending'
 
         <div class="content-wrapper">
             <div class="form-container">
-                <h2 class="form-title">Journal Entry Voucher</h2>
+                <h2></h2>
 
                 <div class="tab-content">
                     <div>
