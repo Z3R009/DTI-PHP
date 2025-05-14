@@ -12,7 +12,7 @@ if (isset($_POST['update'])) {
     $stmt->bind_param("sssi", $approver_name, $designation, $sub_title, $approver_id);
 
     if ($stmt->execute()) {
-        header('Location: approver.php');
+        header('Location: approver.php?updated=success');
     } else {
         echo "Error: " . $stmt->error;
     }

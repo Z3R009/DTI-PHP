@@ -1,7 +1,7 @@
 <?php
 include '../DBConnection.php';
 
-$alert = ""; // Store alert script here
+$alert = "";
 
 if (isset($_POST['submit'])) {
     $payee_name = $_POST['payee_name'];
@@ -169,6 +169,11 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
         .expandable-row .card-body strong {
             color: #0d6efd;
         }
+
+        /* Hide the original search input from the library */
+        .datatable-top .datatable-search {
+            display: none !important;
+        }
     </style>
 
 </head>
@@ -197,8 +202,24 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                         <h5 class="card-title">Payee Information</h5>
                         <button type="button" class="btn btn-primary rounded-pill" data-bs-toggle="modal"
                             data-bs-target="#addUserModal">Add Payee</button>
-
                     </div>
+                    
+                    <!-- Add custom search bar -->
+                    <div class="mb-3">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            <input type="text" id="directTableSearch" class="form-control" placeholder="Search in table...">
+                        </div>
+                    </div>
+                    
+                    <!-- Style to hide the library's search box -->
+                    <style>
+                        /* Hide the original search input from the library */
+                        .datatable-top .datatable-search {
+                            display: none !important;
+                        }
+                    </style>
+                    
                     <!-- Modal for Add User Form -->
                     <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel"
                         aria-hidden="true">
@@ -248,7 +269,7 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                                                 <div class="form-floating mb-3">
                                                     <input type="text" class="form-control" id="nature" name="nature"
                                                         placeholder="Enter Nature of Business" autocomplete="off">
-                                                    <label for="nature">Nature of Business</label>
+                                                    <label for="nature">Category</label>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
@@ -266,8 +287,8 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                                                     <select class="form-select" id="payee_type" name="payee_type"
                                                         required>
                                                         <option value="">Select payee type</option>
-                                                        <option value="internal">Internal</option>
-                                                        <option value="external">External (supplier)</option>
+                                                        <option value="Internal">Internal</option>
+                                                        <option value="External">External (supplier)</option>
                                                     </select>
                                                     <label for="payee_type">Payee Type</label>
                                                 </div>
@@ -352,7 +373,7 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                                                 <div class="card card-body border-custom">
                                                     <div class="row">
                                                         <div class="col-md-4">
-                                                            <p class="mb-1"><strong>Nature of Business:</strong></p>
+                                                            <p class="mb-1"><strong>Category:</strong></p>
                                                             <p><?php echo htmlspecialchars($row['nature']); ?></p>
                                                         </div>
                                                         <div class="col-md-4">
@@ -474,8 +495,74 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
     <script src="../NiceAdmin/assets/vendor/tinymce/tinymce.min.js"></script>
     <script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
 
+
+
     <!-- Template Main JS File -->
     <script src="../NiceAdmin/assets/js/main.js"></script>
+    
+    <!-- Direct search implementation -->
+    <script>
+        // Wait for the document to be fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Clear any existing search script
+            window.dataTableSearchInitialized = false;
+            
+            // Function to perform a direct search on the table
+            function directTableSearch() {
+                // Get the search input and table
+                const searchInput = document.getElementById('directTableSearch');
+                if (!searchInput) return;
+                
+                // Pure JavaScript implementation that works regardless of the library
+                searchInput.addEventListener('input', function() {
+                    const searchText = this.value.toLowerCase();
+                    
+                    // Get all table rows from the tbody
+                    const tableRows = document.querySelectorAll('.datatable tbody tr');
+                    if (!tableRows.length) return;
+                    
+                    // Loop through all rows and check if they match the search
+                    tableRows.forEach(function(row) {
+                        // Skip the expandable rows (the ones with the additional data)
+                        if (row.classList.contains('expandable-row')) return;
+                        
+                        let rowText = row.textContent.toLowerCase();
+                        let matchFound = rowText.includes(searchText);
+                        
+                        // Show/hide the row based on search match
+                        row.style.display = matchFound ? '' : 'none';
+                        
+                        // Also hide/show the corresponding expandable row
+                        const rowIndex = row.rowIndex;
+                        const expandableRow = document.querySelector('.datatable tbody tr.expandable-row:nth-of-type(' + (rowIndex + 1) + ')');
+                        if (expandableRow) {
+                            expandableRow.style.display = matchFound ? '' : 'none';
+                        }
+                    });
+                });
+                
+                console.log('Direct table search activated');
+            }
+            
+            // Initialize the search immediately
+            directTableSearch();
+            
+            // Also try again after a delay in case the table isn't loaded yet
+            setTimeout(directTableSearch, 1000);
+        });
+    </script>
+
+    <!-- Remove any existing scripts related to datatable search -->
+    <script>
+        // Clean up any existing event listeners when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Remove any existing scripts that might be conflicting
+            const existingScripts = document.querySelectorAll('script[data-search-script]');
+            existingScripts.forEach(function(script) {
+                script.remove();
+            });
+        });
+    </script>
 
     <?php echo $alert; ?>
 
@@ -493,6 +580,7 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                     const address = this.getAttribute("data-address");
                     const nature = this.getAttribute("data-nature");
                     const contact_no = this.getAttribute("data-contact_no");
+                    const payee_type = this.getAttribute("data-payee_type");
 
                     document.getElementById("edit_payee_id").value = id;
                     document.getElementById("edit_payee_name").value = payee_name;
@@ -501,6 +589,7 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                     document.getElementById("edit_address").value = address;
                     document.getElementById("edit_nature").value = nature;
                     document.getElementById("edit_contact_no").value = contact_no;
+                    document.getElementById("edit_payee_type").value = payee_type;
                 });
             });
 
@@ -523,7 +612,7 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
     <script>
         function deleteUser(userID) {
             Swal.fire({
-                title: 'Delete Account Title?',
+                title: 'Delete Payee?',
                 text: "This action cannot be undone!",
                 icon: 'warning',
                 showCancelButton: true,
@@ -534,7 +623,7 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = 'delete_account.php?account_id=' + userID + '&confirm=yes';
+                    window.location.href = 'delete_payee.php?payee_id=' + userID + '&confirm=yes';
                 }
             })
         }
@@ -606,7 +695,7 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
             Swal.fire({
                 icon: '<?php echo $_GET["updated"] === "success" ? "success" : "error"; ?>',
                 title: '<?php echo $_GET["updated"] === "success" ? "Updated!" : "Error!"; ?>',
-                text: '<?php echo $_GET["updated"] === "success" ? "Account Title has been updated successfully." : "There was a problem updating the payee."; ?>',
+                text: '<?php echo $_GET["updated"] === "success" ? "Payee has been updated successfully." : "There was a problem updating the payee."; ?>',
                 confirmButtonColor: '#3085d6'
             });
         </script>

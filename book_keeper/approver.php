@@ -1,21 +1,64 @@
 <?php
 include '../DBConnection.php';
+
+$alert = "";
+
 if (isset($_POST['submit'])) {
     $approver_name = $_POST['approver_name'];
     $designation = $_POST['designation'];
-    $sub_title = $_POST['sub_title'];
 
+    $check_sql = "SELECT COUNT(*) FROM approver WHERE approver_name = ?";
+    $check_stmt = $connection->prepare($check_sql);
+    $check_stmt->bind_param("s", $approver_name);
+    $check_stmt->execute();
+    $check_stmt->store_result();
+    $check_stmt->bind_result($count);
+    $check_stmt->fetch();
 
-
-    $sql = "INSERT INTO approver (approver_name, designation, sub_title) VALUES (?, ?, ?)";
-    $stmt = $connection->prepare($sql);
-    $stmt->bind_param("sss", $approver_name, $designation, $sub_title);
-
-    if ($stmt->execute()) {
-        header('Location: approver.php');
+    if ($count > 0) {
+        $alert = "
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Duplicate Approver',
+                        text: 'Approver already exists!',
+                        confirmButtonColor: '#d33'
+                    });
+                });
+            </script>
+        ";
     } else {
-        echo "Error: " . $stmt->error;
+        $insert_sql = "INSERT INTO approver (approver_name, designation) VALUES (?, ?)";
+        $stmt = $connection->prepare($insert_sql);
+
+        if ($stmt === false) {
+            $alert = "<script>alert('Error preparing the statement: " . $connection->error . "');</script>";
+        } else {
+            $stmt->bind_param("ss", $approver_name, $designation);
+            if ($stmt->execute()) {
+                $alert = "
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: 'Approver has been added successfully.',
+                                confirmButtonColor: '#3085d6'
+                            }).then(() => {
+                                window.location.href = 'approver.php';
+                            });
+                        });
+                    </script>
+                ";
+            } else {
+                $alert = "<script>alert('Error: " . $stmt->error . "');</script>";
+            }
+            $stmt->close();
+        }
     }
+
+    $check_stmt->close();
 }
 $select = mysqli_query($connection, "SELECT * FROM approver");
 ?>
@@ -33,7 +76,9 @@ $select = mysqli_query($connection, "SELECT * FROM approver");
     <link href="img/dti_logo.png" rel="icon">
     <link href="../NiceAdmin/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
     <link href="https://fonts.gstatic.com" rel="preconnect">
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+        rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
@@ -45,6 +90,7 @@ $select = mysqli_query($connection, "SELECT * FROM approver");
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
     <link rel="stylesheet" href="css/UACS.css">
     <link rel="stylesheet" href="css/table.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -55,101 +101,97 @@ $select = mysqli_query($connection, "SELECT * FROM approver");
     <main id="main" class="main">
 
         <div class="pagetitle">
- 
 
-        <section class="section dashboard">
-            <div class="card">
-                <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="card-title">Approver</h5>
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                            data-bs-target="#addUserModal">Add Approver</button>
-                   </div>
-                    <p></p>
 
-                    <!-- Modal for Add User Form -->
-                    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel"
-                        aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="addUserModalLabel">Add Approver
-                                    </h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <form method="post" id="addUserForm">
-                                        <div class="mb-3">
-                                            <label for="approver_name" class="form-label">Approver Name</label>
-                                            <input type="text" class="form-control" id="approver_name"
-                                                name="approver_name" placeholder="Enter Approver Name" required
-                                                autocomplete="off">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="designation" class="form-label">Designation</label>
-                                            <input type="text" class="form-control" id="designation" name="designation"
-                                                placeholder="Enter Designation" required autocomplete="off">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="sub_title" class="form-label">Designation2</label>
-                                            <input type="text" class="form-control" id="sub_title" name="sub_title"
-                                                placeholder="Enter Designation2" required autocomplete="off">
-                                        </div>
-                                        <div class="modal-footer">
-                                            <!-- <button type="button" class="btn btn-secondary"
+            <section class="section dashboard">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="card-title">Approver</h5>
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                data-bs-target="#addUserModal">Add Approver</button>
+                        </div>
+                        <p></p>
+
+                        <!-- Modal for Add User Form -->
+                        <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel"
+                            aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="addUserModalLabel">Add Approver
+                                        </h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form method="post" id="addUserForm">
+                                            <div class="mb-3">
+                                                <label for="approver_name" class="form-label">Approver Name</label>
+                                                <input type="text" class="form-control" id="approver_name"
+                                                    name="approver_name" placeholder="Enter Approver Name" required
+                                                    autocomplete="off">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="designation" class="form-label">Designation</label>
+                                                <input type="text" class="form-control" id="designation"
+                                                    name="designation" placeholder="Enter Designation" required
+                                                    autocomplete="off">
+                                            </div>
+                                            <div class="modal-footer">
+                                                <!-- <button type="button" class="btn btn-secondary"
                                         data-bs-dismiss="modal">Close</button> -->
-                                            <button type="button" class="btn btn-secondary"
-                                                onclick="clearForm()">Clear</button>
-                                            <button type="submit" id="submit" name="submit"
-                                                class="btn btn-primary">Save</button>
-                                        </div>
-                                    </form>
-                                </div>
+                                                <button type="button" class="btn btn-secondary"
+                                                    onclick="clearForm()">Clear</button>
+                                                <button type="submit" id="submit" name="submit"
+                                                    class="btn btn-primary">Save</button>
+                                            </div>
+                                        </form>
+                                    </div>
 
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Table with stripped rows -->
-                    <table class="datatable">
-                        <thead>
-                            <tr>
-                                <th>Approver Name</th>
-                                <th>Designation</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php while ($row = mysqli_fetch_assoc($select)) { ?>
+                        <!-- Table with stripped rows -->
+                        <table class="datatable">
+                            <thead>
                                 <tr>
-                                    <td><?php echo htmlspecialchars($row['approver_name']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['designation']); ?></td>
-                                    <td>
-                                        <button type="button" class="btn btn-sm btn-outline-primary edit-btn" data-bs-toggle="modal"
-                                            data-bs-target="#editUserModal" data-id="<?php echo $row['approver_id']; ?>"
-                                            data-name="<?php echo htmlspecialchars($row['approver_name']); ?>"
-                                            data-designation="<?php echo htmlspecialchars($row['designation']); ?>"
-                                            data-sub_title="<?php echo htmlspecialchars($row['sub_title']); ?>">
-                                            <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top"
-                                                title="Edit"></i>
-                                        </button>
-
-
-                                        <button type="button" class="btn btn-sm btn-outline-danger"
-                                            onclick="deleteUser(<?php echo $row['approver_id']; ?>)"><i class="bi bi-trash"
-                                                data-bs-toggle="tooltip" data-bs-placement="top"
-                                                title="Delete"></i></i></button>
-                                    </td>
+                                    <th>Approver Name</th>
+                                    <th>Designation</th>
+                                    <th></th>
                                 </tr>
-                            <?php } ?>
-                        </tbody>
+                            </thead>
+                            <tbody>
+                                <?php while ($row = mysqli_fetch_assoc($select)) { ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($row['approver_name']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['designation']); ?></td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-outline-primary edit-btn"
+                                                data-bs-toggle="modal" data-bs-target="#editUserModal"
+                                                data-id="<?php echo $row['approver_id']; ?>"
+                                                data-name="<?php echo htmlspecialchars($row['approver_name']); ?>"
+                                                data-designation="<?php echo htmlspecialchars($row['designation']); ?>"> <i
+                                                    class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top"
+                                                    title="Edit"></i>
+                                            </button>
 
-                    </table>
+
+                                            <button type="button" class="btn btn-sm btn-outline-danger"
+                                                onclick="deleteUser(<?php echo $row['approver_id']; ?>)"><i
+                                                    class="bi bi-trash" data-bs-toggle="tooltip" data-bs-placement="top"
+                                                    title="Delete"></i></i></button>
+                                        </td>
+                                    </tr>
+                                <?php } ?>
+                            </tbody>
+
+                        </table>
+                    </div>
                 </div>
-            </div>
 
-        </section>
+            </section>
 
     </main><!-- End #main -->
 
@@ -174,10 +216,6 @@ $select = mysqli_query($connection, "SELECT * FROM approver");
                             <label for="edit_designation" class="form-label">Designation</label>
                             <input type="text" class="form-control" id="edit_designation" name="designation" required>
                         </div>
-                        <div class="mb-3">
-                            <label for="edit_sub_title" class="form-label">Designation</label>
-                            <input type="text" class="form-control" id="edit_sub_title" name="sub_title" required>
-                        </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                             <button type="submit" id="update" name="update" class="btn btn-primary">Update</button>
@@ -201,6 +239,10 @@ $select = mysqli_query($connection, "SELECT * FROM approver");
     <script src="../NiceAdmin/assets/vendor/simple-datatables/simple-datatables.js"></script>
     <script src="../NiceAdmin/assets/vendor/tinymce/tinymce.min.js"></script>
     <script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
+    <script src="../NiceAdmin/assets/js/main.js"></script>
+
+
+    <?php echo $alert; ?>
 
     <!-- Template Main JS File -->
     <script src="../NiceAdmin/assets/js/main.js"></script>
@@ -214,26 +256,70 @@ $select = mysqli_query($connection, "SELECT * FROM approver");
                     const id = this.getAttribute("data-id");
                     const name = this.getAttribute("data-name");
                     const designation = this.getAttribute("data-designation");
-                    const sub_title = this.getAttribute("data-sub_title");
 
                     document.getElementById("edit_approver_id").value = id;
                     document.getElementById("edit_approver_name").value = name;
                     document.getElementById("edit_designation").value = designation;
-                    document.getElementById("edit_sub_title").value = sub_title;
                 });
             });
         });
     </script>
 
-    <!-- delete -->
+    <!-- delete confirmation -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         function deleteUser(userID) {
-            if (confirm("Are you sure you want to delete this user?")) {
-                window.location.href = 'delete_approver.php?approver_id=' + userID + '&confirm=yes';
-            }
+            Swal.fire({
+                title: 'Delete Approver?',
+                text: "This action cannot be undone!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = 'delete_approver.php?approver_id=' + userID + '&confirm=yes';
+                }
+            })
         }
     </script>
 
+
+    <!-- alert for delete -->
+    <?php if (isset($_GET['deleted'])): ?>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            Swal.fire({
+                icon: '<?php echo $_GET["deleted"] === "success" ? "success" : "error"; ?>',
+                title: '<?php echo $_GET["deleted"] === "success" ? "Deleted!" : "Error!"; ?>',
+                text: '<?php echo $_GET["deleted"] === "success" ? "Approver has been deleted successfully." : "There was a problem deleting the payee."; ?>',
+                confirmButtonColor: '#3085d6'
+            });
+        </script>
+    <?php endif; ?>
+
+    <!-- alert for update -->
+    <?php if (isset($_GET['updated'])): ?>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            Swal.fire({
+                icon: '<?php echo $_GET["updated"] === "success" ? "success" : "error"; ?>',
+                title: '<?php echo $_GET["updated"] === "success" ? "Updated!" : "Error!"; ?>',
+                text: '<?php echo $_GET["updated"] === "success" ? "Approver has been updated successfully." : "There was a problem updating the payee."; ?>',
+                confirmButtonColor: '#3085d6'
+            });
+        </script>
+    <?php endif; ?>
+
+    <script>
+
+        function clearForm() {
+            document.getElementById('addUserForm').reset();
+        }
+    </script>
 
 </body>
 
