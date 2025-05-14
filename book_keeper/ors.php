@@ -265,6 +265,129 @@ $ors_result = $connection->query($ors_query);
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
     <link rel="stylesheet" href="css/ors.css">
 
+    <style>
+        /* Custom Searchable Dropdown */
+        .custom-dropdown {
+            position: relative;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        
+        .dropdown-toggle {
+            padding: 0.375rem 0.75rem;
+            background-color: #fff;
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 38px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .dropdown-toggle::after {
+            content: '';
+            border-top: 0.3em solid;
+            border-right: 0.3em solid transparent;
+            border-left: 0.3em solid transparent;
+            display: inline-block;
+            margin-left: 0.255em;
+            vertical-align: 0.255em;
+            flex-shrink: 0;
+        }
+        
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            z-index: 1000;
+            display: none;
+            width: 100%;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 0.25rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .dropdown-menu.show {
+            display: block;
+        }
+        
+        .search-box {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 1;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .dropdown-items {
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        
+        .dropdown-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            word-wrap: break-word;
+            white-space: normal;
+            line-height: 1.4;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        
+        .dropdown-item:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .dropdown-item.selected {
+            background-color: #e2f0ff;
+        }
+        
+        .highlight-effect {
+            animation: highlight 1s ease;
+        }
+        
+        @keyframes highlight {
+            0% { background-color: rgba(0, 89, 255, 0.27); }
+            100% { background-color: transparent; }
+        }
+        
+        /* Error tooltip styling */
+        .error-tooltip {
+            position: absolute;
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 5px 10px;
+            border-radius: 4px;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            z-index: 10;
+            animation: fadeInOut 3s ease;
+        }
+        
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            15% { opacity: 1; }
+            85% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+    </style>
+
 </head>
 
 <body>
@@ -631,20 +754,206 @@ $ors_result = $connection->query($ors_query);
             const totalAmountInput = document.getElementById('total_amount');
             const addEntryButton = document.getElementById('add-entry-button');
 
+            // Function to create searchable dropdown for account select
+            function createAccountSearchableDropdown(selectElement) {
+                // Create container
+                const dropdownContainer = document.createElement('div');
+                dropdownContainer.className = 'custom-dropdown';
+                
+                // Create toggle button
+                const dropdownToggle = document.createElement('div');
+                dropdownToggle.className = 'dropdown-toggle';
+                
+                // Set the toggle text with proper title attribute for hover
+                const selectedOption = selectElement.options[selectElement.selectedIndex];
+                const toggleText = selectedOption?.textContent || 'Select Account';
+                dropdownToggle.textContent = toggleText;
+                dropdownToggle.title = toggleText; // Add title for hover tooltip
+                
+                // Create dropdown menu
+                const dropdownMenu = document.createElement('div');
+                dropdownMenu.className = 'dropdown-menu';
+                
+                // Create search box
+                const searchBox = document.createElement('div');
+                searchBox.className = 'search-box';
+                const searchInput = document.createElement('input');
+                searchInput.type = 'text';
+                searchInput.placeholder = 'Search account...';
+                searchBox.appendChild(searchInput);
+                
+                // Create dropdown items container
+                const dropdownItems = document.createElement('div');
+                dropdownItems.className = 'dropdown-items';
+                
+                // Clear any existing dropdown items to prevent duplication
+                dropdownItems.innerHTML = '';
+                
+                // Track processed values to prevent duplicates
+                const processedValues = new Set();
+                
+                // Add options as dropdown items
+                Array.from(selectElement.options).forEach(option => {
+                    if (option.disabled && option.selected) return;
+                    if (option.value === '') return; // Skip empty options
+                    
+                    // Skip if this value has already been processed
+                    if (processedValues.has(option.value)) return;
+                    processedValues.add(option.value);
+                    
+                    const item = document.createElement('div');
+                    item.className = 'dropdown-item';
+                    item.textContent = option.textContent;
+                    item.title = option.textContent; // Add title for hover tooltip
+                    item.dataset.value = option.value;
+                    item.dataset.code = option.getAttribute('data-code') || '';
+                    item.dataset.oopap = option.getAttribute('data-oopap') || '';
+                    
+                    // Handle item selection
+                    item.addEventListener('click', function() {
+                        selectElement.value = this.dataset.value;
+                        dropdownToggle.textContent = this.textContent;
+                        dropdownToggle.title = this.textContent; // Update title on selection
+                        dropdownMenu.classList.remove('show');
+                        
+                        // Update selected state
+                        dropdownItems.querySelectorAll('.dropdown-item').forEach(el => {
+                            el.classList.remove('selected');
+                        });
+                        this.classList.add('selected');
+                        
+                        // Update account code
+                        const row = selectElement.closest('tr');
+                        const codeCell = row.querySelector('.account-code');
+                        if (codeCell) {
+                            codeCell.textContent = this.dataset.code;
+                            codeCell.classList.add('highlight-effect');
+                            setTimeout(() => {
+                                codeCell.classList.remove('highlight-effect');
+                            }, 1000);
+                        }
+                        
+                        // Trigger change event
+                        const event = new Event('change', { bubbles: true });
+                        selectElement.dispatchEvent(event);
+                    });
+                    
+                    dropdownItems.appendChild(item);
+                });
+                
+                // Assemble dropdown
+                dropdownMenu.appendChild(searchBox);
+                dropdownMenu.appendChild(dropdownItems);
+                dropdownContainer.appendChild(dropdownToggle);
+                dropdownContainer.appendChild(dropdownMenu);
+                
+                // Replace select with custom dropdown
+                selectElement.style.display = 'none';
+                
+                // Remove any existing custom dropdown to prevent duplication
+                const existingDropdown = selectElement.previousElementSibling;
+                if (existingDropdown && existingDropdown.classList.contains('custom-dropdown')) {
+                    existingDropdown.remove();
+                }
+                
+                selectElement.parentNode.insertBefore(dropdownContainer, selectElement);
+                
+                // Toggle dropdown on click
+                dropdownToggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdownMenu.classList.toggle('show');
+                    if (dropdownMenu.classList.contains('show')) {
+                        searchInput.focus();
+                    }
+                });
+                
+                // Filter items on search
+                searchInput.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    let hasVisibleItems = false;
+                    
+                    dropdownItems.querySelectorAll('.dropdown-item').forEach(item => {
+                        const text = item.textContent.toLowerCase();
+                        if (text.includes(searchTerm)) {
+                            item.style.display = '';
+                            hasVisibleItems = true;
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                    
+                    // Show message if no items match search
+                    let noResultsMsg = dropdownItems.querySelector('.no-results-message');
+                    
+                    if (!hasVisibleItems) {
+                        if (!noResultsMsg) {
+                            noResultsMsg = document.createElement('div');
+                            noResultsMsg.className = 'no-results-message';
+                            noResultsMsg.style.padding = '10px';
+                            noResultsMsg.style.textAlign = 'center';
+                            noResultsMsg.style.color = '#999';
+                            noResultsMsg.textContent = 'No matches found';
+                            dropdownItems.appendChild(noResultsMsg);
+                        }
+                    } else if (noResultsMsg) {
+                        noResultsMsg.remove();
+                    }
+                });
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!dropdownContainer.contains(e.target)) {
+                        dropdownMenu.classList.remove('show');
+                    }
+                });
+                
+                return dropdownContainer;
+            }
+
             // Add a new entry row with animation
             addEntryButton.addEventListener('click', function () {
                 const newRow = document.createElement('tr');
                 newRow.className = 'entry-row';
                 newRow.style.opacity = '0';
                 newRow.style.transform = 'translateY(10px)';
+                
+                // Get the first select element as template
+                const firstSelect = document.querySelector('select[name="account_id[]"]');
+                
+                // Create a fresh select element for the new row
+                const newSelect = document.createElement('select');
+                newSelect.className = 'form-control';
+                newSelect.name = 'account_id[]';
+                newSelect.required = true;
+                
+                // Add the default option
+                const defaultOption = document.createElement('option');
+                defaultOption.selected = true;
+                defaultOption.disabled = true;
+                defaultOption.textContent = 'Select Account';
+                newSelect.appendChild(defaultOption);
+                
+                // Clone options from the first select but avoid duplicates
+                const addedValues = new Set();
+                Array.from(firstSelect.options).forEach(opt => {
+                    if (opt.value === '') return; // Skip empty/default option
+                    
+                    // Skip duplicates
+                    if (addedValues.has(opt.value)) return;
+                    addedValues.add(opt.value);
+                    
+                    const option = document.createElement('option');
+                    option.value = opt.value;
+                    option.textContent = opt.textContent;
+                    option.setAttribute('data-code', opt.getAttribute('data-code') || '');
+                    option.setAttribute('data-oopap', opt.getAttribute('data-oopap') || '');
+                    newSelect.appendChild(option);
+                });
+                
+                // Create the row HTML
                 newRow.innerHTML = `
                     <td colspan="2">
-                        <select class="form-control" name="account_id[]" required>
-                            <option selected disabled>Select Account</option>
-                            ${Array.from(document.querySelector('select[name="account_id[]"]').options)
-                        .map(opt => opt.outerHTML)
-                        .join('')}
-                        </select>
+                        <!-- Select will be inserted here -->
                     </td>
                     <td class="account-code"></td>
                     <td>
@@ -656,6 +965,13 @@ $ors_result = $connection->query($ors_query);
                         </button>
                     </td>
                 `;
+                
+                // Insert the select into the first cell
+                const firstCell = newRow.querySelector('td');
+                firstCell.innerHTML = '';
+                firstCell.appendChild(newSelect);
+                
+                // Add to table
                 tableBody.appendChild(newRow);
 
                 // Animate row appearance
@@ -665,8 +981,11 @@ $ors_result = $connection->query($ors_query);
                     newRow.style.transform = 'translateY(0)';
                 }, 10);
 
-                // Add event listeners to the new row
+                // Initialize the new row
                 initializeRowEvents(newRow);
+
+                // Create searchable dropdown for the new row
+                createAccountSearchableDropdown(newSelect);
 
                 // Filter accounts based on selected OOPAP
                 filterAccountsByOOPAP();
@@ -773,35 +1092,120 @@ $ors_result = $connection->query($ors_query);
                 const selectedOopapId = oopapSelect.value;
                 if (!selectedOopapId || selectedOopapId === '') return;
 
-                // Update account dropdowns
-                const accountSelects = document.querySelectorAll('select[name="account_id[]"]');
-
-                accountSelects.forEach(select => {
+                // Filter options in both original selects and custom dropdowns
+                document.querySelectorAll('select[name="account_id[]"]').forEach(select => {
+                    // Filter in the original select element
                     const options = select.querySelectorAll('option');
-
                     options.forEach(option => {
                         if (option.value === "") return;
-
                         const optionOopapId = option.getAttribute('data-oopap');
-                        if (optionOopapId === selectedOopapId) {
-                            option.style.display = '';
-                        } else {
-                            option.style.display = 'none';
-                        }
+                        option.style.display = (optionOopapId === selectedOopapId) ? '' : 'none';
                     });
+                    
+                    // Find and filter the corresponding custom dropdown
+                    const dropdownContainer = select.previousElementSibling;
+                    if (dropdownContainer && dropdownContainer.classList.contains('custom-dropdown')) {
+                        const dropdownItems = dropdownContainer.querySelectorAll('.dropdown-item');
+                        dropdownItems.forEach(item => {
+                            if (!item.dataset.value) return;
+                            const itemOopapId = item.dataset.oopap;
+                            item.style.display = (itemOopapId === selectedOopapId) ? '' : 'none';
+                        });
+                    }
                 });
             }
 
             // Handle OOPAP change
             const oopapSelect = document.querySelector('select[name="oopap_id"]');
             if (oopapSelect) {
-                oopapSelect.addEventListener('change', filterAccountsByOOPAP);
+                oopapSelect.addEventListener('change', function() {
+                    // Get the selected OOPAP ID
+                    const selectedOopapId = this.value;
+                    
+                    // Apply filtering to each account dropdown
+                    document.querySelectorAll('select[name="account_id[]"]').forEach(select => {
+                        // Filter original select options
+                        let hasVisibleOptions = false;
+                        Array.from(select.options).forEach(option => {
+                            if (option.value === '') return; // Skip empty option
+                            
+                            const optionOopapId = option.getAttribute('data-oopap');
+                            const shouldShow = optionOopapId === selectedOopapId;
+                            option.style.display = shouldShow ? '' : 'none';
+                            
+                            if (shouldShow) hasVisibleOptions = true;
+                        });
+                        
+                        // Reset selection if current selection is now hidden
+                        const currentValue = select.value;
+                        if (currentValue) {
+                            const currentOption = select.querySelector(`option[value="${currentValue}"]`);
+                            if (currentOption && currentOption.style.display === 'none') {
+                                select.value = '';
+                            }
+                        }
+                        
+                        // Find and update the custom dropdown
+                        const dropdown = select.previousElementSibling;
+                        if (dropdown && dropdown.classList.contains('custom-dropdown')) {
+                            // Update dropdown items visibility
+                            const items = dropdown.querySelectorAll('.dropdown-item');
+                            let visibleCount = 0;
+                            
+                            items.forEach(item => {
+                                const itemOopapId = item.dataset.oopap;
+                                const shouldShow = itemOopapId === selectedOopapId;
+                                item.style.display = shouldShow ? '' : 'none';
+                                
+                                if (shouldShow) visibleCount++;
+                            });
+                            
+                            // Update dropdown toggle text if selection was reset
+                            if (select.value === '') {
+                                const toggle = dropdown.querySelector('.dropdown-toggle');
+                                if (toggle) {
+                                    toggle.textContent = 'Select Account';
+                                }
+                            }
+                            
+                            // Show message if no items are visible
+                            const dropdownItems = dropdown.querySelector('.dropdown-items');
+                            let noItemsMsg = dropdown.querySelector('.no-items-message');
+                            
+                            if (visibleCount === 0) {
+                                if (!noItemsMsg) {
+                                    noItemsMsg = document.createElement('div');
+                                    noItemsMsg.className = 'no-items-message';
+                                    noItemsMsg.style.padding = '10px';
+                                    noItemsMsg.style.textAlign = 'center';
+                                    noItemsMsg.style.color = '#999';
+                                    noItemsMsg.textContent = 'No accounts available for this OO/PAP';
+                                    dropdownItems.appendChild(noItemsMsg);
+                                }
+                            } else if (noItemsMsg) {
+                                noItemsMsg.remove();
+                            }
+                        }
+                    });
+                });
             }
 
-            // Initialize events for the first row
-            const firstRow = tableBody.querySelector('.entry-row');
-            if (firstRow) {
-                initializeRowEvents(firstRow);
+            // Initialize existing rows and convert selects to searchable dropdowns
+            const existingRows = tableBody.querySelectorAll('.entry-row');
+            existingRows.forEach(row => {
+                initializeRowEvents(row);
+                const accountSelect = row.querySelector('select[name="account_id[]"]');
+                if (accountSelect) {
+                    // Create the searchable dropdown
+                    createAccountSearchableDropdown(accountSelect);
+                }
+            });
+            
+            // Call the filter once all dropdowns are created
+            if (oopapSelect && oopapSelect.value) {
+                // Trigger the change event to apply filtering
+                const event = new Event('change');
+                oopapSelect.dispatchEvent(event);
             }
 
             // Initialize Dropdown Services based on selected Fund Cluster and OOPAP
@@ -829,32 +1233,228 @@ $ors_result = $connection->query($ors_query);
 
                 // Add loading indicator
                 servicesSelect.innerHTML = '<option>Loading services...</option>';
+                
+                console.log(`Fetching services with fund_cluster_id=${fundClusterId} and oopap_id=${oopapId}`);
 
-                // Fetch services from the server
-                fetch(`get_services.php?fund_cluster_id=${fundClusterId}&oopap_id=${oopapId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        // Clear loading indicator
-                        servicesSelect.innerHTML = '<option selected disabled value = "">Select Services</option>';
-
-                        if (data.length === 0) {
-                            const option = document.createElement('option');
-                            option.textContent = 'No services available';
-                            option.disabled = true;
-                            servicesSelect.appendChild(option);
-                        } else {
-                            data.forEach(service => {
-                                const option = document.createElement('option');
-                                option.value = service.services_id;
-                                option.textContent = service.services_name + ' - ' + service.code;
-                                servicesSelect.appendChild(option);
-                            });
+                // Try using get_filtered_services.php directly since we updated it to handle both cases
+                fetch('get_filtered_services.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `oopap_id=${oopapId}`
+                })
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Services data received:', data);
+                    processServicesData(data);
+                })
+                .catch(error => {
+                    console.error('Error with get_filtered_services.php, trying get_services.php:', error);
+                    
+                    // Fallback to get_services.php
+                    fetch(`get_services.php?fund_cluster_id=${fundClusterId}&oopap_id=${oopapId}`)
+                    .then(response => {
+                        console.log('Fallback response status:', response.status);
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
                         }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Fallback services data received:', data);
+                        processServicesData(data);
                     })
                     .catch(error => {
-                        console.error('Error loading services:', error);
+                        console.error('Error with both services fetches:', error);
                         servicesSelect.innerHTML = '<option disabled selected>Error loading services</option>';
                     });
+                });
+                
+                function processServicesData(data) {
+                    // Clear loading indicator
+                    servicesSelect.innerHTML = '<option selected disabled value = "">Select Services</option>';
+                    
+                    // Check if data contains an error
+                    if (data.error) {
+                        console.error('Error in services data:', data.error);
+                        servicesSelect.innerHTML = '<option disabled selected>Error: ' + data.error + '</option>';
+                        return;
+                    }
+                    
+                    // Check if we have services to display
+                    if (!Array.isArray(data) || data.length === 0) {
+                        const option = document.createElement('option');
+                        option.textContent = 'No services available';
+                        option.disabled = true;
+                        servicesSelect.appendChild(option);
+                    } else {
+                        data.forEach(service => {
+                            if (!service.services_id || !service.services_name) {
+                                console.warn('Invalid service data:', service);
+                                return;
+                            }
+                            const option = document.createElement('option');
+                            option.value = service.services_id;
+                            option.textContent = service.services_name + (service.code ? ' - ' + service.code : '');
+                            option.setAttribute('data-code', service.code || '');
+                            servicesSelect.appendChild(option);
+                        });
+                        
+                        // Convert to searchable dropdown after loading the options
+                        try {
+                            createServicesSearchableDropdown(servicesSelect);
+                        } catch (err) {
+                            console.error('Error creating searchable dropdown:', err);
+                        }
+                    }
+                }
+            }
+            
+            // Function to create searchable dropdown for services select
+            function createServicesSearchableDropdown(selectElement) {
+                // Remove any existing custom dropdown for this element
+                const existingDropdown = selectElement.previousElementSibling;
+                if (existingDropdown && existingDropdown.classList.contains('custom-dropdown')) {
+                    existingDropdown.remove();
+                }
+                
+                // Create container
+                const dropdownContainer = document.createElement('div');
+                dropdownContainer.className = 'custom-dropdown';
+                
+                // Create toggle button
+                const dropdownToggle = document.createElement('div');
+                dropdownToggle.className = 'dropdown-toggle';
+                
+                // Set the toggle text with proper title attribute for hover
+                const selectedOption = selectElement.options[selectElement.selectedIndex];
+                const toggleText = selectedOption?.textContent || 'Select Services';
+                dropdownToggle.textContent = toggleText;
+                dropdownToggle.title = toggleText; // Add title for hover tooltip
+                
+                // Create dropdown menu
+                const dropdownMenu = document.createElement('div');
+                dropdownMenu.className = 'dropdown-menu';
+                
+                // Create search box
+                const searchBox = document.createElement('div');
+                searchBox.className = 'search-box';
+                const searchInput = document.createElement('input');
+                searchInput.type = 'text';
+                searchInput.placeholder = 'Search services...';
+                searchBox.appendChild(searchInput);
+                
+                // Create dropdown items container
+                const dropdownItems = document.createElement('div');
+                dropdownItems.className = 'dropdown-items';
+                
+                // Track processed values to prevent duplicates
+                const processedValues = new Set();
+                
+                // Add options as dropdown items
+                Array.from(selectElement.options).forEach(option => {
+                    if (option.disabled && option.selected) return;
+                    if (option.value === '') return; // Skip empty options
+                    
+                    // Skip if this value has already been processed
+                    if (processedValues.has(option.value)) return;
+                    processedValues.add(option.value);
+                    
+                    const item = document.createElement('div');
+                    item.className = 'dropdown-item';
+                    item.textContent = option.textContent;
+                    item.title = option.textContent; // Add title for hover tooltip
+                    item.dataset.value = option.value;
+                    item.dataset.code = option.getAttribute('data-code') || '';
+                    
+                    // Handle item selection
+                    item.addEventListener('click', function() {
+                        selectElement.value = this.dataset.value;
+                        dropdownToggle.textContent = this.textContent;
+                        dropdownToggle.title = this.textContent; // Update title on selection
+                        dropdownMenu.classList.remove('show');
+                        
+                        // Update selected state
+                        dropdownItems.querySelectorAll('.dropdown-item').forEach(el => {
+                            el.classList.remove('selected');
+                        });
+                        this.classList.add('selected');
+                        
+                        // Trigger change event
+                        const event = new Event('change', { bubbles: true });
+                        selectElement.dispatchEvent(event);
+                    });
+                    
+                    dropdownItems.appendChild(item);
+                });
+                
+                // Assemble dropdown
+                dropdownMenu.appendChild(searchBox);
+                dropdownMenu.appendChild(dropdownItems);
+                dropdownContainer.appendChild(dropdownToggle);
+                dropdownContainer.appendChild(dropdownMenu);
+                
+                // Replace select with custom dropdown
+                selectElement.style.display = 'none';
+                selectElement.parentNode.insertBefore(dropdownContainer, selectElement);
+                
+                // Toggle dropdown on click
+                dropdownToggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdownMenu.classList.toggle('show');
+                    if (dropdownMenu.classList.contains('show')) {
+                        searchInput.focus();
+                    }
+                });
+                
+                // Filter items on search
+                searchInput.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    let hasVisibleItems = false;
+                    
+                    dropdownItems.querySelectorAll('.dropdown-item').forEach(item => {
+                        const text = item.textContent.toLowerCase();
+                        if (text.includes(searchTerm)) {
+                            item.style.display = '';
+                            hasVisibleItems = true;
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                    
+                    // Show message if no items match search
+                    let noResultsMsg = dropdownItems.querySelector('.no-results-message');
+                    
+                    if (!hasVisibleItems) {
+                        if (!noResultsMsg) {
+                            noResultsMsg = document.createElement('div');
+                            noResultsMsg.className = 'no-results-message';
+                            noResultsMsg.style.padding = '10px';
+                            noResultsMsg.style.textAlign = 'center';
+                            noResultsMsg.style.color = '#999';
+                            noResultsMsg.textContent = 'No matches found';
+                            dropdownItems.appendChild(noResultsMsg);
+                        }
+                    } else if (noResultsMsg) {
+                        noResultsMsg.remove();
+                    }
+                });
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!dropdownContainer.contains(e.target)) {
+                        dropdownMenu.classList.remove('show');
+                    }
+                });
+                
+                return dropdownContainer;
             }
 
             // Form validation
@@ -930,31 +1530,83 @@ $ors_result = $connection->query($ors_query);
     <!-- dv_number -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const fundClusterSelect = document.getElementById("fund_cluster_id");
-            const dvDateInput = document.getElementById("dvDate");
-            const orsNumberInput = document.getElementById("ors_no");
+            // Initialize the date input with today's date if empty
+            const dateInput = document.getElementById('dvDate');
+            if (!dateInput.value) {
+                const today = new Date();
+                dateInput.value = today.toISOString().split('T')[0];
+            }
+            
+            // References to key elements
+            const servicesSelect = document.getElementById('services');
+            const orsNumberInput = document.getElementById('ors_no');
+            
+            // Function to generate ORS number based on service code and date
+            function generateORSNumber() {
+                // Find the service code
+                let serviceCode = '';
+                
+                // First try to get it from the custom dropdown
+                const servicesDropdown = servicesSelect.previousElementSibling;
+                if (servicesDropdown && servicesDropdown.classList.contains('custom-dropdown')) {
+                    // Get the selected value from the hidden select
+                    const selectedValue = servicesSelect.value;
+                    if (selectedValue) {
+                        // Find the selected option to get its data-code
+                        const selectedOption = servicesSelect.querySelector(`option[value="${selectedValue}"]`);
+                        serviceCode = selectedOption ? selectedOption.getAttribute('data-code') : '';
+                    }
+                } else {
+                    // Fallback to the standard select
+                    const selectedService = servicesSelect.options[servicesSelect.selectedIndex];
+                    if (selectedService && !selectedService.disabled) {
+                        serviceCode = selectedService.getAttribute('data-code');
+                    }
+                }
+                
+                const selectedDate = dateInput.value;
 
-            function generateorsNumber() {
-                const selectedUACS = fundClusterSelect.value;
-                const selectedDate = dvDateInput.value;
-
-                if (!selectedUACS || !selectedDate) {
-                    orsNumberInput.value = "";
+                if (!serviceCode || !selectedDate) {
+                    // Set a default value if not all required data is available
+                    orsNumberInput.value = "ORS-<?php echo date('Y-m'); ?>-<?php echo $new_sequence; ?>";
                     return;
                 }
 
-                const dateObj = new Date(selectedDate);
-                const year = dateObj.getFullYear();
-                const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                const date = new Date(selectedDate);
+                const year = date.getFullYear().toString().substr(-2);
+                const month = String(date.getMonth() + 1).padStart(2, '0');
 
-                const lastSequence = "<?php echo $new_sequence; ?>";
-
-                const orsNumber = `${selectedUACS}-${year}-${month}-${lastSequence}`;
-                orsNumberInput.value = orsNumber;
+                // Fetch the next sequence number from server
+                fetch('get_next_ors_sequence.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `service_code=${encodeURIComponent(serviceCode)}&year=${year}&month=${month}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const sequence = String(data.next_sequence).padStart(3, '0');
+                    orsNumberInput.value = `${serviceCode}-${year}-${month}-${sequence}`;
+                })
+                .catch(error => {
+                    console.error('Error generating ORS number:', error);
+                    // Fallback if server request fails
+                    orsNumberInput.value = `${serviceCode}-${year}-${month}-<?php echo $new_sequence; ?>`;
+                });
             }
 
-            fundClusterSelect.addEventListener("change", generateorsNumber);
-            dvDateInput.addEventListener("change", generateorsNumber);
+            // Initialize ORS number when page loads
+            if (servicesSelect.value) {
+                generateORSNumber();
+            } else {
+                // Set a default placeholder
+                orsNumberInput.value = "ORS-<?php echo date('Y-m'); ?>-<?php echo $new_sequence; ?>";
+            }
+
+            // Update ORS number when service or date changes
+            servicesSelect.addEventListener('change', generateORSNumber);
+            dateInput.addEventListener('change', generateORSNumber);
         });
     </script>
 
@@ -964,16 +1616,17 @@ $ors_result = $connection->query($ors_query);
 
 
     <script>
-        $(document).ready(function () {
-            $('#payee_id').on('change', function () {
-                var selectedOption = $(this).find('option:selected');
-                var tinNo = selectedOption.data('tin');
-                var address = selectedOption.data('address');
+        // This script is now replaced by the custom searchable dropdown implementation
+        // $(document).ready(function () {
+        //     $('#payee_id').on('change', function () {
+        //         var selectedOption = $(this).find('option:selected');
+        //         var tinNo = selectedOption.data('tin');
+        //         var address = selectedOption.data('address');
 
-                $('#tin_no').val(tinNo);
-                $('#address').val(address);
-            });
-        });
+        //         $('#tin_no').val(tinNo);
+        //         $('#address').val(address);
+        //     });
+        // });
     </script>
 
 
@@ -1060,8 +1713,6 @@ $ors_result = $connection->query($ors_query);
         document.addEventListener("DOMContentLoaded", function () {
             const oopapSelect = document.querySelector('select[name="oopap_id"]');
             const servicesSelect = document.getElementById('services');
-            const dateInput = document.getElementById('dvDate');
-            const orsNoInput = document.getElementById('ors_no');
 
             function updateServices(oopapId) {
                 if (!oopapId) {
@@ -1086,6 +1737,13 @@ $ors_result = $connection->query($ors_query);
                             option.setAttribute('data-code', service.code);
                             servicesSelect.appendChild(option);
                         });
+                        
+                        // Create searchable dropdown for services
+                        createServicesSearchableDropdown(servicesSelect);
+                        
+                        // Update ORS number after services are loaded
+                        const event = new Event('change');
+                        servicesSelect.dispatchEvent(event);
                     })
                     .catch(error => {
                         console.error('Error:', error);
@@ -1096,58 +1754,6 @@ $ors_result = $connection->query($ors_query);
             oopapSelect.addEventListener('change', function () {
                 updateServices(this.value);
             });
-
-            function generateORSNumber() {
-                const selectedService = servicesSelect.options[servicesSelect.selectedIndex];
-                const selectedDate = dateInput.value;
-
-                if (!selectedService || selectedService.disabled || !selectedDate) {
-                    return;
-                }
-
-                const serviceCode = selectedService.getAttribute('data-code');
-                const date = new Date(selectedDate);
-                const year = date.getFullYear().toString().substr(-2);
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-
-                // Check if the service code is ADMIN&POLICY
-                if (serviceCode === 'ADMIN&POLICY') {
-                    fetch('get_next_ors_sequence.php', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                        body: `service_code=ADMIN&POLICY&year=${year}&month=${month}`
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            const sequence = String(data.next_sequence).padStart(3, '0');
-                            orsNoInput.value = `ADMIN&POLICY-${year}-${month}-${sequence}`;
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                        });
-                } else {
-                    fetch('get_next_ors_sequence.php', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                        body: `service_code=${serviceCode}&year=${year}&month=${month}`
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            const sequence = String(data.next_sequence).padStart(3, '0');
-                            orsNoInput.value = `${serviceCode}-${year}-${month}-${sequence}`;
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                        });
-                }
-            }
-
-            servicesSelect.addEventListener('change', generateORSNumber);
-            dateInput.addEventListener('change', generateORSNumber);
         });
     </script>
 
@@ -1199,151 +1805,8 @@ $ors_result = $connection->query($ors_query);
 
     <!-- Custom Searchable Dropdown Implementation -->
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const dropdownContainers = [];
-
-            function convertToSearchableDropdown(selectElement) {
-                const dropdownContainer = document.createElement('div');
-                dropdownContainer.className = 'custom-dropdown';
-
-                const dropdownToggle = document.createElement('div');
-                dropdownToggle.className = 'dropdown-toggle';
-                dropdownToggle.textContent = selectElement.options[selectElement.selectedIndex]?.text || 'Select Account';
-
-                const dropdownMenu = document.createElement('div');
-                dropdownMenu.className = 'dropdown-menu';
-
-                const searchBox = document.createElement('div');
-                searchBox.className = 'search-box';
-                const searchInput = document.createElement('input');
-                searchInput.type = 'text';
-                searchInput.placeholder = 'Search...';
-                searchBox.appendChild(searchInput);
-                dropdownMenu.appendChild(searchBox);
-
-                const dropdownItems = document.createElement('div');
-                dropdownItems.className = 'dropdown-items';
-
-                Array.from(selectElement.options).forEach(option => {
-                    if (option.value === '') return;
-                    const dropdownItem = document.createElement('div');
-                    dropdownItem.className = 'dropdown-item';
-                    dropdownItem.dataset.value = option.value;
-                    dropdownItem.dataset.oopapId = option.getAttribute('data-oopap');
-                    dropdownItem.dataset.accountCode = option.getAttribute('data-account_code');
-
-                    // Include account code in the display text
-                    const accountCode = option.getAttribute('data-account_code') || '';
-                    const displayText = accountCode ? `${option.text} (${accountCode})` : option.text;
-                    dropdownItem.textContent = displayText;
-
-                    dropdownItem.addEventListener('click', function () {
-                        selectElement.value = this.dataset.value;
-                        dropdownToggle.textContent = displayText;
-                        dropdownMenu.classList.remove('show');
-
-                        dropdownItems.querySelectorAll('.dropdown-item').forEach(item => {
-                            item.classList.remove('selected');
-                        });
-                        this.classList.add('selected');
-
-                        // Update the account code input
-                        const row = selectElement.closest('tr');
-                        const codeInput = row.querySelector('.account-code');
-                        if (codeInput && this.dataset.accountCode) {
-                            codeInput.value = this.dataset.accountCode;
-                        }
-
-                        const event = new Event('change', { bubbles: true });
-                        selectElement.dispatchEvent(event);
-                    });
-
-                    dropdownItems.appendChild(dropdownItem);
-                });
-
-                dropdownMenu.appendChild(dropdownItems);
-                dropdownToggle.addEventListener('click', function (e) {
-                    e.stopPropagation();
-                    dropdownMenu.classList.toggle('show');
-                    if (dropdownMenu.classList.contains('show')) {
-                        searchInput.focus();
-                    }
-                });
-
-                searchInput.addEventListener('input', function () {
-                    const searchTerm = this.value.toLowerCase();
-                    dropdownItems.querySelectorAll('.dropdown-item').forEach(item => {
-                        const text = item.textContent.toLowerCase();
-                        if (text.includes(searchTerm)) {
-                            item.style.display = '';
-                        } else {
-                            item.style.display = 'none';
-                        }
-                    });
-                });
-
-                document.addEventListener('click', function (e) {
-                    if (!dropdownContainer.contains(e.target)) {
-                        dropdownMenu.classList.remove('show');
-                    }
-                });
-
-                selectElement.style.display = 'none';
-                dropdownContainer.appendChild(dropdownToggle);
-                dropdownContainer.appendChild(dropdownMenu);
-                selectElement.parentNode.insertBefore(dropdownContainer, selectElement);
-
-                return dropdownContainer;
-            }
-
-            const accountSelects = document.querySelectorAll('select[name="account_id[]"]');
-
-            accountSelects.forEach(select => {
-                if (!select.classList.contains('custom-dropdown-processed')) {
-                    select.classList.add('custom-dropdown-processed');
-                    const container = convertToSearchableDropdown(select);
-                    dropdownContainers.push(container);
-                }
-            });
-
-            const oopapSelect = document.querySelector('select[name="oopap_id"]');
-
-            function updateAccountOptions() {
-                const selectedOopapId = oopapSelect.value;
-
-                dropdownContainers.forEach(container => {
-                    const dropdownItems = container.querySelectorAll('.dropdown-item');
-                    const selectElement = container.nextElementSibling;
-
-                    dropdownItems.forEach(item => {
-                        const itemOopapId = item.dataset.oopapId;
-                        if (selectedOopapId && itemOopapId !== selectedOopapId) {
-                            item.style.display = 'none';
-                        } else {
-                            item.style.display = '';
-                        }
-                    });
-
-                    if (selectedOopapId) {
-                        const selectedItem = container.querySelector(`.dropdown-item[data-value="${selectElement.value}"]`);
-                        if (selectedItem && selectedItem.dataset.oopapId !== selectedOopapId) {
-                            selectElement.value = '';
-                            container.querySelector('.dropdown-toggle').textContent = 'Select Account';
-                        }
-                    }
-                });
-            }
-
-            if (oopapSelect) {
-                oopapSelect.addEventListener('change', updateAccountOptions);
-                updateAccountOptions();
-            }
-
-            // Make the convertToSearchableDropdown function available globally
-            window.convertToSearchableDropdown = convertToSearchableDropdown;
-            window.dropdownContainers = dropdownContainers;
-            window.updateAccountOptions = updateAccountOptions;
-        });
+        // The custom searchable dropdown implementation has been replaced
+        // by the integrated version in the main script above
     </script>
 
 
@@ -1368,6 +1831,180 @@ $ors_result = $connection->query($ors_query);
         });
     </script>
 
+    <!-- Searchable Payee Dropdown Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Function to convert a select into a searchable dropdown
+            function createSearchableDropdown(selectElement, updateCallback) {
+                // Create the custom dropdown container
+                const dropdownContainer = document.createElement('div');
+                dropdownContainer.className = 'custom-dropdown';
+                
+                // Create the dropdown toggle button
+                const dropdownToggle = document.createElement('div');
+                dropdownToggle.className = 'dropdown-toggle';
+                
+                // Set the toggle text with proper title attribute for hover
+                const selectedOption = selectElement.options[selectElement.selectedIndex];
+                const toggleText = selectedOption?.textContent || 'Select Payee';
+                dropdownToggle.textContent = toggleText;
+                dropdownToggle.title = toggleText; // Add title for hover tooltip
+                
+                // Create the dropdown menu
+                const dropdownMenu = document.createElement('div');
+                dropdownMenu.className = 'dropdown-menu';
+                
+                // Create the search box
+                const searchBox = document.createElement('div');
+                searchBox.className = 'search-box';
+                const searchInput = document.createElement('input');
+                searchInput.type = 'text';
+                searchInput.placeholder = 'Search payee...';
+                searchBox.appendChild(searchInput);
+                
+                // Create the items container
+                const dropdownItems = document.createElement('div');
+                dropdownItems.className = 'dropdown-items';
+                
+                // Add each option as a dropdown item
+                Array.from(selectElement.options).forEach(option => {
+                    if (option.disabled && option.selected) return;
+                    if (option.value === '') return; // Skip empty options
+                    
+                    const item = document.createElement('div');
+                    item.className = 'dropdown-item';
+                    item.textContent = option.textContent;
+                    item.title = option.textContent; // Add title for hover tooltip
+                    item.dataset.value = option.value;
+                    item.dataset.tin = option.getAttribute('data-tin') || '';
+                    item.dataset.address = option.getAttribute('data-address') || '';
+                    
+                    // Handle item click
+                    item.addEventListener('click', function() {
+                        selectElement.value = this.dataset.value;
+                        dropdownToggle.textContent = this.textContent;
+                        dropdownToggle.title = this.textContent; // Update title on selection
+                        dropdownMenu.classList.remove('show');
+                        
+                        // Highlight selected item
+                        dropdownItems.querySelectorAll('.dropdown-item').forEach(el => {
+                            el.classList.remove('selected');
+                        });
+                        this.classList.add('selected');
+                        
+                        // Trigger change event on the original select
+                        const event = new Event('change', { bubbles: true });
+                        selectElement.dispatchEvent(event);
+                    });
+                    
+                    dropdownItems.appendChild(item);
+                });
+                
+                // Assemble the dropdown
+                dropdownMenu.appendChild(searchBox);
+                dropdownMenu.appendChild(dropdownItems);
+                dropdownContainer.appendChild(dropdownToggle);
+                dropdownContainer.appendChild(dropdownMenu);
+                
+                // Replace the select with our custom dropdown
+                selectElement.style.display = 'none';
+                
+                // Remove any existing dropdown to prevent duplication
+                const existingDropdown = selectElement.previousElementSibling;
+                if (existingDropdown && existingDropdown.classList.contains('custom-dropdown')) {
+                    existingDropdown.remove();
+                }
+                
+                selectElement.parentNode.insertBefore(dropdownContainer, selectElement);
+                
+                // Toggle dropdown on click
+                dropdownToggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdownMenu.classList.toggle('show');
+                    if (dropdownMenu.classList.contains('show')) {
+                        searchInput.focus();
+                    }
+                });
+                
+                // Handle search filtering
+                searchInput.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    let hasVisibleItems = false;
+                    
+                    dropdownItems.querySelectorAll('.dropdown-item').forEach(item => {
+                        const text = item.textContent.toLowerCase();
+                        if (text.includes(searchTerm)) {
+                            item.style.display = '';
+                            hasVisibleItems = true;
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                    
+                    // Show message if no items match search
+                    let noResultsMsg = dropdownItems.querySelector('.no-results-message');
+                    
+                    if (!hasVisibleItems) {
+                        if (!noResultsMsg) {
+                            noResultsMsg = document.createElement('div');
+                            noResultsMsg.className = 'no-results-message';
+                            noResultsMsg.style.padding = '10px';
+                            noResultsMsg.style.textAlign = 'center';
+                            noResultsMsg.style.color = '#999';
+                            noResultsMsg.textContent = 'No matches found';
+                            dropdownItems.appendChild(noResultsMsg);
+                        }
+                    } else if (noResultsMsg) {
+                        noResultsMsg.remove();
+                    }
+                });
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!dropdownContainer.contains(e.target)) {
+                        dropdownMenu.classList.remove('show');
+                    }
+                });
+                
+                // If there's a callback function, call it when an item is selected
+                if (typeof updateCallback === 'function') {
+                    selectElement.addEventListener('change', updateCallback);
+                }
+                
+                return dropdownContainer;
+            }
+            
+            // Convert the payee select into a searchable dropdown
+            const payeeSelect = document.getElementById('payee_id');
+            const tinInput = document.getElementById('tin_no');
+            const addressInput = document.getElementById('address');
+            
+            function updatePayeeDetails() {
+                const selectedOption = payeeSelect.options[payeeSelect.selectedIndex];
+                if (selectedOption && !selectedOption.disabled) {
+                    const tin = selectedOption.getAttribute('data-tin');
+                    const address = selectedOption.getAttribute('data-address');
+                    
+                    tinInput.value = tin || '';
+                    addressInput.value = address || '';
+                    
+                    // Add animation effect
+                    tinInput.classList.add('highlight-effect');
+                    addressInput.classList.add('highlight-effect');
+                    
+                    // Remove effect after animation completes
+                    setTimeout(() => {
+                        tinInput.classList.remove('highlight-effect');
+                        addressInput.classList.remove('highlight-effect');
+                    }, 1000);
+                }
+            }
+            
+            if (payeeSelect) {
+                createSearchableDropdown(payeeSelect, updatePayeeDetails);
+            }
+        });
+    </script>
 
 </body>
 
