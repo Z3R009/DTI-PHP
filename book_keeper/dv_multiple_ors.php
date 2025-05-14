@@ -657,7 +657,58 @@ $dv_no = $fund_cluster . '-' . date('Y') . '-' . str_pad($next_number, 4, '0', S
     <!-- add row and calculate totals -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            const tax1Input = document.getElementById('tax_1');
+            const tax2Input = document.getElementById('tax_2');
             const tableBody = document.getElementById('accountingTableBody');
+            const checkbox = document.getElementById('selectAll');
+            const applyTaxesCheckbox = document.getElementById('apply_taxes');
+
+            // Utility: Create select options from PHP
+            const accountOptions = `<?php
+            $account_result->data_seek(0);
+            while ($account = $account_result->fetch_assoc()) {
+                echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
+            }
+            ?>`;
+
+            // Helper to remove previously added tax rows
+            function removeTaxRows() {
+                const rows = tableBody.querySelectorAll('tr[data-tax="true"]');
+                rows.forEach(row => row.remove());
+            }
+
+            // Function to add tax credit rows
+            function addRowWithCredit(creditAmount, label = '', accountId = '') {
+                const newRow = document.createElement('tr');
+                newRow.setAttribute('data-tax', 'true');
+
+                newRow.innerHTML = `
+                    <td colspan="2">
+                        <select class="form-control account-select" name="account_titles[]">
+                            <option selected disabled value="">Select Account</option>
+                            <?php
+                            // Define the specific account codes we want to show
+                            $accountCodes = ['2020101000'];
+
+                            // Query only the specific cash accounts
+                            $cash_account_query = "SELECT * FROM account_title WHERE account_code IN ('2020101000') ORDER BY account_title ASC";
+                            $cash_account_result = $connection->query($cash_account_query);
+
+                            while ($account = $cash_account_result->fetch_assoc()) {
+                                echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
+                            }
+                            ?>
+                        </select>
+                    </td>
+                    <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01" readonly></td>
+                    <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01" value="${creditAmount.toFixed(2)}" readonly></td>
+                    <td><button type="button" class="btn btn-danger btn-sm delete-row"><i class="bi bi-trash"></i></button></td>
+                `;
+
+                tableBody.appendChild(newRow);
+                setupAccountSelect(newRow);
+                setupCalculationListeners(newRow);
+            }
 
             // Function to setup account select with Select2
             function setupAccountSelect(row) {
@@ -734,29 +785,46 @@ $dv_no = $fund_cluster . '-' . date('Y') . '-' . str_pad($next_number, 4, '0', S
                 }
             }
 
-            // Add event listener for the "Add Row" button
-            document.getElementById('addAccountRow').addEventListener('click', function () {
-                const newRow = document.createElement('tr');
-                newRow.innerHTML = `
-                    <td colspan="2">
-                        <select class="form-control account-select" name="account_titles[]" required>
-                            <option selected disabled value="">Select Account</option>
-                            <?php
-                            $account_result->data_seek(0);
-                            while ($account = $account_result->fetch_assoc()) {
-                                echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
-                            }
-                            ?>
-                        </select>
-                    </td>
-                    <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
-                    <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01"></td>
-                    <td><button type="button" class="btn btn-danger btn-sm delete-row"><i class="bi bi-trash"></i></button></td>
-                `;
+            // Checkbox handler
+            checkbox.addEventListener('change', function () {
+                removeTaxRows(); // Always clean before adding
 
-                tableBody.appendChild(newRow);
-                setupAccountSelect(newRow);
-                setupCalculationListeners(newRow);
+                if (this.checked) {
+                    const tax1Amount = parseFloat(tax1Input.value) || 0;
+                    const tax2Amount = parseFloat(tax2Input.value) || 0;
+
+                    if (tax1Amount > 0) {
+                        addRowWithCredit(tax1Amount, 'Tax 1');
+                    }
+                    if (tax2Amount > 0) {
+                        addRowWithCredit(tax2Amount, 'Tax 2');
+                    }
+                }
+                calculateTotals();
+            });
+
+            // Add event listener for tax changes
+            applyTaxesCheckbox.addEventListener('change', function() {
+                setTimeout(() => {
+                    if (checkbox.checked) {
+                        checkbox.click(); // Uncheck
+                        checkbox.click(); // Check again to refresh tax rows
+                    }
+                }, 100);
+            });
+
+            tax1Input.addEventListener('input', function() {
+                if (checkbox.checked) {
+                    checkbox.click(); // Uncheck
+                    checkbox.click(); // Check again to refresh tax rows
+                }
+            });
+
+            tax2Input.addEventListener('input', function() {
+                if (checkbox.checked) {
+                    checkbox.click(); // Uncheck
+                    checkbox.click(); // Check again to refresh tax rows
+                }
             });
 
             // Setup initial rows
