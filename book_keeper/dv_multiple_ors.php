@@ -662,6 +662,27 @@ $dv_no = $fund_cluster . '-' . date('Y') . '-' . str_pad($next_number, 4, '0', S
             const tableBody = document.getElementById('accountingTableBody');
             const checkbox = document.getElementById('selectAll');
             const applyTaxesCheckbox = document.getElementById('apply_taxes');
+            const addRowButton = document.getElementById('addAccountRow');
+
+            // Add event listener for the Add Row button
+            addRowButton.addEventListener('click', function() {
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td colspan="2">
+                        <select class="form-control account-select" name="account_titles[]" required>
+                            <option selected disabled value="">Select Account</option>
+                            ${accountOptions}
+                        </select>
+                    </td>
+                    <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
+                    <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01"></td>
+                    <td><button type="button" class="btn btn-danger btn-sm delete-row"><i class="bi bi-trash"></i></button></td>
+                `;
+                
+                tableBody.appendChild(newRow);
+                setupAccountSelect(newRow);
+                setupCalculationListeners(newRow);
+            });
 
             // Utility: Create select options from PHP
             const accountOptions = `<?php
@@ -683,10 +704,10 @@ $dv_no = $fund_cluster . '-' . date('Y') . '-' . str_pad($next_number, 4, '0', S
                 newRow.setAttribute('data-tax', 'true');
 
                 newRow.innerHTML = `
-                    <td colspan="2">
+                <td colspan="2">
                         <select class="form-control account-select" name="account_titles[]">
-                            <option selected disabled value="">Select Account</option>
-                            <?php
+                        <option selected disabled value="">Select Account</option>
+                        <?php
                             // Define the specific account codes we want to show
                             $accountCodes = ['2020101000'];
 
@@ -695,15 +716,15 @@ $dv_no = $fund_cluster . '-' . date('Y') . '-' . str_pad($next_number, 4, '0', S
                             $cash_account_result = $connection->query($cash_account_query);
 
                             while ($account = $cash_account_result->fetch_assoc()) {
-                                echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
-                            }
-                            ?>
-                        </select>
-                    </td>
+                            echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
+                        }
+                        ?>
+                    </select>
+                </td>
                     <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01" readonly></td>
                     <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01" value="${creditAmount.toFixed(2)}" readonly></td>
-                    <td><button type="button" class="btn btn-danger btn-sm delete-row"><i class="bi bi-trash"></i></button></td>
-                `;
+                <td><button type="button" class="btn btn-danger btn-sm delete-row"><i class="bi bi-trash"></i></button></td>
+            `;
 
                 tableBody.appendChild(newRow);
                 setupAccountSelect(newRow);
