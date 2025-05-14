@@ -8,17 +8,18 @@
 <aside id="sidebar" class="sidebar">
 <div class="user-profile text-center mb-4">
         <div class="avatar mb-2">
-            <img src="../img/incognito-circle-icon-md.png" alt="Profile" class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover; border: 3px solid rgba(255,255,255,0.2);">
+            <img src="../img/dti_logo.png " alt="Profile" class="rounded-circle"
+                style="width: 80px; height: 80px; object-fit: cover; border: 3px solid rgba(0, 121, 107, 0.2);">
         </div>
         <h5 class="text-dark fw-bold mb-0">Budget Officer</h5>
         <p class="text-dark-emphasis small">Department of Trade & Industry</p>
     </div>
 
     <ul class="sidebar-nav" id="sidebar-nav">
-        <li class="nav-item">
+        <li class="nav-link">
             <a class="nav-link " href="dashboard.php">
                 <i class="bi bi-grid"></i>
-                <span>DASHBOARD</span>
+                <span>Dashboard</span>
             </a>
         </li>
 
