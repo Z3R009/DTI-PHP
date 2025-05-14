@@ -182,7 +182,7 @@
             <tr>
                 <td colspan="3" class="center" style="padding-top: 0; padding-bottom: 0;"><strong>CREDITOR</strong> </td>
                 <td rowspan="2"><strong>Obligation <br>Request NO.</strong></td>
-                <td rowspan="2"><strong>Allotment <br>Request NO.</strong></td>
+                <td rowspan="2"><strong>Account <br>Code</strong></td>
                 <td colspan="3" class="left"><strong>In Pesos</strong></td>
                 <td rowspan="3"><strong>REMARKS</strong></td>
             </tr>
@@ -423,8 +423,8 @@
             dvRowsContainer.innerHTML = ''; 
             const addedDvIds = new Set();
             
+            // Process regular DVs and merged groups
             data.dvs.forEach((dv, index) => {
-
                 if (dv.dv_id && addedDvIds.has(dv.dv_id)) {
                     return;
                 }
@@ -442,16 +442,32 @@
                 }
                 
                 const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${adaDisplay}</td>
-                    <td><strong>${dv.payee_name}</strong></td>
-                    <td><strong>${dv.bank_account}</strong></td>
-                    <td>${dv.ors_no}</td>
-                    <td>${dv.dv_no}</td>
-                    <td class="right"><strong>${formatCurrency(dv.gross_amount)}</strong></td>
-                    <td class="right"><strong>${formatCurrency(dv.withholding_tax)}</strong></td>
-                    <td class="right"><strong>${formatCurrency(dv.net_amount)}</strong></td>
-                `;
+                
+                // Add special styling for merged groups
+                if (dv.is_merged) {
+                    row.classList.add('table-primary');
+                    row.innerHTML = `
+                        <td><i class="bi bi-people-fill me-1"></i> ${adaDisplay}</td>
+                        <td><strong>${dv.payee_name}</strong></td>
+                        <td><strong>${dv.bank_account}</strong></td>
+                        <td>${dv.ors_no}</td>
+                        <td>${dv.account_code || '-'}</td>
+                        <td class="right"><strong>${formatCurrency(dv.gross_amount)}</strong></td>
+                        <td class="right"><strong>${formatCurrency(dv.withholding_tax)}</strong></td>
+                        <td class="right"><strong>${formatCurrency(dv.net_amount)}</strong></td>
+                    `;
+                } else {
+                    row.innerHTML = `
+                        <td>${adaDisplay}</td>
+                        <td><strong>${dv.payee_name}</strong></td>
+                        <td><strong>${dv.bank_account}</strong></td>
+                        <td>${dv.ors_no}</td>
+                        <td>${dv.account_code || '-'}</td>
+                        <td class="right"><strong>${formatCurrency(dv.gross_amount)}</strong></td>
+                        <td class="right"><strong>${formatCurrency(dv.withholding_tax)}</strong></td>
+                        <td class="right"><strong>${formatCurrency(dv.net_amount)}</strong></td>
+                    `;
+                }
                 dvRowsContainer.appendChild(row);
             });
 
@@ -460,6 +476,7 @@
             for (let i = 0; i < emptyRowsNeeded; i++) {
                 const emptyRow = document.createElement('tr');
                 emptyRow.innerHTML = `
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
