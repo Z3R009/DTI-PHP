@@ -11,7 +11,7 @@
             <img src="../img/dti_logo.png " alt="Profile" class="rounded-circle"
                 style="width: 80px; height: 80px; object-fit: cover; border: 3px solid rgba(0, 121, 107, 0.2);">
         </div>
-        <h5 class="text-white fw-bold mb-0">BookKeeper</h5>
+        <h5 class="text-white fw-bold mb-0">Book Keeper</h5>
         <p class="text-white small">Department of Trade & Industry</p>
     </div>
 
@@ -84,16 +84,16 @@
             </ul>
         </li>
 
-         <li class="nav-item">
+        <li class="nav-item">
             <a class="nav-link collapsed" href="payee.php">
-                        <i class="bi bi-person"></i><span>Payee</span>
-                    </a>
+                <i class="bi bi-person"></i><span>Registry of Supplier</span>
+            </a>
         </li>
 
-         <li class="nav-item">
+        <li class="nav-item">
             <a class="nav-link collapsed" href="approver.php">
-                        <i class="bi bi-people"></i><span>Approver</span>
-                    </a>
+                <i class="bi bi-people"></i><span>Approver</span>
+            </a>
         </li>
 
         <li class="nav-item">
