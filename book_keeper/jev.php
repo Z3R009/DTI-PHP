@@ -152,7 +152,7 @@ WHERE dv.status = 'Pending'
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Bookkeeper - Journal Entry Voucher</title>
+    <title>Book Keeper - Journal Entry Voucher</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
@@ -201,52 +201,48 @@ WHERE dv.status = 'Pending'
 
                 <div class="tab-content">
                     <div>
-                        <div class="card">
-                            <div class="card-body">
-                                <table class="datatable">
-                                    <thead>
+                        <div class="card-body">
+                            <table class="datatable">
+                                <thead>
+                                    <tr>
+                                        <th>DV No.</th>
+                                        <th>Date</th>
+                                        <th>Fund Cluster</th>
+                                        <th>Payee Name</th>
+                                        <th>Account Title</th>
+                                        <th>Amount</th>
+                                        <th>Approver</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php while ($row = mysqli_fetch_assoc($select_dv)) { ?>
                                         <tr>
-                                            <th>DV No.</th>
-                                            <th>Date</th>
-                                            <th>Fund Cluster</th>
-                                            <th>Payee Name</th>
-                                            <th>Account Title</th>
-                                            <th>Amount</th>
-                                            <th>Approver</th>
-                                            <th></th>
+                                            <td><?php echo htmlspecialchars($row['dv_no']); ?></td>
+                                            <td>
+                                                <?php
+                                                $date = new DateTime($row['date']);
+                                                echo htmlspecialchars($date->format('F j, Y')); // Example: "April 7, 2025"
+                                                ?>
+                                            </td>
+                                            <td><?php echo htmlspecialchars($row['fund_cluster']); ?></td>
+                                            <td><?php echo htmlspecialchars($row['payee_name']); ?></td>
+                                            <td><?php echo htmlspecialchars($row['account_title']); ?></td>
+                                            <td><?php echo htmlspecialchars($row['ors_total_amount']); ?></td>
+                                            <td><?php echo htmlspecialchars($row['approver_name']); ?></td>
+                                            <td>
+                                                <button type="button" class="btn btn-primary view-details"
+                                                    data-id="<?php echo $row['dv_id']; ?>">
+                                                    <i class="bi bi-eye" data-bs-toggle="tooltip" data-bs-placement="top"
+                                                        title="View Details"></i>
+                                                </button>
+                                            </td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php while ($row = mysqli_fetch_assoc($select_dv)) { ?>
-                                            <tr>
-                                                <td><?php echo htmlspecialchars($row['dv_no']); ?></td>
-                                                <td>
-                                                    <?php
-                                                    $date = new DateTime($row['date']);
-                                                    echo htmlspecialchars($date->format('F j, Y')); // Example: "April 7, 2025"
-                                                    ?>
-                                                </td>
-                                                <td><?php echo htmlspecialchars($row['fund_cluster']); ?></td>
-                                                <td><?php echo htmlspecialchars($row['payee_name']); ?></td>
-                                                <td><?php echo htmlspecialchars($row['account_title']); ?></td>
-                                                <td><?php echo htmlspecialchars($row['ors_total_amount']); ?></td>
-                                                <td><?php echo htmlspecialchars($row['approver_name']); ?></td>
-                                                <td>
-                                                    <button type="button" class="btn btn-primary view-details"
-                                                        data-id="<?php echo $row['dv_id']; ?>">
-                                                        <i class="bi bi-eye" data-bs-toggle="tooltip"
-                                                            data-bs-placement="top" title="View Details"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        <?php } ?>
-                                    </tbody>
-                                </table>
-                            </div>
+                                    <?php } ?>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-
-
                 </div>
             </div>
         </div>
