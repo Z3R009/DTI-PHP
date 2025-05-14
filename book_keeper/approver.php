@@ -239,6 +239,8 @@ $select = mysqli_query($connection, "SELECT * FROM approver");
     <script src="../NiceAdmin/assets/vendor/simple-datatables/simple-datatables.js"></script>
     <script src="../NiceAdmin/assets/vendor/tinymce/tinymce.min.js"></script>
     <script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
+    <script src="../NiceAdmin/assets/js/main.js"></script>
+
 
     <?php echo $alert; ?>
 

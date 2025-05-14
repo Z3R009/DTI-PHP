@@ -43,6 +43,10 @@ if (empty($ors_details)) {
     exit;
 }
 
+// Fetch all account titles for dropdown
+$account_query = "SELECT * FROM account_title ORDER BY account_title ASC";
+$account_result = $connection->query($account_query);
+
 // Calculate totals and get common information
 $total_amount = 0;
 $payee_name = $ors_details[0]['payee_name'];
@@ -203,17 +207,17 @@ $dv_no = $fund_cluster . '-' . date('Y') . '-' . str_pad($next_number, 4, '0', S
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">Fund Cluster</label>
-                                <input type="text" class="form-control" name="fund_cluster"
+                                <input type="text" class="form-control" id="fund_cluster" name="fund_cluster"
                                     value="<?php echo htmlspecialchars($fund_cluster); ?>" readonly>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Date</label>
-                                <input type="date" class="form-control" name="date" value="<?php echo date('Y-m-d'); ?>"
+                                <input type="date" class="form-control" name="date" id="date" value="<?php echo date('Y-m-d'); ?>"
                                     required>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">DV No.</label>
-                                <input type="text" class="form-control" name="dv_no"
+                                <input type="text" class="form-control" id="dv_no" name="dv_no"
                                     value="<?php echo htmlspecialchars($dv_no); ?>" readonly>
                             </div>
                         </div>
@@ -607,18 +611,20 @@ $dv_no = $fund_cluster . '-' . date('Y') . '-' . str_pad($next_number, 4, '0', S
                 return;
             }
 
+            // Extract the number before the first hyphen (e.g., "1 - Regular Agency Fund" → "1")
             let fundClusterValue = fundClusterInput.value.trim();
-            let fundClusterNumber = fundClusterValue.match(/^\d+/); // Extract only the leading number
+            let fundClusterNumberMatch = fundClusterValue.match(/^(\d+)/); // match leading digits
 
-            if (!fundClusterNumber) {
-                console.error("Fund cluster ID is missing or invalid!");
+            if (!fundClusterNumberMatch) {
+                console.error("Invalid fund cluster format:", fundClusterValue);
                 return;
             }
 
-            let formData = new FormData();
-            formData.append("fund_cluster_id", fundClusterNumber[0]); // Send only the number
+            let fundClusterNumber = fundClusterNumberMatch[1]; // e.g., "1"
 
-            // Add date parameter if available
+            let formData = new FormData();
+            formData.append("fund_cluster_id", fundClusterNumber);
+
             if (dateInput && dateInput.value) {
                 formData.append("date", dateInput.value);
             }
@@ -629,13 +635,11 @@ $dv_no = $fund_cluster . '-' . date('Y') . '-' . str_pad($next_number, 4, '0', S
             })
                 .then(response => response.json())
                 .then(data => {
-                    console.log("Fetched DV Data:", data); // Debugging
                     let dvNoInput = document.getElementById("dv_no");
 
                     if (dvNoInput) {
                         if (data.success) {
                             dvNoInput.value = data.dv_no;
-                            console.log("DV No Set:", dvNoInput.value);
                         } else {
                             console.error("Error fetching DV number:", data.error);
                         }
@@ -647,18 +651,90 @@ $dv_no = $fund_cluster . '-' . date('Y') . '-' . str_pad($next_number, 4, '0', S
         }
 
 
+
     </script>
 
 
     <!-- add row and calculate totals -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            const tax1Input = document.getElementById('tax_1');
+            const tax2Input = document.getElementById('tax_2');
             const tableBody = document.getElementById('accountingTableBody');
+            const checkbox = document.getElementById('selectAll');
+            const applyTaxesCheckbox = document.getElementById('apply_taxes');
+            const addRowButton = document.getElementById('addAccountRow');
+
+            // Add event listener for the Add Row button
+            addRowButton.addEventListener('click', function () {
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td colspan="2">
+                        <select class="form-control account-select" name="account_titles[]" required>
+                            <option selected disabled value="">Select Account</option>
+                            ${accountOptions}
+                        </select>
+                    </td>
+                    <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
+                    <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01"></td>
+                    <td><button type="button" class="btn btn-danger btn-sm delete-row"><i class="bi bi-trash"></i></button></td>
+                `;
+
+                tableBody.appendChild(newRow);
+                setupAccountSelect(newRow);
+                setupCalculationListeners(newRow);
+            });
+
+            // Utility: Create select options from PHP
+            const accountOptions = `<?php
+            $account_result->data_seek(0);
+            while ($account = $account_result->fetch_assoc()) {
+                echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
+            }
+            ?>`;
+
+            // Helper to remove previously added tax rows
+            function removeTaxRows() {
+                const rows = tableBody.querySelectorAll('tr[data-tax="true"]');
+                rows.forEach(row => row.remove());
+            }
+
+            // Function to add tax credit rows
+            function addRowWithCredit(creditAmount, label = '', accountId = '') {
+                const newRow = document.createElement('tr');
+                newRow.setAttribute('data-tax', 'true');
+
+                newRow.innerHTML = `
+                <td colspan="2">
+                        <select class="form-control account-select" name="account_titles[]">
+                        <option selected disabled value="">Select Account</option>
+                        <?php
+                        // Define the specific account codes we want to show
+                        $accountCodes = ['2020101000'];
+
+                        // Query only the specific cash accounts
+                        $cash_account_query = "SELECT * FROM account_title WHERE account_code IN ('2020101000') ORDER BY account_title ASC";
+                        $cash_account_result = $connection->query($cash_account_query);
+
+                        while ($account = $cash_account_result->fetch_assoc()) {
+                            echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
+                        }
+                        ?>
+                    </select>
+                </td>
+                    <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01" readonly></td>
+                    <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01" value="${creditAmount.toFixed(2)}" readonly></td>
+                <td><button type="button" class="btn btn-danger btn-sm delete-row"><i class="bi bi-trash"></i></button></td>
+            `;
+
+                tableBody.appendChild(newRow);
+                setupAccountSelect(newRow);
+                setupCalculationListeners(newRow);
+            }
 
             // Function to setup account select with Select2
             function setupAccountSelect(row) {
                 const accountSelect = row.querySelector('.account-select');
-                const uacsInput = row.querySelector('.uacs-code');
 
                 // Initialize Select2
                 $(accountSelect).select2({
@@ -667,105 +743,7 @@ $dv_no = $fund_cluster . '-' . date('Y') . '-' . str_pad($next_number, 4, '0', S
                     placeholder: 'Select Account',
                     allowClear: true
                 });
-
-                // Update UACS code when selection changes
-                $(accountSelect).on('change', function () {
-                    const selectedOption = $(this).find('option:selected');
-                    if (uacsInput) {
-                        uacsInput.value = selectedOption.data('uacs') || '';
-                    }
-                });
             }
-
-            // Function to calculate totals
-            function calculateTotals() {
-                let totalDebit = 0;
-                let totalCredit = 0;
-
-                // Get all debit and credit inputs except the footer row
-                const debitInputs = document.querySelectorAll('tbody .debit-amount');
-                const creditInputs = document.querySelectorAll('tbody .credit-amount');
-
-                // Sum up debit amounts
-                debitInputs.forEach(input => {
-                    totalDebit += parseFloat(input.value || 0);
-                });
-
-                // Sum up credit amounts
-                creditInputs.forEach(input => {
-                    totalCredit += parseFloat(input.value || 0);
-                });
-
-                // Calculate the difference (total debit - total credit)
-                const difference = totalDebit - totalCredit;
-
-                // Update the footer row's credit field with the difference
-                const footerCreditInput = document.querySelector('tfoot .credit-amount');
-                if (footerCreditInput) {
-                    footerCreditInput.value = difference.toFixed(2);
-                }
-            }
-
-            // Function to filter account titles
-            function filterAccountTitles(select, selectedType) {
-                const currentValue = $(select).val();
-
-                // Get all options
-                const options = $(select).find('option');
-
-                // Filter options based on selected type
-                options.each(function () {
-                    if ($(this).val() === "") return; // Skip the "Select Account" option
-
-                    const accountTitle = $(this).data('title')?.toLowerCase() || '';
-                    const accountCode = $(this).data('uacs') || '';
-
-                    if (selectedType === "cash_advance") {
-                        $(this).toggle(accountTitle.includes('advance'));
-                    } else if (selectedType === "transfer_fund") {
-                        $(this).toggle(accountTitle.includes('cash') && accountCode.startsWith('10'));
-                    } else {
-                        $(this).show();
-                    }
-                });
-
-                // Restore selection if it's still valid
-                if (currentValue && $(select).find(`option[value="${currentValue}"]`).length) {
-                    $(select).val(currentValue).trigger('change');
-                } else {
-                    $(select).val(null).trigger('change');
-                }
-            }
-
-            // Add event listener for the "Add Row" button
-            document.getElementById('addAccountRow').addEventListener('click', function () {
-                const newRow = document.createElement('tr');
-                newRow.innerHTML = `
-                <td colspan="2">
-                    <select class="form-control account-select" name="account_titles[]" required>
-                        <option selected disabled value="">Select Account</option>
-                        <?php
-                        $account_result->data_seek(0);
-                        while ($account = $account_result->fetch_assoc()) {
-                            echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
-                        }
-                        ?>
-                    </select>
-                </td>
-                <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
-                <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01"></td>
-                <td><button type="button" class="btn btn-danger btn-sm delete-row"><i class="bi bi-trash"></i></button></td>
-            `;
-
-                tableBody.appendChild(newRow);
-                setupAccountSelect(newRow);
-                setupCalculationListeners(newRow);
-
-                // Filter account titles for the new row
-                const orsTypeSelect = document.getElementById("ors_type");
-                const accountSelect = newRow.querySelector('.account-select');
-                filterAccountTitles(accountSelect, orsTypeSelect.value);
-            });
 
             // Function to setup calculation listeners for a row
             function setupCalculationListeners(row) {
@@ -800,38 +778,84 @@ $dv_no = $fund_cluster . '-' . date('Y') . '-' . str_pad($next_number, 4, '0', S
                 }
             }
 
-            // Setup initial row
-            const initialRow = tableBody.querySelector('tr');
-            setupAccountSelect(initialRow);
-            setupCalculationListeners(initialRow);
+            // Function to calculate totals
+            function calculateTotals() {
+                let totalDebit = 0;
+                let totalCredit = 0;
 
-            // Add event listener for DV type changes
-            document.getElementById('ors_type').addEventListener('change', function () {
-                const selectedType = this.value;
-                const accountSelects = document.querySelectorAll('.account-select');
-                accountSelects.forEach(select => {
-                    filterAccountTitles(select, selectedType);
+                // Get all debit and credit inputs except the footer row
+                const debitInputs = document.querySelectorAll('tbody .debit-amount');
+                const creditInputs = document.querySelectorAll('tbody .credit-amount');
+
+                // Sum up debit amounts
+                debitInputs.forEach(input => {
+                    totalDebit += parseFloat(input.value || 0);
                 });
+
+                // Sum up credit amounts
+                creditInputs.forEach(input => {
+                    totalCredit += parseFloat(input.value || 0);
+                });
+
+                // Calculate the difference (total debit - total credit)
+                const difference = totalDebit - totalCredit;
+
+                // Update the footer row's credit field with the difference
+                const footerCreditInput = document.querySelector('tfoot .credit-amount');
+                if (footerCreditInput) {
+                    footerCreditInput.value = difference.toFixed(2);
+                }
+            }
+
+            // Checkbox handler
+            checkbox.addEventListener('change', function () {
+                removeTaxRows(); // Always clean before adding
+
+                if (this.checked) {
+                    const tax1Amount = parseFloat(tax1Input.value) || 0;
+                    const tax2Amount = parseFloat(tax2Input.value) || 0;
+
+                    if (tax1Amount > 0) {
+                        addRowWithCredit(tax1Amount, 'Tax 1');
+                    }
+                    if (tax2Amount > 0) {
+                        addRowWithCredit(tax2Amount, 'Tax 2');
+                    }
+                }
+                calculateTotals();
             });
 
-            // Initialize Select2 on existing account selects when the page loads
-            document.addEventListener('DOMContentLoaded', function () {
-                // Initialize Select2 on all existing account selects
-                $('.account-select').each(function () {
-                    $(this).select2({
-                        theme: 'bootstrap-5',
-                        width: '100%',
-                        placeholder: 'Select Account',
-                        allowClear: true
-                    });
-                });
-
-                // Setup calculation listeners for existing rows
-                const existingRows = document.querySelectorAll('tbody tr');
-                existingRows.forEach(row => {
-                    setupCalculationListeners(row);
-                });
+            // Add event listener for tax changes
+            applyTaxesCheckbox.addEventListener('change', function () {
+                setTimeout(() => {
+                    if (checkbox.checked) {
+                        checkbox.click(); // Uncheck
+                        checkbox.click(); // Check again to refresh tax rows
+                    }
+                }, 100);
             });
+
+            tax1Input.addEventListener('input', function () {
+                if (checkbox.checked) {
+                    checkbox.click(); // Uncheck
+                    checkbox.click(); // Check again to refresh tax rows
+                }
+            });
+
+            tax2Input.addEventListener('input', function () {
+                if (checkbox.checked) {
+                    checkbox.click(); // Uncheck
+                    checkbox.click(); // Check again to refresh tax rows
+                }
+            });
+
+            // Setup initial rows
+            const initialRows = tableBody.querySelectorAll('tr');
+            initialRows.forEach(row => {
+                setupAccountSelect(row);
+                setupCalculationListeners(row);
+            });
+            calculateTotals();
         });
     </script>
 

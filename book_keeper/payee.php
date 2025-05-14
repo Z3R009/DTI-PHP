@@ -287,8 +287,8 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                                                     <select class="form-select" id="payee_type" name="payee_type"
                                                         required>
                                                         <option value="">Select payee type</option>
-                                                        <option value="internal">Internal</option>
-                                                        <option value="external">External (supplier)</option>
+                                                        <option value="Internal">Internal</option>
+                                                        <option value="External">External (supplier)</option>
                                                     </select>
                                                     <label for="payee_type">Payee Type</label>
                                                 </div>
@@ -494,6 +494,8 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
     <script src="../NiceAdmin/assets/vendor/simple-datatables/simple-datatables.js"></script>
     <script src="../NiceAdmin/assets/vendor/tinymce/tinymce.min.js"></script>
     <script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
+
+
 
     <!-- Template Main JS File -->
     <script src="../NiceAdmin/assets/js/main.js"></script>
