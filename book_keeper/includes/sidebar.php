@@ -81,19 +81,19 @@
                         <i class="bi bi-circle"></i><span>Services</span>
                     </a>
                 </li>
-
-                <li>
-                    <a href="payee.php">
-                        <i class="bi bi-circle"></i><span>Payee</span>
-                    </a>
-                </li>
-
-                <li>
-                    <a href="approver.php">
-                        <i class="bi bi-circle"></i><span>Approver</span>
-                    </a>
-                </li>
             </ul>
+        </li>
+
+         <li class="nav-item">
+            <a class="nav-link collapsed" href="payee.php">
+                        <i class="bi bi-person"></i><span>Payee</span>
+                    </a>
+        </li>
+
+         <li class="nav-item">
+            <a class="nav-link collapsed" href="approver.php">
+                        <i class="bi bi-people"></i><span>Approver</span>
+                    </a>
         </li>
 
         <li class="nav-item">
