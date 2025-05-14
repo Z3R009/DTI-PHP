@@ -347,8 +347,8 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                     <div>
                         <!-- Bulk action button and message container -->
                         <div class="mb-3 d-flex align-items-center gap-3">
-                            <button type="button" class="btn btn-success" id="submitSelected" style="display: none;">
-                                <i class="bi bi-check-circle me-1"></i> Create DV for Selected
+                            <button type="button" class="btn btn-primary" id="submitSelected" style="display: none;">
+                                <i class="bi bi-check-circle me-1"></i> Create DV for Selected ORS
                             </button>
                             <div id="payeeMessage" style="color: red; font-size: 14px;"></div>
                         </div>
