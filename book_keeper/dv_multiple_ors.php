@@ -207,17 +207,17 @@ $dv_no = $fund_cluster . '-' . date('Y') . '-' . str_pad($next_number, 4, '0', S
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">Fund Cluster</label>
-                                <input type="text" class="form-control" name="fund_cluster"
+                                <input type="text" class="form-control" id="fund_cluster" name="fund_cluster"
                                     value="<?php echo htmlspecialchars($fund_cluster); ?>" readonly>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Date</label>
-                                <input type="date" class="form-control" name="date" value="<?php echo date('Y-m-d'); ?>"
+                                <input type="date" class="form-control" name="date" id="date" value="<?php echo date('Y-m-d'); ?>"
                                     required>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">DV No.</label>
-                                <input type="text" class="form-control" name="dv_no"
+                                <input type="text" class="form-control" id="dv_no" name="dv_no"
                                     value="<?php echo htmlspecialchars($dv_no); ?>" readonly>
                             </div>
                         </div>
@@ -611,18 +611,20 @@ $dv_no = $fund_cluster . '-' . date('Y') . '-' . str_pad($next_number, 4, '0', S
                 return;
             }
 
+            // Extract the number before the first hyphen (e.g., "1 - Regular Agency Fund" → "1")
             let fundClusterValue = fundClusterInput.value.trim();
-            let fundClusterNumber = fundClusterValue.match(/^\d+/); // Extract only the leading number
+            let fundClusterNumberMatch = fundClusterValue.match(/^(\d+)/); // match leading digits
 
-            if (!fundClusterNumber) {
-                console.error("Fund cluster ID is missing or invalid!");
+            if (!fundClusterNumberMatch) {
+                console.error("Invalid fund cluster format:", fundClusterValue);
                 return;
             }
 
-            let formData = new FormData();
-            formData.append("fund_cluster_id", fundClusterNumber[0]); // Send only the number
+            let fundClusterNumber = fundClusterNumberMatch[1]; // e.g., "1"
 
-            // Add date parameter if available
+            let formData = new FormData();
+            formData.append("fund_cluster_id", fundClusterNumber);
+
             if (dateInput && dateInput.value) {
                 formData.append("date", dateInput.value);
             }
@@ -633,13 +635,11 @@ $dv_no = $fund_cluster . '-' . date('Y') . '-' . str_pad($next_number, 4, '0', S
             })
                 .then(response => response.json())
                 .then(data => {
-                    console.log("Fetched DV Data:", data); // Debugging
                     let dvNoInput = document.getElementById("dv_no");
 
                     if (dvNoInput) {
                         if (data.success) {
                             dvNoInput.value = data.dv_no;
-                            console.log("DV No Set:", dvNoInput.value);
                         } else {
                             console.error("Error fetching DV number:", data.error);
                         }
@@ -649,6 +649,7 @@ $dv_no = $fund_cluster . '-' . date('Y') . '-' . str_pad($next_number, 4, '0', S
                 })
                 .catch(error => console.error("Fetch error:", error));
         }
+
 
 
     </script>
@@ -665,7 +666,7 @@ $dv_no = $fund_cluster . '-' . date('Y') . '-' . str_pad($next_number, 4, '0', S
             const addRowButton = document.getElementById('addAccountRow');
 
             // Add event listener for the Add Row button
-            addRowButton.addEventListener('click', function() {
+            addRowButton.addEventListener('click', function () {
                 const newRow = document.createElement('tr');
                 newRow.innerHTML = `
                     <td colspan="2">
@@ -678,7 +679,7 @@ $dv_no = $fund_cluster . '-' . date('Y') . '-' . str_pad($next_number, 4, '0', S
                     <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01"></td>
                     <td><button type="button" class="btn btn-danger btn-sm delete-row"><i class="bi bi-trash"></i></button></td>
                 `;
-                
+
                 tableBody.appendChild(newRow);
                 setupAccountSelect(newRow);
                 setupCalculationListeners(newRow);
@@ -708,14 +709,14 @@ $dv_no = $fund_cluster . '-' . date('Y') . '-' . str_pad($next_number, 4, '0', S
                         <select class="form-control account-select" name="account_titles[]">
                         <option selected disabled value="">Select Account</option>
                         <?php
-                            // Define the specific account codes we want to show
-                            $accountCodes = ['2020101000'];
+                        // Define the specific account codes we want to show
+                        $accountCodes = ['2020101000'];
 
-                            // Query only the specific cash accounts
-                            $cash_account_query = "SELECT * FROM account_title WHERE account_code IN ('2020101000') ORDER BY account_title ASC";
-                            $cash_account_result = $connection->query($cash_account_query);
+                        // Query only the specific cash accounts
+                        $cash_account_query = "SELECT * FROM account_title WHERE account_code IN ('2020101000') ORDER BY account_title ASC";
+                        $cash_account_result = $connection->query($cash_account_query);
 
-                            while ($account = $cash_account_result->fetch_assoc()) {
+                        while ($account = $cash_account_result->fetch_assoc()) {
                             echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
                         }
                         ?>
@@ -734,7 +735,7 @@ $dv_no = $fund_cluster . '-' . date('Y') . '-' . str_pad($next_number, 4, '0', S
             // Function to setup account select with Select2
             function setupAccountSelect(row) {
                 const accountSelect = row.querySelector('.account-select');
-                
+
                 // Initialize Select2
                 $(accountSelect).select2({
                     theme: 'bootstrap-5',
@@ -825,7 +826,7 @@ $dv_no = $fund_cluster . '-' . date('Y') . '-' . str_pad($next_number, 4, '0', S
             });
 
             // Add event listener for tax changes
-            applyTaxesCheckbox.addEventListener('change', function() {
+            applyTaxesCheckbox.addEventListener('change', function () {
                 setTimeout(() => {
                     if (checkbox.checked) {
                         checkbox.click(); // Uncheck
@@ -834,14 +835,14 @@ $dv_no = $fund_cluster . '-' . date('Y') . '-' . str_pad($next_number, 4, '0', S
                 }, 100);
             });
 
-            tax1Input.addEventListener('input', function() {
+            tax1Input.addEventListener('input', function () {
                 if (checkbox.checked) {
                     checkbox.click(); // Uncheck
                     checkbox.click(); // Check again to refresh tax rows
                 }
             });
 
-            tax2Input.addEventListener('input', function() {
+            tax2Input.addEventListener('input', function () {
                 if (checkbox.checked) {
                     checkbox.click(); // Uncheck
                     checkbox.click(); // Check again to refresh tax rows
