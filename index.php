@@ -646,7 +646,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <!-- Payee Button -->
     <button id="viewPayeesBtn" class="payee-btn">
-        <i class="bi bi-people-fill"></i> <span class="payee-btn-text">View Payees</span>
+        <i class="bi bi-people-fill"></i> <span class="payee-btn-text">Registry of Suppliers</span>
     </button>
     
     <!-- Payee Modal -->
@@ -654,7 +654,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="payee-modal-content">
             <div class="payee-modal-header">
                 <h3 class="payee-modal-title">
-                    <i class="bi bi-people-fill"></i> All Payees
+                    <i class="bi bi-people-fill"></i> Suppliers
                 </h3>
                 <button class="payee-close" id="closePayeeModal"><i class="bi bi-x-lg"></i></button>
             </div>
