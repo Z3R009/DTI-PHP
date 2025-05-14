@@ -22,44 +22,19 @@ if (isset($_POST['oopap_id'])) {
         exit;
     }
     
-    // Check if oopap_id column exists in services table
-    $checkColumn = "SHOW COLUMNS FROM services LIKE 'oopap_id'";
-    $checkResult = $connection->query($checkColumn);
-    $oopapColumnExists = $checkResult && $checkResult->num_rows > 0;
+    $sql = "SELECT services_id, services_name, code 
+            FROM services 
+            WHERE oopap_id = ?
+            ORDER BY services_name";
     
-    if ($oopapColumnExists) {
-        // If oopap_id exists in services table, use direct query
-        $sql = "SELECT services_id, services_name, code 
-                FROM services 
-                WHERE oopap_id = ?
-                ORDER BY services_name";
-        
-        $stmt = $connection->prepare($sql);
-        if (!$stmt) {
-            error_log("Prepare failed: " . $connection->error);
-            echo json_encode(['error' => 'Database prepare error: ' . $connection->error]);
-            exit;
-        }
-        
-        $stmt->bind_param("i", $oopap_id);
-    } else {
-        // If oopap_id doesn't exist in services, try through project table
-        $sql = "SELECT DISTINCT s.services_id, s.services_name, s.code 
-                FROM services s
-                LEFT JOIN project p ON s.services_id = p.services_id
-                WHERE p.oopap_id = ?
-                ORDER BY s.services_name";
-        
-        $stmt = $connection->prepare($sql);
-        if (!$stmt) {
-            error_log("Prepare failed: " . $connection->error);
-            echo json_encode(['error' => 'Database prepare error: ' . $connection->error]);
-            exit;
-        }
-        
-        $stmt->bind_param("i", $oopap_id);
+    $stmt = $connection->prepare($sql);
+    if (!$stmt) {
+        error_log("Prepare failed: " . $connection->error);
+        echo json_encode(['error' => 'Database prepare error: ' . $connection->error]);
+        exit;
     }
     
+    $stmt->bind_param("i", $oopap_id);
     if (!$stmt->execute()) {
         error_log("Execute failed: " . $stmt->error);
         echo json_encode(['error' => 'Database execute error: ' . $stmt->error]);
