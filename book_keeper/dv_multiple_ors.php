@@ -854,6 +854,7 @@ $dv_no = $fund_cluster . '-' . date('Y') . '-' . str_pad($next_number, 4, '0', S
                 setupAccountSelect(row);
                 setupCalculationListeners(row);
             });
+            calculateTotals();
         });
     </script>
 
