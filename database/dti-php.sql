@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 07, 2025 at 04:48 AM
+-- Generation Time: May 14, 2025 at 04:35 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -358,6 +358,14 @@ CREATE TABLE `dv` (
   `payment_type` varchar(123) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `dv`
+--
+
+INSERT INTO `dv` (`dv_id`, `date`, `ors_id`, `account_id`, `dv_no`, `vat`, `vat_amount`, `tax_base`, `tax_1`, `tax_1_amount`, `tax_2`, `tax_2_amount`, `net_amount`, `total_amount`, `chief_accountant`, `regional_director`, `status`, `endorsement_date`, `endorsement_remarks`, `check_no`, `ada_no`, `payment_type`) VALUES
+(107, '2025-05-05', 157, 1, '1-25-05-001', 12.00, 0.00, 11548.65, 0.00, 0.00, 0.00, 0.00, 11548.65, 11548.65, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', 'Endorsed', '2025-05-05 07:47:10', '', '', '', ''),
+(108, '2025-02-04', 119, 1, '1-25-02-002', 12.00, 0.00, 1200.00, 0.00, 0.00, 0.00, 0.00, 1200.00, 1200.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', 'Pending', '2025-05-05 09:28:33', '', '', '', '');
+
 -- --------------------------------------------------------
 
 --
@@ -371,6 +379,18 @@ CREATE TABLE `dv_history` (
   `type` enum('debit','credit') NOT NULL,
   `amount` double(40,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `dv_history`
+--
+
+INSERT INTO `dv_history` (`dvhis_id`, `dv_id`, `account_id`, `type`, `amount`) VALUES
+(111, 107, 328, 'debit', 11548.65),
+(112, 107, 280, 'credit', 200.00),
+(113, 107, 281, 'credit', 609.52),
+(114, 107, 382, 'credit', 10739.13),
+(115, 108, 311, 'debit', 1200.00),
+(116, 108, 382, 'credit', 1200.00);
 
 -- --------------------------------------------------------
 
@@ -459,6 +479,13 @@ CREATE TABLE `jev` (
   `accountant` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `jev`
+--
+
+INSERT INTO `jev` (`jev_id`, `date`, `dv_id`, `ors_id`, `jev_no`, `administrative_aide`, `accountant`) VALUES
+(18, '2025-05-05', 107, 157, '1-25-05-001', 'JINNARD B. LUBATON', 'NEIL ANTHONY T. MORALA');
+
 -- --------------------------------------------------------
 
 --
@@ -472,15 +499,16 @@ CREATE TABLE `merged_payees` (
   `payee_type` enum('Internal','External') NOT NULL DEFAULT 'Internal' COMMENT 'Type of payees in this group',
   `created_by` varchar(100) DEFAULT NULL COMMENT 'User who created this merge group',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `processed` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Stores merged payee groups';
 
 --
 -- Dumping data for table `merged_payees`
 --
 
-INSERT INTO `merged_payees` (`merge_id`, `merge_name`, `description`, `payee_type`, `created_by`, `created_at`, `updated_at`) VALUES
-(1, 'dti', 'asgag', 'Internal', 'Cashier', '2025-04-30 00:37:30', '2025-04-30 00:37:30');
+INSERT INTO `merged_payees` (`merge_id`, `merge_name`, `description`, `payee_type`, `created_by`, `created_at`, `updated_at`, `processed`) VALUES
+(1, 'dti', 'asgag', 'Internal', 'Cashier', '2025-04-30 00:37:30', '2025-04-30 00:37:30', 0);
 
 -- --------------------------------------------------------
 
@@ -521,6 +549,250 @@ CREATE TABLE `obligation_history` (
   `project_id` int(255) NOT NULL,
   `net` double(40,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `obligation_history`
+--
+
+INSERT INTO `obligation_history` (`id`, `ors_id`, `project_id`, `net`) VALUES
+(78, 113, 87, 2550.00),
+(79, 114, 87, 25000.00),
+(80, 115, 87, 3100.00),
+(81, 116, 87, 3650.00),
+(82, 117, 87, 1900.00),
+(83, 118, 87, 15000.00),
+(84, 119, 280, 1200.00),
+(85, 120, 288, 19061.51),
+(86, 121, 297, 912.00),
+(87, 122, 280, 1200.00),
+(88, 123, 288, 11714.89),
+(89, 124, 280, 3000.00),
+(90, 124, 281, 3000.00),
+(91, 124, 283, 21000.00),
+(92, 124, 288, 24000.00),
+(93, 124, 297, 3000.00),
+(99, 127, 280, 9750.00),
+(100, 127, 1743926826, 2350.00),
+(101, 127, 283, 5000.00),
+(102, 127, 285, 600.00),
+(103, 127, 286, 800.00),
+(104, 127, 297, 13500.00),
+(105, 128, 280, 4500.00),
+(106, 128, 1743926826, 7500.00),
+(107, 128, 283, 2348.00),
+(108, 128, 285, 1600.00),
+(109, 128, 297, 1000.00),
+(110, 129, 280, 950.00),
+(111, 129, 1743926826, 6000.00),
+(112, 129, 283, 4000.00),
+(113, 129, 285, 600.00),
+(114, 129, 297, 11000.00),
+(115, 130, 280, 1800.00),
+(116, 132, 1743926828, 100.00),
+(117, 133, 288, 11493.24),
+(118, 134, 280, 14500.00),
+(119, 134, 281, 30000.00),
+(120, 134, 1743926826, 5000.00),
+(121, 134, 283, 3000.00),
+(122, 134, 285, 500.00),
+(123, 134, 288, 10000.00),
+(124, 134, 297, 10000.00),
+(125, 134, 293, 15000.00),
+(126, 134, 294, 11000.00),
+(127, 135, 280, 3450.00),
+(128, 136, 280, 450.00),
+(129, 137, 280, 3450.00),
+(130, 138, 297, 12950.00),
+(131, 139, 288, 8623.39),
+(132, 140, 280, 3450.00),
+(133, 141, 283, 3000.00),
+(134, 142, 280, 4600.00),
+(135, 143, 280, 4600.00),
+(136, 144, 288, 9927.87),
+(137, 145, 280, 750.00),
+(138, 146, 280, 750.00),
+(139, 147, 288, 9662.36),
+(140, 148, 280, 5000.00),
+(141, 148, 281, -3000.00),
+(142, 148, 1743926826, 12000.00),
+(143, 148, 283, 19000.00),
+(144, 148, 288, -24000.00),
+(145, 148, 297, 5000.00),
+(146, 149, 280, 9600.00),
+(147, 149, 1743926826, 4175.00),
+(148, 149, 283, 5000.00),
+(149, 149, 285, 600.00),
+(150, 149, 286, 1000.00),
+(151, 149, 297, 27000.00),
+(152, 150, 281, 20600.00),
+(153, 150, 283, 1174.00),
+(154, 150, 285, 400.00),
+(155, 151, 280, 1500.00),
+(156, 151, 281, 25000.00),
+(157, 151, 1743926826, 1000.00),
+(158, 151, 283, 1000.00),
+(159, 151, 285, 600.00),
+(160, 151, 288, 7000.00),
+(161, 151, 297, 6000.00),
+(162, 152, 280, 6500.00),
+(163, 152, 281, 30300.00),
+(164, 152, 1743926826, 1000.00),
+(165, 152, 284, 15000.00),
+(166, 152, 285, 100.00),
+(167, 152, 288, 12500.00),
+(168, 152, 294, 5500.00),
+(169, 153, 280, 878.00),
+(170, 154, 297, 94890.00),
+(171, 155, 1743926826, 2095.00),
+(172, 156, 297, 1942.50),
+(173, 157, 288, 11548.65),
+(174, 159, 65, 1213.00),
+(175, 160, 66, 4400.00),
+(176, 161, 64, 69029.88),
+(177, 162, 63, 1791.60),
+(178, 163, 66, 1200.00),
+(179, 164, 66, 2998.00),
+(180, 165, 67, 2763.60),
+(181, 166, 68, 43948.08),
+(182, 167, 81, 16994.59),
+(183, 168, 66, 1499.00),
+(184, 169, 56, 0.00),
+(185, 170, 66, 1200.00),
+(186, 171, 66, 4917.00),
+(187, 172, 66, 4800.00),
+(188, 173, 64, 75833.85),
+(189, 175, 69, 33900.00),
+(190, 176, 65, 450.00),
+(191, 177, 59, 5000.00),
+(192, 178, 63, 2997.35),
+(193, 179, 81, 9450.00),
+(194, 180, 66, 1299.00),
+(195, 181, 66, 1499.00),
+(196, 182, 63, 1650.00),
+(197, 183, 60, 5294.09),
+(198, 184, 81, 9825.00),
+(199, 185, 68, 47936.00),
+(200, 186, 70, 200.00),
+(201, 186, 76, 2012.00),
+(202, 186, 81, 600.00),
+(203, 186, 82, 335.00),
+(204, 186, 92, 1455.00),
+(205, 187, 56, 8150.00),
+(206, 188, 65, 1609.00),
+(207, 189, 56, 14690.64),
+(208, 190, 66, 1689.00),
+(209, 191, 56, 3000.00),
+(210, 192, 66, 4678.20),
+(211, 193, 66, 2000.00),
+(212, 194, 66, 1299.00),
+(213, 195, 64, 78785.48),
+(214, 196, 81, 9980.00),
+(215, 197, 67, 2637.60),
+(216, 198, 67, 2703.12),
+(217, 199, 63, 3031.80),
+(218, 200, 63, 1875.00),
+(219, 201, 60, 10000.00),
+(220, 202, 81, 5369.85),
+(221, 203, 60, 19332.45),
+(222, 203, 81, 808.00),
+(223, 204, 56, 0.00),
+(224, 205, 56, 390.00),
+(225, 205, 65, 175.00),
+(226, 205, 68, 199.00),
+(227, 205, 70, 330.00),
+(228, 205, 76, 1480.00),
+(229, 206, 81, 3500.00),
+(230, 207, 66, 1698.00),
+(231, 208, 66, 1499.00),
+(232, 209, 64, 65773.17),
+(233, 210, 56, 0.00),
+(234, 211, 56, 0.00),
+(235, 212, 81, 21500.00),
+(236, 213, 81, 3000.00),
+(237, 214, 65, 2151.00),
+(238, 215, 66, 2000.00),
+(239, 216, 66, 1299.00),
+(240, 217, 63, 1998.30),
+(241, 218, 67, 2758.56),
+(242, 219, 66, 4510.99),
+(243, 220, 63, 2000.00),
+(244, 221, 82, 2010.00),
+(245, 222, 87, 4725.00),
+(246, 223, 87, 14900.00),
+(247, 224, 61, 2750.00),
+(248, 225, 61, 34500.00),
+(249, 226, 91, 14335.18),
+(250, 227, 87, 33142.00),
+(251, 228, 91, 997.00),
+(252, 229, 87, 8500.00),
+(253, 230, 87, 39900.00),
+(254, 231, 87, 22950.00),
+(255, 232, 56, 1000.00),
+(256, 232, 58, 5000.00),
+(257, 232, 60, 1000.00),
+(258, 232, 63, 500.00),
+(259, 232, 64, 3000.00),
+(260, 232, 65, 500.00),
+(261, 232, 66, 500.00),
+(262, 232, 89, 16500.00),
+(263, 233, 56, 4000.00),
+(264, 233, 58, 7000.00),
+(265, 233, 60, 10000.00),
+(266, 233, 63, 2500.00),
+(267, 233, 64, 26000.00),
+(268, 233, 65, 500.00),
+(269, 233, 66, 1800.00),
+(270, 233, 67, 3000.00),
+(271, 233, 68, 2500.00),
+(272, 233, 81, 1000.00),
+(273, 233, 87, 4000.00),
+(274, 234, 56, 4000.00),
+(275, 234, 57, 1000.00),
+(276, 234, 58, 5000.00),
+(277, 234, 60, 5000.00),
+(278, 234, 63, 1500.00),
+(279, 234, 64, 17000.00),
+(280, 234, 65, 1000.00),
+(281, 234, 66, 1800.00),
+(282, 234, 67, 4000.00),
+(283, 234, 81, 3000.00),
+(284, 234, 87, 2000.00),
+(285, 234, 89, 74725.00),
+(286, 235, 56, 5000.00),
+(287, 235, 58, 3000.00),
+(288, 235, 60, 7500.00),
+(289, 235, 63, 1200.00),
+(290, 235, 64, 15000.00),
+(291, 235, 65, 1000.00),
+(292, 235, 66, 1800.00),
+(293, 235, 67, 1800.00),
+(294, 235, 81, 2000.00),
+(295, 235, 87, 9700.00),
+(296, 235, 89, 59000.00),
+(297, 236, 56, 5000.00),
+(298, 236, 57, 2000.00),
+(299, 236, 58, 6000.00),
+(300, 236, 60, 8000.00),
+(301, 236, 63, 1500.00),
+(302, 236, 64, 11000.00),
+(303, 236, 65, 1000.00),
+(304, 236, 66, 1800.00),
+(305, 236, 67, 4000.00),
+(306, 236, 81, 2000.00),
+(307, 236, 87, 4000.00),
+(308, 236, 89, 39893.00),
+(309, 237, 56, 5000.00),
+(310, 237, 57, 1500.00),
+(311, 237, 58, 11500.00),
+(312, 237, 60, 11000.00),
+(313, 237, 63, 2126.00),
+(314, 237, 65, 1065.00),
+(315, 237, 66, 2000.00),
+(316, 237, 67, 5125.00),
+(317, 237, 76, 9500.00),
+(318, 237, 81, 2500.00),
+(319, 237, 87, 8000.00),
+(320, 237, 89, 3500.00);
 
 -- --------------------------------------------------------
 
@@ -578,6 +850,132 @@ CREATE TABLE `ors` (
   `status` enum('Pending','Endorsed') NOT NULL DEFAULT 'Pending'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `ors`
+--
+
+INSERT INTO `ors` (`ors_id`, `fund_cluster_id`, `services_id`, `date`, `ors_no`, `payee_id`, `notes`, `purpose`, `rc_id`, `account_id`, `oopap_id`, `total_amount`, `approver_id`, `budget_officer`, `status`) VALUES
+(113, 3, 11, '2025-01-09', 'ADMINPOLICY-25-01-001', 26, 'Meals for Hinugyaw Festival Civic Military Parade on January 10, 2025', 'To Payment of', 1, 342, 1, 2550.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(114, 3, 11, '2025-01-14', 'ADMINPOLICY-25-01-002', 27, 'Meals during COA Entrance Conference', 'To Payment of', 1, 342, 1, 25000.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(115, 3, 11, '2025-01-15', 'ADMINPOLICY-25-01-003', 28, 'Meals for DTI 12 Staff during Bloodletting Activity of BJMP 12.', 'To Payment of', 1, 342, 1, 3100.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(116, 3, 11, '2025-01-22', 'ADMINPOLICY-25-01-004', 29, 'Meals for free Vaccine Drive of IPHO South Cotabato', 'To Payment of', 1, 342, 1, 3650.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(117, 3, 11, '2025-01-22', 'ADMINPOLICY-25-01-005', 30, 'OTOP for Vaccine Drive of IPHO South Cotabato', 'To Payment of', 1, 342, 1, 1900.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(118, 3, 11, '2025-01-28', 'ADMINPOLICY-25-01-006', 29, 'Meals during AFMD QMS Strategic Planning on Jan 24, 2025', 'To Payment of', 1, 342, 1, 15000.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(119, 3, 23, '2025-02-04', 'SSF-25-02-001', 39, 'Attendance to Choir Performance and SSF Monitoring on Jan 30-31, 2025', 'To Disburse', 9, 311, 7, 1200.00, 3, 'CONNIE M. BARNACHEA', 'Endorsed'),
+(120, 3, 23, '2025-02-05', 'SSF-25-02-002', 39, 'Payment of Salary for January 6-31, 2025', 'To Payment of', 9, 328, 7, 19061.51, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(121, 3, 23, '2025-02-10', 'SSF-25-02-003', 39, 'Reimbursement of meals during 2025 WFP Review on Feb 7, 2025', 'To Disburse', 9, 342, 7, 912.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(122, 3, 23, '2025-02-17', 'SSF-25-02-004', 39, 'Attendance to SSF Project Monitoring in Sarangani and GenSan on Feb 12-13, 2025', 'To Disburse', 9, 311, 7, 1200.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(123, 3, 23, '2025-02-18', 'SSF-25-02-005', 39, 'Payment of Salary for February 1-15, 2025', 'To Payment of', 9, 328, 7, 11714.89, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(124, 3, 23, '2025-02-19', 'SSF-25-02-006', 40, 'Transfer of Fund for SSF Project for 1st quarter 2025', 'To Transfer', 9, 311, 7, 54000.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(127, 3, 23, '2025-02-19', 'SSF-25-02-007', 41, 'Transfer of Fund for SSF Project for 1st quarter 2025', 'To Transfer', 9, 311, 7, 32000.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(128, 3, 23, '2025-02-19', 'SSF-25-02-008', 42, 'Transfer of Fund for SSF Project for 1st quarter 2025', 'To Transfer', 9, 311, 7, 16948.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(129, 3, 23, '2025-02-19', 'SSF-25-02-009', 43, 'Transfer of Fund for SSF Project for 1st quarter 2025', 'To Transfer', 9, 311, 7, 22550.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(130, 3, 23, '2025-02-20', 'SSF-25-02-010', 44, 'Attendance to various SSF Monitoring', 'To Disburse', 9, 311, 7, 1800.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(132, 3, 23, '2025-02-27', 'SSF-25-02-011', 32, 'Replenishment of PCF - Notary of contract', 'To Disburse', 9, 325, 7, 100.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(133, 3, 23, '2025-03-04', 'SSF-25-03-012', 39, 'Payment of Salary for February 16-28, 2025', 'To Payment of', 9, 328, 7, 11493.24, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(134, 3, 23, '2025-03-07', 'SSF-25-03-013', 45, 'Transfer of Fund for SSF Project for 1st quarter 2025', 'To Transfer', 9, 311, 7, 99000.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(135, 3, 23, '2025-03-11', 'SSF-25-03-014', 39, 'Attendance to SSF Project Monitoring in Cotabato Mar 5-7, 2025', 'To Disburse', 9, 311, 7, 3450.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(136, 3, 23, '2025-03-11', 'SSF-25-03-015', 46, 'Traveling expenses during SSF Visit', 'To Disburse', 9, 311, 7, 450.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(137, 3, 23, '2025-03-11', 'SSF-25-03-016', 44, 'Attendance to SSF Project Monitoring in Cotabato Mar 5-7, 2025', 'To Disburse', 9, 311, 7, 3450.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(138, 3, 23, '2025-03-13', 'SSF-25-03-017', 29, 'Snacks for Reproductive Health Seminar on Mar 24, 2025', 'To Payment of', 9, 342, 7, 12950.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(139, 3, 23, '2025-03-13', 'SSF-25-03-018', 39, 'Payment of Salary for March 1-15, 2025', 'To Payment of', 9, 328, 7, 8623.39, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(140, 3, 23, '2025-03-24', 'SSF-25-03-019', 47, 'Attendance to SSF Project Monitoring in Cotabato Mar 5-7, 2025', 'To Disburse', 9, 311, 7, 3450.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(141, 3, 23, '2025-03-25', 'SSF-25-03-020', 32, 'Replenishment of PCF - SSF Monitoring', 'To Disburse', 9, 355, 7, 3000.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(142, 3, 23, '2025-03-28', 'SSF-25-03-021', 39, 'Attendance to SSF Project Monitoring in Sultan Kudarat on Mar 19-31, 2025', 'To Disburse', 9, 311, 7, 4600.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(143, 3, 23, '2025-03-28', 'SSF-25-03-022', 44, 'Attendance to SSF Project Monitoring in Sultan Kudarat on Mar 19-31, 2025', 'To Disburse', 9, 311, 7, 4600.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(144, 3, 23, '2025-04-04', 'SSF-25-04-023', 39, 'Payment of Salary for March 16-31, 2025', 'To Payment of', 9, 328, 7, 9927.87, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(145, 3, 23, '2025-04-14', 'SSF-25-04-024', 44, 'Attendance to DOST\'s SBTS Enterprises through Mulit-stakeholder Collaboration on Mar 25, 2025', 'To Disburse', 9, 311, 7, 750.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(146, 3, 23, '2025-04-21', 'SSF-25-04-025', 44, 'Attendance to DAR VISTA Regional Coordinating Committe Meeting on Apr 4, 2025', 'To Disburse', 9, 311, 7, 750.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(147, 3, 23, '2025-04-22', 'SSF-25-04-026', 39, 'Payment of Salary for April 1-15, 2025', 'To Payment of', 9, 328, 7, 9662.36, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(148, 3, 23, '2025-04-24', 'SSF-25-04-027', 40, 'Transfer of Fund for SSF Project for April 2025', 'To Transfer', 9, 311, 7, 14000.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(149, 3, 23, '2025-04-24', 'SSF-25-04-028', 41, 'Transfer of Fund for SSF Project for April 2025', 'To Transfer', 9, 311, 7, 47375.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(150, 3, 23, '2025-04-24', 'SSF-25-04-029', 42, 'Transfer of Fund for SSF Project for April 2025', 'To Transfer', 9, 313, 7, 22174.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(151, 3, 23, '2025-04-24', 'SSF-25-04-030', 43, 'Transfer of Fund for SSF Project for April 2025', 'To Transfer', 9, 311, 7, 42100.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(152, 3, 23, '2025-04-24', 'SSF-25-04-031', 30, 'Transfer of Fund for SSF Project for April 2025', 'To Transfer', 9, 311, 7, 70900.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(153, 3, 23, '2025-04-28', 'SSF-25-04-032', 44, 'Attendance to Mahintana Foundations ProPEACE 7th Joint PIT-PMT Meeting on Apr 22, 2025', 'To Disburse', 9, 311, 7, 878.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(154, 3, 23, '2025-04-29', 'SSF-25-04-033', 48, 'Lease of Venue for UPSCALE for SSF on May 6, 2025', 'To Payment of', 9, 342, 7, 94890.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(155, 3, 23, '2025-05-05', 'SSF-25-05-034', 49, 'Supplies for UPSCALE of SSF in Wearables and Homestyle on May 6, 2025', 'To Payment of', 9, 314, 7, 2095.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(156, 3, 23, '2025-05-05', 'SSF-25-05-035', 30, 'OTOP for UPSCALE of SSF in Wearables and Homestyle on May 6, 2025', 'To Payment of', 9, 342, 7, 1942.50, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(157, 3, 23, '2025-05-05', 'SSF-25-05-036', 39, 'Payment of Salary for April 16-30, 2025', 'To Payment of', 9, 328, 7, 11548.65, 3, 'CONNIE M. BARNACHEA', 'Endorsed'),
+(159, 3, 2, '2025-01-08', 'RM-25-01-001', 50, 'Payment of Postage Services for Dec 2024.', 'To Payment of', 1, 320, 1, 1213.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(160, 3, 2, '2025-01-13', 'RM-25-01-002', 51, 'Telephone Expenses - Mobile for Dec, 2024', 'To Payment of', 1, 357, 1, 4400.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(161, 3, 2, '2025-01-15', 'RM-25-01-003', 52, 'Payment of Electricity for the period of 12/12/24-1/11/25', 'To Payment of', 1, 319, 1, 69029.88, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(162, 3, 2, '2025-01-17', 'RM-25-01-004', 53, 'Payment of Water for the period of Dec 14, 2024 to January 16, 2025', 'To Payment of', 1, 318, 1, 1791.60, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(163, 3, 2, '2025-01-17', 'RM-25-01-005', 37, 'Reimbursement of Telephone Expenses - Mobile for 11/24/24 to 12/26/24', 'To Disburse', 1, 357, 1, 1200.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(164, 3, 2, '2025-01-20', 'RM-25-01-006', 54, 'Reimbursement of mobile expense for 10/16/24-12/15/24', 'To Disburse', 1, 357, 1, 2998.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(165, 3, 2, '2025-01-23', 'RM-25-01-007', 55, 'Telephone Expenses for the period of December 1-31, 2024', 'To Payment of', 1, 321, 1, 2763.60, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(166, 3, 2, '2025-01-28', 'RM-25-01-008', 56, 'Payment of Internet Expenses for January 2025', 'To Payment of', 1, 322, 1, 43948.08, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(167, 3, 2, '2025-02-04', 'RM-25-02-009', 57, 'Preventive maintenance of Mitsubishi Expander', 'To Payment of', 1, 333, 1, 16994.59, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(168, 3, 2, '2025-02-04', 'RM-25-02-010', 54, 'Reimbursement of mobile expense for 12/16/24 to 1/15/25', 'To Disburse', 1, 357, 1, 1499.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(169, 3, 2, '2025-02-05', 'RM-25-02-011', 58, 'Remittance for Ralph Luren Biñas', 'To Payment of', 1, 311, 1, 0.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(170, 3, 2, '2025-02-12', 'RM-25-02-012', 59, 'Reimbursement of Telephone Expense - Mobile for the month of JAN 2025', 'To Disburse', 1, 357, 1, 1200.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(171, 3, 2, '2025-02-12', 'RM-25-02-013', 51, 'Telephone Expenses - Mobile for JAN 2025', 'To Payment of', 1, 357, 1, 4917.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(172, 3, 2, '2025-02-12', 'RM-25-02-014', 60, 'Reimbursement of mobile expense for 8/16/24 to 12/15/24', 'To Disburse', 1, 357, 1, 4800.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(173, 3, 2, '2025-02-14', 'RM-25-02-015', 52, 'Payment of Electricity for the period of 1/11/25-2/11/25', 'To Payment of', 1, 319, 1, 75833.85, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(175, 3, 2, '2025-02-14', 'RM-25-02-016', 54, 'Payment of Extraordinary and Miscellaneous for 1st Quarter 2025', 'To Payment of', 1, 324, 1, 33900.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(176, 3, 2, '2025-02-14', 'RM-25-02-017', 50, 'Payment of Postage Services for Jan 1-31, 2025', 'To Payment of', 1, 320, 1, 450.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(177, 3, 2, '2025-02-14', 'RM-25-02-018', 61, 'Payment of Accountable Forms No. 51-C', 'To Payment of', 1, 315, 1, 5000.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(178, 3, 2, '2025-02-17', 'RM-25-02-019', 53, 'Payment of Water for the period of Jan 17, 2025 to Feb 17, 2025', 'To Payment of', 1, 318, 1, 2997.35, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(179, 3, 2, '2025-02-18', 'RM-25-02-020', 21, 'Payment of preventive maintenance for Toyota Vios.', 'To Payment of', 1, 333, 1, 9450.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(180, 3, 2, '2025-02-18', 'RM-25-02-021', 37, 'Reimbursement of Telephone Expenses - Mobile for 12/27/24 to 1/26/25', 'To Disburse', 1, 357, 1, 1299.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(181, 3, 2, '2025-02-18', 'RM-25-02-022', 60, 'Reimbursement of mobile expense for 12/16/24 to 1/15/25', 'To Disburse', 1, 357, 1, 1499.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(182, 3, 2, '2025-02-20', 'RM-25-02-023', 63, 'Payment of Water for the period of Jan 2025', 'To Payment of', 1, 318, 1, 1650.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(183, 3, 2, '2025-02-21', 'RM-25-02-024', 32, 'Replenishment of PCF - Staff servicing', 'To Disburse', 1, 355, 1, 5294.09, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(184, 3, 2, '2025-02-21', 'RM-25-02-025', 64, 'Maintenance of Honda City', 'To Payment of', 1, 333, 1, 9825.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(185, 3, 2, '2025-02-26', 'RM-25-02-026', 56, 'Payment of Internet Expenses for February 2025', 'To Payment of', 1, 322, 1, 47936.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(186, 3, 2, '2025-02-27', 'RM-25-02-027', 32, 'Replenishment of PCF - Bank charges, taxes, laundry', 'To Disburse', 1, 325, 1, 4602.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(187, 3, 2, '2025-02-27', 'RM-25-02-028', 65, 'CA of travel to pick up Tamaraw Utility Van at DTI Head Office', 'To Cash Advance', 1, 311, 1, 8150.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(188, 3, 2, '2025-03-10', 'RM-25-03-029', 50, 'Payment of Postage Services for Feb 1-28, 2025', 'To Payment of', 1, 320, 1, 1609.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(189, 3, 2, '2025-03-11', 'RM-25-03-030', 66, 'GPC - Plane Ticket to pick-up utility vehicle (VILLAREAL, ROBLES)', 'To Payment of', 1, 311, 1, 14690.64, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(190, 3, 2, '2025-03-13', 'RM-25-03-031', 60, 'Reimbursement of mobile expense for 1/16/25 to 2/15/25', 'To Disburse', 1, 357, 1, 1689.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(191, 3, 2, '2025-03-13', 'RM-25-03-032', 67, 'To pick up Tamaraw Utility Van at DTI Head Office', 'To Disburse', 1, 311, 1, 3000.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(192, 3, 2, '2025-03-17', 'RM-25-03-033', 51, 'Telephone Expenses - Mobile for FEB 2025', 'To Payment of', 1, 357, 1, 4678.20, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(193, 3, 2, '2025-03-17', 'RM-25-03-034', 59, 'Reimbursement of Telephone Expense - Mobile for the month of FEB 2025', 'To Disburse', 1, 357, 1, 2000.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(194, 3, 2, '2025-03-18', 'RM-25-03-035', 37, 'Reimbursement of Telephone Expenses - Mobile for 1/27/25 to 2/26/25', 'To Disburse', 1, 357, 1, 1299.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(195, 3, 2, '2025-03-18', 'RM-25-03-036', 52, 'Payment of Electricity for the period of 2/11/25-3/14/25', 'To Payment of', 1, 319, 1, 78785.48, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(196, 3, 2, '2025-03-18', 'RM-25-03-037', 21, 'Periodic Maintenance of Nissan Urvan', 'To Payment of', 1, 333, 1, 9980.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(197, 3, 2, '2025-03-24', 'RM-25-03-038', 55, 'Telephone Expenses for the period of January 1-31 2025', 'To Payment of', 1, 321, 1, 2637.60, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(198, 3, 2, '2025-03-24', 'RM-25-03-039', 55, 'Telephone Expenses for the period of February 1-28 2025', 'To Payment of', 1, 321, 1, 2703.12, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(199, 3, 2, '2025-03-24', 'RM-25-03-040', 53, 'Payment of Water for the period of 2/15/25 to 3/17/25', 'To Payment of', 1, 318, 1, 3031.80, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(200, 3, 2, '2025-03-24', 'RM-25-03-041', 63, 'Payment of Water for the period of Feb 2025', 'To Payment of', 1, 318, 1, 1875.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(201, 3, 2, '2025-03-25', 'RM-25-03-042', 32, 'Replenishment of PCF - staff servicing', 'To Disburse', 1, 355, 1, 10000.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(202, 3, 2, '2025-03-26', 'RM-25-03-043', 68, 'Periodic Maintenance of Toyota Hilux Tamaraw', 'To Payment of', 1, 333, 1, 5369.85, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(203, 3, 2, '2025-04-02', 'RM-25-04-044', 32, 'Replenishment of PCF - staff servicing', 'To Disburse', 1, 355, 1, 20140.45, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(204, 3, 2, '2025-04-03', 'RM-25-04-045', 29, 'CANCELLED OBLIGATIONS', 'To Payment of', 1, 311, 1, 0.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(205, 3, 2, '2025-04-03', 'RM-25-04-046', 32, 'Replenishment of PCF - tricycle fare, check up of aircon, delivery fee of OR', 'To Disburse', 1, 311, 1, 2574.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(206, 3, 2, '2025-04-08', 'RM-25-04-047', 69, 'Repair of Housing Evaporator of Nissan Urvan and Aircon Cleaning', 'To Payment of', 1, 333, 1, 3500.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(207, 3, 2, '2025-04-08', 'RM-25-04-048', 60, 'Reimbursement of mobile expense for 2/16/25 to 3/15/25', 'To Disburse', 1, 357, 1, 1698.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(208, 3, 2, '2025-04-08', 'RM-25-04-049', 54, 'Reimbursement of mobile expense for 2/16/25 to 3/15/25', 'To Disburse', 1, 357, 1, 1499.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(209, 3, 2, '2025-04-21', 'RM-25-04-050', 52, 'Payment of Electricity for the period of 3/14/25-4/11/25', 'To Payment of', 1, 319, 1, 65773.17, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(210, 3, 2, '2025-04-21', 'RM-25-04-051', 58, 'Payment of remittances of JOCOS for 1st quarter 2025', 'To Payment of', 1, 311, 1, 0.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(211, 3, 2, '2025-04-21', 'RM-25-04-052', 71, 'Payment of remittances of JOCOS for 1st quarter 2025', 'To Payment of', 1, 311, 1, 0.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(212, 3, 2, '2025-04-21', 'RM-25-04-053', 72, 'Replacement of tires and wheel alignment for Honda City', 'To Payment of', 1, 333, 1, 21500.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(213, 3, 2, '2025-04-22', 'RM-25-04-054', 73, 'Replacement of Bolt Hub for Honda City', 'To Payment of', 1, 333, 1, 3000.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(214, 3, 2, '2025-04-22', 'RM-25-04-055', 50, 'Payment of Postage Services for March 1-31, 2025', 'To Payment of', 1, 320, 1, 2151.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(215, 3, 2, '2025-04-22', 'RM-25-04-056', 59, 'Reimbursement of Telephone Expense - Mobile for the month of MAR 2025', 'To Disburse', 1, 357, 1, 2000.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(216, 3, 2, '2025-04-22', 'RM-25-04-057', 37, 'Reimbursement of Telephone Expenses - Mobile for 2/27/25 to 3/26/25', 'To Disburse', 1, 357, 1, 1299.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(217, 3, 2, '2025-04-22', 'RM-25-04-058', 53, 'Payment of Water for the period of 3/17/25 to 4/16/25', 'To Payment of', 1, 318, 1, 1998.30, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(218, 3, 2, '2025-04-25', 'RM-25-04-059', 55, 'Telephone Expenses for the period of March 1-31, 2025', 'To Payment of', 1, 321, 1, 2758.56, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(219, 3, 2, '2025-04-25', 'RM-25-04-060', 51, 'Telephone Expenses - Mobile for MARCH 2025', 'To Payment of', 1, 357, 1, 4510.99, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(220, 3, 2, '2025-04-28', 'RM-25-04-061', 63, 'Payment of Water for the period of Mar 2025', 'To Payment of', 1, 318, 1, 2000.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(221, 3, 3, '2025-01-15', 'ONETIME-25-01-001', 74, 'Payment of license for Mitsubishi Expander.', 'To Payment of', 1, 337, 1, 2010.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(222, 3, 7, '2025-01-08', 'HR RR-25-01-001', 29, 'Snacks during send-off ceremony for Mr. Joven Quiriones for AAS Program', 'To Payment of', 1, 342, 1, 4725.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(223, 3, 9, '2025-01-13', 'HR RSP-25-01-001', 75, 'Meals for HRMPSB Assessment and Deliberation on Jan 3, 2025', 'To Payment of', 1, 342, 1, 14900.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(224, 3, 10, '2025-01-08', 'SUPPLY-25-01-001', 76, 'Supplies for Office use', 'To Payment of', 1, 317, 1, 2750.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(225, 3, 10, '2025-01-14', 'SUPPLY-25-01-002', 30, 'Supplies for Office use', 'To Payment of', 1, 317, 1, 34500.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(226, 3, 10, '2025-01-15', 'SUPPLY-25-01-003', 37, 'Reimbursement of subscription of Airtable for CY 2025.', 'To Disburse', 1, 345, 1, 14335.18, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(227, 3, 15, '2025-01-21', 'MSSD-25-01-001', 59, 'Cash Advance for the OCI of MSSD, IDD and CPD on Jan 30-31, 2025.', 'To Cash Advance', 15, 342, 1, 33142.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(228, 3, 15, '2025-01-31', 'MSSD-25-01-002', 78, 'Reimbursement of Adobe subscription for January 2025', 'To Disburse', 15, 345, 1, 997.00, 2, 'CONNIE M. BARNACHEA', 'Pending'),
+(229, 3, 16, '2025-01-08', 'MSSD-ISO-25-01-001', 28, 'Meals for 2025 QMS Planning and Audit Preparation Meeting on Jan 7, 2025', 'To Payment of', 15, 342, 1, 8500.00, 2, 'CONNIE M. BARNACHEA', 'Pending'),
+(230, 3, 17, '2025-01-09', 'MSSD-PLAN-25-01-001', 28, 'Meals for 2025 1st Quarter ManCom', 'To Payment of', 15, 342, 1, 39900.00, 2, 'CONNIE M. BARNACHEA', 'Pending'),
+(231, 3, 17, '2025-01-09', 'MSSD-PLAN-25-01-002', 28, 'Meals for 2024 4th Quarter Management Review on January 15, 2025', 'To Payment of', 15, 342, 1, 22950.00, 2, 'CONNIE M. BARNACHEA', 'Pending'),
+(232, 3, 20, '2025-01-20', 'POF-25-01-001', 41, 'POF to cover expenses for the month of January 2025', 'To Transfer', 1, 311, 1, 28000.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(233, 3, 20, '2025-01-20', 'POF-25-01-002', 41, 'POF to cover expenses for the month of January 2025', 'To Transfer', 1, 311, 1, 62300.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(234, 3, 20, '2025-01-20', 'POF-25-01-003', 43, 'POF to cover expenses for the month of January 2025', 'To Disburse', 1, 311, 1, 120025.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(235, 3, 20, '2025-01-20', 'POF-25-01-004', 45, 'POF to cover expenses for the month of January 2025', 'To Disburse', 1, 311, 1, 107000.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(236, 3, 20, '2025-01-20', 'POF-25-01-005', 40, 'POF to cover expenses for the month of January 2025', 'To Transfer', 1, 311, 1, 86193.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(237, 3, 20, '2025-01-20', 'POF-25-01-006', 42, 'POF to cover expenses for the month of January 2025', 'To Transfer', 1, 311, 1, 62816.00, 1, 'CONNIE M. BARNACHEA', 'Pending');
+
 -- --------------------------------------------------------
 
 --
@@ -603,13 +1001,66 @@ INSERT INTO `payee` (`payee_id`, `payee_name`, `tin_no`, `bank_acc_no`, `address
 (16, '3G Gensan Hotel', '', '', '', '', '', ''),
 (17, '3D Advertising', '712-786-936-0000', '', '', '', '', ''),
 (18, '8 OZ Prints', '', 'LBP - 0751-2051-55', '', '', '', ''),
-(19, 'ACE CENTERPOINT', '', 'LBP - CA 0752-1040-93', '', '', '', ''),
+(19, 'ACE CENTERPOINT', '', 'LBP - CA 0752-1040-93', 'Koronadal City, South Cotabato', '', '', 'External'),
 (20, 'ACE HARDWARE PHIL. INC.', '200-035-311-0000', 'LBP - CA 0752-1040-93', '', '', '', ''),
 (21, 'ADC AUTOMOTIVE SHOP BY ANNIE LIZA R CERALVO', '', 'LBP - SA 0751-1741-01', '', '', '', ''),
 (22, 'ADWERKZ PRINTING SOLUTIONS/PAUL RYAN C. BARCELONA', '', 'LBP - SA 3416-0029-23', '', '', '', ''),
 (23, 'AFL 168 CORPORATION', '', 'LBP - SA 0751-1769-37', '', '', '', ''),
 (24, 'AHR WOODCRAFT CENTER BY ALLAN B. HIMALLA ', '', 'LBP - SA 0751-1759-90', '', '', '', ''),
-(25, 'BENJO G. BASID', '', '', 'Koronadal City', '', '', '');
+(25, 'BENJO G. BASID', '', '', 'Koronadal City', '', '', ''),
+(26, 'TRISHA\'S BURGER STATION/ PILAR F. PARDO', '', '', 'KORONADAL CITY', '', '', 'external'),
+(27, 'TJ\'S TITO JUN SEAFOOD GRILL/BAR CATERING SERVICES', '', '', 'KORONADAL CITY', '', '', 'external'),
+(28, 'WAN-BAN CATERING SERVICES', '', '', 'KORONADAL CITY', '', '', 'external'),
+(29, 'GENARO\'S CATERING', '', '', 'KORONADAL CITY', '', '', 'external'),
+(30, 'SOUTHRAYS VALLEY FOOD ASSOCIATION', '', '', 'KORONADAL CITY', '', '', 'external'),
+(31, 'CINCO NIÑAS RESTO', '', '', 'KORONADAL CITY', '', '', 'external'),
+(32, 'MILDRED T. SUCOL', '', '', 'KORONADAL CITY', '', '', 'internal'),
+(33, 'THE FARM AT CARPENTER HILL, INC.', '', '', 'KORONADAL CITY', '', '', 'external'),
+(34, 'MANG INASAL', '', '', 'KORONADAL CITY', '', '', 'external'),
+(35, 'SARAH JANE T. TOLEDO', '', '', '', '', '', 'internal'),
+(36, 'RYAN GAZO', '', '', '', '', '', 'external'),
+(37, 'HAZEL E. HAUTEA', '', '', 'KORONADAL CITY', '', '', 'internal'),
+(38, 'BABS RESTAURANT', '', '', 'KORONADAL CITY', '', '', 'external'),
+(39, 'SERAFIN JAY S. BASIYA', '', '', '', '', '', 'internal'),
+(40, 'DTI - SOUTH COTABATO', '', '', 'SOUTH COTABATO', '', '', 'internal'),
+(41, 'DTI - COTABATO PROVINCE', '', '', 'COTABATO PROVINCE', '', '', 'internal'),
+(42, 'DTI - SARANGANI PROVINCE', '', '', 'SARANGANI PROVINCE', '', '', 'internal'),
+(43, 'DTI - GENERAL SANTOS CITY', '', '', 'GENERAL SANTOS CITY', '', '', 'internal'),
+(44, 'ANGELITO B. VILLAR', '', '', '', '', '', 'internal'),
+(45, 'DTI - SULTAN KUDARAT', '', '', 'SULTAN KUDARAT', '', '', 'internal'),
+(46, 'RAMIL B. GOLORAN', '', '', '', '', '', 'internal'),
+(47, 'JOEL S. JASPE', '', '', 'KORONADAL CITY', '', '', 'internal'),
+(48, 'GENSAN GREENLEAF HOTEL AND MANAGEMENT', '', '', 'GENERAL SANTOS CITY', '', '', 'external'),
+(49, 'PEOPLE\'S GENERAL MERCHANDISE', '', '', 'KORONADAL CITY', '', '', 'external'),
+(50, 'JRS BUSINESS CORPORATION', '', '', '', '', '', 'external'),
+(51, 'SMART COMMUNICATIONS, INC.', '', '', '', '', '', 'external'),
+(52, 'SOUTH COTABATO I ELECTRIC COOPERATIVE, INC.', '', '', 'KORONADAL CITY', '', '', 'external'),
+(53, 'CITY OF KORONADAL WATER DISTRICT', '', '', 'KORONADAL CITY', '', '', 'external'),
+(54, 'FLORA P. GABUNALES', '', '', '', '', '', 'internal'),
+(55, 'MARBEL TELEPHONE SYSTEM, INC.', '', '', 'KORONADAL CITY', '', '', 'external'),
+(56, 'PLDT, INC.', '', '', '', '', '', 'external'),
+(57, 'MINDANAO INTEGRATED COMMERCIAL ENTERPRISES, INC.', '', '', '', '', '', 'external'),
+(58, 'PHILIPPINE HEALTH INSURANCE CORP.', '', '', 'KORONADAL CITY', '', '', 'external'),
+(59, 'EPIFANIA L. EALDAMA', '', '', '', '', '', 'internal'),
+(60, 'MA. THERESA T. CHUA', '', '', '', '', '', 'internal'),
+(61, 'NATIONAL PRINTING PRESS', '', '', '', '', '', 'external'),
+(62, 'ADC AUTOMOTIVE SHOP', '', '', '', '', '', 'external'),
+(63, 'ESTER WATER MARKET FILTRATION & PURIFICATION SYSTEM ', '', '', 'KORONADAL CITY', '', '', 'external'),
+(64, 'JAYVANBENJO CORPORATION', '', '', '', '', '', 'external'),
+(65, 'NOEL P. VILLAREAL', '', '', '', '', '', 'internal'),
+(66, 'LANDBANK OF THE PHILIPPINES', '', '', 'KORONADAL CITY', '', '', 'external'),
+(67, 'RYAN D. ROBLES', '', '', '', '', '', 'internal'),
+(68, 'TOYOTA KORONADAL SERIVCE CENTER', '', '', 'KORONADAL CITY', '', '', 'external'),
+(69, 'DIGS CAR AIRCON SERVICES', '', '', '', '', '', 'external'),
+(70, 'PHILIPPINE HEALTH INSURANCE CORP.', '', '', 'KORONADAL CITY', '', '', 'external'),
+(71, 'PAG-IBIG FUND KORONADAL', '', '', 'KORONADAL CITY', '', '', 'external'),
+(72, 'KWIK FIT TYRE DEPOT', '', '', '', '', '', 'external'),
+(73, 'AP AUTOMOTIVE MECHANICAL SERVICES', '', '', '', '', '', 'external'),
+(74, 'LAND TRANSPORTATION OFFICE', '', '', 'KORONADAL CITY', '', '', 'external'),
+(75, 'SHEILA\'S PARK FAMILY RESTO & FASTFOOD', '', '', 'KORONADAL CITY', '', '', 'external'),
+(76, 'SOX FOOD PRODUCTS MANUFACTURING', '', '', '', '', '', 'external'),
+(77, 'TRISHA\'S BURGER STATION/ PILAR F. PARDO', '', '', 'KORONADAL CITY', '', '', 'external'),
+(78, 'MA. ADA N. ALBURO', '', '', 'KORONADAL CITY', '', '', 'external');
 
 -- --------------------------------------------------------
 
@@ -847,23 +1298,22 @@ INSERT INTO `project` (`project_id`, `oopap_id`, `account_id`, `allotment`, `bal
 (277, 6, 364, 177000.00, 177000.00, '2025-03-31'),
 (278, 6, 376, 200000.00, 200000.00, '2025-03-31'),
 (279, 6, 346, 0.00, 0.00, '2025-03-31'),
-(280, 7, 311, 310000.00, 310000.00, '2025-03-31'),
-(281, 7, 313, 461000.00, 461000.00, '2025-03-31'),
-(283, 7, 355, 180000.00, 180000.00, '2025-03-31'),
-(284, 7, 317, 50000.00, 50000.00, '2025-03-31'),
-(285, 7, 357, 30000.00, 30000.00, '2025-03-31'),
-(286, 7, 368, 100000.00, 100000.00, '2025-03-31'),
+(280, 7, 311, 310000.00, 228122.00, '2025-03-31'),
+(281, 7, 313, 461000.00, 355100.00, '2025-03-31'),
+(283, 7, 355, 180000.00, 115478.00, '2025-03-31'),
+(284, 7, 317, 50000.00, 35000.00, '2025-03-31'),
+(285, 7, 357, 30000.00, 25000.00, '2025-03-31'),
+(286, 7, 368, 100000.00, 98200.00, '2025-03-31'),
 (287, 7, 327, 300000.00, 300000.00, '2025-03-31'),
-(288, 7, 328, 970000.00, 970000.00, '2025-03-31'),
+(288, 7, 328, 970000.00, 858468.09, '2025-03-31'),
 (289, 7, 359, 650000.00, 650000.00, '2025-03-31'),
 (290, 7, 360, 10000.00, 10000.00, '2025-03-31'),
 (291, 7, 339, 400000.00, 400000.00, '2025-03-31'),
 (292, 7, 374, 50000.00, 50000.00, '2025-03-31'),
-(293, 7, 363, 50000.00, 50000.00, '2025-03-31'),
-(294, 7, 346, 100000.00, 100000.00, '2025-03-31'),
+(293, 7, 363, 50000.00, 35000.00, '2025-03-31'),
+(294, 7, 346, 100000.00, 83500.00, '2025-03-31'),
 (295, 7, 376, 50000.00, 50000.00, '2025-03-31'),
-(296, 7, 317, 150000.00, 150000.00, '2025-03-31'),
-(297, 7, 342, 311000.00, 311000.00, '2025-03-31'),
+(297, 7, 342, 311000.00, 123805.50, '2025-03-31'),
 (298, 7, 343, 50000.00, 50000.00, '2025-03-31'),
 (299, 7, 373, 50000.00, 50000.00, '2025-03-31'),
 (300, 8, 311, 155000.00, 155000.00, '2025-03-31'),
@@ -999,7 +1449,10 @@ INSERT INTO `project` (`project_id`, `oopap_id`, `account_id`, `allotment`, `bal
 (435, 15, 394, 0.00, 0.00, '2025-04-06'),
 (436, 15, 325, 0.00, 0.00, '2025-04-06'),
 (437, 15, 395, 0.00, 0.00, '2025-04-06'),
-(438, 15, 337, 0.00, 0.00, '2025-04-06');
+(438, 15, 337, 0.00, 0.00, '2025-04-06'),
+(440, 1, 314, 150000.00, 150000.00, '2025-05-05'),
+(1743926826, 7, 314, 150000.00, 108880.00, '2025-05-05'),
+(1743926828, 7, 325, 0.00, -100.00, '2025-05-05');
 
 -- --------------------------------------------------------
 
@@ -1033,7 +1486,8 @@ INSERT INTO `responsibility_center` (`rc_id`, `code`, `parent_code`, `type`, `ac
 (10, '22-001-03-00012-14', '22-001-03-00012', 'Non Office', 'RAPID-LP', 'RAPID Growth Project - Loan Proceeds'),
 (11, '22-001-03-00012-15', '22-001-03-00012', 'Non Office ', 'RAPID-GoP', 'RAPID Growth Project -GoP Counterpart'),
 (12, '22-001-03-00012-16', '22-001-03-00012', 'Local Projects', 'OTOP NEXT GEN', 'OTOP Next Generation'),
-(13, '22-001-03-00012-17', '22-001-03-00012', 'Non Office', 'SAA', 'Sub-allotment');
+(13, '22-001-03-00012-17', '22-001-03-00012', 'Non Office', 'SAA', 'Sub-allotment'),
+(15, '22-001-03-00012-01', '22-001-03-00012', 'Office', 'DTIMSSD', 'Management Support Services Division');
 
 -- --------------------------------------------------------
 
@@ -1055,14 +1509,14 @@ CREATE TABLE `services` (
 INSERT INTO `services` (`services_id`, `services_name`, `code`, `oopap_id`) VALUES
 (2, 'REGULAR MANDATORY', 'RM', 1),
 (3, 'ONE TIME EXPENSES', 'ONETIME', 1),
-(4, 'OUTSOURCED SERVICES', 'OS', 1),
+(4, 'OUTSOURCED SERVICES', 'OUTSOURCED', 1),
 (5, 'SECURITY SERVICES', 'SECURITY', 1),
-(6, 'LEARNING AND DEVELOPMENT', 'LD', 1),
-(7, 'REWARDS AND RECOGNITION', 'RR', 1),
-(8, 'PERFORMANCE MANAGEMENT SYSTEM', 'PMS', 1),
-(9, 'RECRUITMENT, SELECTION AND PLACEMENT', 'RSP', 1),
+(6, 'LEARNING AND DEVELOPMENT', 'HR LD', 1),
+(7, 'REWARDS AND RECOGNITION', 'HR RR', 1),
+(8, 'PERFORMANCE MANAGEMENT SYSTEM', 'HR PMS', 1),
+(9, 'RECRUITMENT, SELECTION AND PLACEMENT', 'HR RSP', 1),
 (10, 'SUPPLY & PROPERTY MANAGEMENT', 'SUPPLY', 1),
-(11, 'ADMINISTRATION & POLICY', 'ADMINPOLICY', 1),
+(11, 'ADMINISTRATION & POLICY', 'ADMIN&POLICY', 1),
 (12, 'SAFETY AND HEALTH', 'OSH', 1),
 (13, 'RBAC MEETING', 'RBAC', 1),
 (14, 'GADGET COST', 'GADGET', 1),
@@ -1071,7 +1525,8 @@ INSERT INTO `services` (`services_id`, `services_name`, `code`, `oopap_id`) VALU
 (17, 'MSSD PLANNING', 'MSSD-PLAN', 1),
 (18, 'MSSD-RECORDS', 'MSSD-RECORDS', 1),
 (19, 'MSSD-KM', 'MSSD-KM', 1),
-(20, 'PROVINCIAL OPERATING FUND (POF) - MANDATORY', 'POF', 1);
+(20, 'PROVINCIAL OPERATING FUND (POF) - MANDATORY', 'POF', 1),
+(23, 'SHARED SERVICE FACILITY', 'SSF', 7);
 
 -- --------------------------------------------------------
 
@@ -1353,7 +1808,7 @@ ALTER TABLE `account_name`
 -- AUTO_INCREMENT for table `account_title`
 --
 ALTER TABLE `account_title`
-  MODIFY `account_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=398;
+  MODIFY `account_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=399;
 
 --
 -- AUTO_INCREMENT for table `allotment`
@@ -1389,13 +1844,13 @@ ALTER TABLE `draft_project`
 -- AUTO_INCREMENT for table `dv`
 --
 ALTER TABLE `dv`
-  MODIFY `dv_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=107;
+  MODIFY `dv_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=109;
 
 --
 -- AUTO_INCREMENT for table `dv_history`
 --
 ALTER TABLE `dv_history`
-  MODIFY `dvhis_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=111;
+  MODIFY `dvhis_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=117;
 
 --
 -- AUTO_INCREMENT for table `dv_non_ors`
@@ -1419,7 +1874,7 @@ ALTER TABLE `fund_cluster`
 -- AUTO_INCREMENT for table `jev`
 --
 ALTER TABLE `jev`
-  MODIFY `jev_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `jev_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `merged_payees`
@@ -1437,7 +1892,7 @@ ALTER TABLE `merged_payee_items`
 -- AUTO_INCREMENT for table `obligation_history`
 --
 ALTER TABLE `obligation_history`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=78;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=321;
 
 --
 -- AUTO_INCREMENT for table `oopap`
@@ -1449,13 +1904,13 @@ ALTER TABLE `oopap`
 -- AUTO_INCREMENT for table `ors`
 --
 ALTER TABLE `ors`
-  MODIFY `ors_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=113;
+  MODIFY `ors_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=238;
 
 --
 -- AUTO_INCREMENT for table `payee`
 --
 ALTER TABLE `payee`
-  MODIFY `payee_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `payee_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=79;
 
 --
 -- AUTO_INCREMENT for table `payment`
@@ -1473,19 +1928,19 @@ ALTER TABLE `program`
 -- AUTO_INCREMENT for table `project`
 --
 ALTER TABLE `project`
-  MODIFY `project_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1743926826;
+  MODIFY `project_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1743926830;
 
 --
 -- AUTO_INCREMENT for table `responsibility_center`
 --
 ALTER TABLE `responsibility_center`
-  MODIFY `rc_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `rc_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `services`
 --
 ALTER TABLE `services`
-  MODIFY `services_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `services_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `system_settings`
