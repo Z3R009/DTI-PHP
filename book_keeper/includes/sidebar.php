@@ -43,7 +43,7 @@
                 </li>
                 <li>
                     <a href="jev.php">
-                        <i class="bi bi-circle"></i><span>JEV</span>
+                        <i class="bi bi-circle"></i><span>Journal Entry Voucher</span>
                     </a>
                 </li>
             </ul>
