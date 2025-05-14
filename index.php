@@ -852,7 +852,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         const viewPayeesBtn = document.getElementById('viewPayeesBtn');
         const payeeModal = document.getElementById('payeeModal');
         const closePayeeModal = document.getElementById('closePayeeModal');
-        const closePayeeModalBtn = document.getElementById('closePayeeModalBtn');
         const payeeSearch = document.getElementById('payeeSearch');
         const payeeTableBody = document.getElementById('payeeTableBody');
         
@@ -867,10 +866,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             payeeModal.style.display = 'none';
         });
         
-        closePayeeModalBtn.addEventListener('click', function() {
-            payeeModal.style.display = 'none';
-        });
-        
         // Close when clicking outside modal
         window.addEventListener('click', function(event) {
             if (event.target === payeeModal) {
@@ -880,17 +875,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // Search functionality
         payeeSearch.addEventListener('input', function() {
-            const searchText = this.value.toLowerCase();
-            const rows = document.querySelectorAll('#payeeTable tbody tr');
+            const searchText = this.value.toLowerCase().trim();
+            const rows = document.querySelectorAll('#payeeTableBody tr');
             
             rows.forEach(row => {
-                const rowText = row.textContent.toLowerCase();
+                // Skip the loading row
+                if (row.querySelector('.payee-loader')) {
+                    return;
+                }
+                
+                // Get all cell text from the row
+                const rowText = Array.from(row.querySelectorAll('td'))
+                    .map(cell => cell.textContent.toLowerCase())
+                    .join(' ');
+                
+                // Show/hide based on search match
                 if (rowText.includes(searchText)) {
                     row.style.display = '';
                 } else {
                     row.style.display = 'none';
                 }
             });
+            
+            // Show a message if no results found
+            const visibleRows = document.querySelectorAll('#payeeTableBody tr:not([style*="display: none"])');
+            const noResultsRow = document.getElementById('no-search-results');
+            
+            if (visibleRows.length === 0 && searchText !== '') {
+                if (!noResultsRow) {
+                    const noResults = document.createElement('tr');
+                    noResults.id = 'no-search-results';
+                    noResults.innerHTML = `
+                        <td colspan="4" style="text-align: center; padding: 20px;">
+                            <i class="bi bi-search" style="font-size: 24px; color: #ccc;"></i>
+                            <p style="margin-top: 10px; color: #666;">No results found for "${searchText}"</p>
+                        </td>
+                    `;
+                    payeeTableBody.appendChild(noResults);
+                } else {
+                    noResultsRow.querySelector('p').textContent = `No results found for "${searchText}"`;
+                    noResultsRow.style.display = '';
+                }
+            } else if (noResultsRow) {
+                noResultsRow.style.display = 'none';
+            }
         });
         
         // Fetch payee data from server
@@ -898,7 +926,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Show loading message
             payeeTableBody.innerHTML = `
             <tr>
-                <td colspan="7">
+                <td colspan="4">
                     <div class="payee-loader">
                         <div class="payee-loader-spinner"></div>
                         <div class="payee-loader-text">Loading payee data...</div>
@@ -918,7 +946,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         if (payees.length === 0) {
                             payeeTableBody.innerHTML = `
                             <tr>
-                                <td colspan="7" style="text-align: center; padding: 30px;">
+                                <td colspan="4" style="text-align: center; padding: 30px;">
                                     <i class="bi bi-exclamation-circle text-warning me-2" style="font-size: 24px;"></i>
                                     <p>No payee data available</p>
                                 </td>
@@ -932,21 +960,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             html += `
                             <tr>
                                 <td><strong>${payee.payee_name || ''}</strong></td>
-                             
                                 <td>${payee.address || ''}</td>
                                 <td>${payee.nature || ''}</td>
                                 <td>${payee.contact_no || ''}</td>
-                               
                             </tr>
                             `;
                         });
                         
                         payeeTableBody.innerHTML = html;
                         
+                        // Apply any existing search filter
+                        if (payeeSearch.value.trim() !== '') {
+                            payeeSearch.dispatchEvent(new Event('input'));
+                        }
+                        
                     } catch (e) {
                         payeeTableBody.innerHTML = `
                         <tr>
-                            <td colspan="7" style="text-align: center; padding: 30px;">
+                            <td colspan="4" style="text-align: center; padding: 30px;">
                                 <i class="bi bi-exclamation-triangle text-danger me-2" style="font-size: 24px;"></i>
                                 <p>Error loading payee data</p>
                             </td>
@@ -956,7 +987,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } else {
                     payeeTableBody.innerHTML = `
                     <tr>
-                        <td colspan="7" style="text-align: center; padding: 30px;">
+                        <td colspan="4" style="text-align: center; padding: 30px;">
                             <i class="bi bi-exclamation-triangle text-danger me-2" style="font-size: 24px;"></i>
                             <p>Error loading payee data</p>
                         </td>
@@ -967,7 +998,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             xhr.onerror = function() {
                 payeeTableBody.innerHTML = `
                 <tr>
-                    <td colspan="7" style="text-align: center; padding: 30px;">
+                    <td colspan="4" style="text-align: center; padding: 30px;">
                         <i class="bi bi-wifi-off text-danger me-2" style="font-size: 24px;"></i>
                         <p>Error connecting to server</p>
                     </td>
