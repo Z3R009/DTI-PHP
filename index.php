@@ -51,8 +51,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Login - DTI Region 12 Financial Processing System</title>
     <script type="module" src="https://cdn.jsdelivr.net/npm/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://cdn.jsdelivr.net/npm/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
     <!-- icon -->
@@ -61,6 +61,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Bootstrap and icons -->
     <link href="bootstrap-5.2.3/css/bootstrap.min.css" rel="stylesheet">
     <link href="NiceAdmin/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <!-- Mobile web app capable -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#03045e">
 </head>
 <style>
     
@@ -264,7 +268,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     .payee-btn i {
         margin-right: 8px;
-        font-size: 16px;
     }
     
     .payee-btn:hover {
@@ -276,6 +279,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     .payee-btn:active {
         transform: translateY(1px);
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    .payee-btn-text {
+        margin-left: 0;
     }
     
     /* Modal Styles */
@@ -560,12 +567,86 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin-top: 5px;
         }
     }
+
+    /* Mobile responsive modal styles */
+    @media (max-width: 768px) {
+        .payee-modal-content {
+            width: 95%;
+            max-height: 90vh;
+            margin: 20px 0;
+        }
+        
+        .payee-modal-header {
+            padding: 12px 15px;
+        }
+        
+        .payee-modal-title {
+            font-size: 16px;
+        }
+        
+        .payee-modal-body {
+            padding: 15px;
+            max-height: calc(90vh - 120px);
+        }
+        
+        .payee-table th, .payee-table td {
+            padding: 10px 12px;
+            font-size: 13px;
+        }
+    }
+    
+    @media (max-width: 580px) {
+        .payee-modal-content {
+            width: 98%;
+            height: 95vh;
+            max-height: 95vh;
+            margin: 10px 0;
+            border-radius: 8px;
+        }
+        
+        .payee-modal-header {
+            padding: 10px;
+        }
+        
+        .payee-modal-title {
+            font-size: 15px;
+        }
+        
+        .payee-modal-body {
+            padding: 10px;
+            max-height: calc(95vh - 110px);
+        }
+        
+        .payee-search input {
+            padding: 8px 8px 8px 35px;
+            font-size: 13px;
+        }
+        
+        .payee-table {
+            font-size: 12px;
+        }
+        
+        .payee-table th, .payee-table td {
+            padding: 8px 10px;
+        }
+        
+        /* Make table responsive on small screens */
+        .payee-table-container {
+            overflow-x: auto;
+        }
+    }
+
+    @media (max-width: 900px) {
+        .payee-btn-text {
+            display: none;
+        }
+    }
 </style>
 
 <body>
     <!-- Payee Button -->
     <button id="viewPayeesBtn" class="payee-btn">
-        <i class="bi bi-people-fill"></i> View Payees
+        <i class="bi bi-people-fill"></i> <span class="payee-btn-text">View Payees</span>
     </button>
     
     <!-- Payee Modal -->

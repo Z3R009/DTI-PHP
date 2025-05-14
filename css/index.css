@@ -177,7 +177,113 @@
   
   @media (max-width: 480px) {
     .login-container {
-        width: 90%;
-        padding: 30px;
+      width: 92%;
+      padding: 20px;
+    }
+    
+    input {
+      padding: 10px 30px;
+      font-size: 13px;
+    }
+    
+    ion-icon {
+      font-size: 18px;
+    }
+    
+    /* Make button circular on small screens */
+    .payee-btn {
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .payee-btn i {
+      margin-right: 0;
+      font-size: 18px;
+    }
+  }
+  
+  /* Hide payee button when browser is in half-window mode */
+  @media (max-width: 900px) {
+    .payee-btn {
+      display: none;
+    }
+  }
+  
+  /* Enhanced Mobile Responsiveness */
+  @media (max-width: 768px) {
+    .login-container {
+      width: 85%;
+      padding: 25px;
+      margin-top: 60px;
+    }
+    
+    h2 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+    
+    input {
+      padding: 10px 35px;
+      font-size: 14px;
+    }
+    
+    button {
+      padding: 10px;
+      font-size: 15px;
+    }
+    
+    .logo-container {
+      width: 100px;
+      height: 100px;
+    }
+    
+    /* Adjust payee button for mobile */
+    .payee-btn {
+      width: auto;
+      font-size: 12px;
+      padding: 8px 12px;
+      top: 10px;
+      left: 10px;
+    }
+    
+    /* Hide the text in the payee button */
+    .payee-btn-text {
+      display: none !important;
+    }
+    
+    .payee-btn i {
+      margin-right: 0;
+    }
+  }
+  
+  /* Landscape orientation adjustments */
+  @media (max-height: 500px) and (orientation: landscape) {
+    body {
+      align-items: flex-start;
+      padding: 20px 0;
+    }
+    
+    .login-container {
+      margin: 60px auto 20px;
+    }
+    
+    .logo-container {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 15px;
     }
   }
