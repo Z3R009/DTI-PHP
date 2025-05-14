@@ -373,7 +373,7 @@ $ors_result = $connection->query($ors_query);
     <main id="main" class="main">
 
         <div class="pagetitle d-flex justify-content-between align-items-center">
-            <h1 class="mb-0">Obligation Request and Status</h1>
+            <h1 class="mb-0"></h1>
             <button class="btn btn-primary" onclick="window.location.href='processed_ors.php'">
                 <i class="bi bi-list-check"></i> View Processed ORS
             </button>

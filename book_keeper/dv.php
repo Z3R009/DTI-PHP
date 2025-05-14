@@ -335,9 +335,6 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
             <div class="form-container">
                 <div class="row mb-4">
                     <div class="col-12">
-                        <h2 class="form-title">Pending Obligation Request And Status</h2>
-                        <p class="text-muted text-center">Create disbursement vouchers from the available ORS documents
-                            below</p>
                     </div>
                 </div>
 
