@@ -194,7 +194,11 @@ while ($row = $result_approvers->fetch_assoc()) {
     ];
 }
 
-
+// Generate ORS number format for use in JavaScript
+$current_year = date('y');  // Two-digit year
+$current_month = date('m'); // Two-digit month
+$ors_prefix = "ORS";
+$default_ors_number = $ors_prefix . "-" . $current_year . "-" . $current_month . "-" . $new_sequence;
 
 ?>
 <?php
@@ -1541,72 +1545,102 @@ $ors_result = $connection->query($ors_query);
             const servicesSelect = document.getElementById('services');
             const orsNumberInput = document.getElementById('ors_no');
             
+            // Set initial default ORS number
+            if (!orsNumberInput.value) {
+                orsNumberInput.value = "<?php echo $default_ors_number; ?>";
+            }
+            
             // Function to generate ORS number based on service code and date
             function generateORSNumber() {
-                // Find the service code
                 let serviceCode = '';
+                let serviceName = 'ORS';
                 
-                // First try to get it from the custom dropdown
+                // First try to get service code from the custom dropdown
                 const servicesDropdown = servicesSelect.previousElementSibling;
                 if (servicesDropdown && servicesDropdown.classList.contains('custom-dropdown')) {
                     // Get the selected value from the hidden select
                     const selectedValue = servicesSelect.value;
-                    if (selectedValue) {
+                    if (selectedValue && selectedValue !== '') {
                         // Find the selected option to get its data-code
                         const selectedOption = servicesSelect.querySelector(`option[value="${selectedValue}"]`);
-                        serviceCode = selectedOption ? selectedOption.getAttribute('data-code') : '';
+                        if (selectedOption) {
+                            serviceCode = selectedOption.getAttribute('data-code') || '';
+                            serviceName = selectedOption.textContent || 'ORS';
+                        }
                     }
                 } else {
                     // Fallback to the standard select
-                    const selectedService = servicesSelect.options[servicesSelect.selectedIndex];
-                    if (selectedService && !selectedService.disabled) {
-                        serviceCode = selectedService.getAttribute('data-code');
+                    const selectedIndex = servicesSelect.selectedIndex;
+                    if (selectedIndex > 0) { // Skip the first disabled option
+                        const selectedOption = servicesSelect.options[selectedIndex];
+                        serviceCode = selectedOption.getAttribute('data-code') || '';
+                        serviceName = selectedOption.textContent || 'ORS';
                     }
                 }
                 
                 const selectedDate = dateInput.value;
-
-                if (!serviceCode || !selectedDate) {
-                    // Set a default value if not all required data is available
-                    orsNumberInput.value = "ORS-<?php echo date('Y-m'); ?>-<?php echo $new_sequence; ?>";
-                    return;
+                if (!selectedDate) {
+                    // Default to current date if not set
+                    const today = new Date();
+                    dateInput.value = today.toISOString().split('T')[0];
                 }
 
-                const date = new Date(selectedDate);
-                const year = date.getFullYear().toString().substr(-2);
+                // Format the date components
+                const date = new Date(dateInput.value);
+                const year = date.getFullYear().toString().substr(-2); // Get last 2 digits
                 const month = String(date.getMonth() + 1).padStart(2, '0');
-
-                // Fetch the next sequence number from server
-                fetch('get_next_ors_sequence.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `service_code=${encodeURIComponent(serviceCode)}&year=${year}&month=${month}`
-                })
-                .then(response => response.json())
-                .then(data => {
-                    const sequence = String(data.next_sequence).padStart(3, '0');
-                    orsNumberInput.value = `${serviceCode}-${year}-${month}-${sequence}`;
-                })
-                .catch(error => {
-                    console.error('Error generating ORS number:', error);
-                    // Fallback if server request fails
-                    orsNumberInput.value = `${serviceCode}-${year}-${month}-<?php echo $new_sequence; ?>`;
-                });
+                
+                // First set a default value that will always work
+                const defaultNumber = "ORS-" + year + "-" + month + "-" + "<?php echo $new_sequence; ?>";
+                orsNumberInput.value = defaultNumber;
+                
+                // Only try the API if we have a service code
+                if (serviceCode) {
+                    console.log("Generating ORS number with service code: " + serviceCode);
+                    
+                    // Try to get a sequence number from the server
+                    fetch('get_next_ors_sequence.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `service_code=${encodeURIComponent(serviceCode)}&year=${year}&month=${month}`
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok: ' + response.statusText);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.next_sequence) {
+                            const sequence = String(data.next_sequence).padStart(3, '0');
+                            const newOrsNumber = `${serviceCode}-${year}-${month}-${sequence}`;
+                            orsNumberInput.value = newOrsNumber;
+                            console.log("ORS number generated: " + newOrsNumber);
+                        } else {
+                            console.warn("No sequence number returned from server, using default");
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error generating ORS number:', error);
+                        // Fallback is already set above
+                    });
+                }
             }
 
-            // Initialize ORS number when page loads
-            if (servicesSelect.value) {
-                generateORSNumber();
-            } else {
-                // Set a default placeholder
-                orsNumberInput.value = "ORS-<?php echo date('Y-m'); ?>-<?php echo $new_sequence; ?>";
-            }
-
-            // Update ORS number when service or date changes
-            servicesSelect.addEventListener('change', generateORSNumber);
+            // Generate number whenever date or service changes
             dateInput.addEventListener('change', generateORSNumber);
+            servicesSelect.addEventListener('change', generateORSNumber);
+            
+            // Initial generation if both date and service are available
+            if (dateInput.value && servicesSelect.value) {
+                generateORSNumber();
+            }
+            
+            // Also generate when the form loads, regardless of values
+            // This ensures we at least have a default value
+            generateORSNumber();
         });
     </script>
 
@@ -1727,33 +1761,70 @@ $ors_result = $connection->query($ors_query);
                     },
                     body: `oopap_id=${oopapId}`
                 })
-                    .then(response => response.json())
-                    .then(services => {
-                        servicesSelect.innerHTML = '<option selected disabled>Select Services</option>';
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(services => {
+                    // Clear existing options
+                    servicesSelect.innerHTML = '';
+                    
+                    // Add default option
+                    const defaultOption = document.createElement('option');
+                    defaultOption.disabled = true;
+                    defaultOption.selected = true;
+                    defaultOption.textContent = 'Select Services';
+                    servicesSelect.appendChild(defaultOption);
+                    
+                    // Add service options
+                    if (Array.isArray(services) && services.length > 0) {
                         services.forEach(service => {
+                            if (!service.services_id || !service.services_name) {
+                                console.warn('Invalid service data:', service);
+                                return;
+                            }
                             const option = document.createElement('option');
                             option.value = service.services_id;
-                            option.textContent = service.services_name;
-                            option.setAttribute('data-code', service.code);
+                            option.textContent = service.services_name + (service.code ? ' - ' + service.code : '');
+                            option.setAttribute('data-code', service.code || '');
                             servicesSelect.appendChild(option);
                         });
-                        
-                        // Create searchable dropdown for services
+                    } else {
+                        // Add a "No services" option if the array is empty
+                        const noServicesOption = document.createElement('option');
+                        noServicesOption.disabled = true;
+                        noServicesOption.textContent = 'No services available';
+                        servicesSelect.appendChild(noServicesOption);
+                    }
+                    
+                    // Create searchable dropdown
+                    try {
                         createServicesSearchableDropdown(servicesSelect);
-                        
-                        // Update ORS number after services are loaded
-                        const event = new Event('change');
-                        servicesSelect.dispatchEvent(event);
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        servicesSelect.innerHTML = '<option selected disabled>Error loading services</option>';
-                    });
+                    } catch (err) {
+                        console.error('Error creating searchable dropdown:', err);
+                    }
+                    
+                    // Update ORS number after services are loaded
+                    // Trigger the change event to generate a new ORS number
+                    const event = new Event('change');
+                    servicesSelect.dispatchEvent(event);
+                })
+                .catch(error => {
+                    console.error('Error fetching services:', error);
+                    servicesSelect.innerHTML = '<option disabled selected>Error loading services</option>';
+                });
             }
 
             oopapSelect.addEventListener('change', function () {
                 updateServices(this.value);
             });
+            
+            // Initial load if OOPAP is already selected
+            if (oopapSelect.value) {
+                updateServices(oopapSelect.value);
+            }
         });
     </script>
 
