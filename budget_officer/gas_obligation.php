@@ -35,18 +35,21 @@ $total_filtered_amount = mysqli_fetch_assoc($total_obligations_result)['total_am
 // Get obligations for the table display
 $select = mysqli_query(
     $connection,
-    "SELECT obligation_history.*, 
-            ors.date, 
-            ors.ors_no, 
-            ors.payee_id, 
-            ors.notes, 
-            ors.oopap_id,
-            payee.payee_name 
+    "SELECT 
+        MAX(ors.date) as date,
+        ors.ors_no,
+        MAX(ors.payee_id) as payee_id,
+        MAX(ors.notes) as notes,
+        MAX(ors.oopap_id) as oopap_id,
+        MAX(payee.payee_name) as payee_name,
+        SUM(obligation_history.net) as total_net_amount,
+        GROUP_CONCAT(DISTINCT ors.ors_id) as ors_ids
      FROM obligation_history 
      LEFT JOIN ors ON obligation_history.ors_id = ors.ors_id 
      LEFT JOIN payee ON ors.payee_id = payee.payee_id
      $table_where_clause
-     ORDER BY ors.date ASC"
+     GROUP BY ors.ors_no
+     ORDER BY MAX(ors.date) ASC"
 );
 
 // Prepare filtered data for table display
@@ -194,16 +197,21 @@ $total_balances = $total_allotment - $total_filtered_amount;
                         <tbody>
                             <?php foreach ($filtered_data as $row) { ?>
                                 <tr>
-                                <td><?php echo date("F-d-Y", strtotime($row['date'])); ?></td>
+                                    <td><?php echo date("F-d-Y", strtotime($row['date'])); ?></td>
                                     <td><?php echo htmlspecialchars($row['ors_no']); ?></td>
                                     <td><?php echo htmlspecialchars($row['payee_name']); ?></td>
                                     <td><?php echo htmlspecialchars($row['notes']); ?></td>
-                                    <td><?php echo htmlspecialchars(number_format($row['net'], 2)); ?></td>
+                                    <td><?php echo htmlspecialchars(number_format($row['total_net_amount'], 2)); ?></td>
                                     <td>
                                         <button type="button" class="btn btn-primary view-details" onclick="window.location.href='ors_form.php?ors_no=<?php echo $row['ors_no']; ?>'">
                                             <i class="bi bi-eye" data-bs-toggle="tooltip" data-bs-placement="top" title="View Details"></i>
                                         </button>
-                                        <button type="button" class="btn btn-warning change-oopap" data-bs-toggle="modal" data-bs-target="#changeOopapModal" data-ors-id="<?php echo $row['ors_id']; ?>" data-current-oopap="<?php echo $row['oopap_id']; ?>">
+                                        <?php 
+                                        // Get the first ORS ID from the grouped IDs
+                                        $ors_ids = explode(',', $row['ors_ids']);
+                                        $first_ors_id = $ors_ids[0];
+                                        ?>
+                                        <button type="button" class="btn btn-warning change-oopap" data-bs-toggle="modal" data-bs-target="#changeOopapModal" data-ors-id="<?php echo $first_ors_id; ?>" data-current-oopap="<?php echo $row['oopap_id']; ?>">
                                             <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top" title="Change OOPAP"></i>
                                         </button>
                                     </td>
