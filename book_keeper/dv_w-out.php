@@ -211,8 +211,11 @@ $select_dv = mysqli_query($connection, "
     <link href="../NiceAdmin/assets/vendor/remixicon/remixicon.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/vendor/simple-datatables/style.css" rel="stylesheet">
 
+    <link rel="stylesheet" href="css/table.css">
+
     <!-- Template Main CSS File -->
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/dv.css">
 
     <style>
         .form-container {
@@ -319,14 +322,7 @@ $select_dv = mysqli_query($connection, "
             transition: all 0.3s ease;
         }
 
-        .btn-primary {
-            background-color: #0077b6;
-            color: white;
-        }
 
-        .btn-primary:hover {
-            background-color: #03045e;
-        }
 
         .btn-secondary {
             background-color: #8d99ae;
@@ -341,43 +337,7 @@ $select_dv = mysqli_query($connection, "
             overflow-x: auto;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            border-radius: 8px;
-            overflow: hidden;
-        }
 
-        table th,
-        table td {
-            padding: 14px 16px;
-            text-align: left;
-            border-bottom: 1px solid #e8e8e8;
-            vertical-align: middle;
-        }
-
-        /* Table header */
-        table th {
-            background-color: #0077b6;
-            color: white;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.85rem;
-            letter-spacing: 0.5px;
-            border-top: none;
-        }
-
-        /* Zebra striping for better readability */
-        table tbody tr:nth-child(even) {
-            background-color: #f8fafc;
-        }
-
-        table tbody tr:hover {
-            background-color: #f0f9ff;
-            transition: background-color 0.2s ease;
-        }
 
         .assessments-table {
             font-size: 0.95rem;
@@ -1207,7 +1167,7 @@ $select_dv = mysqli_query($connection, "
                 <div class="card shadow-sm border-0">
                     <div class="card-body p-0">
                         <!-- Table with enhanced styling -->
-                        <table class="enhanced-table datatable">
+                        <table class="datatable">
                             <thead>
                                 <tr>
                                     <th>Date</th>

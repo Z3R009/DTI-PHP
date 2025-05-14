@@ -47,6 +47,7 @@ $select = mysqli_query($connection, "
     <!-- Template Main CSS File -->
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
     <link rel="stylesheet" href="css/table.css">
+    <link rel="stylesheet" href="css/ors.css">
 
     <style>
         .form-container {
@@ -153,14 +154,6 @@ $select = mysqli_query($connection, "
             transition: all 0.3s ease;
         }
 
-        .btn-primary {
-            background-color: #0077b6;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: #03045e;
-        }
 
         .btn-secondary {
             background-color: #8d99ae;
@@ -175,43 +168,7 @@ $select = mysqli_query($connection, "
             overflow-x: auto;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            border-radius: 8px;
-            overflow: hidden;
-        }
 
-        table th,
-        table td {
-            padding: 14px 16px;
-            text-align: left;
-            border-bottom: 1px solid #e8e8e8;
-            vertical-align: middle;
-        }
-
-        /* Table header */
-        table th {
-            background-color: #0077b6;
-            color: white;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.85rem;
-            letter-spacing: 0.5px;
-            border-top: none;
-        }
-
-        /* Zebra striping for better readability */
-        table tbody tr:nth-child(even) {
-            background-color: #f8fafc;
-        }
-
-        table tbody tr:hover {
-            background-color: #f0f9ff;
-            transition: background-color 0.2s ease;
-        }
 
         .assessments-table {
             font-size: 0.95rem;
@@ -548,20 +505,6 @@ $select = mysqli_query($connection, "
             color: white;
         }
 
-        .view-button {
-            padding: 8px 14px;
-            background-color: #0077b6;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.75rem;
-            font-weight: 600;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }
 
 
 
@@ -681,50 +624,45 @@ $select = mysqli_query($connection, "
 
         <div class="content-wrapper">
             <div class="form-container">
-                <h2 class="form-title">Journal Entry Voucher</h2>
 
                 <div class="tab-content">
-                    <div class="card">
-                        <div class="card-body">
-                            <!-- Table with stripped rows -->
-                            <table class="table datatable">
-                                <thead>
+                    <div class="card-body">
+                        <!-- Table with stripped rows -->
+                        <table class="datatable">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>JEV No.</th>
+                                    <th>Payee Name</th>
+                                    <th>Amount</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php while ($row = mysqli_fetch_assoc($select)) { ?>
                                     <tr>
-                                        <th>Date</th>
-                                        <th>JEV No.</th>
-                                        <th>Payee Name</th>
-                                        <th>Amount</th>
-                                        <th></th>
+                                        <td>
+                                            <?php
+                                            $date = new DateTime($row['date']);
+                                            echo htmlspecialchars($date->format('F j, Y'));
+                                            ?>
+                                        </td>
+                                        <td><?php echo htmlspecialchars($row['jev_no']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['payee_name']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['total_amount']); ?></td>
+                                        <td>
+                                            <a href="jev_form.php?jev_no=<?php echo urlencode($row['jev_no']); ?>"
+                                                class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top"
+                                                title="View Details">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    <?php while ($row = mysqli_fetch_assoc($select)) { ?>
-                                        <tr>
-                                            <td>
-                                                <?php
-                                                $date = new DateTime($row['date']);
-                                                echo htmlspecialchars($date->format('F j, Y'));
-                                                ?>
-                                            </td>
-                                            <td><?php echo htmlspecialchars($row['jev_no']); ?></td>
-                                            <td><?php echo htmlspecialchars($row['payee_name']); ?></td>
-                                            <td><?php echo htmlspecialchars($row['total_amount']); ?></td>
-                                            <td>
-                                                <a href="jev_form.php?jev_no=<?php echo urlencode($row['jev_no']); ?>"
-                                                    class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top"
-                                                    title="View Details">
-                                                    <i class="bi bi-eye"></i>
-                                                </a>
-
-                                            </td>
-                                        </tr>
-                                    <?php } ?>
-                                </tbody>
-                            </table>
-
-                        </div>
+                                <?php } ?>
+                            </tbody>
+                        </table>
                     </div>
-                </div>
     </main>
 
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center">

@@ -246,7 +246,6 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
 
         <div class="content-wrapper">
             <div class="form-container">
-                <h2 class="form-title">Disbursement Voucher</h2>
 
                 <div class="tab-content">
                     <div class="card">

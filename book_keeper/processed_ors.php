@@ -168,13 +168,6 @@ if ($ors_result->num_rows === 0) {
         <div class="pagetitle d-flex justify-content-between align-items-center">
             <div>
                 <h1 class="mb-0">Processed ORS Records</h1>
-                <nav>
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index.php">Dashboard</a></li>
-                        <li class="breadcrumb-item">Book Keeper</li>
-                        <li class="breadcrumb-item active">Processed ORS</li>
-                    </ol>
-                </nav>
             </div>
             <button class="btn btn-primary" onclick="window.location.href='ors.php'">
                 <i class="bi bi-plus-circle"></i> Create New ORS
