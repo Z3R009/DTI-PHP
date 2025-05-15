@@ -2,7 +2,7 @@
 <header id="header" class="header fixed-top d-flex align-items-center">
     <div class="d-flex align-items-center justify-content-between">
         <a href="dashboard.php" class="logo d-flex align-items-center">
-            <img src="../img/DTI_short.png" alt="DTI Logo">
+               <img src="../img/dti_logo.png" alt="DTI Logo">
             <span class="d-none d-lg-block fw-bold">DTI Region 12</span>
         </a>
         <i class="bi bi-list toggle-sidebar-btn"></i>
@@ -85,13 +85,10 @@
 
             <li class="nav-item dropdown pe-3">
                 <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-                    <img src="../img/dti_logo.png" alt="Profile" class="rounded-circle">
                     <span class="d-none d-md-block dropdown-toggle ps-2">Book Keeper</span>
                 </a><!-- End Profile Image Icon -->
 
                 <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
-                   
-             
                     <li>
                         <a class="dropdown-item d-flex align-items-center" href="#">
                             <i class="bi bi-gear"></i>
@@ -101,10 +98,6 @@
                     <li>
                         <hr class="dropdown-divider">
                     </li>
-
-                  
-                  
-
                     <li>
                         <a class="dropdown-item d-flex align-items-center" href="../logout.php">
                             <i class="bi bi-box-arrow-right"></i>
@@ -116,3 +109,23 @@
         </ul>
     </nav><!-- End Icons Navigation -->
 </header><!-- End Header -->
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Bootstrap dropdowns
+        var dropdownElementList = [].slice.call(document.querySelectorAll('[data-bs-toggle="dropdown"]'))
+        var dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
+            return new bootstrap.Dropdown(dropdownToggleEl)
+        })
+        
+        // Make sure toggle-sidebar-btn works
+        const toggleSidebarBtn = document.querySelector('.toggle-sidebar-btn');
+        if (toggleSidebarBtn) {
+            toggleSidebarBtn.addEventListener('click', function() {
+                document.body.classList.toggle('toggle-sidebar');
+            });
+        }
+    });
+</script>
+
+ 

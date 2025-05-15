@@ -174,6 +174,13 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
         .datatable-top .datatable-search {
             display: none !important;
         }
+        .modal-header{
+              background-color: #03045e;
+        }
+        .modal-title{
+              color: #fff;
+        }
+        
     </style>
 
 </head>
@@ -194,7 +201,7 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h5 class="card-title"></h5>
-                        <button type="button" class="btn btn-primary rounded-pill" data-bs-toggle="modal"
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                             data-bs-target="#addUserModal">Add Payee</button>
                     </div>
 
@@ -490,10 +497,6 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
     <script src="../NiceAdmin/assets/vendor/tinymce/tinymce.min.js"></script>
     <script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
 
-
-
-    <!-- Template Main JS File -->
-    <script src="../NiceAdmin/assets/js/main.js"></script>
 
     <!-- Direct search implementation -->
     <script>

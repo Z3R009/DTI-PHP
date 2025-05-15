@@ -679,8 +679,6 @@ $select = mysqli_query($connection, "
     <script src="../NiceAdmin/assets/vendor/tinymce/tinymce.min.js"></script>
     <script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
 
-    <!-- Template Main JS File -->
-    <script src="../NiceAdmin/assets/js/main.js"></script>
 
 </body>
 

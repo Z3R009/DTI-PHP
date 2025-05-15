@@ -114,7 +114,7 @@ $select = mysqli_query($connection, "SELECT * FROM oopap");
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h5 class="card-title mb-0"></h5>
-                        <button type="button" class="btn btn-primary rounded-pill" data-bs-toggle="modal"
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                             data-bs-target="#addUserModal">
                             <i class="bi bi-plus-circle me-1"></i>Add OO/PAP</button>
                     </div>
@@ -241,15 +241,6 @@ $select = mysqli_query($connection, "SELECT * FROM oopap");
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
             class="bi bi-arrow-up-short"></i></a>
 
-    <script src="../NiceAdmin/assets/vendor/apexcharts/apexcharts.min.js"></script>
-    <script src="../NiceAdmin/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="../NiceAdmin/assets/vendor/chart.js/chart.umd.js"></script>
-    <script src="../NiceAdmin/assets/vendor/echarts/echarts.min.js"></script>
-    <script src="../NiceAdmin/assets/vendor/quill/quill.js"></script>
-    <script src="../NiceAdmin/assets/vendor/simple-datatables/simple-datatables.js"></script>
-    <script src="../NiceAdmin/assets/vendor/tinymce/tinymce.min.js"></script>
-    <script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
-    <script src="../NiceAdmin/assets/js/main.js"></script>
 
     <?php echo $alert; ?>
 
