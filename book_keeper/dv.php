@@ -1212,23 +1212,15 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
 
                     newRow.innerHTML = `
                         <td colspan="2">
-                            <select class="form-control account-select" name="account_titles[]">
+                            <select class="form-control account-select" name="account_titles[]" required>
                                 <option selected disabled value="">Select Account</option>
-                                <?php
-                                $accountCodes = ['2020101000'];
-                                $cash_account_query = "SELECT * FROM account_title WHERE account_code IN ('2020101000') ORDER BY account_title ASC";
-                                $cash_account_result = $connection->query($cash_account_query);
-                                while ($account = $cash_account_result->fetch_assoc()) {
-                                    echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
-                                }
-                                ?>
+                                ${accountOptions}
                             </select>
                         </td>
-                        <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01" readonly></td>
-                        <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01" value="${creditAmount.toFixed(2)}" readonly></td>
+                        <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
+                        <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01"></td>
                         <td><button type="button" class="btn btn-danger btn-sm delete-row"><i class="bi bi-trash"></i></button></td>
                     `;
-
                     tableBody.appendChild(newRow);
                     setupAccountSelect(newRow);
                     setupCalculationListeners(newRow);
@@ -1313,7 +1305,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                     }
                 }
 
-                // Checkbox handler
+                // Checkbox handler for 'Include Tax' (match dv_multiple_ors.php)
                 checkbox.addEventListener('change', function () {
                     removeTaxRows(); // Always clean before adding
 
@@ -1331,7 +1323,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                     calculateTotals();
                 });
 
-                // Add event listener for tax changes
+                // Add event listener for tax changes (VAT and tax1/tax2)
                 applyTaxesCheckbox.addEventListener('change', function () {
                     setTimeout(() => {
                         if (checkbox.checked) {
@@ -1361,6 +1353,27 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                     setupAccountSelect(row);
                     setupCalculationListeners(row);
                 });
+
+                // Add Row button event listener (ensure this is after the helpers are defined)
+                if (addRowButton) {
+                    addRowButton.addEventListener('click', function () {
+                        const newRow = document.createElement('tr');
+                        newRow.innerHTML = `
+                <td colspan="2">
+                    <select class="form-control account-select" name="account_titles[]" required>
+                        <option selected disabled value="">Select Account</option>
+                                    ${accountOptions}
+                    </select>
+                </td>
+                <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
+                <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01"></td>
+                <td><button type="button" class="btn btn-danger btn-sm delete-row"><i class="bi bi-trash"></i></button></td>
+            `;
+                        tableBody.appendChild(newRow);
+                        setupAccountSelect(newRow);
+                        setupCalculationListeners(newRow);
+                    });
+                }
             });
         </script>
 
@@ -1687,29 +1700,13 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
 
                     newRow.innerHTML = `
         <td colspan="2">
-           
-
-            <select class="form-control account-select"
-                                  name="account_titles[]">
-                                <option selected disabled value ="">Select Account
-                            </option>
-                            <?php
-                            // Define the specific account codes we want to show
-                            $accountCodes = ['2020101000'];
-
-                            // Query only the specific cash accounts
-                            $cash_account_query = "SELECT * FROM account_title WHERE account_code IN ('2020101000') ORDER BY account_title ASC";
-                            $cash_account_result = $connection->query($cash_account_query);
-
-                            while ($account = $cash_account_result->fetch_assoc()) {
-                                echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
-                            }
-                            ?>
+                            <select class="form-control account-select" name="account_titles[]" required>
+                                <option selected disabled value="">Select Account</option>
+                                ${accountOptions}
                                     </select>
-
         </td>
-        <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01" readonly></td>
-        <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01" value="${creditAmount.toFixed(2)}" readonly></td>
+                        <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
+                        <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01"></td>
         <td><button type="button" class="btn btn-danger btn-sm delete-row"><i class="bi bi-trash"></i></button></td>
     `;
                     tableBody.appendChild(newRow);
