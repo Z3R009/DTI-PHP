@@ -761,6 +761,26 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                     document.getElementById('date').valueAsDate = new Date();
                                 }
 
+                                // --- Set main account and amount in the first row ---
+                                const tableBody = document.getElementById('accountingTableBody');
+                                const firstRow = tableBody.querySelector('tr');
+                                if (firstRow) {
+                                    const accountSelect = firstRow.querySelector('.account-select');
+                                    const debitInput = firstRow.querySelector('.debit-amount');
+                                    if (accountSelect && debitInput) {
+                                        // Set the account selection
+                                        accountSelect.value = data.account_id;
+                                        if (window.$ && window.jQuery) {
+                                            $(accountSelect).val(data.account_id).trigger('change');
+                                        }
+                                        // Set the amount and make it readonly
+                                        debitInput.value = data.total_amount;
+                                        debitInput.readOnly = true;
+                                        debitInput.style.backgroundColor = "#f0f0f0";
+                                    }
+                                }
+                                // --- End set main account ---
+
                                 // Show modal
                                 openModal();
 
@@ -1164,28 +1184,104 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
         <!-- add row and calculate totals -->
         <script>
             document.addEventListener('DOMContentLoaded', function () {
+                const tax1Input = document.getElementById('tax_1');
+                const tax2Input = document.getElementById('tax_2');
                 const tableBody = document.getElementById('accountingTableBody');
+                const checkbox = document.getElementById('selectAll');
+                const applyTaxesCheckbox = document.getElementById('apply_taxes');
+                const addRowButton = document.getElementById('addAccountRow');
+
+                // Utility: Create select options from PHP
+                const accountOptions = `<?php
+                $account_result->data_seek(0);
+                while ($account = $account_result->fetch_assoc()) {
+                    echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
+                }
+                ?>`;
+
+                // Helper to remove previously added tax rows
+                function removeTaxRows() {
+                    const rows = tableBody.querySelectorAll('tr[data-tax="true"]');
+                    rows.forEach(row => row.remove());
+                }
+
+                // Function to add tax credit rows
+                function addRowWithCredit(creditAmount, label = '', accountId = '') {
+                    const newRow = document.createElement('tr');
+                    newRow.setAttribute('data-tax', 'true');
+
+                    newRow.innerHTML = `
+                        <td colspan="2">
+                            <select class="form-control account-select" name="account_titles[]">
+                                <option selected disabled value="">Select Account</option>
+                                <?php
+                                $accountCodes = ['2020101000'];
+                                $cash_account_query = "SELECT * FROM account_title WHERE account_code IN ('2020101000') ORDER BY account_title ASC";
+                                $cash_account_result = $connection->query($cash_account_query);
+                                while ($account = $cash_account_result->fetch_assoc()) {
+                                    echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
+                                }
+                                ?>
+                            </select>
+                        </td>
+                        <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01" readonly></td>
+                        <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01" value="${creditAmount.toFixed(2)}" readonly></td>
+                        <td><button type="button" class="btn btn-danger btn-sm delete-row"><i class="bi bi-trash"></i></button></td>
+                    `;
+
+                    tableBody.appendChild(newRow);
+                    setupAccountSelect(newRow);
+                    setupCalculationListeners(newRow);
+                }
 
                 // Function to setup account select with Select2
                 function setupAccountSelect(row) {
                     const accountSelect = row.querySelector('.account-select');
-                    const uacsInput = row.querySelector('.uacs-code');
+                    if (window.$ && accountSelect) {
+                        $(accountSelect).select2({
+                            theme: 'bootstrap-5',
+                            width: '100%',
+                            placeholder: 'Select Account',
+                            allowClear: true
+                        });
+                    }
+                }
 
-                    // Initialize Select2
-                    $(accountSelect).select2({
-                        theme: 'bootstrap-5',
-                        width: '100%',
-                        placeholder: 'Select Account',
-                        allowClear: true
-                    });
+                // Function to setup calculation listeners for a row
+                function setupCalculationListeners(row) {
+                    const debitInput = row.querySelector('.debit-amount');
+                    const creditInput = row.querySelector('.credit-amount');
+                    const deleteButton = row.querySelector('.delete-row');
 
-                    // Update UACS code when selection changes
-                    $(accountSelect).on('change', function () {
-                        const selectedOption = $(this).find('option:selected');
-                        if (uacsInput) {
-                            uacsInput.value = selectedOption.data('uacs') || '';
-                        }
-                    });
+                    if (debitInput) {
+                        debitInput.addEventListener('input', function () {
+                            if (this.value && parseFloat(this.value) > 0) {
+                                creditInput.value = ''; // Clear credit when debit has value
+                            }
+                            calculateTotals();
+                        });
+                    }
+
+                    if (creditInput) {
+                        creditInput.addEventListener('input', function () {
+                            if (this.value && parseFloat(this.value) > 0) {
+                                debitInput.value = ''; // Clear debit when credit has value
+                            }
+                            calculateTotals();
+                        });
+                    }
+
+                    if (deleteButton) {
+                        deleteButton.addEventListener('click', function () {
+                            // Don't delete if it's the only row in tbody
+                            if (tableBody.querySelectorAll('tr').length > 1) {
+                                row.remove();
+                                calculateTotals();
+                            } else {
+                                alert("Cannot delete the last row. At least one account entry is required.");
+                            }
+                        });
+                    }
                 }
 
                 // Function to calculate totals
@@ -1217,131 +1313,53 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                     }
                 }
 
-                // Function to filter account titles
-                function filterAccountTitles(select, selectedType) {
-                    const currentValue = $(select).val();
+                // Checkbox handler
+                checkbox.addEventListener('change', function () {
+                    removeTaxRows(); // Always clean before adding
 
-                    // Get all options
-                    const options = $(select).find('option');
+                    if (this.checked) {
+                        const tax1Amount = parseFloat(tax1Input.value) || 0;
+                        const tax2Amount = parseFloat(tax2Input.value) || 0;
 
-                    // Filter options based on selected type
-                    options.each(function () {
-                        if ($(this).val() === "") return; // Skip the "Select Account" option
-
-                        const accountTitle = $(this).data('title')?.toLowerCase() || '';
-                        const accountCode = $(this).data('uacs') || '';
-
-                        if (selectedType === "cash_advance") {
-                            $(this).toggle(accountTitle.includes('advance'));
-                        } else if (selectedType === "transfer_fund") {
-                            $(this).toggle(accountTitle.includes('cash') && accountCode.startsWith('10'));
-                        } else {
-                            $(this).show();
+                        if (tax1Amount > 0) {
+                            addRowWithCredit(tax1Amount, 'Tax 1');
                         }
-                    });
-
-                    // Restore selection if it's still valid
-                    if (currentValue && $(select).find(`option[value="${currentValue}"]`).length) {
-                        $(select).val(currentValue).trigger('change');
-                    } else {
-                        $(select).val(null).trigger('change');
+                        if (tax2Amount > 0) {
+                            addRowWithCredit(tax2Amount, 'Tax 2');
+                        }
                     }
-                }
-
-                // Add event listener for the "Add Row" button
-                document.getElementById('addAccountRow').addEventListener('click', function () {
-                    const newRow = document.createElement('tr');
-                    newRow.innerHTML = `
-                <td colspan="2">
-                    <select class="form-control account-select" name="account_titles[]" required>
-                        <option selected disabled value="">Select Account</option>
-                        <?php
-                        $account_result->data_seek(0);
-                        while ($account = $account_result->fetch_assoc()) {
-                            echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
-                        }
-                        ?>
-                    </select>
-                </td>
-                <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
-                <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01"></td>
-                <td><button type="button" class="btn btn-danger btn-sm delete-row"><i class="bi bi-trash"></i></button></td>
-            `;
-
-                    tableBody.appendChild(newRow);
-                    setupAccountSelect(newRow);
-                    setupCalculationListeners(newRow);
-
-                    // Filter account titles for the new row
-                    const orsTypeSelect = document.getElementById("ors_type");
-                    const accountSelect = newRow.querySelector('.account-select');
-                    filterAccountTitles(accountSelect, orsTypeSelect.value);
+                    calculateTotals();
                 });
 
-                // Function to setup calculation listeners for a row
-                function setupCalculationListeners(row) {
-                    const debitInput = row.querySelector('.debit-amount');
-                    const creditInput = row.querySelector('.credit-amount');
-                    const deleteButton = row.querySelector('.delete-row');
-
-                    debitInput.addEventListener('input', function () {
-                        if (this.value && parseFloat(this.value) > 0) {
-                            creditInput.value = ''; // Clear credit when debit has value
+                // Add event listener for tax changes
+                applyTaxesCheckbox.addEventListener('change', function () {
+                    setTimeout(() => {
+                        if (checkbox.checked) {
+                            checkbox.click(); // Uncheck
+                            checkbox.click(); // Check again to refresh tax rows
                         }
-                        calculateTotals();
-                    });
-
-                    creditInput.addEventListener('input', function () {
-                        if (this.value && parseFloat(this.value) > 0) {
-                            debitInput.value = ''; // Clear debit when credit has value
-                        }
-                        calculateTotals();
-                    });
-
-                    if (deleteButton) {
-                        deleteButton.addEventListener('click', function () {
-                            // Don't delete if it's the only row in tbody
-                            if (tableBody.querySelectorAll('tr').length > 1) {
-                                row.remove();
-                                calculateTotals();
-                            } else {
-                                alert("Cannot delete the last row. At least one account entry is required.");
-                            }
-                        });
-                    }
-                }
-
-                // Setup initial row
-                const initialRow = tableBody.querySelector('tr');
-                setupAccountSelect(initialRow);
-                setupCalculationListeners(initialRow);
-
-                // Add event listener for DV type changes
-                document.getElementById('ors_type').addEventListener('change', function () {
-                    const selectedType = this.value;
-                    const accountSelects = document.querySelectorAll('.account-select');
-                    accountSelects.forEach(select => {
-                        filterAccountTitles(select, selectedType);
-                    });
+                    }, 100);
                 });
 
-                // Initialize Select2 on existing account selects when the page loads
-                document.addEventListener('DOMContentLoaded', function () {
-                    // Initialize Select2 on all existing account selects
-                    $('.account-select').each(function () {
-                        $(this).select2({
-                            theme: 'bootstrap-5',
-                            width: '100%',
-                            placeholder: 'Select Account',
-                            allowClear: true
-                        });
-                    });
+                tax1Input.addEventListener('input', function () {
+                    if (checkbox.checked) {
+                        checkbox.click(); // Uncheck
+                        checkbox.click(); // Check again to refresh tax rows
+                    }
+                });
 
-                    // Setup calculation listeners for existing rows
-                    const existingRows = document.querySelectorAll('tbody tr');
-                    existingRows.forEach(row => {
-                        setupCalculationListeners(row);
-                    });
+                tax2Input.addEventListener('input', function () {
+                    if (checkbox.checked) {
+                        checkbox.click(); // Uncheck
+                        checkbox.click(); // Check again to refresh tax rows
+                    }
+                });
+
+                // Setup initial rows
+                const initialRows = tableBody.querySelectorAll('tr');
+                initialRows.forEach(row => {
+                    setupAccountSelect(row);
+                    setupCalculationListeners(row);
                 });
             });
         </script>
