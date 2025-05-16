@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 14, 2025 at 04:35 AM
+-- Generation Time: May 16, 2025 at 04:49 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -335,27 +335,27 @@ INSERT INTO `draft_project` (`draft_id`, `account_id`, `payee`, `cash_allotment`
 
 CREATE TABLE `dv` (
   `dv_id` int(11) NOT NULL,
-  `date` date DEFAULT NULL,
+  `date` date NOT NULL,
   `ors_id` int(255) NOT NULL,
-  `account_id` int(11) NOT NULL,
-  `dv_no` varchar(50) DEFAULT NULL,
-  `vat` double(40,2) DEFAULT NULL,
+  `account_id` int(255) NOT NULL,
+  `dv_no` varchar(255) NOT NULL,
+  `vat` double(40,2) NOT NULL,
   `vat_amount` double(40,2) NOT NULL,
   `tax_base` double(40,2) NOT NULL,
-  `tax_1` double(40,2) DEFAULT NULL,
+  `tax_1` double(40,2) NOT NULL,
   `tax_1_amount` double(40,2) NOT NULL,
-  `tax_2` double(40,2) DEFAULT NULL,
+  `tax_2` double(40,2) NOT NULL,
   `tax_2_amount` double(40,2) NOT NULL,
-  `net_amount` double(40,2) DEFAULT NULL,
+  `net_amount` double(40,2) NOT NULL,
   `total_amount` double(40,2) NOT NULL,
-  `chief_accountant` varchar(255) DEFAULT NULL,
-  `regional_director` varchar(255) DEFAULT NULL,
+  `chief_accountant` varchar(255) NOT NULL,
+  `regional_director` varchar(255) NOT NULL,
   `status` enum('Pending','Endorsed') NOT NULL,
-  `endorsement_date` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `endorsement_remarks` varchar(123) NOT NULL,
-  `check_no` varchar(123) NOT NULL,
-  `ada_no` varchar(123) NOT NULL,
-  `payment_type` varchar(123) NOT NULL
+  `endorsement_date` datetime DEFAULT NULL,
+  `endorsement_remarks` varchar(255) DEFAULT NULL,
+  `check_no` varchar(255) DEFAULT NULL,
+  `ada_no` varchar(255) DEFAULT NULL,
+  `payment_type` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -364,7 +364,10 @@ CREATE TABLE `dv` (
 
 INSERT INTO `dv` (`dv_id`, `date`, `ors_id`, `account_id`, `dv_no`, `vat`, `vat_amount`, `tax_base`, `tax_1`, `tax_1_amount`, `tax_2`, `tax_2_amount`, `net_amount`, `total_amount`, `chief_accountant`, `regional_director`, `status`, `endorsement_date`, `endorsement_remarks`, `check_no`, `ada_no`, `payment_type`) VALUES
 (107, '2025-05-05', 157, 1, '1-25-05-001', 12.00, 0.00, 11548.65, 0.00, 0.00, 0.00, 0.00, 11548.65, 11548.65, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', 'Endorsed', '2025-05-05 07:47:10', '', '', '', ''),
-(108, '2025-02-04', 119, 1, '1-25-02-002', 12.00, 0.00, 1200.00, 0.00, 0.00, 0.00, 0.00, 1200.00, 1200.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', 'Pending', '2025-05-05 09:28:33', '', '', '', '');
+(110, '2025-01-07', 116, 1, '1-25-01-002', 12.00, 1998.21, 16651.79, 5.00, 832.59, 2.00, 333.04, 17484.38, 18650.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', 'Pending', NULL, NULL, NULL, NULL, NULL),
+(111, '2025-05-16', 120, 1, '1-25-05-002', 12.00, 0.00, 30776.40, 0.00, 0.00, 0.00, 0.00, 30776.40, 30776.40, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', 'Pending', NULL, NULL, NULL, NULL, NULL),
+(112, '2025-05-16', 132, 1, '1-25-05-003', 12.00, 332.14, 2767.86, 5.00, 138.39, 2.00, 55.36, 2906.25, 3100.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', 'Pending', NULL, NULL, NULL, NULL, NULL),
+(113, '2025-05-16', 183, 1, '1-25-05-004', 12.00, 1060.30, 8835.79, 5.00, 441.79, 2.00, 176.72, 9277.58, 9896.09, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', 'Pending', NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -389,8 +392,49 @@ INSERT INTO `dv_history` (`dvhis_id`, `dv_id`, `account_id`, `type`, `amount`) V
 (112, 107, 280, 'credit', 200.00),
 (113, 107, 281, 'credit', 609.52),
 (114, 107, 382, 'credit', 10739.13),
-(115, 108, 311, 'debit', 1200.00),
-(116, 108, 382, 'credit', 1200.00);
+(120, 110, 342, 'debit', 3650.00),
+(121, 110, 342, 'debit', 15000.00),
+(122, 110, 278, 'credit', 832.59),
+(123, 110, 278, 'credit', 333.04),
+(124, 110, 397, 'credit', 17484.37),
+(125, 111, 328, 'debit', 19061.51),
+(126, 111, 328, 'debit', 11714.89),
+(127, 111, 382, 'credit', 30776.40),
+(128, 112, 325, 'debit', 100.00),
+(129, 112, 355, 'debit', 3000.00),
+(130, 112, 278, 'credit', 138.39),
+(131, 112, 278, 'credit', 55.36),
+(132, 113, 355, 'debit', 5294.09),
+(133, 113, 325, 'debit', 4602.00),
+(134, 113, 278, 'credit', 441.79),
+(135, 113, 278, 'credit', 176.72),
+(136, 113, 382, 'credit', 9277.58);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `dv_multiple_ors`
+--
+
+CREATE TABLE `dv_multiple_ors` (
+  `id` int(11) NOT NULL,
+  `dv_id` int(11) NOT NULL,
+  `ors_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `dv_multiple_ors`
+--
+
+INSERT INTO `dv_multiple_ors` (`id`, `dv_id`, `ors_id`) VALUES
+(3, 110, 116),
+(4, 110, 118),
+(5, 111, 120),
+(6, 111, 123),
+(7, 112, 132),
+(8, 112, 141),
+(9, 113, 183),
+(10, 113, 186);
 
 -- --------------------------------------------------------
 
@@ -435,6 +479,18 @@ CREATE TABLE `dv_non_ors_entry` (
   `account_id` int(11) NOT NULL,
   `type` enum('debit','credit') NOT NULL,
   `amount` double(40,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `dv_ors`
+--
+
+CREATE TABLE `dv_ors` (
+  `dv_ors_id` int(11) NOT NULL,
+  `dv_id` int(11) NOT NULL,
+  `ors_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -858,20 +914,20 @@ INSERT INTO `ors` (`ors_id`, `fund_cluster_id`, `services_id`, `date`, `ors_no`,
 (113, 3, 11, '2025-01-09', 'ADMINPOLICY-25-01-001', 26, 'Meals for Hinugyaw Festival Civic Military Parade on January 10, 2025', 'To Payment of', 1, 342, 1, 2550.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
 (114, 3, 11, '2025-01-14', 'ADMINPOLICY-25-01-002', 27, 'Meals during COA Entrance Conference', 'To Payment of', 1, 342, 1, 25000.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
 (115, 3, 11, '2025-01-15', 'ADMINPOLICY-25-01-003', 28, 'Meals for DTI 12 Staff during Bloodletting Activity of BJMP 12.', 'To Payment of', 1, 342, 1, 3100.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
-(116, 3, 11, '2025-01-22', 'ADMINPOLICY-25-01-004', 29, 'Meals for free Vaccine Drive of IPHO South Cotabato', 'To Payment of', 1, 342, 1, 3650.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(116, 3, 11, '2025-01-22', 'ADMINPOLICY-25-01-004', 29, 'Meals for free Vaccine Drive of IPHO South Cotabato', 'To Payment of', 1, 342, 1, 3650.00, 1, 'CONNIE M. BARNACHEA', 'Endorsed'),
 (117, 3, 11, '2025-01-22', 'ADMINPOLICY-25-01-005', 30, 'OTOP for Vaccine Drive of IPHO South Cotabato', 'To Payment of', 1, 342, 1, 1900.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
-(118, 3, 11, '2025-01-28', 'ADMINPOLICY-25-01-006', 29, 'Meals during AFMD QMS Strategic Planning on Jan 24, 2025', 'To Payment of', 1, 342, 1, 15000.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(118, 3, 11, '2025-01-28', 'ADMINPOLICY-25-01-006', 29, 'Meals during AFMD QMS Strategic Planning on Jan 24, 2025', 'To Payment of', 1, 342, 1, 15000.00, 1, 'CONNIE M. BARNACHEA', 'Endorsed'),
 (119, 3, 23, '2025-02-04', 'SSF-25-02-001', 39, 'Attendance to Choir Performance and SSF Monitoring on Jan 30-31, 2025', 'To Disburse', 9, 311, 7, 1200.00, 3, 'CONNIE M. BARNACHEA', 'Endorsed'),
-(120, 3, 23, '2025-02-05', 'SSF-25-02-002', 39, 'Payment of Salary for January 6-31, 2025', 'To Payment of', 9, 328, 7, 19061.51, 3, 'CONNIE M. BARNACHEA', 'Pending'),
-(121, 3, 23, '2025-02-10', 'SSF-25-02-003', 39, 'Reimbursement of meals during 2025 WFP Review on Feb 7, 2025', 'To Disburse', 9, 342, 7, 912.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
-(122, 3, 23, '2025-02-17', 'SSF-25-02-004', 39, 'Attendance to SSF Project Monitoring in Sarangani and GenSan on Feb 12-13, 2025', 'To Disburse', 9, 311, 7, 1200.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
-(123, 3, 23, '2025-02-18', 'SSF-25-02-005', 39, 'Payment of Salary for February 1-15, 2025', 'To Payment of', 9, 328, 7, 11714.89, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(120, 3, 23, '2025-02-05', 'SSF-25-02-002', 39, 'Payment of Salary for January 6-31, 2025', 'To Payment of', 9, 328, 7, 19061.51, 3, 'CONNIE M. BARNACHEA', 'Endorsed'),
+(121, 3, 23, '2025-02-10', 'SSF-25-02-003', 39, 'Reimbursement of meals during 2025 WFP Review on Feb 7, 2025', 'To Disburse', 9, 342, 7, 912.00, 3, 'CONNIE M. BARNACHEA', 'Endorsed'),
+(122, 3, 23, '2025-02-17', 'SSF-25-02-004', 39, 'Attendance to SSF Project Monitoring in Sarangani and GenSan on Feb 12-13, 2025', 'To Disburse', 9, 311, 7, 1200.00, 3, 'CONNIE M. BARNACHEA', 'Endorsed'),
+(123, 3, 23, '2025-02-18', 'SSF-25-02-005', 39, 'Payment of Salary for February 1-15, 2025', 'To Payment of', 9, 328, 7, 11714.89, 3, 'CONNIE M. BARNACHEA', 'Endorsed'),
 (124, 3, 23, '2025-02-19', 'SSF-25-02-006', 40, 'Transfer of Fund for SSF Project for 1st quarter 2025', 'To Transfer', 9, 311, 7, 54000.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
 (127, 3, 23, '2025-02-19', 'SSF-25-02-007', 41, 'Transfer of Fund for SSF Project for 1st quarter 2025', 'To Transfer', 9, 311, 7, 32000.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
 (128, 3, 23, '2025-02-19', 'SSF-25-02-008', 42, 'Transfer of Fund for SSF Project for 1st quarter 2025', 'To Transfer', 9, 311, 7, 16948.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
 (129, 3, 23, '2025-02-19', 'SSF-25-02-009', 43, 'Transfer of Fund for SSF Project for 1st quarter 2025', 'To Transfer', 9, 311, 7, 22550.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
 (130, 3, 23, '2025-02-20', 'SSF-25-02-010', 44, 'Attendance to various SSF Monitoring', 'To Disburse', 9, 311, 7, 1800.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
-(132, 3, 23, '2025-02-27', 'SSF-25-02-011', 32, 'Replenishment of PCF - Notary of contract', 'To Disburse', 9, 325, 7, 100.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(132, 3, 23, '2025-02-27', 'SSF-25-02-011', 32, 'Replenishment of PCF - Notary of contract', 'To Disburse', 9, 325, 7, 100.00, 3, 'CONNIE M. BARNACHEA', 'Endorsed'),
 (133, 3, 23, '2025-03-04', 'SSF-25-03-012', 39, 'Payment of Salary for February 16-28, 2025', 'To Payment of', 9, 328, 7, 11493.24, 3, 'CONNIE M. BARNACHEA', 'Pending'),
 (134, 3, 23, '2025-03-07', 'SSF-25-03-013', 45, 'Transfer of Fund for SSF Project for 1st quarter 2025', 'To Transfer', 9, 311, 7, 99000.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
 (135, 3, 23, '2025-03-11', 'SSF-25-03-014', 39, 'Attendance to SSF Project Monitoring in Cotabato Mar 5-7, 2025', 'To Disburse', 9, 311, 7, 3450.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
@@ -880,7 +936,7 @@ INSERT INTO `ors` (`ors_id`, `fund_cluster_id`, `services_id`, `date`, `ors_no`,
 (138, 3, 23, '2025-03-13', 'SSF-25-03-017', 29, 'Snacks for Reproductive Health Seminar on Mar 24, 2025', 'To Payment of', 9, 342, 7, 12950.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
 (139, 3, 23, '2025-03-13', 'SSF-25-03-018', 39, 'Payment of Salary for March 1-15, 2025', 'To Payment of', 9, 328, 7, 8623.39, 3, 'CONNIE M. BARNACHEA', 'Pending'),
 (140, 3, 23, '2025-03-24', 'SSF-25-03-019', 47, 'Attendance to SSF Project Monitoring in Cotabato Mar 5-7, 2025', 'To Disburse', 9, 311, 7, 3450.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
-(141, 3, 23, '2025-03-25', 'SSF-25-03-020', 32, 'Replenishment of PCF - SSF Monitoring', 'To Disburse', 9, 355, 7, 3000.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(141, 3, 23, '2025-03-25', 'SSF-25-03-020', 32, 'Replenishment of PCF - SSF Monitoring', 'To Disburse', 9, 355, 7, 3000.00, 3, 'CONNIE M. BARNACHEA', 'Endorsed'),
 (142, 3, 23, '2025-03-28', 'SSF-25-03-021', 39, 'Attendance to SSF Project Monitoring in Sultan Kudarat on Mar 19-31, 2025', 'To Disburse', 9, 311, 7, 4600.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
 (143, 3, 23, '2025-03-28', 'SSF-25-03-022', 44, 'Attendance to SSF Project Monitoring in Sultan Kudarat on Mar 19-31, 2025', 'To Disburse', 9, 311, 7, 4600.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
 (144, 3, 23, '2025-04-04', 'SSF-25-04-023', 39, 'Payment of Salary for March 16-31, 2025', 'To Payment of', 9, 328, 7, 9927.87, 3, 'CONNIE M. BARNACHEA', 'Pending'),
@@ -920,10 +976,10 @@ INSERT INTO `ors` (`ors_id`, `fund_cluster_id`, `services_id`, `date`, `ors_no`,
 (180, 3, 2, '2025-02-18', 'RM-25-02-021', 37, 'Reimbursement of Telephone Expenses - Mobile for 12/27/24 to 1/26/25', 'To Disburse', 1, 357, 1, 1299.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
 (181, 3, 2, '2025-02-18', 'RM-25-02-022', 60, 'Reimbursement of mobile expense for 12/16/24 to 1/15/25', 'To Disburse', 1, 357, 1, 1499.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
 (182, 3, 2, '2025-02-20', 'RM-25-02-023', 63, 'Payment of Water for the period of Jan 2025', 'To Payment of', 1, 318, 1, 1650.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
-(183, 3, 2, '2025-02-21', 'RM-25-02-024', 32, 'Replenishment of PCF - Staff servicing', 'To Disburse', 1, 355, 1, 5294.09, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(183, 3, 2, '2025-02-21', 'RM-25-02-024', 32, 'Replenishment of PCF - Staff servicing', 'To Disburse', 1, 355, 1, 5294.09, 1, 'CONNIE M. BARNACHEA', 'Endorsed'),
 (184, 3, 2, '2025-02-21', 'RM-25-02-025', 64, 'Maintenance of Honda City', 'To Payment of', 1, 333, 1, 9825.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
 (185, 3, 2, '2025-02-26', 'RM-25-02-026', 56, 'Payment of Internet Expenses for February 2025', 'To Payment of', 1, 322, 1, 47936.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
-(186, 3, 2, '2025-02-27', 'RM-25-02-027', 32, 'Replenishment of PCF - Bank charges, taxes, laundry', 'To Disburse', 1, 325, 1, 4602.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
+(186, 3, 2, '2025-02-27', 'RM-25-02-027', 32, 'Replenishment of PCF - Bank charges, taxes, laundry', 'To Disburse', 1, 325, 1, 4602.00, 1, 'CONNIE M. BARNACHEA', 'Endorsed'),
 (187, 3, 2, '2025-02-27', 'RM-25-02-028', 65, 'CA of travel to pick up Tamaraw Utility Van at DTI Head Office', 'To Cash Advance', 1, 311, 1, 8150.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
 (188, 3, 2, '2025-03-10', 'RM-25-03-029', 50, 'Payment of Postage Services for Feb 1-28, 2025', 'To Payment of', 1, 320, 1, 1609.00, 1, 'CONNIE M. BARNACHEA', 'Pending'),
 (189, 3, 2, '2025-03-11', 'RM-25-03-030', 66, 'GPC - Plane Ticket to pick-up utility vehicle (VILLAREAL, ROBLES)', 'To Payment of', 1, 311, 1, 14690.64, 1, 'CONNIE M. BARNACHEA', 'Pending'),
@@ -1667,6 +1723,14 @@ ALTER TABLE `dv_history`
   ADD KEY `account_id` (`account_id`);
 
 --
+-- Indexes for table `dv_multiple_ors`
+--
+ALTER TABLE `dv_multiple_ors`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `dv_id` (`dv_id`),
+  ADD KEY `ors_id` (`ors_id`);
+
+--
 -- Indexes for table `dv_non_ors`
 --
 ALTER TABLE `dv_non_ors`
@@ -1844,13 +1908,19 @@ ALTER TABLE `draft_project`
 -- AUTO_INCREMENT for table `dv`
 --
 ALTER TABLE `dv`
-  MODIFY `dv_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=109;
+  MODIFY `dv_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=114;
 
 --
 -- AUTO_INCREMENT for table `dv_history`
 --
 ALTER TABLE `dv_history`
-  MODIFY `dvhis_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=117;
+  MODIFY `dvhis_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=137;
+
+--
+-- AUTO_INCREMENT for table `dv_multiple_ors`
+--
+ALTER TABLE `dv_multiple_ors`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `dv_non_ors`
@@ -1984,6 +2054,13 @@ ALTER TABLE `dv`
 ALTER TABLE `dv_history`
   ADD CONSTRAINT `dv_history_ibfk_1` FOREIGN KEY (`dv_id`) REFERENCES `dv` (`dv_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `dv_history_ibfk_2` FOREIGN KEY (`account_id`) REFERENCES `account_title` (`account_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `dv_multiple_ors`
+--
+ALTER TABLE `dv_multiple_ors`
+  ADD CONSTRAINT `dv_multiple_ors_ibfk_1` FOREIGN KEY (`dv_id`) REFERENCES `dv` (`dv_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `dv_multiple_ors_ibfk_2` FOREIGN KEY (`ors_id`) REFERENCES `ors` (`ors_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `dv_non_ors`

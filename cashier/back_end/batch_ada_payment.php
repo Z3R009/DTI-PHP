@@ -459,7 +459,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_batch_ada'])) {
                         $mark_processed_stmt->execute();
                     } else {
                         // The processed column doesn't exist yet, log this condition
-                        error_log("Cannot mark merged payees as processed: 'processed' column does not exist in merged_payees table");
+                        error_log("");
                     }
                 }
                 

@@ -1,66 +1,104 @@
-<!-- ======= Header ======= -->
 <header id="header" class="header fixed-top d-flex align-items-center">
     <div class="d-flex align-items-center justify-content-between">
         <a href="dashboard.php" class="logo d-flex align-items-center">
-            <img src="../img/DTI_short.png" alt="DTI Logo">
+               <img src="../img/dti_logo.png" alt="DTI Logo">
             <span class="d-none d-lg-block fw-bold">DTI Region 12</span>
         </a>
         <i class="bi bi-list toggle-sidebar-btn"></i>
-    </div><!-- End Logo -->
+    </div>
 
+    <!-- search dapat unod ani -->
     <div class="search-bar ms-auto me-4 d-none d-md-flex">
-        <!-- <form class="search-form d-flex align-items-center" method="POST" action="#">
-            <input type="text" name="query" placeholder="Search" title="Enter search keyword">
-            <button type="submit" title="Search"><i class="bi bi-search"></i></button>
-        </form> -->
-    </div><!-- End Search Bar -->
+    </div>
 
     <nav class="header-nav">
         <ul class="d-flex align-items-center">
-            <li class="nav-item d-block d-md-none">
-                <a class="nav-link nav-icon search-bar-toggle" href="#">
-                    <i class="bi bi-search"></i>
-                </a>
-            </li><!-- End Search Icon-->
-
-            <nav class="header-nav">
-            <ul class="d-flex align-items-center">
-                <li class="nav-item d-block d-md-none">
-                    <a class="nav-link nav-icon search-bar-toggle" href="#">
-                        <i class="bi bi-search"></i>
-                    </a>
-                </li>
-
+          
+        <!-- change password -->
             <li class="nav-item dropdown pe-3">
-                <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-                    <img src="../img/DTI_short.png" alt="Profile" class="rounded-circle">
-                    <span class="d-none d-md-block dropdown-toggle ps-2">Budget Officer</span>
-                </a><!-- End Profile Image Icon -->
-        
-
-                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
-                    
-                    <li>
-                        <a class="dropdown-item d-flex align-items-center" href="settings.php">
-                            <i class="bi bi-gear"></i>
-                            <span>Change Password</span>
-                        </a>
-                    </li>
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
-
-                  
-                  
-
-                    <li>
-                        <a class="dropdown-item d-flex align-items-center" href="../logout.php">
-                            <i class="bi bi-box-arrow-right"></i>
-                            <span>Sign Out</span>
-                        </a>
-                    </li>
-                </ul><!-- End Profile Dropdown Items -->
-            </li><!-- End Profile Nav -->
+               <a class="dropdown-item d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                            <i class="bi bi-gear fs-4"></i>
+              </a>
+            </li>
+            <!-- logout -->
+           <li class="nav-item dropdown pe-3">
+                <a class="dropdown-item d-flex align-items-center" href="../logout.php">
+                      <i class="bi bi-box-arrow-right text-danger fs-4 me-2"></i>
+                 </a>
+            </li> 
         </ul>
-    </nav><!-- End Icons Navigation -->
-</header><!-- End Header -->
+    </nav>
+</header>
+
+<!-- Change Password Modal -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="changePasswordForm">
+                    <div class="mb-3">
+                        <label for="currentPassword" class="form-label">Current Password</label>
+                        <input type="password" class="form-control" id="currentPassword" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="newPassword" class="form-label">New Password</label>
+                        <input type="password" class="form-control" id="newPassword" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                        <input type="password" class="form-control" id="confirmPassword" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="changePasswordForm" class="btn btn-primary">Change Password</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize all modals
+    var modals = document.querySelectorAll('.modal');
+    modals.forEach(function(modal) {
+        new bootstrap.Modal(modal, {
+            backdrop: 'static',
+            keyboard: false
+        });
+    });
+
+    // Add click event listener to the gear icon
+    var gearIcon = document.querySelector('.bi-gear').parentElement;
+    gearIcon.addEventListener('click', function(e) {
+        e.preventDefault();
+        var changePasswordModal = new bootstrap.Modal(document.getElementById('changePasswordModal'), {
+            backdrop: 'static',
+            keyboard: false
+        });
+        changePasswordModal.show();
+    });
+
+    // Handle modal hidden event
+    var changePasswordModal = document.getElementById('changePasswordModal');
+    changePasswordModal.addEventListener('hidden.bs.modal', function () {
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+        var backdrop = document.querySelector('.modal-backdrop');
+        if (backdrop) {
+            backdrop.remove();
+        }
+    });
+});
+</script>
+
+
+ 
