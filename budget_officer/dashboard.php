@@ -149,7 +149,7 @@ $recent_transactions = getRecentTransactions($connection, 5);
     <meta content="" name="keywords">
 
     <!-- Favicons -->
-    <link href="img/dti_logo.png" rel="icon">
+    <link href="../book_keeper/img/dti_logo.png" rel="icon">
     <link href="../NiceAdmin/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
     <!-- Google Fonts -->
@@ -179,12 +179,7 @@ $recent_transactions = getRecentTransactions($connection, 5);
     <main id="main" class="main">
         <div class="pagetitle">
             <h1>Dashboard</h1>
-            <nav>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                    <li class="breadcrumb-item active">Dashboard</li>
-                </ol>
-            </nav>
+         
         </div>
 
         <section class="section dashboard">
