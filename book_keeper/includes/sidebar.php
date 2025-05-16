@@ -1,21 +1,4 @@
-<style>
-    .sidebar {
-        margin-top: 60px;
-    }
-</style>
-
-<!-- ======= Sidebar ======= -->
 <aside id="sidebar" class="sidebar">
-    <!-- <div class="user-profile text-center mb-4">
-        <div class="avatar mb-2">
-            <img src="../img/dti_logo.png " alt="Profile" class="rounded-circle"
-                style="width: 80px; height: 80px; object-fit: cover; border: 3px solid rgba(0, 121, 107, 0.2);">
-        </div>
-        <h5 class="text-white fw-bold mb-0">Book Keeper</h5>
-        <p class="text-white small">Department of Trade & Industry</p>
-    </div> -->
-
-
     <ul class="sidebar-nav" id="sidebar-nav">
 
         <li class="nav-item">
@@ -131,7 +114,7 @@
     .sidebar {
         position: fixed;
         top: 0;
-        left: 0;
+         margin-top: 60px;
         bottom: 0;
         width: 280px;
         z-index: 996;
@@ -141,6 +124,7 @@
         background: #fff;
         box-shadow: 0 0 20px rgba(1, 41, 112, 0.1);
     }
+   
 
     .sidebar::-webkit-scrollbar {
         width: 5px;
@@ -234,16 +218,13 @@
         border-top: 1px solid #ccc;
         height: 0;
     }
-    
-    /* Additional styling for nav item dividers */
     .nav-divider {
         height: 1px;
         background-color: #dee2e6;
         margin: 8px 0;
         width: 100%;
     }
-    
-    /* Custom styling for permanently expanded dropdown */
+
     .sidebar-nav .nav-content.show {
         display: block;
         padding-left: 20px;
@@ -302,16 +283,11 @@
                 }
             }
         });
-        
-        // Initialize the toggle sidebar button
         const toggleSidebarBtn = document.querySelector('.toggle-sidebar-btn');
         if (toggleSidebarBtn) {
             toggleSidebarBtn.addEventListener('click', function() {
                 document.body.classList.toggle('toggle-sidebar');
             });
         }
-        
-        // We don't need the collapsible functionality anymore since both menus are always expanded
-        // But we'll keep the script for any future dropdowns you might add
     });
 </script>
