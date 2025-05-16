@@ -335,27 +335,37 @@ INSERT INTO `draft_project` (`draft_id`, `account_id`, `payee`, `cash_allotment`
 
 CREATE TABLE `dv` (
   `dv_id` int(11) NOT NULL,
-  `date` date DEFAULT NULL,
+  `date` date NOT NULL,
   `ors_id` int(255) NOT NULL,
-  `account_id` int(11) NOT NULL,
-  `dv_no` varchar(50) DEFAULT NULL,
-  `vat` double(40,2) DEFAULT NULL,
+  `account_id` int(255) NOT NULL,
+  `dv_no` varchar(255) NOT NULL,
+  `vat` double(40,2) NOT NULL,
   `vat_amount` double(40,2) NOT NULL,
   `tax_base` double(40,2) NOT NULL,
-  `tax_1` double(40,2) DEFAULT NULL,
+  `tax_1` double(40,2) NOT NULL,
   `tax_1_amount` double(40,2) NOT NULL,
-  `tax_2` double(40,2) DEFAULT NULL,
+  `tax_2` double(40,2) NOT NULL,
   `tax_2_amount` double(40,2) NOT NULL,
-  `net_amount` double(40,2) DEFAULT NULL,
+  `net_amount` double(40,2) NOT NULL,
   `total_amount` double(40,2) NOT NULL,
-  `chief_accountant` varchar(255) DEFAULT NULL,
-  `regional_director` varchar(255) DEFAULT NULL,
+  `chief_accountant` varchar(255) NOT NULL,
+  `regional_director` varchar(255) NOT NULL,
   `status` enum('Pending','Endorsed') NOT NULL,
-  `endorsement_date` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `endorsement_remarks` varchar(123) NOT NULL,
-  `check_no` varchar(123) NOT NULL,
-  `ada_no` varchar(123) NOT NULL,
-  `payment_type` varchar(123) NOT NULL
+  `endorsement_date` datetime DEFAULT NULL,
+  `endorsement_remarks` varchar(255) DEFAULT NULL,
+  `check_no` varchar(255) DEFAULT NULL,
+  `ada_no` varchar(255) DEFAULT NULL,
+  `payment_type` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Table structure for table `dv_ors`
+--
+
+CREATE TABLE `dv_ors` (
+  `dv_ors_id` int(11) NOT NULL,
+  `dv_id` int(11) NOT NULL,
+  `ors_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -2054,6 +2064,49 @@ ALTER TABLE `project`
 --
 ALTER TABLE `services`
   ADD CONSTRAINT `services_ibfk_1` FOREIGN KEY (`oopap_id`) REFERENCES `oopap` (`oopap_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Table structure for table `dv_multiple_ors`
+--
+
+CREATE TABLE `dv_multiple_ors` (
+  `id` int(11) NOT NULL,
+  `dv_id` int(11) NOT NULL,
+  `ors_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `dv_multiple_ors`
+--
+ALTER TABLE `dv_multiple_ors`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `dv_id` (`dv_id`),
+  ADD KEY `ors_id` (`ors_id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `dv_multiple_ors`
+--
+ALTER TABLE `dv_multiple_ors`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `dv_multiple_ors`
+--
+ALTER TABLE `dv_multiple_ors`
+  ADD CONSTRAINT `dv_multiple_ors_ibfk_1` FOREIGN KEY (`dv_id`) REFERENCES `dv` (`dv_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `dv_multiple_ors_ibfk_2` FOREIGN KEY (`ors_id`) REFERENCES `ors` (`ors_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

@@ -68,6 +68,20 @@ while ($account = $accounts_result->fetch_assoc()) {
 }
 $accounts_stmt->close();
 
+// Fetch all related ORS numbers for this DV (for multiple ORS DVs)
+$ors_numbers = [];
+$ors_query = "SELECT o.ors_no FROM dv_multiple_ors dmo JOIN ors o ON dmo.ors_id = o.ors_id WHERE dmo.dv_id = ?";
+$ors_stmt = $connection->prepare($ors_query);
+if ($ors_stmt) {
+    $ors_stmt->bind_param("i", $dv_form['dv_id']);
+    $ors_stmt->execute();
+    $ors_result = $ors_stmt->get_result();
+    while ($row = $ors_result->fetch_assoc()) {
+        $ors_numbers[] = $row['ors_no'];
+    }
+    $ors_stmt->close();
+}
+
 // Prepare SQL query to fetch ORS record using ors_id
 // Prepare SQL query to fetch ORS record and join with the Approver table
 $query2 = "
@@ -626,7 +640,15 @@ function numberToWords($number)
                     <p>Tin Employee No.: <?php echo $ors_form['tin_no']; ?></p>
                 </td>
                 <td colspan="2">
-                    <p>ORS/URS No.: <?php echo $ors_form['ors_no']; ?></p>
+                    <p>ORS/URS No.: 
+                        <?php 
+                        if (!empty($ors_numbers)) {
+                            echo htmlspecialchars(implode(', ', $ors_numbers));
+                        } else {
+                            echo isset($ors_form['ors_no']) ? htmlspecialchars($ors_form['ors_no']) : '&nbsp;';
+                        }
+                        ?>
+                    </p>
                 </td>
             </tr>
 

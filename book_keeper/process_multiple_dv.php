@@ -8,7 +8,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Get form data
         $date = $_POST['date'];
         $dv_no = $_POST['dv_no'];
-        $fund_cluster = $_POST['fund_cluster'];
         $total_amount = $_POST['total_amount'];
         $vat = $_POST['vat'] ?? 0;
         $vat_amount = $_POST['vat_amount'] ?? 0;
@@ -25,9 +24,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $credit_amounts = $_POST['credit_amounts'];
         $ors_ids = json_decode($_POST['ors_ids']);
 
+        // Use the first ORS ID as the main ORS ID for the DV
+        $ors_id = $ors_ids[0];
+        $account_id = 1; // Default account ID
+
         // Insert into dv table
-        $sql = "INSERT INTO dv (date, dv_no, fund_cluster, total_amount, vat, vat_amount, tax_base, tax_1, tax_1_amount, tax_2, tax_2_amount, net_amount, chief_accountant, regional_director) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO dv (date, dv_no, ors_id, account_id, total_amount, vat, vat_amount, tax_base, tax_1, tax_1_amount, tax_2, tax_2_amount, net_amount, chief_accountant, regional_director, status) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending')";
 
         $stmt = $connection->prepare($sql);
         if ($stmt === false) {
@@ -35,10 +38,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $stmt->bind_param(
-            "sssddddddddss",
+            "ssiiddddddddsss",
             $date,
             $dv_no,
-            $fund_cluster,
+            $ors_id,
+            $account_id,
             $total_amount,
             $vat,
             $vat_amount,
@@ -59,18 +63,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $dv_id = $connection->insert_id;
         $stmt->close();
 
-        // Insert into dv_ors table to link DV with ORS entries
-        $link_sql = "INSERT INTO dv_ors (dv_id, ors_id) VALUES (?, ?)";
-        $link_stmt = $connection->prepare($link_sql);
-        if ($link_stmt === false) {
-            throw new Exception('Prepare failed (DV-ORS link): ' . htmlspecialchars($connection->error));
-        }
-
+        // Link DV with ORS entries using dv_multiple_ors table
         foreach ($ors_ids as $ors_id) {
+            // Insert into dv_multiple_ors table
+            $link_sql = "INSERT INTO dv_multiple_ors (dv_id, ors_id) VALUES (?, ?)";
+            $link_stmt = $connection->prepare($link_sql);
+            if ($link_stmt === false) {
+                throw new Exception('Prepare failed (DV-ORS link): ' . htmlspecialchars($connection->error));
+            }
+
             $link_stmt->bind_param("ii", $dv_id, $ors_id);
             if (!$link_stmt->execute()) {
                 throw new Exception("Error linking DV with ORS: " . $link_stmt->error);
             }
+            $link_stmt->close();
 
             // Update ORS status
             $update_sql = "UPDATE ors SET status = 'Endorsed' WHERE ors_id = ?";
@@ -84,7 +90,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             $update_stmt->close();
         }
-        $link_stmt->close();
 
         // Insert accounting entries
         for ($i = 0; $i < count($account_titles); $i++) {

@@ -182,6 +182,35 @@ $dv_no = $fund_cluster . '-' . date('Y') . '-' . str_pad($next_number, 4, '0', S
             background-color: #0d6efd;
             border-color: #0d6efd;
         }
+
+        .ors-numbers-container {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+        }
+
+        .ors-number-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .ors-number-item:last-child {
+            border-bottom: none;
+        }
+
+        .ors-number {
+            font-weight: 600;
+            color: #0d6efd;
+        }
+
+        .ors-date {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
     </style>
 
 </head>
@@ -219,6 +248,21 @@ $dv_no = $fund_cluster . '-' . date('Y') . '-' . str_pad($next_number, 4, '0', S
                                 <label class="form-label">DV No.</label>
                                 <input type="text" class="form-control" id="dv_no" name="dv_no"
                                     value="<?php echo htmlspecialchars($dv_no); ?>" readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3><i class="bi bi-file-earmark-text me-2"></i>Related ORS Information</h3>
+                        <div class="form-group">
+                            <label class="form-label">ORS Numbers</label>
+                            <div class="ors-numbers-container">
+                                <?php foreach ($ors_details as $ors): ?>
+                                    <div class="ors-number-item">
+                                        <span class="ors-number"><?php echo htmlspecialchars($ors['ors_no']); ?></span>
+                                        <span class="ors-date"><?php echo date('F j, Y', strtotime($ors['date'])); ?></span>
+                                    </div>
+                                <?php endforeach; ?>
                             </div>
                         </div>
                     </div>
