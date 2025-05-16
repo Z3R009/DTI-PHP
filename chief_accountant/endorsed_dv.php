@@ -31,7 +31,7 @@ if ($column_exists) {
     <meta content="" name="description">
     <meta content="" name="keywords">
 
-    <link href="../NiceAdmin/assets/img/favicon.png" rel="icon">
+    <link href="../book_keeper/img/dti_logo.png" rel="icon">
     <link href="../NiceAdmin/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
     <link href="https://fonts.gstatic.com" rel="preconnect">
@@ -319,12 +319,7 @@ if ($column_exists) {
  <main id="main" class="main">
  <div class="pagetitle">
         <h1>Endorsed Disbursement Vouchers</h1>
-        <nav>
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                <li class="breadcrumb-item active">Endorsed Disbursement Vouchers</li>
-            </ol>
-        </nav>
+     
     </div>
 <div class="container-fluid">
     <div class="row">

@@ -353,8 +353,68 @@ $total_processed = mysqli_num_rows($processed_result);
                                                             $dvs_count = $dvs_result->num_rows;
                                                             ?>
                                                             
-                                                           
-                                                                  
+                                                            <div class="table-responsive">
+                                                                <table class="table table-hover mb-0">
+                                                                    <thead class="table-light">
+                                                                        <tr>
+                                                                            <th>DV No</th>
+                                                                            <th>Payee</th>
+                                                                            <th>Reference No</th>
+                                                                            <th>Payment Date</th>
+                                                                            <th class="text-end">Amount</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        <?php if ($dvs_count > 0): ?>
+                                                                        <?php while ($dv = $dvs_result->fetch_assoc()): ?>
+                                                                        <tr>
+                                                                            <td>
+                                                                                <span class="badge bg-light text-dark border">
+                                                                                    <i class="bi bi-file-earmark-text-fill me-1 text-primary"></i>
+                                                                                    <?php echo $dv['dv_no']; ?>
+                                                                                </span>
+                                                                            </td>
+                                                                            <td><?php echo htmlspecialchars($dv['payee_name']); ?></td>
+                                                                            <td>
+                                                                                <?php if (!empty($dv['reference_no'])): ?>
+                                                                                <span class="badge bg-light text-primary border">
+                                                                                    <i class="bi bi-hash me-1"></i>
+                                                                                    <?php echo $dv['reference_no']; ?>
+                                                                                </span>
+                                                                                <?php else: ?>
+                                                                                <span class="text-muted">N/A</span>
+                                                                                <?php endif; ?>
+                                                                            </td>
+                                                                            <td>
+                                                                                <?php if (!empty($dv['payment_date'])): ?>
+                                                                                <span class="badge bg-success-subtle text-success rounded-pill">
+                                                                                    <i class="bi bi-calendar-check me-1"></i>
+                                                                                    <?php echo date('M d, Y', strtotime($dv['payment_date'])); ?>
+                                                                                </span>
+                                                                                <?php else: ?>
+                                                                                <span class="badge bg-secondary-subtle text-secondary rounded-pill">Not processed</span>
+                                                                                <?php endif; ?>
+                                                                            </td>
+                                                                            <td class="text-end text-success fw-medium">₱<?php echo number_format($dv['net_amount'], 2); ?></td>
+                                                                        </tr>
+                                                                        <?php endwhile; ?>
+                                                                        <tr class="table-light fw-bold">
+                                                                            <td colspan="4" class="text-end">Total Amount:</td>
+                                                                            <td class="text-end text-success fs-5">₱<?php echo number_format($row['total_amount'], 2); ?></td>
+                                                                        </tr>
+                                                                        <?php else: ?>
+                                                                        <tr>
+                                                                            <td colspan="5" class="text-center py-4">
+                                                                                <div class="d-flex flex-column align-items-center">
+                                                                                    <i class="bi bi-inbox fs-1 text-muted mb-2"></i>
+                                                                                    <p class="mb-0">No DVs found for this merged group.</p>
+                                                                                </div>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <?php endif; ?>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>

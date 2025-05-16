@@ -44,9 +44,7 @@ if (!$table_exists || $table_exists->num_rows == 0) {
             echo "Error adding 'processed' column: " . $connection->error . "\n";
         }
     } else {
-        echo "The 'processed' column already exists in the merged_payees table.\n";
+        echo "";
     }
 }
-
-// No need to close the connection here as other scripts may still need it
 ?> 
