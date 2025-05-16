@@ -1,5 +1,8 @@
 <?php
 include '../DBConnection.php';
+
+$alert = "";
+
 if (isset($_POST['submit'])) {
     $account_title = $_POST['account_title'];
     $account_code = $_POST['account_code'];
@@ -253,7 +256,8 @@ $select = mysqli_query($connection, "SELECT * FROM account_title $where ORDER BY
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
             class="bi bi-arrow-up-short"></i></a>
 
-  
+    <?php include "includes/common_scripts.php"; ?>
+
     <?php echo $alert; ?>
 
     <script>

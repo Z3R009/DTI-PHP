@@ -623,10 +623,10 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                                             </option>
                                                             <?php
                                                             // Define the specific account codes we want to show
-                                                            $cashAccountCodes = ['1010404000', '1010405000', '1010406000'];
+                                                            $accountCodes = ['2020101000'];
 
                                                             // Query only the specific cash accounts
-                                                            $cash_account_query = "SELECT * FROM account_title WHERE account_code IN ('1010404000', '1010405000', '1010406000') ORDER BY account_title ASC";
+                                                            $cash_account_query = "SELECT * FROM account_title WHERE account_code IN ('2020101000') ORDER BY account_title ASC";
                                                             $cash_account_result = $connection->query($cash_account_query);
 
                                                             while ($account = $cash_account_result->fetch_assoc()) {
@@ -638,7 +638,8 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                                     <td><input type="number" class="form-control debit-amount"
                                                             name="debit_amounts[]" step="0.01" readonly></td>
                                                     <td><input type="number" class="form-control credit-amount"
-                                                            name="credit_amounts[]" step="0.01" readonly></td>
+                                                            name="credit_amounts[]" step="0.01"
+                                                            value="${creditAmount.toFixed(2)}" readonly></td>
                                                     <td><button type="button"
                                                             class="btn btn-danger btn-sm delete-row"><i
                                                                 class="bi bi-trash"></i></button></td>
@@ -761,26 +762,6 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                     document.getElementById('date').valueAsDate = new Date();
                                 }
 
-                                // --- Set main account and amount in the first row ---
-                                const tableBody = document.getElementById('accountingTableBody');
-                                const firstRow = tableBody.querySelector('tr');
-                                if (firstRow) {
-                                    const accountSelect = firstRow.querySelector('.account-select');
-                                    const debitInput = firstRow.querySelector('.debit-amount');
-                                    if (accountSelect && debitInput) {
-                                        // Set the account selection
-                                        accountSelect.value = data.account_id;
-                                        if (window.$ && window.jQuery) {
-                                            $(accountSelect).val(data.account_id).trigger('change');
-                                        }
-                                        // Set the amount and make it readonly
-                                        debitInput.value = data.total_amount;
-                                        debitInput.readOnly = true;
-                                        debitInput.style.backgroundColor = "#f0f0f0";
-                                    }
-                                }
-                                // --- End set main account ---
-
                                 // Show modal
                                 openModal();
 
@@ -839,52 +820,6 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                     });
                 }
             });
-
-            // Add loading spinner styles
-            //     const style = document.createElement('style');
-            //     style.textContent = `
-            //     body.loading::after {
-            //         content: '';
-            //         position: fixed;
-            //         top: 0;
-            //         left: 0;
-            //         width: 100%;
-            //         height: 100%;
-            //         background: rgba(0, 0, 0, 0.3);
-            //         backdrop-filter: blur(3px);
-            //         z-index: 8000;
-            //     }
-
-            //     body.loading::before {
-            //         content: '';
-            //         position: fixed;
-            //         top: 50%;
-            //         left: 50%;
-            //         width: 50px;
-            //         height: 50px;
-            //         margin-top: -25px;
-            //         margin-left: -25px;
-            //         border-radius: 50%;
-            //         border: 3px solid rgba(255, 255, 255, 0.3);
-            //         border-top-color: #0077b6;
-            //         animation: spin 1s ease-in-out infinite;
-            //         z-index: 9000;
-            //     }
-
-            //     @keyframes spin {
-            //         to { transform: rotate(360deg); }
-            //     }
-
-            //     .modal {
-            //         transition: opacity 0.3s ease;
-            //         opacity: 0;
-            //     }
-
-            //     .modal.show {
-            //         opacity: 1;
-            //     }
-            // `;
-            // document.head.appendChild(style);
         </script>
 
         <!-- tax calculation -->
@@ -1212,15 +1147,27 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
 
                     newRow.innerHTML = `
                         <td colspan="2">
-                            <select class="form-control account-select" name="account_titles[]" required>
+                            <select class="form-control account-select" name="account_titles[]">
                                 <option selected disabled value="">Select Account</option>
-                                ${accountOptions}
+                                <?php
+                                // Define the specific account codes we want to show
+                                $accountCodes = ['2020101000'];
+
+                                // Query only the specific cash accounts
+                                $cash_account_query = "SELECT * FROM account_title WHERE account_code IN ('2020101000') ORDER BY account_title ASC";
+                                $cash_account_result = $connection->query($cash_account_query);
+
+                                while ($account = $cash_account_result->fetch_assoc()) {
+                                    echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
+                                }
+                                ?>
                             </select>
                         </td>
-                        <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
-                        <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01"></td>
+                        <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01" readonly></td>
+                        <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01" value="${creditAmount.toFixed(2)}" readonly></td>
                         <td><button type="button" class="btn btn-danger btn-sm delete-row"><i class="bi bi-trash"></i></button></td>
                     `;
+
                     tableBody.appendChild(newRow);
                     setupAccountSelect(newRow);
                     setupCalculationListeners(newRow);
@@ -1305,7 +1252,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                     }
                 }
 
-                // Checkbox handler for 'Include Tax' (match dv_multiple_ors.php)
+                // Checkbox handler for 'Include Tax'
                 checkbox.addEventListener('change', function () {
                     removeTaxRows(); // Always clean before adding
 
@@ -1313,11 +1260,14 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                         const tax1Amount = parseFloat(tax1Input.value) || 0;
                         const tax2Amount = parseFloat(tax2Input.value) || 0;
 
+                        // Only add 5% tax row if it has a value
                         if (tax1Amount > 0) {
-                            addRowWithCredit(tax1Amount, 'Tax 1');
+                            addRowWithCredit(tax1Amount, '5% Tax');
                         }
+
+                        // Only add 2% tax row if it has a value
                         if (tax2Amount > 0) {
-                            addRowWithCredit(tax2Amount, 'Tax 2');
+                            addRowWithCredit(tax2Amount, '2% Tax');
                         }
                     }
                     calculateTotals();
@@ -1354,21 +1304,21 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                     setupCalculationListeners(row);
                 });
 
-                // Add Row button event listener (ensure this is after the helpers are defined)
+                // Add Row button event listener
                 if (addRowButton) {
                     addRowButton.addEventListener('click', function () {
                         const newRow = document.createElement('tr');
                         newRow.innerHTML = `
-                <td colspan="2">
-                    <select class="form-control account-select" name="account_titles[]" required>
-                        <option selected disabled value="">Select Account</option>
+                            <td colspan="2">
+                                <select class="form-control account-select" name="account_titles[]" required>
+                                    <option selected disabled value="">Select Account</option>
                                     ${accountOptions}
-                    </select>
-                </td>
-                <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
-                <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01"></td>
-                <td><button type="button" class="btn btn-danger btn-sm delete-row"><i class="bi bi-trash"></i></button></td>
-            `;
+                                </select>
+                            </td>
+                            <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
+                            <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01"></td>
+                            <td><button type="button" class="btn btn-danger btn-sm delete-row"><i class="bi bi-trash"></i></button></td>
+                        `;
                         tableBody.appendChild(newRow);
                         setupAccountSelect(newRow);
                         setupCalculationListeners(newRow);
@@ -1700,13 +1650,29 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
 
                     newRow.innerHTML = `
         <td colspan="2">
-                            <select class="form-control account-select" name="account_titles[]" required>
-                                <option selected disabled value="">Select Account</option>
-                                ${accountOptions}
+           
+
+            <select class="form-control account-select"
+                                  name="account_titles[]">
+                                <option selected disabled value ="">Select Account
+                            </option>
+                            <?php
+                            // Define the specific account codes we want to show
+                            $accountCodes = ['2020101000'];
+
+                            // Query only the specific cash accounts
+                            $cash_account_query = "SELECT * FROM account_title WHERE account_code IN ('2020101000') ORDER BY account_title ASC";
+                            $cash_account_result = $connection->query($cash_account_query);
+
+                            while ($account = $cash_account_result->fetch_assoc()) {
+                                echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
+                            }
+                            ?>
                                     </select>
+
         </td>
-                        <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
-                        <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01"></td>
+        <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01" readonly></td>
+        <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01" value="${creditAmount.toFixed(2)}" readonly></td>
         <td><button type="button" class="btn btn-danger btn-sm delete-row"><i class="bi bi-trash"></i></button></td>
     `;
                     tableBody.appendChild(newRow);
@@ -1731,6 +1697,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                 });
             });
         </script>
+
 
         <!-- confirmation -->
         <script>

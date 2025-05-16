@@ -70,7 +70,8 @@ $accounts_stmt->close();
 
 // Fetch all related ORS numbers for this DV (for multiple ORS DVs)
 $ors_numbers = [];
-$ors_query = "SELECT o.ors_no FROM dv_multiple_ors dmo JOIN ors o ON dmo.ors_id = o.ors_id WHERE dmo.dv_id = ?";
+$ors_notes = [];
+$ors_query = "SELECT o.ors_no, o.notes FROM dv_multiple_ors dmo JOIN ors o ON dmo.ors_id = o.ors_id WHERE dmo.dv_id = ?";
 $ors_stmt = $connection->prepare($ors_query);
 if ($ors_stmt) {
     $ors_stmt->bind_param("i", $dv_form['dv_id']);
@@ -78,6 +79,9 @@ if ($ors_stmt) {
     $ors_result = $ors_stmt->get_result();
     while ($row = $ors_result->fetch_assoc()) {
         $ors_numbers[] = $row['ors_no'];
+        if (!empty($row['notes'])) {
+            $ors_notes[] = $row['ors_no'] . ': ' . $row['notes'];
+        }
     }
     $ors_stmt->close();
 }
@@ -666,7 +670,15 @@ function numberToWords($number)
 
             <tr>
                 <td colspan="3">
-                    <p style="text-align: center;"><b><?php echo $ors_form['notes']; ?></b></p>
+                    <p style="text-align: center;"><b>
+                        <?php 
+                        if (!empty($ors_notes)) {
+                            echo nl2br(htmlspecialchars(implode("\n", $ors_notes)));
+                        } else {
+                            echo htmlspecialchars($ors_form['notes'] ?? '');
+                        }
+                        ?>
+                    </b></p>
 
                     <div class="amount-section">
                         <div class="amount-row">
