@@ -234,10 +234,12 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
         <div class="pagetitle d-flex align-items-center">
             <h1 class="mb-0">Disbursement Voucher</h1>
             <div class="ms-auto">
-                <button class="btn btn-primary" onclick="window.location.href='dv.php'">
+                <button class="btn btn-primary" onclick="window.location.href='dv.php'"> <i
+                        class="bi bi-list-check me-1"></i>
                     DV Form
                 </button>
-                <button class="btn btn-primary" onclick="window.location.href='dv_w-out.php'">
+                <button class="btn btn-primary" onclick="window.location.href='dv_w-out.php'"> <i
+                        class="bi bi-file-earmark-plus me-1"></i>
                     DV Form without ORS
                 </button>
             </div>

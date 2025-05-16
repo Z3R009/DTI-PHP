@@ -63,7 +63,8 @@ $select = mysqli_query($connection, "
 
             <!-- Buttons Container with right alignment -->
             <div class="ms-auto">
-                <button class="btn btn-primary" onclick="window.location.href='jev.php'">
+                <button class="btn btn-primary" onclick="window.location.href='jev.php'"> <i
+                        class="bi bi-file-earmark-plus me-1"></i>
                     JEV Form
                 </button>
             </div>
