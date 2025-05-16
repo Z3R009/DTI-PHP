@@ -157,7 +157,7 @@ WHERE dv.status = 'Pending'
     <meta content="" name="keywords">
 
     <!-- Favicons -->
-    <link href="../NiceAdmin/assets/img/favicon.png" rel="icon">
+       <link href="img/dti_logo.png" rel="icon">
     <link href="../NiceAdmin/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
     <!-- Google Fonts -->
@@ -254,82 +254,93 @@ WHERE dv.status = 'Pending'
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="jevModalLabel">Journal Entry Voucher</h5>
-                    <button type="button" class="btn-close" id="closeDvModal" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="" method="post" id="jevForm">
-                        <div class="row mb-3">
-                            <div class="col-md-4">
-                                <label for="fund_cluster" class="form-label">Fund Cluster</label>
-                                <input type="text" class="form-control" id="fund_cluster" name="fund_cluster">
-                            </div>
-                            <div class="col-md-4">
-                                <label for="date" class="form-label">Date</label>
-                                <input type="date" class="form-control" id="date" name="date">
-                            </div>
-                            <div class="col-md-4">
-                                <label for="jev_no" class="form-label">JEV No.</label>
-                                <input type="text" class="form-control" name="jev_no" id="jev_no" autocomplete="off">
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="ors_no" class="form-label">ORS No.</label>
-                                <input type="text" class="form-control" id="ors_no" name="ors_no" readonly>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="dv_no" class="form-label">DV No.</label>
-                                <input type="text" class="form-control" id="dv_no" name="dv_no" readonly>
-                            </div>
-                        </div>
-
-                        <!-- Payee Details Section -->
-                        <div class="mb-4">
-                            <h5 class="border-bottom pb-2 mb-3">Payee Details</h5>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <label for="payee_name" class="form-label">Payee Name</label>
-                                    <input type="text" class="form-control" id="payee_name" readonly>
+                    <!-- Form Template -->
+                    <div id="jevFormTemplate" style="display: none;">
+                        <form action="" method="post" id="jevForm">
+                            <input type="hidden" name="submit" value="1">
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <label for="fund_cluster" class="form-label">Fund Cluster</label>
+                                    <input type="text" class="form-control" id="fund_cluster" name="fund_cluster" readonly>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="date" class="form-label">Date</label>
+                                    <input type="date" class="form-control" id="date" name="date" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="jev_no" class="form-label">JEV No.</label>
+                                    <input type="text" class="form-control" name="jev_no" id="jev_no" readonly>
                                 </div>
                             </div>
-                        </div>
-
-                        <!-- Accounting Entries Table -->
-                        <div class="table-responsive mb-4">
-                            <table class="table table-bordered">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Account Name</th>
-                                        <th>UACS Object Code</th>
-                                        <th>Debit</th>
-                                        <th>Credit</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- Table content will be dynamically populated -->
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="administrative_aide" class="form-label">Administrative Aide</label>
-                                <select class="form-select" name="administrative_aide" id="administrative_aide">
-                                    <option>JINNARD B. LUBATON</option>
-                                </select>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="ors_no" class="form-label">ORS No.</label>
+                                    <input type="text" class="form-control" id="ors_no" name="ors_no" readonly>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="dv_no" class="form-label">DV No.</label>
+                                    <input type="text" class="form-control" id="dv_no" name="dv_no" readonly>
+                                </div>
                             </div>
-                            <div class="col-md-6">
-                                <label for="accountant" class="form-label">Accountant III</label>
-                                <select class="form-select" name="accountant" id="accountant">
-                                    <option>NEIL ANTHONY T. MORALA</option>
-                                </select>
+
+                            <!-- Payee Details Section -->
+                            <div class="mb-4">
+                                <h5 class="border-bottom pb-2 mb-3">Payee Details</h5>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <label for="payee_name" class="form-label">Payee Name</label>
+                                        <input type="text" class="form-control" id="payee_name" readonly>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </form>
+
+                            <!-- Accounting Entries Table -->
+                            <div class="table-responsive mb-4">
+                                <table class="table table-bordered" id="accountsTable">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Account Name</th>
+                                            <th>UACS Object Code</th>
+                                            <th>Debit</th>
+                                            <th>Credit</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Table content will be dynamically populated -->
+                                    </tbody>
+                                    <tfoot>
+                                        <tr class="table-active">
+                                            <td colspan="2" class="text-end fw-bold">TOTAL</td>
+                                            <td class="text-end fw-bold" id="totalDebit">0.00</td>
+                                            <td class="text-end fw-bold" id="totalCredit">0.00</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="administrative_aide" class="form-label">Administrative Aide</label>
+                                    <select class="form-select" name="administrative_aide" id="administrative_aide" required>
+                                        <option value="JINNARD B. LUBATON">JINNARD B. LUBATON</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="accountant" class="form-label">Accountant III</label>
+                                    <select class="form-select" name="accountant" id="accountant" required>
+                                        <option value="NEIL ANTHONY T. MORALA">NEIL ANTHONY T. MORALA</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary" name="submit" form="jevForm">Print</button>
+                    <button type="submit" class="btn btn-primary" name="submit" form="jevForm">Submit</button>
                 </div>
             </div>
         </div>
@@ -339,131 +350,265 @@ WHERE dv.status = 'Pending'
         <i class="bi bi-arrow-up-short"></i>
     </a>
 
+    <!-- Vendor JS Files -->
+    <script src="../NiceAdmin/assets/vendor/apexcharts/apexcharts.min.js"></script>
+    <script src="../NiceAdmin/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../NiceAdmin/assets/vendor/chart.js/chart.umd.js"></script>
+    <script src="../NiceAdmin/assets/vendor/echarts/echarts.min.js"></script>
+    <script src="../NiceAdmin/assets/vendor/quill/quill.min.js"></script>
+    <script src="../NiceAdmin/assets/vendor/simple-datatables/simple-datatables.js"></script>
+    <script src="../NiceAdmin/assets/vendor/tinymce/tinymce.min.js"></script>
+    <script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
+
+    <!-- Template Main JS File -->
+    <script src="../NiceAdmin/assets/js/main.js"></script>
+
     <!-- Custom Script for Modal -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const modal = document.getElementById('dvFormModal');
-            const closeModalBtn = document.getElementById('closeDvModal');
-            const viewDetailsButtons = document.querySelectorAll('.view-details');
+            // Initialize all tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
 
-            // Open modal and populate data
-            viewDetailsButtons.forEach(button => {
-                button.addEventListener('click', function () {
+            // Initialize the modal
+            var modalEl = document.getElementById('dvFormModal');
+            if (!modalEl) {
+                console.error('Modal element not found');
+                return;
+            }
+
+            var modal = new bootstrap.Modal(modalEl);
+            const formTemplate = document.getElementById('jevFormTemplate');
+
+            // Add click event listeners to all view-details buttons
+            document.querySelectorAll('.view-details').forEach(function(button) {
+                button.addEventListener('click', function() {
                     const dvId = this.getAttribute('data-id');
+                    if (!dvId) {
+                        console.error('No DV ID found');
+                        return;
+                    }
+                    
+                    // Show loading state
+                    const modalBody = modalEl.querySelector('.modal-body');
+                    if (!modalBody) {
+                        console.error('Modal body not found');
+                        return;
+                    }
+
+                    modalBody.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+                    
+                    // Show the modal
+                    modal.show();
+
+                    // Fetch the data
                     fetch(`get_jev_details.php?id=${dvId}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            // Populate the form fields with the returned data
-                            document.getElementById('ors_no').value = data.ors_no;
-                            document.getElementById('dv_no').value = data.dv_no;
-                            document.getElementById('payee_name').value = data.payee_name;
-                            document.getElementById('fund_cluster').value = data.fund_cluster;
-
-                            // Populate the accounts table dynamically
-                            const tableBody = document.querySelector('#dvFormModal table tbody');
-                            tableBody.innerHTML = '';  // Clear any existing rows
-
-                            // Initialize totals
-                            let totalDebit = 0;
-                            let totalCredit = 0;
-
-                            // Add account rows
-                            data.accounts.forEach(account => {
-                                const row = document.createElement('tr');
-                                const amount = parseFloat(account.amount) || 0;
-
-                                // Determine if this should be debit or credit based on account type
-                                const isDebit = account.type === 'debit' || account.type === 'asset' || account.type === 'expense';
-                                const debitAmount = isDebit ? amount : 0;
-                                const creditAmount = !isDebit ? amount : 0;
-
-                                // Add to totals
-                                totalDebit += debitAmount;
-                                totalCredit += creditAmount;
-
-                                row.innerHTML = `
-                                    <td>${account.account_title}</td>
-                                    <td>${account.account_code}</td>
-                                    <td class="text-end">${debitAmount.toFixed(2)}</td>
-                                    <td class="text-end">${creditAmount.toFixed(2)}</td>
-                                `;
-                                tableBody.appendChild(row);
-                            });
-
-                            // Add totals row
-                            const totalsRow = document.createElement('tr');
-                            totalsRow.className = 'table-active fw-bold';
-                            totalsRow.innerHTML = `
-                                <td colspan="2" class="text-end">TOTAL</td>
-                                <td class="text-end">${totalDebit.toFixed(2)}</td>
-                                <td class="text-end">${totalCredit.toFixed(2)}</td>
-                            `;
-                            tableBody.appendChild(totalsRow);
-
-                            // Optional: Add balance check row
-                            if (Math.abs(totalDebit - totalCredit) > 0.01) { // Use small threshold for floating point comparison
-                                const balanceRow = document.createElement('tr');
-                                balanceRow.className = 'table-danger';
-                                balanceRow.innerHTML = `
-                                    <td colspan="2" class="text-end fw-bold">OUT OF BALANCE</td>
-                                    <td colspan="2" class="text-center fw-bold">${Math.abs(totalDebit - totalCredit).toFixed(2)}</td>
-                                `;
-                                tableBody.appendChild(balanceRow);
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
                             }
-
-                            // Show modal using Bootstrap
-                            const jevModal = new bootstrap.Modal(modal);
-                            jevModal.show();
-
-                            // Set current date if date field is empty
-                            const dateInput = document.getElementById("date");
-                            if (!dateInput.value) {
-                                const today = new Date().toISOString().split('T')[0];
-                                dateInput.value = today;
-                            }
-
-                            // Optionally trigger any additional calculations or setup here
-                            setTimeout(() => {
-                                generateJEVNumber(); // Generate JEV number if needed
-                            }, 100);
+                            return response.json();
                         })
-                        .catch(error => console.error('Error fetching JEV details:', error));
+                        .then(data => {
+                            if (data.error) {
+                                throw new Error(data.error);
+                            }
+
+                            // Restore modal content using the template
+                            modalBody.innerHTML = formTemplate.innerHTML;
+                            
+                            // Populate form fields
+                            const form = document.getElementById('jevForm');
+                            if (!form) {
+                                throw new Error('Form not found after template restoration');
+                            }
+
+                            form.querySelector('#ors_no').value = data.ors_no || '';
+                            form.querySelector('#dv_no').value = data.dv_no || '';
+                            form.querySelector('#payee_name').value = data.payee_name || '';
+                            form.querySelector('#fund_cluster').value = data.fund_cluster || '';
+
+                            // Set current date
+                            const today = new Date().toISOString().split('T')[0];
+                            form.querySelector('#date').value = today;
+
+                            // Populate accounts table
+                            const tableBody = form.querySelector('#accountsTable tbody');
+                            const totalDebitElement = form.querySelector('#totalDebit');
+                            const totalCreditElement = form.querySelector('#totalCredit');
+
+                            if (tableBody && totalDebitElement && totalCreditElement) {
+                                tableBody.innerHTML = '';
+
+                                let totalDebit = 0;
+                                let totalCredit = 0;
+
+                                if (data.accounts && data.accounts.length > 0) {
+                                    data.accounts.forEach(account => {
+                                        const row = document.createElement('tr');
+                                        const amount = parseFloat(account.amount) || 0;
+                                        
+                                        const isDebit = account.type === 'debit' || account.type === 'asset' || account.type === 'expense';
+                                        const debitAmount = isDebit ? amount : 0;
+                                        const creditAmount = !isDebit ? amount : 0;
+
+                                        totalDebit += debitAmount;
+                                        totalCredit += creditAmount;
+
+                                        row.innerHTML = `
+                                            <td>${account.account_title || ''}</td>
+                                            <td>${account.account_code || ''}</td>
+                                            <td class="text-end">${debitAmount.toFixed(2)}</td>
+                                            <td class="text-end">${creditAmount.toFixed(2)}</td>
+                                        `;
+                                        tableBody.appendChild(row);
+                                    });
+                                }
+
+                                // Update totals
+                                totalDebitElement.textContent = totalDebit.toFixed(2);
+                                totalCreditElement.textContent = totalCredit.toFixed(2);
+                            }
+
+                            // Generate JEV number
+                            generateJEVNumber();
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            modalBody.innerHTML = `<div class="alert alert-danger">Error loading data: ${error.message}</div>`;
+                        });
                 });
             });
 
-            // Close modal using Bootstrap methods
-            closeModalBtn.addEventListener('click', function () {
-                const bootstrapModal = bootstrap.Modal.getInstance(modal);
-                if (bootstrapModal) {
-                    bootstrapModal.hide();
-                }
-            });
+            // Form submission handler
+            const form = document.getElementById('jevForm');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const formData = new FormData(this);
+                    
+                    // Add submit flag
+                    formData.append('submit', '1');
+                    
+                    // Show loading state
+                    const submitButton = this.querySelector('button[type="submit"]');
+                    if (submitButton) {
+                        const originalButtonText = submitButton.innerHTML;
+                        submitButton.disabled = true;
+                        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
+                    }
+                    
+                    fetch(window.location.href, {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.text();
+                    })
+                    .then(data => {
+                        if (data.includes('Error:')) {
+                            throw new Error(data);
+                        }
+                        
+                        const jevNo = formData.get('jev_no');
+                        if (!jevNo) {
+                            throw new Error('JEV number is missing');
+                        }
+                        
+                        // Show success message
+                        const modalBody = modalEl.querySelector('.modal-body');
+                        if (modalBody) {
+                            modalBody.innerHTML = `
+                                <div class="alert alert-success">
+                                    <h4 class="alert-heading">Success!</h4>
+                                    <p>JEV has been created successfully.</p>
+                                    <hr>
+                                    <p class="mb-0">Redirecting to JEV form...</p>
+                                </div>
+                            `;
+                        }
+                        
+                        // Redirect after a short delay
+                        setTimeout(() => {
+                            window.location.href = `jev_form.php?jev_no=${jevNo}`;
+                        }, 2000);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        // Restore button state
+                        if (submitButton) {
+                            submitButton.disabled = false;
+                            submitButton.innerHTML = originalButtonText;
+                        }
+                        
+                        // Show error message
+                        const modalBody = modalEl.querySelector('.modal-body');
+                        if (modalBody) {
+                            modalBody.innerHTML = `
+                                <div class="alert alert-danger">
+                                    <h4 class="alert-heading">Error!</h4>
+                                    <p>${error.message}</p>
+                                    <hr>
+                                    <p class="mb-0">Please try again.</p>
+                                </div>
+                            `;
+                        }
+                    });
+                });
+            }
         });
-    </script>
 
-    <!-- Function to generate JEV number -->
-    <script>
+        // Function to generate JEV number
         function generateJEVNumber() {
             const dateInput = document.getElementById("date");
-            if (!dateInput || !dateInput.value) return;
-            
             const fundClusterInput = document.getElementById("fund_cluster");
-            if (!fundClusterInput || !fundClusterInput.value) return;
             
+            if (!dateInput || !dateInput.value || !fundClusterInput || !fundClusterInput.value) {
+                console.log('Missing required fields for JEV number generation');
+                return;
+            }
+
             const date = new Date(dateInput.value);
             const year = date.getFullYear();
             const month = (date.getMonth() + 1).toString().padStart(2, '0');
             
-            fetch('fetch_jev_no.php?year=' + year + '&month=' + month)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.jev_no) {
-                        document.getElementById('jev_no').value = data.jev_no;
+            // Extract fund cluster number
+            const fundClusterValue = fundClusterInput.value.trim();
+            const fundClusterNumber = fundClusterValue.match(/^\d+/);
+            
+            if (!fundClusterNumber) {
+                console.log('Invalid fund cluster format');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("fund_cluster_id", fundClusterNumber[0]);
+            formData.append("date", dateInput.value);
+
+            fetch('fetch_jev_no.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.jev_no) {
+                    const jevNoInput = document.getElementById('jev_no');
+                    if (jevNoInput) {
+                        jevNoInput.value = data.jev_no;
                     }
-                })
-                .catch(error => {
-                    console.error('Error fetching JEV number:', error);
-                });
+                } else {
+                    console.error('Error fetching JEV number:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
         }
     </script>
 
