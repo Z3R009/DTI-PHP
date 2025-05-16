@@ -712,7 +712,7 @@ $result_account = $connection->query($query_account);
                 <div class="modal-body">
                     <form method="post" id="addUserForm">
                         <div class="mb-3">
-                            <input type="hidden" class="form-control" id="account_id" name="account_id" value="6"
+                            <input type="hidden" class="form-control" id="account_id" name="account_id" value="2"
                                 readonly required>
                         </div>
 
@@ -726,7 +726,7 @@ $result_account = $connection->query($query_account);
                             <label for="account_display" class="form-label">Account Name <span
                                     class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="account_display"
-                                value="DTI YAMAN GENSAN" readonly>
+                                value="DTI XI RAPID GOT COUNTERPART" readonly>
                         </div>
 
                         <div class="mb-3">
