@@ -29,7 +29,7 @@ $endorsed_dv_count = $endorsed_row['endorsed_count'];
     <meta content="" name="keywords">
 
     <!-- Favicons -->
-    <link href="../NiceAdmin/assets/img/favicon.png" rel="icon">
+    <link href="../book_keeper/img/dti_logo.png" rel="icon">
     <link href="../NiceAdmin/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
     <!-- Google Fonts -->
@@ -69,12 +69,7 @@ $endorsed_dv_count = $endorsed_row['endorsed_count'];
  <main id="main" class="main">
 <div class="pagetitle">
     <h1>Dashboard</h1>
-    <nav>
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-            <li class="breadcrumb-item active">Dashboard</li>
-        </ol>
-    </nav>
+
 </div>
 
 <section class="section dashboard">

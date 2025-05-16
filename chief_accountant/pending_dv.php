@@ -32,7 +32,7 @@ if (isset($_GET['success']) && $_GET['success'] == 1) {
     <meta content="" name="keywords">
 
     <!-- Favicons -->
-    <link href="../NiceAdmin/assets/img/favicon.png" rel="icon">
+    <link href="../book_keeper/img/dti_logo.png" rel="icon">
     <link href="../NiceAdmin/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
     <!-- Google Fonts -->
@@ -72,12 +72,7 @@ if (isset($_GET['success']) && $_GET['success'] == 1) {
 <main id="main" class="main">
     <div class="pagetitle">
         <h1>Pending Disbursement Vouchers</h1>
-        <nav>
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                <li class="breadcrumb-item active">Pending Disbursement Vouchers</li>
-            </ol>
-        </nav>
+    
     </div>
 
     <?php if ($success_message): ?>

@@ -124,7 +124,7 @@ $result_account = $connection->query($query_account);
     <meta content="" name="description">
     <meta content="" name="keywords">
 
-    <link href="../NiceAdmin/assets/img/favicon.png" rel="icon">
+    <link href="../book_keeper/img/dti_logo.png" rel="icon">
     <link href="../NiceAdmin/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
     <link href="https://fonts.gstatic.com" rel="preconnect">
@@ -428,12 +428,7 @@ $result_account = $connection->query($query_account);
         <div class="pagetitle page-header d-flex justify-content-between align-items-center">
             <div>
                 <h1>Rapid GOP <?php echo date('Y'); ?></h1>
-                <nav>
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index.php">Home</a></li>
-                        <li class="breadcrumb-item"><a href="index.php">Rapid GOP</a></li>
-                    </ol>
-                </nav>
+               
             </div>
             <div class="d-flex align-items-center">
 
