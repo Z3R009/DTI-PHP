@@ -234,10 +234,12 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
         <div class="pagetitle d-flex align-items-center">
             <h1 class="mb-0">Disbursement Voucher</h1>
             <div class="ms-auto">
-                <button class="btn btn-primary" onclick="window.location.href='dv.php'">
+                <button class="btn btn-primary" onclick="window.location.href='dv.php'"> <i
+                        class="bi bi-list-check me-1"></i>
                     DV Form
                 </button>
-                <button class="btn btn-primary" onclick="window.location.href='dv_w-out.php'">
+                <button class="btn btn-primary" onclick="window.location.href='dv_w-out.php'"> <i
+                        class="bi bi-file-earmark-plus me-1"></i>
                     DV Form without ORS
                 </button>
             </div>
@@ -299,7 +301,23 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
         <i class="bi bi-arrow-up-short"></i>
     </a>
 
+    <!-- Vendor JS Files -->
+    <script src="../NiceAdmin/assets/vendor/apexcharts/apexcharts.min.js"></script>
+    <script src="../NiceAdmin/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../NiceAdmin/assets/vendor/chart.js/chart.umd.js"></script>
+    <script src="../NiceAdmin/assets/vendor/echarts/echarts.min.js"></script>
+    <script src="../NiceAdmin/assets/vendor/quill/quill.js"></script>
+    <script src="../NiceAdmin/assets/vendor/simple-datatables/simple-datatables.js"></script>
+    <script src="../NiceAdmin/assets/vendor/tinymce/tinymce.min.js"></script>
+    <script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
+    <!-- Template Main JS File -->
+    <script src="../NiceAdmin/assets/js/main.js"></script>
 
 </body>
 

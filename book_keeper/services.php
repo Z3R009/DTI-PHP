@@ -284,7 +284,7 @@ while ($row = $result_oopap->fetch_assoc()) {
             class="bi bi-arrow-up-short"></i></a>
 
 
-
+    <?php include "includes/common_scripts.php"; ?>
     <?php echo $alert; ?>
 
 

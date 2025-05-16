@@ -252,20 +252,6 @@ $dv_no = $fund_cluster . '-' . date('Y') . '-' . str_pad($next_number, 4, '0', S
                         </div>
                     </div>
 
-                    <div class="form-section">
-                        <h3><i class="bi bi-file-earmark-text me-2"></i>Related ORS Information</h3>
-                        <div class="form-group">
-                            <label class="form-label">ORS Numbers</label>
-                            <div class="ors-numbers-container">
-                                <?php foreach ($ors_details as $ors): ?>
-                                    <div class="ors-number-item">
-                                        <span class="ors-number"><?php echo htmlspecialchars($ors['ors_no']); ?></span>
-                                        <span class="ors-date"><?php echo date('F j, Y', strtotime($ors['date'])); ?></span>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="form-section">
@@ -286,6 +272,21 @@ $dv_no = $fund_cluster . '-' . date('Y') . '-' . str_pad($next_number, 4, '0', S
                         <label class="form-label">Address</label>
                         <input type="text" class="form-control" value="<?php echo htmlspecialchars($payee_address); ?>"
                             readonly>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3><i class="bi bi-journal-text me-2"></i>Notes</h3>
+                    <div class="form-group">
+                        <textarea class="form-control" name="notes" rows="4" readonly><?php 
+                            $all_notes = array();
+                            foreach ($ors_details as $ors) {
+                                if (!empty($ors['notes'])) {
+                                    $all_notes[] = $ors['ors_no'] . ': ' . $ors['notes'];
+                                }
+                            }
+                            echo htmlspecialchars(implode("\n", $all_notes));
+                        ?></textarea>
                     </div>
                 </div>
 

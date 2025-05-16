@@ -14,12 +14,13 @@
     <nav class="header-nav">
         <ul class="d-flex align-items-center">
           
-        <!-- change password -->
-            <li class="nav-item dropdown pe-3">
-               <a class="dropdown-item d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
-                            <i class="bi bi-gear fs-4"></i>
-              </a>
+            <!-- change password -->
+            <li class="nav-item pe-3">
+                <a class="nav-link d-flex align-items-center" href="settings.php">
+                    <i class="bi bi-gear fs-4"></i>
+                </a>
             </li>
+
             <!-- logout -->
            <li class="nav-item dropdown pe-3">
                 <a class="dropdown-item d-flex align-items-center" href="../logout.php">
@@ -30,37 +31,7 @@
     </nav>
 </header>
 
-<!-- Change Password Modal -->
-<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true" data-bs-backdrop="static">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="changePasswordForm">
-                    <div class="mb-3">
-                        <label for="currentPassword" class="form-label">Current Password</label>
-                        <input type="password" class="form-control" id="currentPassword" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="newPassword" class="form-label">New Password</label>
-                        <input type="password" class="form-control" id="newPassword" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="confirmPassword" class="form-label">Confirm New Password</label>
-                        <input type="password" class="form-control" id="confirmPassword" required>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="submit" form="changePasswordForm" class="btn btn-primary">Change Password</button>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 

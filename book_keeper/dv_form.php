@@ -70,7 +70,8 @@ $accounts_stmt->close();
 
 // Fetch all related ORS numbers for this DV (for multiple ORS DVs)
 $ors_numbers = [];
-$ors_query = "SELECT o.ors_no FROM dv_multiple_ors dmo JOIN ors o ON dmo.ors_id = o.ors_id WHERE dmo.dv_id = ?";
+$ors_notes = [];
+$ors_query = "SELECT o.ors_no, o.notes FROM dv_multiple_ors dmo JOIN ors o ON dmo.ors_id = o.ors_id WHERE dmo.dv_id = ?";
 $ors_stmt = $connection->prepare($ors_query);
 if ($ors_stmt) {
     $ors_stmt->bind_param("i", $dv_form['dv_id']);
@@ -78,6 +79,9 @@ if ($ors_stmt) {
     $ors_result = $ors_stmt->get_result();
     while ($row = $ors_result->fetch_assoc()) {
         $ors_numbers[] = $row['ors_no'];
+        if (!empty($row['notes'])) {
+            $ors_notes[] = $row['ors_no'] . ': ' . $row['notes'];
+        }
     }
     $ors_stmt->close();
 }
@@ -131,7 +135,6 @@ echo "<pre>";
 // print_r($dv_form);
 // print_r($ors_form);
 echo "</pre>";
-
 function numberToWords($number)
 {
     $ones = array(
@@ -174,36 +177,29 @@ function numberToWords($number)
         4 => "TRILLION"
     );
 
-    // Format the number to ensure it has exactly 2 decimal places
     $number = floatval($number);
     $formatted = number_format($number, 2, '.', ',');
 
-    // Split number into whole and decimal parts
     $parts = explode('.', $formatted);
     $wholeNumber = $parts[0];
     $decimal = $parts[1];
 
-    // Return 'ZERO PESOS ONLY' if the number is 0
     if ($wholeNumber == '0' && $decimal == '00') {
         return "ZERO PESOS ONLY";
     }
 
     $result = '';
 
-    // Process whole number part
     if ($wholeNumber > 0) {
-        // Split the number by commas to get groups of thousands, millions, etc.
         $numGroups = explode(',', $wholeNumber);
         $numGroupsCount = count($numGroups);
 
-        // Process each group
         for ($i = 0; $i < $numGroupsCount; $i++) {
             $groupNumber = (int) $numGroups[$i];
 
             if ($groupNumber > 0) {
                 $groupText = '';
 
-                // Handle hundreds
                 $hundreds = floor($groupNumber / 100);
                 if ($hundreds > 0) {
                     $groupText .= $ones[$hundreds] . " HUNDRED";
@@ -212,7 +208,6 @@ function numberToWords($number)
                     }
                 }
 
-                // Handle tens and ones
                 $tensAndOnes = $groupNumber % 100;
                 if ($tensAndOnes > 0) {
                     if ($tensAndOnes < 20) {
@@ -225,13 +220,11 @@ function numberToWords($number)
                     }
                 }
 
-                // Add scale (thousand, million, etc.)
                 $scaleIndex = $numGroupsCount - $i - 1;
                 if ($scaleIndex > 0 && isset($scales[$scaleIndex])) {
                     $groupText .= " " . $scales[$scaleIndex];
                 }
 
-                // Add to result with proper spacing
                 if ($result != '') {
                     $result .= " " . $groupText;
                 } else {
@@ -239,31 +232,21 @@ function numberToWords($number)
                 }
             }
         }
-
-        $result .= " PESOS";
+    } else {
+        $result = "ZERO";
     }
 
-    // Process decimal part
+    // Add centavos in fraction format
     if ($decimal != '00') {
-        if ($result != '') {
-            $result .= " AND ";
-        }
-
-        $decimalValue = (int) $decimal;
-        if ($decimalValue < 20) {
-            $result .= $ones[$decimalValue];
-        } else {
-            $result .= $tens[floor($decimalValue / 10)];
-            if ($decimalValue % 10 > 0) {
-                $result .= " " . $ones[$decimalValue % 10];
-            }
-        }
-
-        $result .= " CENTAVOS";
+        $result .= " & " . $decimal . "/100";
     }
 
-    return $result . " ONLY";
+    // Always end with PESOS ONLY
+    $result .= " PESOS ONLY";
+
+    return $result;
 }
+
 ?>
 
 
@@ -640,8 +623,8 @@ function numberToWords($number)
                     <p>Tin Employee No.: <?php echo $ors_form['tin_no']; ?></p>
                 </td>
                 <td colspan="2">
-                    <p>ORS/URS No.: 
-                        <?php 
+                    <p>ORS/URS No.:
+                        <?php
                         if (!empty($ors_numbers)) {
                             echo htmlspecialchars(implode(', ', $ors_numbers));
                         } else {
@@ -666,7 +649,15 @@ function numberToWords($number)
 
             <tr>
                 <td colspan="3">
-                    <p style="text-align: center;"><b><?php echo $ors_form['notes']; ?></b></p>
+                    <p style="text-align: center;"><b>
+                            <?php
+                            if (!empty($ors_notes)) {
+                                echo nl2br(htmlspecialchars(implode("\n", $ors_notes)));
+                            } else {
+                                echo htmlspecialchars($ors_form['notes'] ?? '');
+                            }
+                            ?>
+                        </b></p>
 
                     <div class="amount-section">
                         <div class="amount-row">
