@@ -27,10 +27,10 @@
         <div class="nav-divider"></div>
 
         <li class="nav-item">
-            <a class="nav-link collapsed" data-bs-target="#charts-nav" data-bs-toggle="collapse" href="#">
-                <i class="bi bi-bar-chart"></i><span>Forms</span><i class="bi bi-chevron-down ms-auto"></i>
+            <a class="nav-link" href="#">
+                <i class="bi bi-bar-chart"></i><span>Forms</span>
             </a>
-            <ul id="charts-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+            <ul class="nav-content show">
                 <li>
                     <a href="ors.php">
                         <i class="bi bi-circle"></i><span>Obligation Request and Status</span>
@@ -293,9 +293,9 @@
                 
                 // If the active link is in a collapsible menu, expand that menu
                 const parent = link.closest('.nav-content');
-                if (parent && parent.classList.contains('collapse')) {
+                if (parent) {
                     parent.classList.add('show');
-                    const parentToggle = document.querySelector(`[data-bs-target="#${parent.id}"]`);
+                    const parentToggle = document.querySelector(`a[href="#"][data-bs-target="#${parent.id}"]`);
                     if (parentToggle) {
                         parentToggle.classList.remove('collapsed');
                     }
@@ -311,44 +311,7 @@
             });
         }
         
-        // Add click event listener to all collapsible items using Bootstrap's Collapse
-        const collapsibleItems = document.querySelectorAll('.nav-link[data-bs-toggle="collapse"]');
-        collapsibleItems.forEach(item => {
-            item.addEventListener('click', function(e) {
-                e.preventDefault();
-                const target = this.getAttribute('data-bs-target');
-                const targetElement = document.querySelector(target);
-                
-                if (targetElement) {
-                    // Create and use Bootstrap's Collapse instance
-                    const bsCollapse = new bootstrap.Collapse(targetElement, {
-                        toggle: false
-                    });
-                    
-                    if (targetElement.classList.contains('show')) {
-                        bsCollapse.hide();
-                    } else {
-                        // Close other open menus first
-                        document.querySelectorAll('.nav-content.collapse.show').forEach(menu => {
-                            if (menu.id !== targetElement.id.replace('#', '')) {
-                                const menuCollapse = new bootstrap.Collapse(menu);
-                                menuCollapse.hide();
-                            }
-                        });
-                        
-                        bsCollapse.show();
-                    }
-                }
-            });
-        });
-        
-        // Initialize all Bootstrap collapse elements
-        const collapseElementList = [].slice.call(document.querySelectorAll('.collapse'));
-        collapseElementList.map(function (collapseEl) {
-            return new bootstrap.Collapse(collapseEl, {
-                toggle: false
-            });
-        });
+        // We don't need the collapsible functionality anymore since both menus are always expanded
+        // But we'll keep the script for any future dropdowns you might add
     });
 </script>
-
