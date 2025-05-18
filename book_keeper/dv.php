@@ -1309,16 +1309,16 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                     addRowButton.addEventListener('click', function () {
                         const newRow = document.createElement('tr');
                         newRow.innerHTML = `
-                            <td colspan="2">
-                                <select class="form-control account-select" name="account_titles[]" required>
-                                    <option selected disabled value="">Select Account</option>
+                <td colspan="2">
+                    <select class="form-control account-select" name="account_titles[]" required>
+                        <option selected disabled value="">Select Account</option>
                                     ${accountOptions}
-                                </select>
-                            </td>
-                            <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
-                            <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01"></td>
-                            <td><button type="button" class="btn btn-danger btn-sm delete-row"><i class="bi bi-trash"></i></button></td>
-                        `;
+                    </select>
+                </td>
+                <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
+                <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01"></td>
+                <td><button type="button" class="btn btn-danger btn-sm delete-row"><i class="bi bi-trash"></i></button></td>
+            `;
                         tableBody.appendChild(newRow);
                         setupAccountSelect(newRow);
                         setupCalculationListeners(newRow);
