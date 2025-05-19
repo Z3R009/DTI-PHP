@@ -43,7 +43,7 @@ $payments_result = mysqli_query($connection, $payments_query);
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <h5 class="card-title">Payment Records</h5>
-                            <a href="processed_merged_payees.php" class="btn btn-sm btn-primary">
+                            <a href="view_merged_payees.php" class="btn btn-sm btn-primary">
                                 <i class="bi bi-people me-1"></i> View Processed Merged Payees
                             </a>
                         </div>
