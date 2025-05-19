@@ -118,6 +118,9 @@ try {
         $net_amount = $row['amount'];
         $withholding_tax = $gross_amount - $row['dv_net'];
         
+        // Set bank account for DTI
+        $bank_account = "2075-9006-81";
+        
         // If this DV is part of a merged group in this batch
         if ($row['merge_id']) {
             if ($current_merge_id !== $row['merge_id']) {
@@ -133,6 +136,7 @@ try {
                     'merge_id' => $row['merge_id'],
                     'merge_name' => $row['merge_name'],
                     'payee_type' => $row['payee_type'],
+                    'bank_account' => $bank_account,
                     'dvs' => [],
                     'gross_amount' => 0,
                     'withholding_tax' => 0,
@@ -146,7 +150,7 @@ try {
                 'dv_id' => $row['dv_id'],
                 'dv_no' => $row['dv_no'],
                 'payee_name' => $row['payee_name'],
-                'bank_account' => $row['bank_acc_no'] ?? 'N/A',
+                'bank_account' => $bank_account,
                 'ors_no' => $row['ors_no'],
                 'account_code' => $row['account_code'] ?? '',
                 'purpose' => $row['purpose'],
@@ -168,7 +172,7 @@ try {
                 'dv_id' => 'merge_' . $row['merge_id'],
                 'dv_no' => 'MERGED',
                 'payee_name' => $row['merge_name'] . ' (Merged Group)',
-                'bank_account' => $row['bank_acc_no'] ?? 'N/A',
+                'bank_account' => $bank_account,
                 'ors_no' => $row['ors_no'] ?? 'MULTIPLE',
                 'account_code' => $row['account_code'] ?? 'MULTIPLE',
                 'purpose' => 'Merged payment for multiple vouchers',
@@ -186,7 +190,7 @@ try {
                 'dv_id' => $row['dv_id'],
                 'dv_no' => $row['dv_no'],
                 'payee_name' => $row['payee_name'],
-                'bank_account' => $row['bank_acc_no'] ?? 'N/A',
+                'bank_account' => $bank_account,
                 'ors_no' => $row['ors_no'],
                 'account_code' => $row['account_code'] ?? '',
                 'purpose' => $row['purpose'],

@@ -328,11 +328,12 @@
                 document.getElementById('fundCodeDisplay').textContent = data.fundCode;
             }
             
-            // Set default bank info for DTI
-            const defaultBankInfo = "LAND BANK OF THE PHILIPPINES- KORONADAL BRANCH- 2075-9006-81";
-            document.getElementById('bankInfoDisplay').textContent = defaultBankInfo;
-            document.getElementById('bankNameDisplay').textContent = "LAND BANK OF THE PHILIPPINES- KORONADAL BRANCH";
-            document.getElementById('accountNumberDisplay').textContent = "2075-9006-81";
+            // Set bank info from data
+            if (data.bankInfo) {
+                document.getElementById('bankInfoDisplay').textContent = data.bankInfo;
+                document.getElementById('bankNameDisplay').textContent = data.bankName;
+                document.getElementById('accountNumberDisplay').textContent = data.accountNumber;
+            }
             
             if (data.referenceNo) {
                 let formattedADANo = data.referenceNo;
@@ -442,7 +443,7 @@
                     row.innerHTML = `
                         <td><i class="bi bi-people-fill me-1"></i> ${adaDisplay}</td>
                         <td><strong>${dv.payee_name}</strong></td>
-                        <td><strong>${dv.bank_account}</strong></td>
+                        <td><strong>2075-9006-81</strong></td>
                         <td>${dv.ors_no}</td>
                         <td>${dv.account_code || '-'}</td>
                         <td class="right"><strong>${formatCurrency(dv.gross_amount)}</strong></td>
@@ -453,7 +454,7 @@
                     row.innerHTML = `
                         <td>${adaDisplay}</td>
                         <td><strong>${dv.payee_name}</strong></td>
-                        <td><strong>${dv.bank_account}</strong></td>
+                        <td><strong>2075-9006-81</strong></td>
                         <td>${dv.ors_no}</td>
                         <td>${dv.account_code || '-'}</td>
                         <td class="right"><strong>${formatCurrency(dv.gross_amount)}</strong></td>

@@ -22,6 +22,16 @@ function sanitize_input($data) {
     return $data;
 }
 
+// Check if bank_account column exists, if not add it
+$check_column_query = "SHOW COLUMNS FROM merged_payees LIKE 'bank_account'";
+$column_result = $connection->query($check_column_query);
+
+if ($column_result->num_rows == 0) {
+    // Add bank_account column
+    $alter_table_query = "ALTER TABLE merged_payees ADD COLUMN bank_account VARCHAR(50) AFTER payee_type";
+    $connection->query($alter_table_query);
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['merge_payees'])) {
     $merge_name = isset($_POST['merge_name']) ? sanitize_input($_POST['merge_name']) : '';
     $description = isset($_POST['merge_description']) ? sanitize_input($_POST['merge_description']) : '';

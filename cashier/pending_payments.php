@@ -862,9 +862,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                                 <label for="merge_name" class="form-label fw-medium">Merged Payee Name <span class="text-danger">*</span></label>
                                                                 <select class="form-select form-select-lg" id="merge_name" name="merge_name" required>
                                                                     <option value="">Select Payee Name</option>
-                                                                    <option value="DEPARTMENT OF TRADE AND INDUSTRY" data-bank-account="2075-9006-81">
-                                                                        DEPARTMENT OF TRADE AND INDUSTRY
-                                                                    </option>
+                                                                    <?php
+                                                                    // Query to get only DTI payee information
+                                                                    $payee_query = "SELECT payee_id, payee_name, bank_acc_no FROM payee WHERE payee_name = 'DEPARTMENT OF TRADE AND INDUSTRY XII'";
+                                                                    $payee_result = $connection->query($payee_query);
+                                                                    
+                                                                    if ($payee_result && $payee_result->num_rows > 0) {
+                                                                        $payee = $payee_result->fetch_assoc();
+                                                                        echo '<option value="' . htmlspecialchars($payee['payee_name']) . '" selected data-bank-account="' . htmlspecialchars($payee['bank_acc_no']) . '">' . 
+                                                                             htmlspecialchars($payee['payee_name']) . '</option>';
+                                                                    }
+                                                                    ?>
                                                                 </select>
                                                             </div>
                                                             <div class="col-md-4">
@@ -878,8 +886,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                         
                                                         <div class="mb-3">
                                                             <label for="bank_account" class="form-label fw-medium">Bank Account Number</label>
-                                                            <input type="text" class="form-control" id="bank_account" name="bank_account" value="2075-9006-81" readonly>
-                                                            <div class="form-text">Bank account for DEPARTMENT OF TRADE AND INDUSTRY</div>
+                                                            <input type="text" class="form-control" id="bank_account" name="bank_account" readonly>
+                                                            <div class="form-text">Bank account for selected payee</div>
                                                         </div>
                                                         
                                                         <div class="mb-3">
@@ -2840,6 +2848,9 @@ $(document).ready(function() {
             $('#bank_account').val('');
         }
     });
+
+    // Trigger change event on page load to set initial bank account
+    $('#merge_name').trigger('change');
 });
 </script>
 </body>
