@@ -45,6 +45,13 @@
             </a>
         </li>
 
+        <li class="nav-item">
+            <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'add_payee.php' ? 'active' : ''; ?>" href="add_payee.php">
+                <i class="bi bi-person-plus"></i>
+                <span>ADD PAYEE</span>
+            </a>
+        </li>
+
         <li class="nav-heading mt-3">Reports</li>
 
         <li class="nav-item">

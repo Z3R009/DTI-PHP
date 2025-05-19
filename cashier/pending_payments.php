@@ -122,12 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <main id="main" class="main">
     <div class="pagetitle">
         <h1>Pending Payments</h1>
-        <nav>
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                <li class="breadcrumb-item active">Pending Payments</li>
-            </ol>
-        </nav>
+
     </div>
 
     <?php if (!empty($success_message)): ?>
@@ -185,8 +180,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <div>
                                 <h5 class="card-title fs-4 text-primary mb-1">Vouchers Endorsed for Payment</h5>
-                                <p class="text-muted">These disbursement vouchers have been endorsed by the Chief Accountant and are ready for payment processing.</p>
-                            </div>
+                                 </div>
                             <?php $pending_count = mysqli_num_rows($pending_result); ?>
                             <?php if ($pending_count > 0): ?>
                             <div class="d-flex gap-2">
@@ -253,7 +247,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         <tr class="border-bottom">
                                             <td class="text-center">
                                                 <div class="form-check">
-                                                    <input type="checkbox" name="selected_dvs[]" value="<?php echo $row['dv_id']; ?>" class="form-check-input dv-checkbox">
+                                                    <input type="checkbox" name="selected_dvs[]" value="<?php echo $row['dv_id']; ?>" 
+                                                           class="form-check-input dv-checkbox" 
+                                                           data-payee-type="<?php echo strtolower($row['payee_type'] ?? 'internal'); ?>">
                                                 </div>
                                             </td>
                                             <td>
@@ -265,6 +261,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                             </td>
                                             <td>
                                                 <div class="fw-medium"><?php echo $row['payee_name']; ?></div>
+                                                <span class="payee-type d-none"><?php echo strtolower($row['payee_type'] ?? 'internal'); ?></span>
                                             </td>
                                             <td>
                                                 <span class="text-truncate d-inline-block" style="max-width: 250px;" data-bs-toggle="tooltip" title="<?php echo htmlspecialchars($row['purpose']); ?>">
@@ -279,21 +276,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                             </td>
                                             <td class="text-center">
                                                 <div class="btn-group">
-                                                    <button type="button" class="btn btn-sm btn-primary rounded-circle me-1" data-bs-toggle="modal" data-bs-target="#paymentModal<?php echo $row['dv_id']; ?>" title="Process Payment">
+                                                    <!-- <button type="button" class="btn btn-sm btn-primary rounded-circle me-1" data-bs-toggle="modal" data-bs-target="#paymentModal<?php echo $row['dv_id']; ?>" title="Process Payment">
                                                         <i class="bi bi-cash"></i>
-                                                    </button>
+                                                    </button> -->
                                                     <button type="button" class="btn btn-sm btn-info text-white rounded-circle me-1" data-bs-toggle="modal" data-bs-target="#viewModal<?php echo $row['dv_id']; ?>" title="View DV">
                                                         <i class="bi bi-eye"></i>
                                                             </button>
-                                                    <button type="button" class="btn btn-sm btn-warning text-white rounded-circle" data-bs-toggle="modal" data-bs-target="#returnModal<?php echo $row['dv_id']; ?>" title="Return to Chief">
+                                                    <!-- <button type="button" class="btn btn-sm btn-warning text-white rounded-circle" data-bs-toggle="modal" data-bs-target="#returnModal<?php echo $row['dv_id']; ?>" title="Return to Chief">
                                                         <i class="bi bi-arrow-return-left"></i>
-                                                            </button>
+                                                            </button> -->
                                                 </div>
                                             </td>
                                         </tr>
                                         
                                         <!-- Payment Modal -->
-                                        <div class="modal fade" id="paymentModal<?php echo $row['dv_id']; ?>" tabindex="-1">
+                                        <!-- <div class="modal fade" id="paymentModal<?php echo $row['dv_id']; ?>" tabindex="-1">
                                             <div class="modal-dialog modal-lg">
                                                 <div class="modal-content">
                                                     <div class="modal-header bg-primary text-white">
@@ -378,7 +375,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                     </form>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </div> -->
                                         
                                         <!-- View DV Modal -->
                                         <div class="modal fade" id="viewModal<?php echo $row['dv_id']; ?>" tabindex="-1">
@@ -479,7 +476,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                             </div>
                                             
                                             <!-- Return to Chief Accountant Modal -->
-                                            <div class="modal fade" id="returnModal<?php echo $row['dv_id']; ?>" tabindex="-1">
+                                            <!-- <div class="modal fade" id="returnModal<?php echo $row['dv_id']; ?>" tabindex="-1">
                                                 <div class="modal-dialog">
                                                     <div class="modal-content">
                                                         <div class="modal-header bg-warning text-white">
@@ -531,7 +528,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                         </form>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </div> -->
                                             <?php endwhile; ?>
                                             
                                             <?php if ($displayed_count === 0 && $pending_count > 0): ?>
@@ -1864,19 +1861,57 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Enable button only if at least 2 DVs are selected
-        const checkedCount = dvCheckboxes.length;
-        mergePayeesBtn.disabled = checkedCount < 2;
+        // Check if any selected DVs are external payees
+        let hasExternalPayee = false;
+        dvCheckboxes.forEach(checkbox => {
+            // First check the data attribute
+            const payeeType = checkbox.getAttribute('data-payee-type');
+            console.log('Payee type from data attribute:', payeeType);
+            
+            if (payeeType && payeeType.toLowerCase() === 'external') {
+                hasExternalPayee = true;
+                console.log('Found external payee from data attribute');
+                return;
+            }
+            
+            // If not found in data attribute, check the hidden span
+            const row = checkbox.closest('tr');
+            if (row) {
+                const payeeTypeSpan = row.querySelector('.payee-type');
+                if (payeeTypeSpan) {
+                    const spanPayeeType = payeeTypeSpan.textContent.trim().toLowerCase();
+                    console.log('Payee type from span:', spanPayeeType);
+                    if (spanPayeeType === 'external') {
+                        hasExternalPayee = true;
+                        console.log('Found external payee from span');
+                    }
+                }
+            }
+        });
         
-        // Update button appearance
-        if (checkedCount >= 2) {
+        // Enable button only if at least 2 DVs are selected and no external payees
+        const checkedCount = dvCheckboxes.length;
+        const shouldEnable = checkedCount >= 2 && !hasExternalPayee;
+        
+        // Update button state
+        mergePayeesBtn.disabled = !shouldEnable;
+        
+        // Update button appearance and tooltip
+        if (shouldEnable) {
             mergePayeesBtn.classList.remove('btn-secondary');
             mergePayeesBtn.classList.add('btn-success');
-            console.log('Merge button enabled - enough DVs selected');
+            mergePayeesBtn.title = 'Merge selected vouchers';
+            console.log('Merge button enabled - enough DVs selected and no external payees');
         } else {
             mergePayeesBtn.classList.remove('btn-success');
             mergePayeesBtn.classList.add('btn-secondary');
-            console.log('Merge button disabled - need at least 2 DVs');
+            if (hasExternalPayee) {
+                mergePayeesBtn.title = 'Merge payee feature is only available for internal payees';
+                console.log('Merge button disabled - external payee selected');
+            } else if (checkedCount < 2) {
+                mergePayeesBtn.title = 'Select at least 2 vouchers to merge';
+                console.log('Merge button disabled - need at least 2 DVs');
+            }
         }
     }
     

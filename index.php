@@ -248,45 +248,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     /* Payee Button Style */
     .payee-btn {
-        position: fixed;
-        left: 20px;
-        top: 20px;
-        background-color: #03045e;
-        color: white;
-        border: none;
-        border-radius: 50px;
-        padding: 10px 20px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        z-index: 100;
-        width: 10%;
+        display: none;
     }
     
-    .payee-btn i {
-        margin-right: 8px;
-    }
-    
-    .payee-btn:hover {
-        background: linear-gradient(135deg, #03045e 0%, #D90429 100%);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
-    }
-    
-    .payee-btn:active {
-        transform: translateY(1px);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    }
-    
-    .payee-btn-text {
-        margin-left: 0;
-    }
-    
-    /* Modal Styles */
     .payee-modal {
         display: none;
         position: fixed;
@@ -496,6 +460,178 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
     }
+    .main-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    padding: 10px 20px;
+    z-index: 100;
+    border-bottom: 3px solid #03045e;
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+}
+
+.header-logo {
+    height: 50px;
+    margin-right: 15px;
+}
+
+.header-titles h1 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #03045e;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.header-titles h2 {
+    font-size: 14px;
+    font-weight: 500;
+    color: #D90429;
+    margin: 0;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.header-nav {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.nav-link {
+    color: #03045e;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    background-color: rgba(3, 4, 94, 0.1);
+    color: #D90429;
+}
+
+.nav-link i {
+    font-size: 16px;
+}
+
+.header-btn {
+    background-color: #03045e;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 15px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.header-btn:hover {
+    background: linear-gradient(135deg, #03045e 0%, #D90429 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.header-btn:active {
+    transform: translateY(1px);
+}
+
+.header-btn i {
+    font-size: 16px;
+}
+
+.bp-logo {
+    height: 40px;
+}
+
+/* Adjust body padding to accommodate the header */
+body {
+    padding-top: 80px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .header-btn span {
+        display: none;
+    }
+    
+    .header-btn {
+        padding: 8px;
+        border-radius: 50%;
+    }
+    
+    .header-btn i {
+        margin: 0;
+    }
+    
+    .header-titles h1 {
+        font-size: 16px;
+    }
+    
+    .header-titles h2 {
+        font-size: 12px;
+    }
+    
+    .header-logo, .bp-logo {
+        height: 35px;
+    }
+}
+
+@media (max-width: 580px) {
+    .header-titles h1 {
+        font-size: 14px;
+    }
+    
+    .header-titles h2 {
+        font-size: 10px;
+    }
+    
+    .header-logo {
+        height: 30px;
+        margin-right: 10px;
+    }
+    
+    .bp-logo {
+        height: 25px;
+    }
+    
+    .main-header {
+        padding: 8px 15px;
+    }
+    
+    body {
+        padding-top: 60px;
+    }
+}
 
     /* Footer Styles */
     footer {
@@ -642,57 +778,292 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             display: none;
         }
     }
+
+    /* About Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background-color: white;
+        border-radius: 10px;
+        width: 90%;
+        max-width: 600px;
+        max-height: 80vh;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+        background-color: #03045e;
+        color: white;
+    }
+
+    .modal-header h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .close-modal {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+        opacity: 0.8;
+        transition: opacity 0.2s, transform 0.2s;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+    }
+
+    .close-modal:hover {
+        opacity: 1;
+    }
+
+    .modal-body {
+        padding: 20px;
+        overflow-y: auto;
+        max-height: calc(80vh - 70px);
+    }
+
+    .about-content {
+        color: #333;
+    }
+
+    .about-content h4 {
+        color: #03045e;
+        margin-bottom: 15px;
+        font-size: 20px;
+    }
+
+    .about-content p {
+        margin-bottom: 20px;
+        line-height: 1.6;
+    }
+
+    .about-features {
+        margin: 25px 0;
+    }
+
+    .about-features h5 {
+        color: #03045e;
+        margin-bottom: 10px;
+        font-size: 16px;
+    }
+
+    .about-features ul {
+        list-style: none;
+        padding-left: 0;
+    }
+
+    .about-features li {
+        padding: 8px 0 8px 25px;
+        position: relative;
+    }
+
+    .about-features li:before {
+        content: "•";
+        color: #D90429;
+        position: absolute;
+        left: 0;
+        font-size: 20px;
+    }
+
+    .about-contact {
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+    }
+
+    .about-contact h5 {
+        color: #03045e;
+        margin-bottom: 15px;
+        font-size: 16px;
+    }
+
+    .about-contact p {
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .about-contact i {
+        color: #D90429;
+        font-size: 16px;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .header-nav {
+            gap: 10px;
+        }
+        
+        .nav-link span {
+            display: none;
+        }
+        
+        .nav-link {
+            padding: 8px;
+            border-radius: 50%;
+        }
+        
+        .nav-link i {
+            margin: 0;
+            font-size: 18px;
+        }
+        
+        .modal-content {
+            width: 95%;
+            margin: 20px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .modal-header h3 {
+            font-size: 16px;
+        }
+        
+        .about-content h4 {
+            font-size: 18px;
+        }
+        
+        .about-features li {
+            font-size: 14px;
+        }
+        
+        .about-contact p {
+            font-size: 14px;
+        }
+    }
 </style>
 
 <body>
-    <!-- Payee Button -->
-    <button id="viewPayeesBtn" class="payee-btn">
-        <i class="bi bi-people-fill"></i> <span class="payee-btn-text">Registry of Suppliers</span>
-    </button>
-    
-    <!-- Payee Modal -->
-    <div id="payeeModal" class="payee-modal">
-        <div class="payee-modal-content">
-            <div class="payee-modal-header">
-                <h3 class="payee-modal-title">
-                    <i class="bi bi-people-fill"></i> Suppliers
-                </h3>
-                <button class="payee-close" id="closePayeeModal"><i class="bi bi-x-lg"></i></button>
+
+<header class="main-header">
+    <div class="header-container">
+        <div class="logo-section">
+            <img src="img/Bagong-Pilipinas-Logo-e1717212149320-1920x1488.png" alt="DTI Logo" class="header-logo">
+            <div class="header-titles">
+                <h1>Department of Trade and Industry</h1>
+                <h2>Region 12 Financial Processing System</h2>
             </div>
-            <div class="payee-modal-body">
-                <div class="payee-search">
-                    <i class="bi bi-search"></i>
-                    <input type="text" id="payeeSearch" placeholder="Search payee by name, TIN, address...">
-                </div>
-                <div class="payee-table-container">
-                    <table class="payee-table" id="payeeTable">
-                        <thead>
-                            <tr>
-                                <th>Payee Name</th>
-                          
-                                <th>Address</th>
-                                <th>Category</th>
-                                <th>Contact Number</th>
-                               
-                            </tr>
-                        </thead>
-                        <tbody id="payeeTableBody">
-                            <!-- Payee data will be loaded here via AJAX -->
-                            <tr>
-                                <td colspan="7">
-                                    <div class="payee-loader">
-                                        <div class="payee-loader-spinner"></div>
-                                        <div class="payee-loader-text">Loading payee data...</div>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-           
+        </div>
+        <div class="header-right">
+            <nav class="header-nav">
+                <a href="#" id="viewPayeesBtn" class="nav-link">
+                    <i class="bi bi-people-fill"></i>
+                    <span>Registry of Suppliers</span>
+                </a>
+                <a href="#" id="aboutBtn" class="nav-link">
+                    <i class="bi bi-info-circle-fill"></i>
+                    <span>About</span>
+                </a>
+            </nav>
         </div>
     </div>
+</header>
+
+<!-- About Modal -->
+<div id="aboutModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="bi bi-info-circle-fill"></i> About the System</h3>
+            <button class="close-modal" id="closeAboutModal"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="about-content">
+                <h4>DTI Region 12 Financial Processing System</h4>
+                <p>This system is designed to streamline and modernize the financial processes of the Department of Trade and Industry Region 12. It provides a comprehensive platform for managing financial transactions, supplier information, and other related administrative tasks.</p>
+                
+                <div class="about-features">
+                    <h5>Key Features:</h5>
+                    <ul>
+                        <li>Secure user authentication and role-based access control</li>
+                        <li>Comprehensive supplier registry management</li>
+                        <li>Efficient financial transaction processing</li>
+                        <li>Real-time data tracking and reporting</li>
+                        <li>User-friendly interface for all stakeholders</li>
+                    </ul>
+                </div>
+                
+                <div class="about-contact">
+                    <h5>Contact Information:</h5>
+                    <p><i class="bi bi-geo-alt-fill"></i> DTI Region 12 Office, Koronadal City</p>
+                    <p><i class="bi bi-telephone-fill"></i> (083) 228-0016</p>
+                    <p><i class="bi bi-envelope-fill"></i> ro12@dti.gov.ph</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Payee Modal -->
+<div id="payeeModal" class="payee-modal">
+    <div class="payee-modal-content">
+        <div class="payee-modal-header">
+            <h3 class="payee-modal-title">
+                <i class="bi bi-people-fill"></i> Suppliers
+            </h3>
+            <button class="payee-close" id="closePayeeModal"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <div class="payee-modal-body">
+            <div class="payee-search">
+                <i class="bi bi-search"></i>
+                <input type="text" id="payeeSearch" placeholder="Search payee by name, TIN, address...">
+            </div>
+            <div class="payee-table-container">
+                <table class="payee-table" id="payeeTable">
+                    <thead>
+                        <tr>
+                            <th>Payee Name</th>
+                          
+                            <th>Address</th>
+                            <th>Category</th>
+                            <th>Contact Number</th>
+                           
+                        </tr>
+                    </thead>
+                    <tbody id="payeeTableBody">
+                        <!-- Payee data will be loaded here via AJAX -->
+                        <tr>
+                            <td colspan="7">
+                                <div class="payee-loader">
+                                    <div class="payee-loader-spinner"></div>
+                                    <div class="payee-loader-text">Loading payee data...</div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+       
+    </div>
+</div>
 
     <div class="loader-container" id="loader-container">
         <div class="loader">
@@ -797,7 +1168,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <footer>
         <div class="footer-content">
             <img src="img/DTI_short.png" alt="DTI Logo" height="16">
-            <p>Copyright &copy; 2025 Department of Trade and Industry -     DTI Region 12 Financial Processing System</p>
+            <p>Copyright &copy; 2025 Department of Trade and Industry</p>
             <!-- <div class="footer-links">
                 <a href="#">Terms</a>
                 <span class="footer-divider">|</span>
@@ -818,16 +1189,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     let animationRunning = true;
     let animationSpeed = 2000;
     let animationInterval;
+    let lastTimestamp = 0;
 
-    function rotateLogo() {
-        currentRotation += 180;
-        carousel.style.transform = `rotateY(${currentRotation}deg)`;
+    function rotateLogo(timestamp) {
+        if (!lastTimestamp) lastTimestamp = timestamp;
+        const elapsed = timestamp - lastTimestamp;
+        
+        if (elapsed >= animationSpeed) {
+            currentRotation += 180;
+            carousel.style.transform = `rotateY(${currentRotation}deg)`;
+            lastTimestamp = timestamp;
+        }
+        
+        if (animationRunning) {
+            requestAnimationFrame(rotateLogo);
+        }
     }
 
     function startAnimation() {
-        animationInterval = setInterval(rotateLogo, animationSpeed);
+        if (!animationRunning) {
+            animationRunning = true;
+            lastTimestamp = 0;
+            requestAnimationFrame(rotateLogo);
+        }
     }
 
+    function stopAnimation() {
+        animationRunning = false;
+    }
+
+    // Handle visibility change
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            stopAnimation();
+        } else {
+            startAnimation();
+        }
+    });
+
+    // Initial start
     startAnimation();
 
     const secondaryLogo = document.querySelector('.logo-back img');
@@ -1008,6 +1408,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             xhr.send();
         }
+    });
+
+    // About Modal Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const aboutBtn = document.getElementById('aboutBtn');
+        const aboutModal = document.getElementById('aboutModal');
+        const closeAboutModal = document.getElementById('closeAboutModal');
+        
+        // Open About modal
+        aboutBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            aboutModal.style.display = 'flex';
+        });
+        
+        // Close About modal
+        closeAboutModal.addEventListener('click', function() {
+            aboutModal.style.display = 'none';
+        });
+        
+        // Close when clicking outside modal
+        window.addEventListener('click', function(event) {
+            if (event.target === aboutModal) {
+                aboutModal.style.display = 'none';
+            }
+        });
     });
 </script>
 
