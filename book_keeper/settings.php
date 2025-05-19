@@ -2,6 +2,10 @@
 session_start();
 include '../DBConnection.php';
 
+$error_old = "";
+$error_new = "";
+$error_con = "";
+
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     $_SESSION['error'] = "Please login first!";
@@ -81,7 +85,7 @@ if (isset($_POST['update_profile'])) {
             $_SESSION['fullname'] = $new_fullname;
             $_SESSION['username'] = $new_username;
             $success = "Profile updated successfully!";
-            
+
             // Refresh user data
             $query = "SELECT * FROM users WHERE user_id = ?";
             $stmt = mysqli_prepare($connection, $query);
@@ -98,6 +102,7 @@ if (isset($_POST['update_profile'])) {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -107,106 +112,194 @@ if (isset($_POST['update_profile'])) {
     <link href="../NiceAdmin/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
 </head>
+
 <body>
-<?php include "Includes/sidebar.php"; ?>
-<?php include "Includes/header.php"; ?>
-<main class="main" id="main">
-    <section class="section dashboard">
-        <div id="wrapper">  
-            <div id="content-wrapper" class="d-flex flex-column">
-                <div id="content">
-                    <div class="container-fluid">
-                        <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                            <h1 class="h3 mb-0 text-gray-800">Account Settings</h1>
-                        </div>
+    <?php include "Includes/sidebar.php"; ?>
+    <?php include "Includes/header.php"; ?>
+    <main class="main" id="main">
+        <section class="section dashboard">
+            <div id="wrapper">
+                <div id="content-wrapper" class="d-flex flex-column">
+                    <div id="content">
+                        <div class="container-fluid">
+                            <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                                <h1 class="h3 mb-0 text-gray-800">Account Settings</h1>
+                            </div>
 
-                        <div class="card">
-                            <div class="card-body px-5 py-4">
-                                <?php if (!empty($errors)): ?>
-                                    <div class="alert alert-danger">
-                                        <?php foreach ($errors as $error): ?>
-                                            <p class="mb-0"><?php echo $error; ?></p>
-                                        <?php endforeach; ?>
-                                    </div>
-                                <?php endif; ?>
-
-                                <?php if (!empty($success)): ?>
-                                    <div class="alert alert-success">
-                                        <?php echo $success; ?>
-                                    </div>
-                                <?php endif; ?>
-
-                                <form method="POST" action="">
-                                    <div class="mb-4 row align-items-center">
-                                        <label for="fullname" class="col-md-3 col-form-label fw-semibold">Full Name</label>
-                                        <div class="col-md-9">
-                                            <input type="text" class="form-control" id="fullname" name="fullname" 
-                                                value="<?php echo htmlspecialchars($user['fullname']); ?>" required>
+                            <div class="card">
+                                <div class="card-body px-5 py-4">
+                                    <?php if (!empty($errors)): ?>
+                                        <div class="alert alert-danger">
+                                            <?php foreach ($errors as $error): ?>
+                                                <p class="mb-0"><?php echo $error; ?></p>
+                                            <?php endforeach; ?>
                                         </div>
-                                    </div>
+                                    <?php endif; ?>
 
-                                    <div class="mb-4 row align-items-center">
-                                        <label for="username" class="col-md-3 col-form-label fw-semibold">Username</label>
-                                        <div class="col-md-9">
-                                            <input type="text" class="form-control" id="username" name="username" 
-                                                value="<?php echo htmlspecialchars($user['username']); ?>" required>
+                                    <?php if (!empty($success)): ?>
+                                        <div class="alert alert-success">
+                                            <?php echo $success; ?>
                                         </div>
-                                    </div>
+                                    <?php endif; ?>
 
-                                    <div class="mb-4 row align-items-center">
-                                        <label for="current_password" class="col-md-3 col-form-label fw-semibold">Current Password</label>
-                                        <div class="col-md-9">
-                                            <input type="password" class="form-control" id="current_password" name="current_password" required>
-                                            <small class="form-text text-muted">Required to make any changes</small>
+                                    <form method="POST" action="">
+                                        <div class="mb-4 row align-items-center">
+                                            <label for="fullname" class="col-md-3 col-form-label fw-semibold">Full
+                                                Name</label>
+                                            <div class="col-md-9">
+                                                <input type="text" class="form-control" id="fullname" name="fullname"
+                                                    value="<?php echo htmlspecialchars($user['fullname']); ?>" required>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="mb-4 row align-items-center">
-                                        <label for="new_password" class="col-md-3 col-form-label fw-semibold">New Password</label>
-                                        <div class="col-md-9">
-                                            <input type="password" class="form-control" id="new_password" name="new_password">
-                                            <small class="form-text text-muted">Leave blank to keep current password</small>
+                                        <div class="mb-4 row align-items-center">
+                                            <label for="username"
+                                                class="col-md-3 col-form-label fw-semibold">Username</label>
+                                            <div class="col-md-9">
+                                                <input type="text" class="form-control" id="username" name="username"
+                                                    value="<?php echo htmlspecialchars($user['username']); ?>" required>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="mb-4 row align-items-center">
-                                        <label for="confirm_password" class="col-md-3 col-form-label fw-semibold">Confirm New Password</label>
-                                        <div class="col-md-9">
-                                            <input type="password" class="form-control" id="confirm_password" name="confirm_password">
+                                        <div class="mb-4 row align-items-center">
+                                            <label for="current_password"
+                                                class="col-md-3 col-form-label fw-semibold">Current Password</label>
+                                            <div class="col-md-9">
+                                                <input type="password" class="form-control" id="current_password"
+                                                    name="current_password" required>
+                                                <small class="form-text text-muted">Required to make any changes</small>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="mb-3 row">
-                                        <div class="offset-md-3 col-md-9">
-                                            <button type="submit" name="update_profile" class="btn btn-primary me-2">Update Profile</button>
-                                            <a href="dashboard.php" class="btn btn-secondary">Cancel</a>
+                                        <div class="mb-4 row align-items-center">
+                                            <label for="new_password" class="col-md-3 col-form-label fw-semibold">New
+                                                Password</label>
+                                            <div class="col-md-9">
+                                                <input type="password" class="form-control" id="new_password"
+                                                    name="new_password">
+                                                <small class="form-text text-muted">Leave blank to keep current
+                                                    password</small>
+                                            </div>
                                         </div>
-                                    </div>
-                                </form>
+
+                                        <div class="mb-4 row align-items-center">
+                                            <label for="confirm_password"
+                                                class="col-md-3 col-form-label fw-semibold">Confirm New Password</label>
+                                            <div class="col-md-9">
+                                                <input type="password" class="form-control" id="confirm_password"
+                                                    name="confirm_password">
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3 row">
+                                            <div class="offset-md-3 col-md-9">
+                                                <button type="submit" name="update_profile"
+                                                    class="btn btn-primary me-2">Update Profile</button>
+                                                <a href="dashboard.php" class="btn btn-secondary">Cancel</a>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
-</main>
+        </section>
+    </main>
 
-<!-- Bootstrap JS and dependencies -->
-<script src="../NiceAdmin/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap JS and dependencies -->
+    <script src="../NiceAdmin/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
-<!-- Vendor JS Files - Consolidated -->
-<script src="../NiceAdmin/assets/vendor/apexcharts/apexcharts.min.js"></script>
-<script src="../NiceAdmin/assets/vendor/chart.js/chart.umd.js"></script>
-<script src="../NiceAdmin/assets/vendor/echarts/echarts.min.js"></script>
-<script src="../NiceAdmin/assets/vendor/quill/quill.js"></script>
-<script src="../NiceAdmin/assets/vendor/simple-datatables/simple-datatables.js"></script>
-<script src="../NiceAdmin/assets/vendor/tinymce/tinymce.min.js"></script>
-<script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
+    <!-- Vendor JS Files - Consolidated -->
+    <script src="../NiceAdmin/assets/vendor/apexcharts/apexcharts.min.js"></script>
+    <script src="../NiceAdmin/assets/vendor/chart.js/chart.umd.js"></script>
+    <script src="../NiceAdmin/assets/vendor/echarts/echarts.min.js"></script>
+    <script src="../NiceAdmin/assets/vendor/quill/quill.js"></script>
+    <script src="../NiceAdmin/assets/vendor/simple-datatables/simple-datatables.js"></script>
+    <script src="../NiceAdmin/assets/vendor/tinymce/tinymce.min.js"></script>
+    <script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
 
-<!-- Template Main JS Files -->
-<script src="../NiceAdmin/assets/js/main.js"></script>
-<script src="js/main.js"></script>
-    
+    <!-- Template Main JS Files -->
+    <script src="../NiceAdmin/assets/js/main.js"></script>
+    <script src="js/main.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.querySelector('form');
+            const currentPassword = document.getElementById('current_password');
+            const newPassword = document.getElementById('new_password');
+            const confirmPassword = document.getElementById('confirm_password');
+
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'alert alert-danger d-none';
+            form.insertBefore(errorDiv, form.firstChild);
+
+            function showErrors(errors) {
+                if (errors.length > 0) {
+                    errorDiv.innerHTML = errors.map(err => `<p class="mb-0">${err}</p>`).join('');
+                    errorDiv.classList.remove('d-none');
+                } else {
+                    errorDiv.classList.add('d-none');
+                    errorDiv.innerHTML = '';
+                }
+            }
+
+            // Validate everything except password match on general input
+            form.addEventListener('input', function (e) {
+                if (e.target === confirmPassword) return; // skip password match check here
+                const errors = [];
+
+                if (currentPassword.value.trim() === '') {
+                    errors.push("Current password is required");
+                }
+
+                if (newPassword.value.length > 0 && newPassword.value.length < 8) {
+                    errors.push("New password must be at least 8 characters");
+                }
+
+                // No password match error here
+
+                showErrors(errors);
+            });
+
+            // Validate password match specifically on confirmPassword input
+            confirmPassword.addEventListener('input', function () {
+                const errors = [];
+
+                if (newPassword.value !== confirmPassword.value) {
+                    errors.push("New passwords do not match");
+                }
+
+                showErrors(errors);
+            });
+
+            // Final check on form submit
+            form.addEventListener('submit', function (e) {
+                const errors = [];
+
+                if (currentPassword.value.trim() === '') {
+                    errors.push("Current password is required");
+                }
+
+                if (newPassword.value.length > 0 && newPassword.value.length < 8) {
+                    errors.push("New password must be at least 8 characters");
+                }
+
+                if (newPassword.value !== confirmPassword.value) {
+                    errors.push("New passwords do not match");
+                }
+
+                if (errors.length > 0) {
+                    e.preventDefault();
+                    showErrors(errors);
+                }
+            });
+        });
+    </script>
+
+
+
 </body>
+
 </html>
