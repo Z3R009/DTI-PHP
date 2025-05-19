@@ -619,7 +619,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                                     <td colspan="2">
                                                         <select class="form-control account-select"
                                                             name="account_titles[]">
-                                                            <option selected disabled>Select Cash Account
+                                                            <option selected disabled value="">Select Cash Account
                                                             </option>
                                                             <?php
                                                             // Define the specific account codes we want to show

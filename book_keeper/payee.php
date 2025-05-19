@@ -174,13 +174,14 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
         .datatable-top .datatable-search {
             display: none !important;
         }
-        .modal-header{
-              background-color: #03045e;
+
+        .modal-header {
+            background-color: #03045e;
         }
-        .modal-title{
-              color: #fff;
+
+        .modal-title {
+            color: #fff;
         }
-        
     </style>
 
 </head>
