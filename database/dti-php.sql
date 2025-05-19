@@ -1118,7 +1118,8 @@ INSERT INTO `payee` (`payee_id`, `payee_name`, `tin_no`, `bank_acc_no`, `address
 (75, 'SHEILA\'S PARK FAMILY RESTO & FASTFOOD', '', '', 'KORONADAL CITY', '', '', 'external'),
 (76, 'SOX FOOD PRODUCTS MANUFACTURING', '', '', '', '', '', 'external'),
 (77, 'TRISHA\'S BURGER STATION/ PILAR F. PARDO', '', '', 'KORONADAL CITY', '', '', 'external'),
-(78, 'MA. ADA N. ALBURO', '', '', 'KORONADAL CITY', '', '', 'external');
+(78, 'MA. ADA N. ALBURO', '', '', 'KORONADAL CITY', '', '', 'external'),
+(1, 'DEPARTMENT OF TRADE AND INDUSTRY', '000-000-000-000', 'LBP - 2075-9006-81', 'Koronadal City, South Cotabato', 'Government Agency', '', 'Internal');
 
 -- --------------------------------------------------------
 

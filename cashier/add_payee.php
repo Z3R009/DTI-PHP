@@ -112,12 +112,7 @@ $select = mysqli_query($connection, "SELECT * FROM payee ORDER BY payee_name ASC
     <main id="main" class="main">
         <div class="pagetitle">
             <h1>Add Payee</h1>
-            <nav>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                    <li class="breadcrumb-item active">Add Payee</li>
-                </ol>
-            </nav>
+           
         </div>
 
          <section class="section dashboard">

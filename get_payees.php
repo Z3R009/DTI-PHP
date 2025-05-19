@@ -5,9 +5,25 @@ include 'DBConnection.php';
 // Set content type to JSON
 header('Content-Type: application/json');
 
+// Check if database connection exists
+if (!isset($connection) || !$connection) {
+    http_response_code(500);
+    echo json_encode([
+        'error' => true,
+        'message' => 'Database connection failed'
+    ]);
+    exit;
+}
+
 try {
-    // Query to fetch all payees
-    $query = "SELECT payee_id, payee_name, bank_acc_no, tin_no, address, nature, contact_no, payee_type FROM payee ORDER BY payee_name ASC";
+    // Query to fetch all payees, ordered by name
+    $query = "SELECT DISTINCT payee_id, payee_name, bank_acc_no, tin_no, address, nature, contact_no, payee_type 
+              FROM payee 
+              WHERE payee_name IS NOT NULL 
+              AND payee_name != '' 
+              AND payee_name != 'DEPARTMENT OF TRADE AND INDUSTRY XII'
+              ORDER BY payee_name ASC";
+              
     $result = $connection->query($query);
     
     if ($result === false) {
@@ -24,17 +40,26 @@ try {
         $payees[] = $row;
     }
     
+    // Add debugging information
+    error_log("Number of payees found: " . count($payees));
+    
     // Return the payees as JSON
     echo json_encode($payees);
     
 } catch (Exception $e) {
+    // Log the error
+    error_log("Error in get_payees.php: " . $e->getMessage());
+    
     // Return error message
+    http_response_code(500);
     echo json_encode([
         'error' => true,
-        'message' => $e->getMessage()
+        'message' => 'An error occurred while fetching payee data'
     ]);
+} finally {
+    // Close the connection if it exists
+    if (isset($connection) && $connection) {
+        $connection->close();
+    }
 }
-
-// Close the connection
-$connection->close();
 ?> 

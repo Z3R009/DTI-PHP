@@ -6,6 +6,34 @@ if (!isset($connection) || !$connection) {
     error_log($conn_error);
 }
 
+// Get internal payees for the dropdown
+$internal_payees = array();
+if (isset($connection)) {
+    // First, check if the payee exists
+    $check_query = "SELECT payee_id, payee_name FROM payee WHERE payee_name = 'DEPARTMENT OF TRADE AND INDUSTRY' AND payee_type = 'Internal'";
+    $check_result = $connection->query($check_query);
+    
+    // If payee doesn't exist, insert it
+    if ($check_result && $check_result->num_rows === 0) {
+        $insert_query = "INSERT INTO payee (payee_name, payee_type) VALUES ('DEPARTMENT OF TRADE AND INDUSTRY', 'Internal')";
+        if ($connection->query($insert_query)) {
+            // After inserting, get the payee details
+            $payee_query = "SELECT payee_id, payee_name FROM payee WHERE payee_name = 'DEPARTMENT OF TRADE AND INDUSTRY' AND payee_type = 'Internal'";
+            $payee_result = $connection->query($payee_query);
+            if ($payee_result) {
+                while ($row = $payee_result->fetch_assoc()) {
+                    $internal_payees[] = $row;
+                }
+            }
+        }
+    } else {
+        // If payee exists, get its details
+        while ($row = $check_result->fetch_assoc()) {
+            $internal_payees[] = $row;
+        }
+    }
+}
+
 $success_message = '';
 if(isset($_GET['success']) && $_GET['success'] == '1') {
     $success_message = 'Payment has been recorded successfully!';
@@ -649,12 +677,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body">
-                                                <div class="alert alert-info d-flex align-items-center mb-4" role="alert">
+                                                <!-- <div class="alert alert-info d-flex align-items-center mb-4" role="alert">
                                                     <i class="bi bi-info-circle-fill me-2 fs-4"></i>
                                                     <div>
                                                         You are creating a batch ADA payment for multiple disbursement vouchers. Please review the selected DVs and provide the required information.
                                                     </div>
-                                                </div>
+                                                </div> -->
                                                 
                                                 <!-- Add hidden fields for form submission -->
                                                 <input type="hidden" name="submit_batch_ada" value="1">
@@ -707,7 +735,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                                 <div class="mb-3">
                                                                     <label for="fund_code" class="form-label fw-medium">Fund Code <span class="text-danger">*</span></label>
                                                                     <input type="text" class="form-control" id="fund_code" name="fund_code" value="" required>
-                                                                    <div class="form-text">This will be used in the LDDAP-ADA reference number format</div>
+                                                                    <!-- <div class="form-text">This will be used in the LDDAP-ADA reference number format</div> -->
                                                                 </div>
                                                                 
                                                                 <div class="mb-3">
@@ -817,12 +845,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         </div>
                                         <form method="POST" action="back_end/merge_payees.php" id="mergePayeeForm">
                                             <div class="modal-body">
-                                                <div class="alert alert-info d-flex align-items-center mb-4" role="alert">
+                                                <!-- <div class="alert alert-info d-flex align-items-center mb-4" role="alert">
                                                     <i class="bi bi-info-circle-fill me-2 fs-4"></i>
                                                     <div>
                                                         You are creating a consolidated internal payee group for multiple vouchers. This allows you to process them as a single payment.
                                                     </div>
-                                                </div>
+                                                </div> -->
                                                 
                                                 <div class="card mb-4 border-0 shadow-sm">
                                                     <div class="card-header bg-light">
@@ -832,8 +860,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                         <div class="row mb-3">
                                                             <div class="col-md-8">
                                                                 <label for="merge_name" class="form-label fw-medium">Merged Payee Name <span class="text-danger">*</span></label>
-                                                                <input type="text" class="form-control form-control-lg" id="merge_name" name="merge_name" 
-                                                                       placeholder="Enter a name for this group (e.g. Department Utilities Bills)" required>
+                                                                <select class="form-select form-select-lg" id="merge_name" name="merge_name" required>
+                                                                    <option value="">Select Payee Name</option>
+                                                                    <option value="DEPARTMENT OF TRADE AND INDUSTRY" data-bank-account="2075-9006-81">
+                                                                        DEPARTMENT OF TRADE AND INDUSTRY
+                                                                    </option>
+                                                                </select>
                                                             </div>
                                                             <div class="col-md-4">
                                                                 <label for="payee_type" class="form-label fw-medium">Payee Type</label>
@@ -842,6 +874,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                                     <option value="External">External</option>
                                                                 </select>
                                                             </div>
+                                                        </div>
+                                                        
+                                                        <div class="mb-3">
+                                                            <label for="bank_account" class="form-label fw-medium">Bank Account Number</label>
+                                                            <input type="text" class="form-control" id="bank_account" name="bank_account" value="2075-9006-81" readonly>
+                                                            <div class="form-text">Bank account for DEPARTMENT OF TRADE AND INDUSTRY</div>
                                                         </div>
                                                         
                                                         <div class="mb-3">
@@ -2787,6 +2825,21 @@ document.addEventListener('DOMContentLoaded', function() {
             return true;
         });
     }
+});
+</script>
+
+<script>
+$(document).ready(function() {
+    // Handle bank account display when payee is selected
+    $('#merge_name').change(function() {
+        var selectedOption = $(this).find('option:selected');
+        var bankAccount = selectedOption.data('bank-account');
+        if (bankAccount) {
+            $('#bank_account').val(bankAccount);
+        } else {
+            $('#bank_account').val('');
+        }
+    });
 });
 </script>
 </body>
