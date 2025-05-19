@@ -461,177 +461,189 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         100% { transform: rotate(360deg); }
     }
     .main-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    background-color: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
-    padding: 10px 20px;
-    z-index: 100;
-    border-bottom: 3px solid #03045e;
-}
-
-.header-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    max-width: 1400px;
-    margin: 0 auto;
-}
-
-.logo-section {
-    display: flex;
-    align-items: center;
-}
-
-.header-logo {
-    height: 50px;
-    margin-right: 15px;
-}
-
-.header-titles h1 {
-    font-size: 18px;
-    font-weight: 700;
-    color: #03045e;
-    margin: 0;
-    line-height: 1.2;
-}
-
-.header-titles h2 {
-    font-size: 14px;
-    font-weight: 500;
-    color: #D90429;
-    margin: 0;
-}
-
-.header-right {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-
-.header-nav {
-    display: flex;
-    gap: 20px;
-    align-items: center;
-}
-
-.nav-link {
-    color: #03045e;
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    border-radius: 4px;
-    transition: all 0.3s ease;
-}
-
-.nav-link:hover {
-    background-color: rgba(3, 4, 94, 0.1);
-    color: #D90429;
-}
-
-.nav-link i {
-    font-size: 16px;
-}
-
-.header-btn {
-    background-color: #03045e;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 8px 15px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.3s ease;
-}
-
-.header-btn:hover {
-    background: linear-gradient(135deg, #03045e 0%, #D90429 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-.header-btn:active {
-    transform: translateY(1px);
-}
-
-.header-btn i {
-    font-size: 16px;
-}
-
-.bp-logo {
-    height: 40px;
-}
-
-/* Adjust body padding to accommodate the header */
-body {
-    padding-top: 80px;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .header-btn span {
-        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        padding: 12px 25px;
+        z-index: 100;
+        border-bottom: 2px solid #03045e;
     }
-    
-    .header-btn {
-        padding: 8px;
-        border-radius: 50%;
-    }
-    
-    .header-btn i {
-        margin: 0;
-    }
-    
-    .header-titles h1 {
-        font-size: 16px;
-    }
-    
-    .header-titles h2 {
-        font-size: 12px;
-    }
-    
-    .header-logo, .bp-logo {
-        height: 35px;
-    }
-}
 
-@media (max-width: 580px) {
-    .header-titles h1 {
-        font-size: 14px;
+    .header-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1400px;
+        margin: 0 auto;
     }
-    
-    .header-titles h2 {
-        font-size: 10px;
+
+    .logo-section {
+        display: flex;
+        align-items: center;
+        gap: 15px;
     }
-    
+
     .header-logo {
-        height: 30px;
-        margin-right: 10px;
+        height: 45px;
+        transition: transform 0.3s ease;
     }
-    
-    .bp-logo {
-        height: 25px;
+
+    .header-logo:hover {
+        transform: scale(1.05);
     }
-    
-    .main-header {
-        padding: 8px 15px;
+
+    .header-titles {
+        display: flex;
+        flex-direction: column;
     }
-    
+
+    .header-titles h1 {
+        font-size: 20px;
+        font-weight: 700;
+        color: #03045e;
+        margin: 0;
+        line-height: 1.2;
+        letter-spacing: -0.5px;
+    }
+
+    .header-titles h2 {
+        font-size: 14px;
+        font-weight: 500;
+        color: #D90429;
+        margin: 0;
+        letter-spacing: 0.5px;
+    }
+
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 25px;
+    }
+
+    .header-nav {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .nav-link {
+        color: #03045e;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .nav-link::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #03045e 0%, #D90429 100%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: -1;
+    }
+
+    .nav-link:hover {
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .nav-link:hover::before {
+        opacity: 1;
+    }
+
+    .nav-link i {
+        font-size: 16px;
+        transition: transform 0.3s ease;
+    }
+
+    .nav-link:hover i {
+        transform: scale(1.1);
+    }
+
+    .nav-link.active {
+        background: linear-gradient(135deg, #03045e 0%, #D90429 100%);
+        color: white;
+    }
+
+    /* Adjust body padding to accommodate the header */
     body {
-        padding-top: 60px;
+        padding-top: 70px;
     }
-}
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .main-header {
+            padding: 10px 15px;
+        }
+
+        .header-logo {
+            height: 35px;
+        }
+
+        .header-titles h1 {
+            font-size: 16px;
+        }
+
+        .header-titles h2 {
+            font-size: 12px;
+        }
+
+        .nav-link span {
+            display: none;
+        }
+
+        .nav-link {
+            padding: 8px;
+            border-radius: 50%;
+        }
+
+        .nav-link i {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        body {
+            padding-top: 60px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .header-titles h1 {
+            font-size: 14px;
+        }
+
+        .header-titles h2 {
+            font-size: 10px;
+        }
+
+        .header-logo {
+            height: 30px;
+        }
+
+        .main-header {
+            padding: 8px 12px;
+        }
+
+        body {
+            padding-top: 55px;
+        }
+    }
 
     /* Footer Styles */
     footer {
@@ -968,17 +980,17 @@ body {
         <div class="logo-section">
             <img src="img/Bagong-Pilipinas-Logo-e1717212149320-1920x1488.png" alt="DTI Logo" class="header-logo">
             <div class="header-titles">
-                <h1>Department of Trade and Industry</h1>
-                <h2>Region 12 Financial Processing System</h2>
+                <h1>Department of Trade and Industry Region 12</h1>
+                <h2>Financial Processing System</h2>
             </div>
         </div>
         <div class="header-right">
             <nav class="header-nav">
-                <a href="#" id="viewPayeesBtn" class="nav-link">
+                <a href="suppliers.php" class="nav-link">
                     <i class="bi bi-people-fill"></i>
                     <span>Registry of Suppliers</span>
                 </a>
-                <a href="#" id="aboutBtn" class="nav-link">
+                <a href="about.php" class="nav-link">
                     <i class="bi bi-info-circle-fill"></i>
                     <span>About</span>
                 </a>

@@ -37,20 +37,16 @@ $recent_payments_result = mysqli_query($connection, $recent_payments_query);
 
 <!DOCTYPE html>
 <html lang="en">
-<link rel="stylesheet" href="css/table.css">
+
 <?php include 'includes/header.php'; ?>
 <?php include 'includes/sidebar.php'; ?>
+<link rel="stylesheet" href="css/table.css">
 
 <main id="main" class="main">
 
     <div class="pagetitle">
         <h1>Cashier Dashboard</h1>
-        <nav>
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                <li class="breadcrumb-item active">Dashboard</li>
-            </ol>
-        </nav>
+     
     </div>
     <section class="section dashboard">
         <div class="row">
@@ -127,10 +123,10 @@ $recent_payments_result = mysqli_query($connection, $recent_payments_query);
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Recent Payments</h5>
-                        <table class="datatable">
+                   <table class="datatable">        
                             <thead>
                                 <tr>
-                                    <th>DV No</th>
+                                    <th scope="col">DV No</th>
                                     <th>Payment Type</th>
                                     <th>Reference No</th>
                                     <th>Amount</th>
