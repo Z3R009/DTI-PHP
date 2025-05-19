@@ -26,7 +26,7 @@ if (isset($_POST['date']) && !empty($_POST['date'])) {
 }
 
 // DV number pattern: UACS-YEAR-MONTH-XXX
-$like_pattern = "$uacs_code-$year-$month-%";
+$like_pattern = "$uacs_code-$year-%";
 
 // Helper function to get max series number
 function get_max_series($connection, $table, $like_pattern)
