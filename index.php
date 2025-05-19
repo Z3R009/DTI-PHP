@@ -980,8 +980,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="logo-section">
             <img src="img/Bagong-Pilipinas-Logo-e1717212149320-1920x1488.png" alt="DTI Logo" class="header-logo">
             <div class="header-titles">
-                <h1>Department of Trade and Industry</h1>
-                <h2>Region 12 Financial Processing System</h2>
+                <h1>Department of Trade and Industry Region 12</h1>
+                <h2>Financial Processing System</h2>
             </div>
         </div>
         <div class="header-right">

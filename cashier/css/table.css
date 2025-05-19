@@ -1,4 +1,21 @@
-    /* Enhanced table styling */
+
+:root {
+    --primary-color: #03045e;
+    --primary-dark: #023e8a;
+    --primary-light: #e0f2fe;
+    --secondary-color: #8d99ae;
+    --text-color: #2B2D42;
+    --light-text: #6c757d;
+    --border-color: #e2e8f0;
+    --light-bg: #f8f9fa;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --danger-color: #dc3545;
+    --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --hover-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+    --transition: all 0.3s ease;
+}
+
     .table-responsive {
         overflow-x: auto;
     }
@@ -7,7 +24,7 @@
         width: 100%;
         border-collapse: collapse;
         margin-bottom: 20px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        box-shadow: var(--card-shadow);
         border-radius: 8px;
         overflow: hidden;
     }
@@ -16,13 +33,13 @@
     table td {
         padding: 14px 16px;
         text-align: left;
-        border-bottom: 1px solid #e8e8e8;
+        border-bottom: var(--border-color) 1px solid;
         vertical-align: middle;
     }
 
-    /* Table header */
+
     table th {
-        background-color: #0077b6;
+        background-color: var(--primary-color);
         color: white;
         font-weight: 600;
         text-transform: uppercase;
@@ -31,13 +48,12 @@
         border-top: none;
     }
 
-    /* Zebra striping for better readability */
     table tbody tr:nth-child(even) {
-        background-color: #f8fafc;
+        background-color: var(--light-bg);
     }
 
     table tbody tr:hover {
-        background-color: #f0f9ff;
+        background-color: var(--primary-light);
         transition: background-color 0.2s ease;
     }
 
@@ -52,11 +68,11 @@
     }
     
     .text-primary {
-        color: #0077b6 !important;
+        color: var(--text-color) !important;
     }
     
     .text-success {
-        color: #198754 !important;
+        color: var(--success-color) !important;
     }
     
     .badge {
@@ -65,13 +81,13 @@
     }
     
     .btn-group .btn {
-        box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+        box-shadow:var(--card-shadow);
         margin-right: 5px;
     }
     
     .btn-group .btn:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        box-shadow: var(--hover-shadow);
         transition: all 0.2s ease;
     }
     
@@ -82,12 +98,10 @@
         align-items: center;
         justify-content: center;
     }
-    
-    /* Card enhancements */
     .card {
         border-radius: 8px;
         overflow: hidden;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        box-shadow: var(--card-shadow);
         border: none;
     }
     
@@ -95,48 +109,44 @@
         padding: 1.5rem;
     }
     
-    /* Modal enhancements */
     .modal-content {
         border: none;
         border-radius: 8px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        box-shadow: var(--card-shadow);
     }
     
     /* Empty state styling */
     .empty-state {
         text-align: center;
         padding: 2rem;
-        color: #6c757d;
+        color: var(--light-text);
     }
     
     .empty-state i {
         font-size: 3rem;
-        color: #dee2e6;
+        color: var(--primary-color);
         margin-bottom: 1rem;
     }
 
-    /* Fix for DataTable search input */
     .dataTables_filter input {
-        border: 1px solid #e2e8f0;
+        border: var(--border-color) 1px solid;
         padding: 8px 10px;
         border-radius: 6px;
         margin-left: 8px;
     }
 
     .dataTables_filter input:focus {
-        border-color: #0077b6;
+        border-color: var(--primary-color);
         outline: none;
         box-shadow: 0 0 0 2px rgba(0, 119, 182, 0.2);
     }
-
-    /* Pagination styling */
     .dataTables_paginate .paginate_button {
         border-radius: 4px;
         margin: 0 2px;
     }
 
     .dataTables_paginate .paginate_button.current {
-        background: #0077b6 !important;
-        border-color: #0077b6 !important;
-        color: white !important;
+        background: var(--secondary-color) !important;
+        border-color: var(--border-color) !important;
+        color: var(--text-color) !important;
     }

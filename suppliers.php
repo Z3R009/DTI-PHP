@@ -377,8 +377,8 @@ include 'DBConnection.php';
             <div class="logo-section">
                 <img src="img/Bagong-Pilipinas-Logo-e1717212149320-1920x1488.png" alt="DTI Logo" class="header-logo">
                 <div class="header-titles">
-                    <h1>Department of Trade and Industry</h1>
-                    <h2>Region 12 Financial Processing System</h2>
+                    <h1>Department of Trade and Industry Region 12</h1>
+                    <h2>Financial Processing System</h2>
                 </div>
             </div>
             <div class="header-right">
@@ -399,13 +399,22 @@ include 'DBConnection.php';
     <div class="suppliers-container">
         <div class="page-header">
             <h1><i class="bi bi-people-fill"></i> Registry of Suppliers</h1>
-            <p>Comprehensive list of all registered suppliers and vendors</p>
+            <!-- <p>Comprehensive list of all registered suppliers and vendors</p> -->
         </div>
 
         <div class="search-section">
-            <div class="search-box">
-                <i class="bi bi-search"></i>
-                <input type="text" id="supplierSearch" placeholder="Search suppliers by name, address, or category...">
+            <div class="d-flex gap-3 align-items-center flex-wrap">
+                <div class="search-box flex-grow-1">
+                    <i class="bi bi-search"></i>
+                    <input type="text" id="supplierSearch" placeholder="Search suppliers by name, address, or category...">
+                </div>
+                <div class="filter-box">
+                    <select id="categoryFilter" class="form-select">
+                        <option value="">All Categories</option>
+                        <option value="External">External</option>
+                        <option value="Internal">Internal</option>
+                    </select>
+                </div>
             </div>
         </div>
 
@@ -418,13 +427,13 @@ include 'DBConnection.php';
                             <th>Address</th>
                             <th>Category</th>
                             <th>Contact Number</th>
-                            <th>Email</th>
+                    
                         </tr>
                     </thead>
                     <tbody id="suppliersTableBody">
                         <!-- Data will be loaded here via AJAX -->
                         <tr>
-                            <td colspan="5" class="text-center py-4">
+                            <td colspan="6" class="text-center py-4">
                                 <div class="spinner-border text-primary" role="status">
                                     <span class="visually-hidden">Loading...</span>
                                 </div>
@@ -443,72 +452,72 @@ include 'DBConnection.php';
     <script src="bootstrap-5.2.3/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('supplierSearch');
-            const tableBody = document.getElementById('suppliersTableBody');
+            let allPayees = []; // Store all payees for filtering
 
             // Fetch suppliers data
-            function fetchSuppliers() {
-                fetch('get_payees.php')
-                    .then(response => response.json())
-                    .then(suppliers => {
-                        if (suppliers.length === 0) {
-                            tableBody.innerHTML = `
-                                <tr>
-                                    <td colspan="5" class="text-center py-4">
-                                        <i class="bi bi-exclamation-circle text-warning" style="font-size: 24px;"></i>
-                                        <p class="mt-2">No suppliers found</p>
-                                    </td>
-                                </tr>
-                            `;
-                            return;
-                        }
+            fetch('get_payees.php')
+                .then(response => response.json())
+                .then(data => {
+                    allPayees = data; // Store all payees
+                    filterAndDisplayPayees();
+                })
+                .catch(error => {
+                    console.error('Error fetching suppliers:', error);
+                    document.getElementById('suppliersTableBody').innerHTML = `
+                        <tr>
+                            <td colspan="4" class="text-center text-danger">Error loading suppliers</td>
+                        </tr>
+                    `;
+                });
 
-                        let html = '';
-                        suppliers.forEach(supplier => {
-                            html += `
-                                <tr>
-                                    <td data-label="Supplier Name">
-                                        <span class="supplier-name">${supplier.payee_name || 'N/A'}</span>
-                                    </td>
-                                    <td data-label="Address">${supplier.address || 'N/A'}</td>
-                                    <td data-label="Category">
-                                        <span class="supplier-category ${supplier.nature === 'Internal' ? 'category-internal' : 'category-external'}">
-                                            ${supplier.nature || 'N/A'}
-                                        </span>
-                                    </td>
-                                    <td data-label="Contact Number">${supplier.contact_no || 'N/A'}</td>
-                                    <td data-label="Email">${supplier.email || 'N/A'}</td>
-                                </tr>
-                            `;
-                        });
-                        tableBody.innerHTML = html;
-                    })
-                    .catch(error => {
-                        tableBody.innerHTML = `
-                            <tr>
-                                <td colspan="5" class="text-center py-4">
-                                    <i class="bi bi-exclamation-triangle text-danger" style="font-size: 24px;"></i>
-                                    <p class="mt-2">Error loading suppliers data</p>
-                                </td>
-                            </tr>
-                        `;
-                        console.error('Error:', error);
-                    });
+            // Function to filter and display payees
+            function filterAndDisplayPayees() {
+                const searchTerm = document.getElementById('supplierSearch').value.toLowerCase();
+                const categoryFilter = document.getElementById('categoryFilter').value.toLowerCase();
+
+                // Filter payees based on search term and category
+                const filteredPayees = allPayees.filter(payee => {
+                    const matchesSearch = 
+                        payee.payee_name?.toLowerCase().includes(searchTerm) ||
+                        payee.address?.toLowerCase().includes(searchTerm) ||
+                        payee.nature?.toLowerCase().includes(searchTerm) ||
+                        payee.contact_no?.toLowerCase().includes(searchTerm);
+
+                    const matchesCategory = !categoryFilter || 
+                        (payee.payee_type && payee.payee_type.toLowerCase() === categoryFilter);
+
+                    return matchesSearch && matchesCategory;
+                });
+
+                if (filteredPayees.length === 0) {
+                    document.getElementById('suppliersTableBody').innerHTML = `
+                        <tr>
+                            <td colspan="4" class="text-center">No suppliers found</td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                // Build table rows
+                const tableRows = filteredPayees.map(payee => `
+                    <tr>
+                        <td data-label="Supplier Name">${payee.payee_name || '-'}</td>
+                        <td data-label="Address">${payee.address || '-'}</td>
+                        <td data-label="Category">${payee.nature || '-'}</td>
+                        <td data-label="Contact Number">${payee.contact_no || '-'}</td>
+                    </tr>
+                `).join('');
+
+                document.getElementById('suppliersTableBody').innerHTML = tableRows;
             }
 
             // Search functionality
-            searchInput.addEventListener('input', function() {
-                const searchText = this.value.toLowerCase();
-                const rows = tableBody.getElementsByTagName('tr');
+            const searchInput = document.getElementById('supplierSearch');
+            searchInput.addEventListener('input', filterAndDisplayPayees);
 
-                Array.from(rows).forEach(row => {
-                    const text = row.textContent.toLowerCase();
-                    row.style.display = text.includes(searchText) ? '' : 'none';
-                });
-            });
-
-            // Initial load
-            fetchSuppliers();
+            // Category filter functionality
+            const categoryFilter = document.getElementById('categoryFilter');
+            categoryFilter.addEventListener('change', filterAndDisplayPayees);
         });
     </script>
 </body>

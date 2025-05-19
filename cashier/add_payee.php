@@ -1,7 +1,6 @@
 <?php
 include '../DBConnection.php';
-include 'includes/header.php';
-include 'includes/sidebar.php';
+
 
 $alert = "";
 
@@ -107,7 +106,8 @@ $select = mysqli_query($connection, "SELECT * FROM payee ORDER BY payee_name ASC
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
     <link rel="stylesheet" href="css/table.css">
 </head>
-
+<?php include 'includes/header.php'; ?>
+<?php include 'includes/sidebar.php'; ?>
 <body>
     <main id="main" class="main">
         <div class="pagetitle">
@@ -120,7 +120,7 @@ $select = mysqli_query($connection, "SELECT * FROM payee ORDER BY payee_name ASC
             </nav>
         </div>
 
-        <section class="section">
+         <section class="section dashboard">
             <div class="row">
                 <div class="col-lg-12">
                     <div class="card border-0 shadow-sm">
@@ -375,17 +375,6 @@ $select = mysqli_query($connection, "SELECT * FROM payee ORDER BY payee_name ASC
     <?php include 'includes/footer.php'; ?>
 
     <!-- Vendor JS Files -->
-    <script src="../NiceAdmin/assets/vendor/apexcharts/apexcharts.min.js"></script>
-    <script src="../NiceAdmin/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="../NiceAdmin/assets/vendor/chart.js/chart.umd.js"></script>
-    <script src="../NiceAdmin/assets/vendor/echarts/echarts.min.js"></script>
-    <script src="../NiceAdmin/assets/vendor/quill/quill.min.js"></script>
-    <script src="../NiceAdmin/assets/vendor/simple-datatables/simple-datatables.js"></script>
-    <script src="../NiceAdmin/assets/vendor/tinymce/tinymce.min.js"></script>
-    <script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
-
-    <!-- Template Main JS File -->
-    <script src="../NiceAdmin/assets/js/main.js"></script>
 
     <!-- SweetAlert2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

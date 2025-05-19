@@ -30,46 +30,44 @@
 </head>
 
 <body>
-    <!-- ======= Header ======= -->
-    <header id="header" class="header fixed-top d-flex align-items-center">
+  <header id="header" class="header fixed-top d-flex align-items-center">
+    <div class="d-flex align-items-center justify-content-between">
+        <a href="dashboard.php" class="logo d-flex align-items-center">
+               <img src="../img/dti_logo.png" alt="DTI Logo">
+            <span class="d-none d-lg-block fw-bold">DTI Region 12</span>
+        </a>
+        <i class="bi bi-list toggle-sidebar-btn"></i>
+    </div>
 
-        <div class="d-flex align-items-center justify-content-between">
-            <a href="dashboard.php" class="logo d-flex align-items-center">
-            <img src="../img/DTI_short.png" alt="DTI Logo">
-                <span class="d-none d-lg-block">DTI-Cashier</span>
-            </a>
-            <i class="bi bi-list toggle-sidebar-btn"></i>
-        </div><!-- End Logo -->
+    <!-- search dapat unod ani -->
+    <div class="search-bar ms-auto me-4 d-none d-md-flex">
+    </div>
 
-        <nav class="header-nav ms-auto">
-            <ul class="d-flex align-items-center">
-                <li class="nav-item dropdown pe-3">
+    <nav class="header-nav">
+        <ul class="d-flex align-items-center">
+          
+            <!-- change password -->
+            <li class="nav-item dropdown pe-3">
+                <a class="dropdown-item d-flex align-items-center" href="settings.php">
+                      <i class="bi bi-gear fs-5"></i>
+                 </a>
+            </li> 
 
-                    <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-                        <img src="../img/incognito-circle-icon-md.png" alt="Profile" class="rounded-circle">
-                        <span class="d-none d-md-block dropdown-toggle ps-2">Cashier</span>
-                    </a><!-- End Profile Iamge Icon -->
+            <!-- logout -->
+           <li class="nav-item dropdown pe-3">
+                <a class="dropdown-item d-flex align-items-center" href="../logout.php">
+                      <i class="bi bi-box-arrow-right text-danger fs-4 me-2"></i>
+                 </a>
+            </li> 
+        </ul>
+    </nav>
+</header>
 
-                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
-                        <li class="dropdown-header">
-                            <h6>Cashier</h6>
-                            <span>DTI Region XII</span>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
 
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center" href="../logout.php">
-                                <i class="bi bi-box-arrow-right"></i>
-                                <span>Sign Out</span>
-                            </a>
-                        </li>
 
-                    </ul><!-- End Profile Dropdown Items -->
-                </li><!-- End Profile Nav -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-            </ul>
-        </nav><!-- End Icons Navigation -->
 
-    </header><!-- End Header --> 
+
+
+ 
