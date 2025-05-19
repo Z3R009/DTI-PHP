@@ -242,7 +242,7 @@ $monthly_amounts = array_reverse($monthly_amounts);
                                         <?php while ($ors = $recent_ors_result->fetch_assoc()): ?>
                                             <tr>
                                                 <td><a
-                                                        href="ors.php?ors_id=<?php echo $ors['ors_id']; ?>"><?php echo $ors['ors_no']; ?></a>
+                                                        href="ors_form.php?ors_no=<?php echo $ors['ors_no']; ?>"><?php echo $ors['ors_no']; ?></a>
                                                 </td>
                                                 <td><?php echo date('M d, Y', strtotime($ors['date'])); ?></td>
                                                 <td><?php echo $ors['payee_name']; ?></td>
@@ -297,7 +297,7 @@ $monthly_amounts = array_reverse($monthly_amounts);
                                         <?php while ($dv = $recent_dv_result->fetch_assoc()): ?>
                                             <tr>
                                                 <td><a
-                                                        href="dv.php?dv_id=<?php echo $dv['dv_id']; ?>"><?php echo $dv['dv_no']; ?></a>
+                                                        href="dv_form.php?dv_no=<?php echo $dv['dv_no']; ?>"><?php echo $dv['dv_no']; ?></a>
                                                 </td>
                                                 <td><?php echo date('M d, Y', strtotime($dv['date'])); ?></td>
                                                 <td><?php echo $dv['ors_no']; ?></td>
@@ -497,14 +497,14 @@ $monthly_amounts = array_reverse($monthly_amounts);
 
 </html>
 
-  <!-- Vendor JS Files -->
-    <script src="../NiceAdmin/assets/vendor/apexcharts/apexcharts.min.js"></script>
-    <script src="../NiceAdmin/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="../NiceAdmin/assets/vendor/chart.js/chart.umd.js"></script>
-    <script src="../NiceAdmin/assets/vendor/echarts/echarts.min.js"></script>
-    <script src="../NiceAdmin/assets/vendor/quill/quill.js"></script>
-    <script src="../NiceAdmin/assets/vendor/simple-datatables/simple-datatables.js"></script>
-    <script src="../NiceAdmin/assets/vendor/tinymce/tinymce.min.js"></script>
-    <script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
-    <script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
-    <script src="../NiceAdmin/assets/js/main.js"></script>  
+<!-- Vendor JS Files -->
+<script src="../NiceAdmin/assets/vendor/apexcharts/apexcharts.min.js"></script>
+<script src="../NiceAdmin/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="../NiceAdmin/assets/vendor/chart.js/chart.umd.js"></script>
+<script src="../NiceAdmin/assets/vendor/echarts/echarts.min.js"></script>
+<script src="../NiceAdmin/assets/vendor/quill/quill.js"></script>
+<script src="../NiceAdmin/assets/vendor/simple-datatables/simple-datatables.js"></script>
+<script src="../NiceAdmin/assets/vendor/tinymce/tinymce.min.js"></script>
+<script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
+<script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
+<script src="../NiceAdmin/assets/js/main.js"></script>
