@@ -999,17 +999,27 @@ $select_dv = mysqli_query($connection, "
                                             <tbody id="accountingTableBody">
                                                 <tr>
                                                     <td colspan="2">
-                                                        <select class="form-control account-select"
-                                                            name="account_titles[]" required>
-                                                            <option selected disabled value="">Select Account</option>
+                                                        <input list="account_titles_list"
+                                                            class="form-control account-select"
+                                                            name="account_titles_display[]" placeholder="Select Account"
+                                                            required>
+                                                        <input type="hidden" name="account_titles[]">
+                                                        <!-- This will hold the actual account_id -->
+                                                        <datalist id="account_titles_list">
                                                             <?php
                                                             $account_query = "SELECT * FROM account_title ORDER BY account_title ASC";
                                                             $account_result = $connection->query($account_query);
+                                                            $jsAccounts = [];
                                                             while ($account = $account_result->fetch_assoc()) {
-                                                                echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
+                                                                $title = htmlspecialchars($account['account_title']);
+                                                                $code = htmlspecialchars($account['account_code']);
+                                                                $value = "$title - $code";
+                                                                $id = $account['account_id'];
+                                                                echo "<option value=\"$value\"></option>";
+                                                                $jsAccounts[] = ['id' => $id, 'value' => $value];
                                                             }
                                                             ?>
-                                                        </select>
+                                                        </datalist>
                                                     </td>
                                                     <td><input type="number" class="form-control debit-amount"
                                                             name="debit_amounts[]" step="0.01"></td>
@@ -1020,12 +1030,13 @@ $select_dv = mysqli_query($connection, "
                                                                 class="bi bi-trash"></i></button></td>
                                                 </tr>
                                             </tbody>
+
                                             <tfoot>
                                                 <tr>
                                                     <td colspan="2">
                                                         <select class="form-control account-select"
                                                             name="account_titles[]">
-                                                            <option selected disabled>Select Cash Account
+                                                            <option selected disabled value="">Select Cash Account
                                                             </option>
                                                             <?php
                                                             // Define the specific account codes we want to show
@@ -2017,6 +2028,24 @@ $select_dv = mysqli_query($connection, "
 
     </script> -->
 
+    <!-- accounting entry select -->
+    <script>
+        // List of accounts from PHP
+        const accounts = <?php echo json_encode($jsAccounts); ?>;
+
+        // On input change, update the hidden input with the matching account ID
+        document.querySelectorAll('input[name="account_titles_display[]"]').forEach((input, index) => {
+            input.addEventListener('input', function () {
+                const value = this.value.trim();
+                const match = accounts.find(acc => acc.value === value);
+                if (match) {
+                    document.getElementsByName('account_titles[]')[index].value = match.id;
+                } else {
+                    document.getElementsByName('account_titles[]')[index].value = '';
+                }
+            });
+        });
+    </script>
 
 </body>
 
