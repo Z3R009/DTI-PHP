@@ -1197,7 +1197,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </body>
 <script>
     const carousel = document.getElementById('logo-carousel');
-    let currentRotation = 0;
+    let currentRotation = 1;
     let animationRunning = true;
     let animationSpeed = 2000;
     let animationInterval;
@@ -1221,7 +1221,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     function startAnimation() {
         if (!animationRunning) {
             animationRunning = true;
-            lastTimestamp = 0;
+            lastTimestamp = 1;
             requestAnimationFrame(rotateLogo);
         }
     }

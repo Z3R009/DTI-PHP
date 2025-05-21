@@ -331,10 +331,9 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                                 <?php while ($row = mysqli_fetch_assoc($select)) { ?>
                                     <tr>
                                         <td>
-                                            <button class="btn btn-sm btn-outline-secondary expand-row" type="button"
-                                                data-bs-toggle="collapse"
-                                                data-bs-target="#expand<?php echo $row['payee_id']; ?>"
-                                                aria-expanded="false">
+                                            <button class="btn btn-sm btn-outline-secondary expand-row" type="button" 
+                                                    onclick="toggleExpand(this, 'expand<?php echo $row['payee_id']; ?>')"
+                                                    aria-expanded="false">
                                                 <i class="bi bi-chevron-down"></i>
                                             </button>
                                         </td>
@@ -592,18 +591,40 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                 });
             });
 
+            // Handle expand/collapse buttons
             const expandButtons = document.querySelectorAll('.expand-row');
             expandButtons.forEach(button => {
                 button.addEventListener('click', function () {
                     const icon = this.querySelector('i');
-                    if (icon.classList.contains('bi-chevron-down')) {
-                        icon.classList.replace('bi-chevron-down', 'bi-chevron-up');
-                    } else {
+                    const targetId = this.getAttribute('data-bs-target');
+                    const targetElement = document.querySelector(targetId);
+                    
+                    // Toggle the collapse manually
+                    if (targetElement.classList.contains('show')) {
+                        targetElement.classList.remove('show');
+                        targetElement.style.display = 'none';
                         icon.classList.replace('bi-chevron-up', 'bi-chevron-down');
+                    } else {
+                        targetElement.classList.add('show');
+                        targetElement.style.display = 'block';
+                        icon.classList.replace('bi-chevron-down', 'bi-chevron-up');
                     }
                 });
             });
         });
+
+        function toggleExpand(button, targetId) {
+            const icon = button.querySelector('i');
+            const targetElement = document.getElementById(targetId);
+            
+            if (targetElement.style.display === 'block') {
+                targetElement.style.display = 'none';
+                icon.classList.replace('bi-chevron-up', 'bi-chevron-down');
+            } else {
+                targetElement.style.display = 'block';
+                icon.classList.replace('bi-chevron-down', 'bi-chevron-up');
+            }
+        }
     </script>
 
     <!-- delete confirmation -->

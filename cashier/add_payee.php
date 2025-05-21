@@ -205,85 +205,85 @@ $select = mysqli_query($connection, "SELECT * FROM payee ORDER BY payee_name ASC
                                 </div>
                             </div>
 
-                            <!-- Payees Table -->
-                            <div class="table-responsive">
-                                <table class="datatable">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th scope="col"></th>
-                                            <th scope="col">Payee Name</th>
-                                            <th scope="col">Bank Account No.</th>
-                                            <th scope="col">TIN/Employee No.</th>
-                                            <th scope="col">Address</th>
-                                            <th scope="col" class="d-none expandable-col">Nature of Business</th>
-                                            <th scope="col" class="d-none expandable-col">Contact Number</th>
-                                            <th scope="col" class="d-none expandable-col">Payee Type</th>
-                                            <th scope="col">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php while ($row = mysqli_fetch_assoc($select)) { ?>
-                                            <tr>
-                                                <td>
-                                                    <button class="btn btn-sm btn-outline-secondary expand-row" type="button" data-bs-toggle="collapse" data-bs-target="#expand<?php echo $row['payee_id']; ?>" aria-expanded="false">
-                                                        <i class="bi bi-chevron-down"></i>
-                                                    </button>
-                                                </td>
-                                                <td><?php echo htmlspecialchars($row['payee_name']); ?></td>
-                                                <td><?php echo htmlspecialchars($row['bank_acc_no']); ?></td>
-                                                <td><?php echo htmlspecialchars($row['tin_no']); ?></td>
-                                                <td><?php echo htmlspecialchars($row['address']); ?></td>
-                                                <td class="d-none expandable-col"><?php echo htmlspecialchars($row['nature']); ?></td>
-                                                <td class="d-none expandable-col"><?php echo htmlspecialchars($row['contact_no']); ?></td>
-                                                <td class="d-none expandable-col"><?php echo htmlspecialchars($row['payee_type']); ?></td>
-                                                <td>
-                                                    <div class="btn-group">
-                                                        <button type="button" class="btn btn-sm btn-info text-white rounded-circle me-1 edit-btn" 
-                                                                data-id="<?php echo $row['payee_id']; ?>"
-                                                                data-payee_name="<?php echo htmlspecialchars($row['payee_name']); ?>"
-                                                                data-bank_acc_no="<?php echo htmlspecialchars($row['bank_acc_no']); ?>"
-                                                                data-tin_no="<?php echo htmlspecialchars($row['tin_no']); ?>"
-                                                                data-address="<?php echo htmlspecialchars($row['address']); ?>"
-                                                                data-nature="<?php echo htmlspecialchars($row['nature']); ?>"
-                                                                data-contact_no="<?php echo htmlspecialchars($row['contact_no']); ?>"
-                                                                data-payee_type="<?php echo htmlspecialchars($row['payee_type']); ?>"
-                                                                title="Edit Payee">
-                                                            <i class="bi bi-pencil"></i>
-                                                        </button>
-                                                        <a href="delete_payee.php?payee_id=<?php echo $row['payee_id']; ?>&confirm=yes" 
-                                                           class="btn btn-sm btn-danger text-white rounded-circle delete-btn"
-                                                           title="Delete Payee">
-                                                            <i class="bi bi-trash"></i>
-                                                        </a>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td colspan="9" class="p-0">
-                                                    <div class="collapse" id="expand<?php echo $row['payee_id']; ?>">
-                                                        <div class="card card-body border-custom">
-                                                            <div class="row">
-                                                                <div class="col-md-4">
-                                                                    <p class="mb-1"><strong>Nature of Business:</strong></p>
-                                                                    <p><?php echo htmlspecialchars($row['nature']); ?></p>
-                                                                </div>
-                                                                <div class="col-md-4">
-                                                                    <p class="mb-1"><strong>Contact Number:</strong></p>
-                                                                    <p><?php echo htmlspecialchars($row['contact_no']); ?></p>
-                                                                </div>
-                                                                <div class="col-md-4">
-                                                                    <p class="mb-1"><strong>Payee Type:</strong></p>
-                                                                    <p><?php echo htmlspecialchars($row['payee_type']); ?></p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        <?php } ?>
-                                    </tbody>
-                                </table>
+                            <!-- Payees Table --><div class="table-responsive">
+    <table class="datatable">
+        <thead class="table-light">
+            <tr>
+                <th scope="col"></th>
+                <th scope="col">Payee Name</th>
+                <th scope="col">Bank Account No.</th>
+                <th scope="col">TIN/Employee No.</th>
+                <th scope="col">Address</th>
+                <th scope="col" class="d-none expandable-col">Nature of Business</th>
+                <th scope="col" class="d-none expandable-col">Contact Number</th>
+                <th scope="col" class="d-none expandable-col">Payee Type</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php while ($row = mysqli_fetch_assoc($select)) { ?>
+                <tr>
+                    <td>
+                        <button class="btn btn-sm btn-outline-secondary expand-row" type="button" data-bs-toggle="collapse" data-bs-target="#expand<?php echo $row['payee_id']; ?>" aria-expanded="false">
+                            <i class="bi bi-chevron-down"></i>
+                        </button>
+                    </td>
+                    <td><?php echo htmlspecialchars($row['payee_name']); ?></td>
+                    <td><?php echo htmlspecialchars($row['bank_acc_no']); ?></td>
+                    <td><?php echo htmlspecialchars($row['tin_no']); ?></td>
+                    <td><?php echo htmlspecialchars($row['address']); ?></td>
+                    <td class="d-none expandable-col"><?php echo htmlspecialchars($row['nature']); ?></td>
+                    <td class="d-none expandable-col"><?php echo htmlspecialchars($row['contact_no']); ?></td>
+                    <td class="d-none expandable-col"><?php echo htmlspecialchars($row['payee_type']); ?></td>
+                    <td>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-sm btn-info text-white rounded-circle me-1 edit-btn" 
+                                    data-id="<?php echo $row['payee_id']; ?>"
+                                    data-payee_name="<?php echo htmlspecialchars($row['payee_name']); ?>"
+                                    data-bank_acc_no="<?php echo htmlspecialchars($row['bank_acc_no']); ?>"
+                                    data-tin_no="<?php echo htmlspecialchars($row['tin_no']); ?>"
+                                    data-address="<?php echo htmlspecialchars($row['address']); ?>"
+                                    data-nature="<?php echo htmlspecialchars($row['nature']); ?>"
+                                    data-contact_no="<?php echo htmlspecialchars($row['contact_no']); ?>"
+                                    data-payee_type="<?php echo htmlspecialchars($row['payee_type']); ?>"
+                                    title="Edit Payee">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <a href="delete_payee.php?payee_id=<?php echo $row['payee_id']; ?>&confirm=yes" 
+                               class="btn btn-sm btn-danger text-white rounded-circle delete-btn"
+                               title="Delete Payee">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="expandable-row">
+                    <td colspan="9" class="p-0">
+                        <div class="collapse" id="expand<?php echo $row['payee_id']; ?>">
+                            <div class="card card-body border-custom">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <p class="mb-1"><strong>Nature of Business:</strong></p>
+                                        <p><?php echo htmlspecialchars($row['nature']); ?></p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p class="mb-1"><strong>Contact Number:</strong></p>
+                                        <p><?php echo htmlspecialchars($row['contact_no']); ?></p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p class="mb-1"><strong>Payee Type:</strong></p>
+                                        <p><?php echo htmlspecialchars($row['payee_type']); ?></p>
+                                    </div>
+                                </div>
                             </div>
+                        </div>
+                    </td>
+                </tr>
+            <?php } ?>
+        </tbody>
+    </table>
+</div>
+
                         </div>
                     </div>
                 </div>
