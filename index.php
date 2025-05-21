@@ -513,7 +513,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     .header-titles h2 {
         font-size: 14px;
         font-weight: 500;
-        color: #D90429;
+        color: #03045e;
         margin: 0;
         letter-spacing: 0.5px;
     }
@@ -978,7 +978,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <header class="main-header">
     <div class="header-container">
         <div class="logo-section">
-            <img src="img/Bagong-Pilipinas-Logo-e1717212149320-1920x1488.png" alt="DTI Logo" class="header-logo">
+      
             <div class="header-titles">
                 <h1>Department of Trade and Industry Region 12</h1>
                 <h2>Financial Processing System</h2>
