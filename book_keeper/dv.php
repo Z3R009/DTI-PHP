@@ -246,7 +246,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
             width: 20px;
             height: 20px;
             background-color: #fff;
-            border: 2px solid #007bff;
+            border: 2px solid #03045e;
             border-radius: 4px;
             display: flex;
             align-items: center;
@@ -266,7 +266,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
 
         /* Background color when checked */
         .custom-checkbox input:checked+.checkmark {
-            background-color: #007bff;
+            background-color: #03045e;
             border-color: #0056b3;
         }
 
