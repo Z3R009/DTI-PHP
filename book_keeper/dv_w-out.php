@@ -837,18 +837,18 @@ $select_dv = mysqli_query($connection, "
             <!-- Buttons Container with right alignment -->
             <div class="ms-auto">
                 <button class="btn btn-primary" onclick="window.location.href='dv.php'">
-                    DV Form
+                    <i class="bi bi-file-earmark-plus me-1"></i>DV Form
                 </button>
                 <button class="btn btn-primary" onclick="window.location.href='processed_dv.php'">
-                    Processed DV
+                    <i class="bi bi-list-check me-1"></i>Processed DV
                 </button>
             </div>
         </div>
 
         <section class="section dashboard">
             <h5 class="card-title">
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                    data-bs-target="#addUserModal">Create DV</button>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal"> <i
+                        class="bi bi-file-earmark-plus me-1"></i>Create DV</button>
             </h5>
             <p></p>
 
@@ -1939,7 +1939,7 @@ $select_dv = mysqli_query($connection, "
                 // Add event listener for the delete button
                 const deleteButton = newRow.querySelector('.delete-row');
                 if (deleteButton) {
-                    deleteButton.addEventListener('click', function() {
+                    deleteButton.addEventListener('click', function () {
                         newRow.remove();
                         calculateTotals();
                     });

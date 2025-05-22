@@ -234,8 +234,7 @@ WHERE dv.status = 'Pending'
                                             <td>
                                                 <button type="button" class="btn btn-primary view-details"
                                                     data-id="<?php echo $row['dv_id']; ?>">
-                                                    <i class="bi bi-eye" data-bs-toggle="tooltip" data-bs-placement="top"
-                                                        title="View Details"></i>
+                                                    <i class="bi bi-file-earmark-plus"></i> Create JEV
                                                 </button>
                                             </td>
                                         </tr>
