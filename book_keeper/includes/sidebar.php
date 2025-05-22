@@ -80,7 +80,7 @@
             </a>
         </li>
         <div class="nav-divider"></div>
-        
+
         <li class="nav-item">
             <a class="nav-link collapsed" href="reports.php">
                 <i class="bi bi-journal-text"></i>
@@ -114,7 +114,7 @@
     .sidebar {
         position: fixed;
         top: 0;
-         margin-top: 60px;
+        margin-top: 60px;
         bottom: 0;
         width: 280px;
         z-index: 996;
@@ -124,7 +124,7 @@
         background: #fff;
         box-shadow: 0 0 20px rgba(1, 41, 112, 0.1);
     }
-   
+
 
     .sidebar::-webkit-scrollbar {
         width: 5px;
@@ -218,6 +218,7 @@
         border-top: 1px solid #ccc;
         height: 0;
     }
+
     .nav-divider {
         height: 1px;
         background-color: #dee2e6;
@@ -229,11 +230,11 @@
         display: block;
         padding-left: 20px;
     }
-    
+
     .sidebar-nav .nav-content.show li {
         margin-bottom: 5px;
     }
-    
+
     .sidebar-nav .nav-content.show a {
         padding: 8px 0 8px 15px;
         font-size: 13px;
@@ -242,11 +243,11 @@
         align-items: center;
         transition: all 0.3s;
     }
-    
+
     .sidebar-nav .nav-content.show a:hover {
         background-color: rgba(2, 61, 138, 0.1);
     }
-    
+
     .sidebar-nav .nav-content.show i {
         font-size: 12px;
         margin-right: 8px;
@@ -268,24 +269,36 @@
         const currentPage = window.location.pathname.split('/').pop();
         const navLinks = document.querySelectorAll('.sidebar-nav .nav-link, .sidebar-nav .nav-content a');
 
+        // Mapping extra pages to main menu items
+        const pageMap = {
+            'processed_ors.php': 'ors.php',
+            'processed_dv.php': 'dv.php',
+            'dv_w-out.php': 'dv.php',
+            'processed_jev.php': 'jev.php',
+        };
+
+        // Check if current page needs to be mapped
+        const targetPage = pageMap[currentPage] || currentPage;
+
         navLinks.forEach(link => {
-            if (link.getAttribute('href') === currentPage) {
+            if (link.getAttribute('href') === targetPage) {
                 link.classList.add('active');
-                
-                // If the active link is in a collapsible menu, expand that menu
+
+                // If the active link is inside a collapsible submenu, expand it
                 const parent = link.closest('.nav-content');
                 if (parent) {
                     parent.classList.add('show');
-                    const parentToggle = document.querySelector(`a[href="#"][data-bs-target="#${parent.id}"]`);
-                    if (parentToggle) {
-                        parentToggle.classList.remove('collapsed');
+                    const navItem = parent.closest('.nav-item').querySelector('.nav-link');
+                    if (navItem) {
+                        navItem.classList.remove('collapsed');
                     }
                 }
             }
         });
+
         const toggleSidebarBtn = document.querySelector('.toggle-sidebar-btn');
         if (toggleSidebarBtn) {
-            toggleSidebarBtn.addEventListener('click', function() {
+            toggleSidebarBtn.addEventListener('click', function () {
                 document.body.classList.toggle('toggle-sidebar');
             });
         }
