@@ -58,7 +58,7 @@ $result = $connection->query($query);
     <title>ADA Payments Report - DTI PHP</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
-    <link href="../NiceAdmin/assets/img/favicon.png" rel="icon">
+    <link href="../book_keeper/img/dti_logo.png" rel="icon">
     <link href="../NiceAdmin/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
     <link href="https://fonts.gstatic.com" rel="preconnect">
     <link
@@ -85,12 +85,7 @@ $result = $connection->query($query);
     <main id="main" class="main">
         <div class="pagetitle">
             <h1>ADA Payments Report</h1>
-            <nav>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                    <li class="breadcrumb-item active">ADA Payments Report</li>
-                </ol>
-            </nav>
+           
         </div>
 
         <?php if (!empty($success_message)): ?>
@@ -122,7 +117,7 @@ $result = $connection->query($query);
                 <div class="col-lg-12">
                     <div class="card border-0 shadow-sm">
                         <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center mb-4">
+                            <!-- <div class="d-flex justify-content-between align-items-center mb-4">
                                 <div>
                                     <h5 class="card-title fs-4 text-primary mb-1">ADA Payments Summary</h5>
                                     <p class="text-muted">This report shows all ADA payments, account deductions, and remaining balances.</p>
@@ -135,7 +130,7 @@ $result = $connection->query($query);
                                         <i class="bi bi-file-excel"></i> Export to Excel
                                     </button>
                                 </div>
-                            </div>
+                            </div> -->
                             
                             <div class="table-responsive">
                                 <table class="datatable">
