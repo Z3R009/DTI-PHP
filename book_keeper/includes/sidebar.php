@@ -7,8 +7,8 @@
                 <span>Dashboard</span>
             </a>
         </li>
-        <div class="nav-divider"></div>
 
+        <div class="nav-divider"></div>
         <li class="nav-item">
             <a class="nav-link" href="#">
                 <i class="bi bi-bar-chart"></i><span>Forms</span>
@@ -263,6 +263,7 @@
         }
     }
 </style>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const currentPage = window.location.pathname.split('/').pop();
