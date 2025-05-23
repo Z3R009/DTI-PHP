@@ -804,6 +804,19 @@ $select_dv = mysqli_query($connection, "
         .modal-lg {
             max-width: 800px;
         }
+
+        .custom-check .form-check-input {
+            width: 25px;
+            height: 25px;
+            border: 2px solid #0d6efd;
+            background-color: #f0f8ff;
+            cursor: pointer;
+        }
+
+        .custom-check .form-check-input:checked {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
     </style>
 </head>
 
@@ -824,18 +837,18 @@ $select_dv = mysqli_query($connection, "
             <!-- Buttons Container with right alignment -->
             <div class="ms-auto">
                 <button class="btn btn-primary" onclick="window.location.href='dv.php'">
-                    DV Form
+                    <i class="bi bi-file-earmark-plus me-1"></i>DV Form
                 </button>
                 <button class="btn btn-primary" onclick="window.location.href='processed_dv.php'">
-                    Processed DV
+                    <i class="bi bi-list-check me-1"></i>Processed DV
                 </button>
             </div>
         </div>
 
         <section class="section dashboard">
             <h5 class="card-title">
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                    data-bs-target="#addUserModal">Create DV</button>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal"> <i
+                        class="bi bi-file-earmark-plus me-1"></i>Create DV</button>
             </h5>
             <p></p>
 
@@ -986,17 +999,27 @@ $select_dv = mysqli_query($connection, "
                                             <tbody id="accountingTableBody">
                                                 <tr>
                                                     <td colspan="2">
-                                                        <select class="form-control account-select"
-                                                            name="account_titles[]" required>
-                                                            <option selected disabled value="">Select Account</option>
+                                                        <input list="account_titles_list"
+                                                            class="form-control account-select"
+                                                            name="account_titles_display[]" placeholder="Select Account"
+                                                            required>
+                                                        <input type="hidden" name="account_titles[]">
+                                                        <!-- This will hold the actual account_id -->
+                                                        <datalist id="account_titles_list">
                                                             <?php
                                                             $account_query = "SELECT * FROM account_title ORDER BY account_title ASC";
                                                             $account_result = $connection->query($account_query);
+                                                            $jsAccounts = [];
                                                             while ($account = $account_result->fetch_assoc()) {
-                                                                echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
+                                                                $title = htmlspecialchars($account['account_title']);
+                                                                $code = htmlspecialchars($account['account_code']);
+                                                                $value = "$title - $code";
+                                                                $id = $account['account_id'];
+                                                                echo "<option value=\"$value\"></option>";
+                                                                $jsAccounts[] = ['id' => $id, 'value' => $value];
                                                             }
                                                             ?>
-                                                        </select>
+                                                        </datalist>
                                                     </td>
                                                     <td><input type="number" class="form-control debit-amount"
                                                             name="debit_amounts[]" step="0.01"></td>
@@ -1007,12 +1030,13 @@ $select_dv = mysqli_query($connection, "
                                                                 class="bi bi-trash"></i></button></td>
                                                 </tr>
                                             </tbody>
+
                                             <tfoot>
                                                 <tr>
                                                     <td colspan="2">
                                                         <select class="form-control account-select"
                                                             name="account_titles[]">
-                                                            <option selected disabled>Select Cash Account
+                                                            <option selected disabled value="">Select Cash Account
                                                             </option>
                                                             <?php
                                                             // Define the specific account codes we want to show
@@ -1042,6 +1066,18 @@ $select_dv = mysqli_query($connection, "
                                                             class="btn btn-secondary">
                                                             <i class="bi bi-plus-lg"></i> Add Row
                                                         </button>
+                                                    </td>
+                                                    <td colspan="3"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <div class="form-check custom-check">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="selectAll"> &nbsp
+                                                            <label class="form-check-label" for="selectAll">Include
+                                                                Tax</label>
+                                                        </div>
+
                                                     </td>
                                                     <td colspan="3"></td>
                                                 </tr>
@@ -1246,7 +1282,7 @@ $select_dv = mysqli_query($connection, "
         <i class="bi bi-arrow-up-short"></i>
     </a>
 
- 
+
 
     <script>
         document.querySelectorAll('tfoot .credit-amount').forEach(function (input) {
@@ -1420,38 +1456,34 @@ $select_dv = mysqli_query($connection, "
                 let totalDebit = 0;
                 let totalCredit = 0;
 
-                const debitInputs = document.querySelectorAll('tbody .debit-amount');
-                const creditInputs = document.querySelectorAll('tbody .credit-amount');
-                const totalAmountInput = document.getElementById('total_amount');
-                const taxBaseInput = document.getElementById('tax_base');
-                const netInput = document.getElementById('net_amount');
-
-                // Calculate total debit and credit across all tbody rows
-                debitInputs.forEach(input => {
-                    totalDebit += parseFloat(input.value || 0);
+                // Calculate totals from all rows including tax rows
+                document.querySelectorAll('tbody .debit-amount, tbody .credit-amount').forEach(input => {
+                    const value = parseFloat(input.value) || 0;
+                    if (input.classList.contains('debit-amount')) {
+                        totalDebit += value;
+                    } else {
+                        totalCredit += value;
+                    }
                 });
 
-                creditInputs.forEach(input => {
-                    totalCredit += parseFloat(input.value || 0);
-                });
-
-                const totalDifference = totalDebit - totalCredit;
-
-                // Update footer credit field with total difference
+                // Update tfoot credit field with the difference
                 const footerCreditInput = document.querySelector('tfoot .credit-amount');
                 if (footerCreditInput) {
-                    footerCreditInput.value = totalDifference.toFixed(2);
+                    const difference = totalDebit - totalCredit;
+                    footerCreditInput.value = difference.toFixed(2);
                 }
 
-                // Set total_amount and tax_base from totalDebit
+                // Update total amount and tax base
+                const totalAmountInput = document.getElementById('total_amount');
+                const taxBaseInput = document.getElementById('tax_base');
                 if (totalAmountInput) totalAmountInput.value = totalDebit.toFixed(2);
                 if (taxBaseInput) taxBaseInput.value = totalDebit.toFixed(2);
 
-                // Set net_amount from totalDifference
-                if (netInput) netInput.value = totalDifference.toFixed(2);
+                // Trigger tax calculations
+                if (typeof calculate === 'function') {
+                    calculate();
+                }
             }
-
-
 
             // Function to filter account titles
             function filterAccountTitles(select, selectedType) {
@@ -1632,6 +1664,7 @@ $select_dv = mysqli_query($connection, "
 
     <!-- tax calculation -->
 
+    <!-- tax calculation -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const amountInput = document.getElementById("total_amount");
@@ -1653,13 +1686,9 @@ $select_dv = mysqli_query($connection, "
 
                 // Explicitly set or remove readonly attribute
                 if (isVatChecked) {
-                    tax1PercentageInput.setAttribute("readonly", "readonly");
-                    tax2PercentageInput.setAttribute("readonly", "readonly");
                     tax1Input.setAttribute("readonly", "readonly");
                     tax2Input.setAttribute("readonly", "readonly");
                 } else {
-                    tax1PercentageInput.removeAttribute("readonly");
-                    tax2PercentageInput.removeAttribute("readonly");
                     tax1Input.removeAttribute("readonly");
                     tax2Input.removeAttribute("readonly");
                 }
@@ -1676,10 +1705,6 @@ $select_dv = mysqli_query($connection, "
 
             // Recalculate tax amounts when tax percentages change
             function recalculateTaxAmounts() {
-                if (applyTaxesCheckbox.checked) {
-                    return; // Don't manually recalculate if VAT is checked
-                }
-
                 const grossAmount = parseFloat(taxBaseInput.value) || 0;
                 const tax1Percentage = parseFloat(tax1PercentageInput.value) || 0;
                 const tax2Percentage = parseFloat(tax2PercentageInput.value) || 0;
@@ -1695,6 +1720,7 @@ $select_dv = mysqli_query($connection, "
                 // Recalculate net amount
                 recalculateNetAmount();
             }
+
 
             // Recalculate net amount when tax amounts are manually edited
             function recalculateNetAmount() {
@@ -1790,30 +1816,36 @@ $select_dv = mysqli_query($connection, "
                 setTaxFieldsEditability();
             };
 
+            // Function to set tax percentages when the checkbox is checked and calculate
+            function toggleTaxes() {
+                if (applyTaxesCheckbox.checked) {
+                    tax1PercentageInput.value = 5;
+                    tax2PercentageInput.value = 2;
+                }
+                calculate();
+            }
+
             // Add event listeners
             amountInput.addEventListener("input", calculate);
 
-            // Special handling for checkbox to ensure it triggers editability changes
+            // Special handling for checkbox to ensure it triggers editability changes and calculation
             applyTaxesCheckbox.addEventListener("change", function () {
                 console.log("VAT checkbox changed to:", this.checked);
+                toggleTaxes();
                 setTaxFieldsEditability();
-                calculate();
             });
 
             // Add event listeners for tax percentage fields
             tax1PercentageInput.addEventListener("input", function () {
                 console.log("Tax1 percentage changed to:", this.value);
-                if (!applyTaxesCheckbox.checked) {
-                    recalculateTaxAmounts();
-                }
+                recalculateTaxAmounts();
             });
 
             tax2PercentageInput.addEventListener("input", function () {
                 console.log("Tax2 percentage changed to:", this.value);
-                if (!applyTaxesCheckbox.checked) {
-                    recalculateTaxAmounts();
-                }
+                recalculateTaxAmounts();
             });
+
 
             // Add event listeners for tax amount fields (when editable)
             tax1Input.addEventListener("input", function () {
@@ -1830,6 +1862,14 @@ $select_dv = mysqli_query($connection, "
                 }
             });
 
+            // Add event listener for tax base changes
+            taxBaseInput.addEventListener("input", function () {
+                console.log("Tax base changed to:", this.value);
+                if (!applyTaxesCheckbox.checked) {
+                    recalculateTaxAmounts();
+                }
+            });
+
             // Initial setup
             console.log("Initial setup - setting field editability");
             setTaxFieldsEditability();
@@ -1839,6 +1879,101 @@ $select_dv = mysqli_query($connection, "
                 console.log("Running initial calculation");
                 calculate();
             }
+        });
+    </script>
+
+
+    <!-- new script for adding a row with a specific credit amount -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+
+            const tax1Input = document.getElementById('tax_1');
+            const tax2Input = document.getElementById('tax_2');
+            const tableBody = document.getElementById('accountingTableBody');
+            const checkbox = document.getElementById('selectAll');
+
+            // Utility: Create select options from PHP
+            const accountOptions = `<?php
+            $account_result->data_seek(0);
+            while ($account = $account_result->fetch_assoc()) {
+                echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
+            }
+            ?>`;
+
+            // Helper to remove previously added tax rows
+            function removeTaxRows() {
+                const rows = tableBody.querySelectorAll('tr[data-tax="true"]');
+                rows.forEach(row => row.remove());
+            }
+
+            // Function to add tax credit rows
+            function addRowWithCredit(creditAmount, label = '', accountId = '') {
+                const newRow = document.createElement('tr');
+                newRow.setAttribute('data-tax', 'true');
+
+                newRow.innerHTML = `
+        <td colspan="2">
+            <select class="form-control account-select" name="account_titles[]">
+                <option selected disabled value="">Select Account</option>
+                <?php
+                // Define the specific account codes we want to show
+                $accountCodes = ['2020101000'];
+
+                // Query only the specific cash accounts
+                $cash_account_query = "SELECT * FROM account_title WHERE account_code IN ('2020101000') ORDER BY account_title ASC";
+                $cash_account_result = $connection->query($cash_account_query);
+
+                while ($account = $cash_account_result->fetch_assoc()) {
+                    echo "<option value='" . $account['account_id'] . "' data-uacs='" . $account['account_code'] . "' data-title='" . htmlspecialchars($account['account_title']) . "'>" . htmlspecialchars($account['account_title']) . " - " . $account['account_code'] . "</option>";
+                }
+                ?>
+            </select>
+        </td>
+        <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01" readonly></td>
+        <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01" value="${creditAmount.toFixed(2)}" readonly></td>
+        <td><button type="button" class="btn btn-danger btn-sm delete-row"><i class="bi bi-trash"></i></button></td>
+    `;
+                tableBody.appendChild(newRow);
+
+                // Add event listener for the delete button
+                const deleteButton = newRow.querySelector('.delete-row');
+                if (deleteButton) {
+                    deleteButton.addEventListener('click', function () {
+                        newRow.remove();
+                        calculateTotals();
+                    });
+                }
+
+                // Trigger calculation immediately after adding the row
+                setTimeout(() => {
+                    calculateTotals();
+                }, 0);
+            }
+
+
+            // Checkbox handler
+            checkbox.addEventListener('change', function () {
+                removeTaxRows(); // Always clean before adding
+
+                if (this.checked) {
+                    const tax1Amount = parseFloat(tax1Input.value) || 0;
+                    const tax2Amount = parseFloat(tax2Input.value) || 0;
+
+                    if (tax1Amount > 0) {
+                        addRowWithCredit(tax1Amount, 'Tax 1');
+                    }
+                    if (tax2Amount > 0) {
+                        addRowWithCredit(tax2Amount, 'Tax 2');
+                    }
+
+                    // Recalculate totals after adding tax rows
+                    calculateTotals();
+                } else {
+                    // Recalculate totals after removing tax rows
+                    calculateTotals();
+                }
+            });
         });
     </script>
 
@@ -1914,6 +2049,24 @@ $select_dv = mysqli_query($connection, "
 
     </script> -->
 
+    <!-- accounting entry select -->
+    <script>
+        // List of accounts from PHP
+        const accounts = <?php echo json_encode($jsAccounts); ?>;
+
+        // On input change, update the hidden input with the matching account ID
+        document.querySelectorAll('input[name="account_titles_display[]"]').forEach((input, index) => {
+            input.addEventListener('input', function () {
+                const value = this.value.trim();
+                const match = accounts.find(acc => acc.value === value);
+                if (match) {
+                    document.getElementsByName('account_titles[]')[index].value = match.id;
+                } else {
+                    document.getElementsByName('account_titles[]')[index].value = '';
+                }
+            });
+        });
+    </script>
 
 </body>
 

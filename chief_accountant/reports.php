@@ -180,7 +180,7 @@ $grand_total = $total_row['grand_total'] ?? 0;
                 <h5 class="card-title">Total Amount</h5>
                 <div class="d-flex align-items-center">
                     <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                        <i class="bi bi-currency-dollar"></i>
+                        <i class="bi ">₱</i>
                     </div>
                     <div class="ps-3">
                         <h6>₱<?= number_format($grand_total, 2) ?></h6>

@@ -141,6 +141,8 @@ WHERE dv.status = 'Pending'
 
 ");
 
+
+
 ?>
 
 
@@ -234,8 +236,7 @@ WHERE dv.status = 'Pending'
                                             <td>
                                                 <button type="button" class="btn btn-primary view-details"
                                                     data-id="<?php echo $row['dv_id']; ?>">
-                                                    <i class="bi bi-eye" data-bs-toggle="tooltip" data-bs-placement="top"
-                                                        title="View Details"></i>
+                                                    <i class="bi bi-file-earmark-plus"></i> Create JEV
                                                 </button>
                                             </td>
                                         </tr>
@@ -287,6 +288,25 @@ WHERE dv.status = 'Pending'
                                     <input type="text" class="form-control" id="dv_no" name="dv_no" readonly>
                                 </div>
                             </div>
+
+                            <!-- <div class="form-section">
+                                <Label>ORS Number</Label>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>ORS No.</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($ors_details as $ors): ?>
+                                                <tr>
+                                                    <td><?php echo htmlspecialchars($ors['ors_no']); ?></td>
+                                                <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div> -->
 
                             <!-- Payee Details Section -->
                             <div class="mb-4">

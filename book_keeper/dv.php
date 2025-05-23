@@ -246,7 +246,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
             width: 20px;
             height: 20px;
             background-color: #fff;
-            border: 2px solid #007bff;
+            border: 2px solid #03045e;
             border-radius: 4px;
             display: flex;
             align-items: center;
@@ -266,7 +266,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
 
         /* Background color when checked */
         .custom-checkbox input:checked+.checkmark {
-            background-color: #007bff;
+            background-color: #03045e;
             border-color: #0056b3;
         }
 
@@ -619,7 +619,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                                     <td colspan="2">
                                                         <select class="form-control account-select"
                                                             name="account_titles[]">
-                                                            <option selected disabled>Select Cash Account
+                                                            <option selected disabled value="">Select Cash Account
                                                             </option>
                                                             <?php
                                                             // Define the specific account codes we want to show
@@ -1309,16 +1309,16 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                     addRowButton.addEventListener('click', function () {
                         const newRow = document.createElement('tr');
                         newRow.innerHTML = `
-                            <td colspan="2">
-                                <select class="form-control account-select" name="account_titles[]" required>
-                                    <option selected disabled value="">Select Account</option>
+                <td colspan="2">
+                    <select class="form-control account-select" name="account_titles[]" required>
+                        <option selected disabled value="">Select Account</option>
                                     ${accountOptions}
-                                </select>
-                            </td>
-                            <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
-                            <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01"></td>
-                            <td><button type="button" class="btn btn-danger btn-sm delete-row"><i class="bi bi-trash"></i></button></td>
-                        `;
+                    </select>
+                </td>
+                <td><input type="number" class="form-control debit-amount" name="debit_amounts[]" step="0.01"></td>
+                <td><input type="number" class="form-control credit-amount" name="credit_amounts[]" step="0.01"></td>
+                <td><button type="button" class="btn btn-danger btn-sm delete-row"><i class="bi bi-trash"></i></button></td>
+            `;
                         tableBody.appendChild(newRow);
                         setupAccountSelect(newRow);
                         setupCalculationListeners(newRow);

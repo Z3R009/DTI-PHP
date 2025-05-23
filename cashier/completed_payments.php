@@ -19,7 +19,27 @@ $payments_result = mysqli_query($connection, $payments_query);
 <!DOCTYPE html>
 <html lang="en">
 
-<link rel="stylesheet" href="css/table.css">
+  <head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <title>ADA Records - DTI PHP</title>
+    <meta content="" name="description">
+    <meta content="" name="keywords">
+    <link href="../book_keeper/img/dti_logo.png" rel="icon">
+    <link href="../NiceAdmin/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+    <link href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+    <link href="../NiceAdmin/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../NiceAdmin/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="../NiceAdmin/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+    <link href="../NiceAdmin/assets/vendor/quill/quill.snow.css" rel="stylesheet">
+    <link href="../NiceAdmin/assets/vendor/quill/quill.bubble.css" rel="stylesheet">
+    <link href="../NiceAdmin/assets/vendor/remixicon/remixicon.css" rel="stylesheet">
+    <link href="../NiceAdmin/assets/vendor/simple-datatables/style.css" rel="stylesheet">
+    <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
+ <link rel="stylesheet" href="css/table.css">
+ </head>
 
 <?php include 'includes/header.php'; ?>
 <?php include 'includes/sidebar.php'; ?>
@@ -28,12 +48,7 @@ $payments_result = mysqli_query($connection, $payments_query);
 
     <div class="pagetitle">
         <h1>Completed Payments</h1>
-        <nav>
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                <li class="breadcrumb-item active">Completed Payments</li>
-            </ol>
-        </nav>
+
     </div><!-- End Page Title -->
 
     <section class="section">
@@ -43,7 +58,7 @@ $payments_result = mysqli_query($connection, $payments_query);
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <h5 class="card-title">Payment Records</h5>
-                            <a href="processed_merged_payees.php" class="btn btn-sm btn-primary">
+                            <a href="view_merged_payees.php" class="btn btn-sm btn-primary">
                                 <i class="bi bi-people me-1"></i> View Processed Merged Payees
                             </a>
                         </div>
@@ -183,4 +198,14 @@ $payments_result = mysqli_query($connection, $payments_query);
     });
 </script>
 
+    <script src="../NiceAdmin/assets/vendor/apexcharts/apexcharts.min.js"></script>
+    <script src="../NiceAdmin/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../NiceAdmin/assets/vendor/chart.js/chart.umd.js"></script>
+    <script src="../NiceAdmin/assets/vendor/echarts/echarts.min.js"></script>
+    <script src="../NiceAdmin/assets/vendor/quill/quill.js"></script>
+    <script src="../NiceAdmin/assets/vendor/simple-datatables/simple-datatables.js"></script>
+    <script src="../NiceAdmin/assets/vendor/tinymce/tinymce.min.js"></script>
+    <script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
+    <script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
+    <script src="../NiceAdmin/assets/js/main.js"></script>  
 <?php include 'includes/footer.php'; ?> 

@@ -314,7 +314,7 @@ if (isset($_GET['regenerate_lddap']) && isset($_GET['reference'])) {
     <title>ADA Records - DTI PHP</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
-    <link href="../NiceAdmin/assets/img/favicon.png" rel="icon">
+    <link href="../book_keeper/img/dti_logo.png" rel="icon">
     <link href="../NiceAdmin/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
     <link href="https://fonts.gstatic.com" rel="preconnect">
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
@@ -403,12 +403,7 @@ if (isset($_GET['regenerate_lddap']) && isset($_GET['reference'])) {
     <main id="main" class="main">
         <div class="pagetitle">
             <h1>ADA Records</h1>
-            <nav>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                    <li class="breadcrumb-item active">ADA Records</li>
-                </ol>
-            </nav>
+          
         </div>
         <?php if (isset($_GET['edit_success']) && $_GET['edit_success'] == '1'): ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">

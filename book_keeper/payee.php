@@ -174,13 +174,14 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
         .datatable-top .datatable-search {
             display: none !important;
         }
-        .modal-header{
-              background-color: #03045e;
+
+        .modal-header {
+            background-color: #03045e;
         }
-        .modal-title{
-              color: #fff;
+
+        .modal-title {
+            color: #fff;
         }
-        
     </style>
 
 </head>
@@ -330,10 +331,9 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                                 <?php while ($row = mysqli_fetch_assoc($select)) { ?>
                                     <tr>
                                         <td>
-                                            <button class="btn btn-sm btn-outline-secondary expand-row" type="button"
-                                                data-bs-toggle="collapse"
-                                                data-bs-target="#expand<?php echo $row['payee_id']; ?>"
-                                                aria-expanded="false">
+                                            <button class="btn btn-sm btn-outline-secondary expand-row" type="button" 
+                                                    onclick="toggleExpand(this, 'expand<?php echo $row['payee_id']; ?>')"
+                                                    aria-expanded="false">
                                                 <i class="bi bi-chevron-down"></i>
                                             </button>
                                         </td>
@@ -500,37 +500,26 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
 
     <!-- Direct search implementation -->
     <script>
-        // Wait for the document to be fully loaded
         document.addEventListener('DOMContentLoaded', function () {
             // Clear any existing search script
             window.dataTableSearchInitialized = false;
 
-            // Function to perform a direct search on the table
             function directTableSearch() {
-                // Get the search input and table
                 const searchInput = document.getElementById('directTableSearch');
                 if (!searchInput) return;
 
-                // Pure JavaScript implementation that works regardless of the library
                 searchInput.addEventListener('input', function () {
                     const searchText = this.value.toLowerCase();
-
-                    // Get all table rows from the tbody
                     const tableRows = document.querySelectorAll('.datatable tbody tr');
                     if (!tableRows.length) return;
 
-                    // Loop through all rows and check if they match the search
                     tableRows.forEach(function (row) {
-                        // Skip the expandable rows (the ones with the additional data)
                         if (row.classList.contains('expandable-row')) return;
 
                         let rowText = row.textContent.toLowerCase();
                         let matchFound = rowText.includes(searchText);
 
-                        // Show/hide the row based on search match
                         row.style.display = matchFound ? '' : 'none';
-
-                        // Also hide/show the corresponding expandable row
                         const rowIndex = row.rowIndex;
                         const expandableRow = document.querySelector('.datatable tbody tr.expandable-row:nth-of-type(' + (rowIndex + 1) + ')');
                         if (expandableRow) {
@@ -541,11 +530,8 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
 
                 console.log('Direct table search activated');
             }
-
-            // Initialize the search immediately
             directTableSearch();
 
-            // Also try again after a delay in case the table isn't loaded yet
             setTimeout(directTableSearch, 1000);
         });
     </script>
@@ -591,18 +577,40 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                 });
             });
 
+            // Handle expand/collapse buttons
             const expandButtons = document.querySelectorAll('.expand-row');
             expandButtons.forEach(button => {
                 button.addEventListener('click', function () {
                     const icon = this.querySelector('i');
-                    if (icon.classList.contains('bi-chevron-down')) {
-                        icon.classList.replace('bi-chevron-down', 'bi-chevron-up');
-                    } else {
+                    const targetId = this.getAttribute('data-bs-target');
+                    const targetElement = document.querySelector(targetId);
+                    
+                    // Toggle the collapse manually
+                    if (targetElement.classList.contains('show')) {
+                        targetElement.classList.remove('show');
+                        targetElement.style.display = 'none';
                         icon.classList.replace('bi-chevron-up', 'bi-chevron-down');
+                    } else {
+                        targetElement.classList.add('show');
+                        targetElement.style.display = 'block';
+                        icon.classList.replace('bi-chevron-down', 'bi-chevron-up');
                     }
                 });
             });
         });
+
+        function toggleExpand(button, targetId) {
+            const icon = button.querySelector('i');
+            const targetElement = document.getElementById(targetId);
+            
+            if (targetElement.style.display === 'block') {
+                targetElement.style.display = 'none';
+                icon.classList.replace('bi-chevron-up', 'bi-chevron-down');
+            } else {
+                targetElement.style.display = 'block';
+                icon.classList.replace('bi-chevron-down', 'bi-chevron-up');
+            }
+        }
     </script>
 
     <!-- delete confirmation -->

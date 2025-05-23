@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 16, 2025 at 04:49 AM
+-- Generation Time: May 19, 2025 at 03:53 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -367,7 +367,8 @@ INSERT INTO `dv` (`dv_id`, `date`, `ors_id`, `account_id`, `dv_no`, `vat`, `vat_
 (110, '2025-01-07', 116, 1, '1-25-01-002', 12.00, 1998.21, 16651.79, 5.00, 832.59, 2.00, 333.04, 17484.38, 18650.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', 'Pending', NULL, NULL, NULL, NULL, NULL),
 (111, '2025-05-16', 120, 1, '1-25-05-002', 12.00, 0.00, 30776.40, 0.00, 0.00, 0.00, 0.00, 30776.40, 30776.40, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', 'Pending', NULL, NULL, NULL, NULL, NULL),
 (112, '2025-05-16', 132, 1, '1-25-05-003', 12.00, 332.14, 2767.86, 5.00, 138.39, 2.00, 55.36, 2906.25, 3100.00, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', 'Pending', NULL, NULL, NULL, NULL, NULL),
-(113, '2025-05-16', 183, 1, '1-25-05-004', 12.00, 1060.30, 8835.79, 5.00, 441.79, 2.00, 176.72, 9277.58, 9896.09, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', 'Pending', NULL, NULL, NULL, NULL, NULL);
+(113, '2025-05-16', 183, 1, '1-25-05-004', 12.00, 1060.30, 8835.79, 5.00, 441.79, 2.00, 176.72, 9277.58, 9896.09, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', 'Pending', NULL, NULL, NULL, NULL, NULL),
+(114, '2025-05-18', 133, 1, '1-25-05-005', 12.00, 1231.42, 10261.82, 5.00, 513.09, 2.00, 205.24, 10774.91, 11493.24, 'NEIL ANTHONY T. MORALA', 'FLORA D. POLITUD-GABUNALES, CESO V', 'Pending', NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -408,7 +409,8 @@ INSERT INTO `dv_history` (`dvhis_id`, `dv_id`, `account_id`, `type`, `amount`) V
 (133, 113, 325, 'debit', 4602.00),
 (134, 113, 278, 'credit', 441.79),
 (135, 113, 278, 'credit', 176.72),
-(136, 113, 382, 'credit', 9277.58);
+(136, 113, 382, 'credit', 9277.58),
+(137, 114, 276, 'debit', 11493.24);
 
 -- --------------------------------------------------------
 
@@ -928,7 +930,7 @@ INSERT INTO `ors` (`ors_id`, `fund_cluster_id`, `services_id`, `date`, `ors_no`,
 (129, 3, 23, '2025-02-19', 'SSF-25-02-009', 43, 'Transfer of Fund for SSF Project for 1st quarter 2025', 'To Transfer', 9, 311, 7, 22550.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
 (130, 3, 23, '2025-02-20', 'SSF-25-02-010', 44, 'Attendance to various SSF Monitoring', 'To Disburse', 9, 311, 7, 1800.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
 (132, 3, 23, '2025-02-27', 'SSF-25-02-011', 32, 'Replenishment of PCF - Notary of contract', 'To Disburse', 9, 325, 7, 100.00, 3, 'CONNIE M. BARNACHEA', 'Endorsed'),
-(133, 3, 23, '2025-03-04', 'SSF-25-03-012', 39, 'Payment of Salary for February 16-28, 2025', 'To Payment of', 9, 328, 7, 11493.24, 3, 'CONNIE M. BARNACHEA', 'Pending'),
+(133, 3, 23, '2025-03-04', 'SSF-25-03-012', 39, 'Payment of Salary for February 16-28, 2025', 'To Payment of', 9, 328, 7, 11493.24, 3, 'CONNIE M. BARNACHEA', 'Endorsed'),
 (134, 3, 23, '2025-03-07', 'SSF-25-03-013', 45, 'Transfer of Fund for SSF Project for 1st quarter 2025', 'To Transfer', 9, 311, 7, 99000.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
 (135, 3, 23, '2025-03-11', 'SSF-25-03-014', 39, 'Attendance to SSF Project Monitoring in Cotabato Mar 5-7, 2025', 'To Disburse', 9, 311, 7, 3450.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
 (136, 3, 23, '2025-03-11', 'SSF-25-03-015', 46, 'Traveling expenses during SSF Visit', 'To Disburse', 9, 311, 7, 450.00, 3, 'CONNIE M. BARNACHEA', 'Pending'),
@@ -1063,21 +1065,21 @@ INSERT INTO `payee` (`payee_id`, `payee_name`, `tin_no`, `bank_acc_no`, `address
 (22, 'ADWERKZ PRINTING SOLUTIONS/PAUL RYAN C. BARCELONA', '', 'LBP - SA 3416-0029-23', '', '', '', ''),
 (23, 'AFL 168 CORPORATION', '', 'LBP - SA 0751-1769-37', '', '', '', ''),
 (24, 'AHR WOODCRAFT CENTER BY ALLAN B. HIMALLA ', '', 'LBP - SA 0751-1759-90', '', '', '', ''),
-(25, 'BENJO G. BASID', '', '', 'Koronadal City', '', '', ''),
+(25, 'BENJO G. BASID', '', '', 'Koronadal City', '', '', 'External'),
 (26, 'TRISHA\'S BURGER STATION/ PILAR F. PARDO', '', '', 'KORONADAL CITY', '', '', 'external'),
 (27, 'TJ\'S TITO JUN SEAFOOD GRILL/BAR CATERING SERVICES', '', '', 'KORONADAL CITY', '', '', 'external'),
 (28, 'WAN-BAN CATERING SERVICES', '', '', 'KORONADAL CITY', '', '', 'external'),
-(29, 'GENARO\'S CATERING', '', '', 'KORONADAL CITY', '', '', 'external'),
+(29, 'GENARO\'S CATERING', '', '', 'KORONADAL CITY', '', '', 'External'),
 (30, 'SOUTHRAYS VALLEY FOOD ASSOCIATION', '', '', 'KORONADAL CITY', '', '', 'external'),
 (31, 'CINCO NIÑAS RESTO', '', '', 'KORONADAL CITY', '', '', 'external'),
-(32, 'MILDRED T. SUCOL', '', '', 'KORONADAL CITY', '', '', 'internal'),
+(32, 'MILDRED T. SUCOL', '', '', 'KORONADAL CITY', '', '', 'Internal'),
 (33, 'THE FARM AT CARPENTER HILL, INC.', '', '', 'KORONADAL CITY', '', '', 'external'),
 (34, 'MANG INASAL', '', '', 'KORONADAL CITY', '', '', 'external'),
-(35, 'SARAH JANE T. TOLEDO', '', '', '', '', '', 'internal'),
+(35, 'SARAH JANE T. TOLEDO', '', '', '', '', '', 'Internal'),
 (36, 'RYAN GAZO', '', '', '', '', '', 'external'),
 (37, 'HAZEL E. HAUTEA', '', '', 'KORONADAL CITY', '', '', 'internal'),
 (38, 'BABS RESTAURANT', '', '', 'KORONADAL CITY', '', '', 'external'),
-(39, 'SERAFIN JAY S. BASIYA', '', '', '', '', '', 'internal'),
+(39, 'SERAFIN JAY S. BASIYA', '', '', '', '', '', 'Internal'),
 (40, 'DTI - SOUTH COTABATO', '', '', 'SOUTH COTABATO', '', '', 'internal'),
 (41, 'DTI - COTABATO PROVINCE', '', '', 'COTABATO PROVINCE', '', '', 'internal'),
 (42, 'DTI - SARANGANI PROVINCE', '', '', 'SARANGANI PROVINCE', '', '', 'internal'),
@@ -1116,7 +1118,8 @@ INSERT INTO `payee` (`payee_id`, `payee_name`, `tin_no`, `bank_acc_no`, `address
 (75, 'SHEILA\'S PARK FAMILY RESTO & FASTFOOD', '', '', 'KORONADAL CITY', '', '', 'external'),
 (76, 'SOX FOOD PRODUCTS MANUFACTURING', '', '', '', '', '', 'external'),
 (77, 'TRISHA\'S BURGER STATION/ PILAR F. PARDO', '', '', 'KORONADAL CITY', '', '', 'external'),
-(78, 'MA. ADA N. ALBURO', '', '', 'KORONADAL CITY', '', '', 'external');
+(78, 'MA. ADA N. ALBURO', '', '', 'KORONADAL CITY', '', '', 'external'),
+(1, 'DEPARTMENT OF TRADE AND INDUSTRY', '000-000-000-000', 'LBP - 2075-9006-81', 'Koronadal City, South Cotabato', 'Government Agency', '', 'Internal');
 
 -- --------------------------------------------------------
 
@@ -1908,13 +1911,13 @@ ALTER TABLE `draft_project`
 -- AUTO_INCREMENT for table `dv`
 --
 ALTER TABLE `dv`
-  MODIFY `dv_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=114;
+  MODIFY `dv_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=115;
 
 --
 -- AUTO_INCREMENT for table `dv_history`
 --
 ALTER TABLE `dv_history`
-  MODIFY `dvhis_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=137;
+  MODIFY `dvhis_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=138;
 
 --
 -- AUTO_INCREMENT for table `dv_multiple_ors`

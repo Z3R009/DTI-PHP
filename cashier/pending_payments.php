@@ -6,6 +6,34 @@ if (!isset($connection) || !$connection) {
     error_log($conn_error);
 }
 
+// Get internal payees for the dropdown
+$internal_payees = array();
+if (isset($connection)) {
+    // First, check if the payee exists
+    $check_query = "SELECT payee_id, payee_name FROM payee WHERE payee_name = 'DEPARTMENT OF TRADE AND INDUSTRY' AND payee_type = 'Internal'";
+    $check_result = $connection->query($check_query);
+    
+    // If payee doesn't exist, insert it
+    if ($check_result && $check_result->num_rows === 0) {
+        $insert_query = "INSERT INTO payee (payee_name, payee_type) VALUES ('DEPARTMENT OF TRADE AND INDUSTRY', 'Internal')";
+        if ($connection->query($insert_query)) {
+            // After inserting, get the payee details
+            $payee_query = "SELECT payee_id, payee_name FROM payee WHERE payee_name = 'DEPARTMENT OF TRADE AND INDUSTRY' AND payee_type = 'Internal'";
+            $payee_result = $connection->query($payee_query);
+            if ($payee_result) {
+                while ($row = $payee_result->fetch_assoc()) {
+                    $internal_payees[] = $row;
+                }
+            }
+        }
+    } else {
+        // If payee exists, get its details
+        while ($row = $check_result->fetch_assoc()) {
+            $internal_payees[] = $row;
+        }
+    }
+}
+
 $success_message = '';
 if(isset($_GET['success']) && $_GET['success'] == '1') {
     $success_message = 'Payment has been recorded successfully!';
@@ -86,8 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta content="" name="description">
     <meta content="" name="keywords">
 
-    <!-- Favicons -->
-    <link href="../NiceAdmin/assets/img/favicon.png" rel="icon">
+    <!-- Favicons --><link href="../book_keeper/img/dti_logo.png" rel="icon">
     <link href="../NiceAdmin/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
     <!-- Google Fonts -->
@@ -122,12 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <main id="main" class="main">
     <div class="pagetitle">
         <h1>Pending Payments</h1>
-        <nav>
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                <li class="breadcrumb-item active">Pending Payments</li>
-            </ol>
-        </nav>
+
     </div>
 
     <?php if (!empty($success_message)): ?>
@@ -185,8 +207,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <div>
                                 <h5 class="card-title fs-4 text-primary mb-1">Vouchers Endorsed for Payment</h5>
-                                <p class="text-muted">These disbursement vouchers have been endorsed by the Chief Accountant and are ready for payment processing.</p>
-                            </div>
+                                 </div>
                             <?php $pending_count = mysqli_num_rows($pending_result); ?>
                             <?php if ($pending_count > 0): ?>
                             <div class="d-flex gap-2">
@@ -253,7 +274,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         <tr class="border-bottom">
                                             <td class="text-center">
                                                 <div class="form-check">
-                                                    <input type="checkbox" name="selected_dvs[]" value="<?php echo $row['dv_id']; ?>" class="form-check-input dv-checkbox">
+                                                    <input type="checkbox" name="selected_dvs[]" value="<?php echo $row['dv_id']; ?>" 
+                                                           class="form-check-input dv-checkbox" 
+                                                           data-payee-type="<?php echo strtolower($row['payee_type'] ?? 'internal'); ?>">
                                                 </div>
                                             </td>
                                             <td>
@@ -265,6 +288,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                             </td>
                                             <td>
                                                 <div class="fw-medium"><?php echo $row['payee_name']; ?></div>
+                                                <span class="payee-type d-none"><?php echo strtolower($row['payee_type'] ?? 'internal'); ?></span>
                                             </td>
                                             <td>
                                                 <span class="text-truncate d-inline-block" style="max-width: 250px;" data-bs-toggle="tooltip" title="<?php echo htmlspecialchars($row['purpose']); ?>">
@@ -279,21 +303,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                             </td>
                                             <td class="text-center">
                                                 <div class="btn-group">
-                                                    <button type="button" class="btn btn-sm btn-primary rounded-circle me-1" data-bs-toggle="modal" data-bs-target="#paymentModal<?php echo $row['dv_id']; ?>" title="Process Payment">
+                                                    <!-- <button type="button" class="btn btn-sm btn-primary rounded-circle me-1" data-bs-toggle="modal" data-bs-target="#paymentModal<?php echo $row['dv_id']; ?>" title="Process Payment">
                                                         <i class="bi bi-cash"></i>
-                                                    </button>
+                                                    </button> -->
                                                     <button type="button" class="btn btn-sm btn-info text-white rounded-circle me-1" data-bs-toggle="modal" data-bs-target="#viewModal<?php echo $row['dv_id']; ?>" title="View DV">
                                                         <i class="bi bi-eye"></i>
                                                             </button>
-                                                    <button type="button" class="btn btn-sm btn-warning text-white rounded-circle" data-bs-toggle="modal" data-bs-target="#returnModal<?php echo $row['dv_id']; ?>" title="Return to Chief">
+                                                    <!-- <button type="button" class="btn btn-sm btn-warning text-white rounded-circle" data-bs-toggle="modal" data-bs-target="#returnModal<?php echo $row['dv_id']; ?>" title="Return to Chief">
                                                         <i class="bi bi-arrow-return-left"></i>
-                                                            </button>
+                                                            </button> -->
                                                 </div>
                                             </td>
                                         </tr>
                                         
                                         <!-- Payment Modal -->
-                                        <div class="modal fade" id="paymentModal<?php echo $row['dv_id']; ?>" tabindex="-1">
+                                        <!-- <div class="modal fade" id="paymentModal<?php echo $row['dv_id']; ?>" tabindex="-1">
                                             <div class="modal-dialog modal-lg">
                                                 <div class="modal-content">
                                                     <div class="modal-header bg-primary text-white">
@@ -378,7 +402,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                     </form>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </div> -->
                                         
                                         <!-- View DV Modal -->
                                         <div class="modal fade" id="viewModal<?php echo $row['dv_id']; ?>" tabindex="-1">
@@ -479,7 +503,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                             </div>
                                             
                                             <!-- Return to Chief Accountant Modal -->
-                                            <div class="modal fade" id="returnModal<?php echo $row['dv_id']; ?>" tabindex="-1">
+                                            <!-- <div class="modal fade" id="returnModal<?php echo $row['dv_id']; ?>" tabindex="-1">
                                                 <div class="modal-dialog">
                                                     <div class="modal-content">
                                                         <div class="modal-header bg-warning text-white">
@@ -531,7 +555,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                         </form>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </div> -->
                                             <?php endwhile; ?>
                                             
                                             <?php if ($displayed_count === 0 && $pending_count > 0): ?>
@@ -652,12 +676,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body">
-                                                <div class="alert alert-info d-flex align-items-center mb-4" role="alert">
+                                                <!-- <div class="alert alert-info d-flex align-items-center mb-4" role="alert">
                                                     <i class="bi bi-info-circle-fill me-2 fs-4"></i>
                                                     <div>
                                                         You are creating a batch ADA payment for multiple disbursement vouchers. Please review the selected DVs and provide the required information.
                                                     </div>
-                                                </div>
+                                                </div> -->
                                                 
                                                 <!-- Add hidden fields for form submission -->
                                                 <input type="hidden" name="submit_batch_ada" value="1">
@@ -710,7 +734,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                                 <div class="mb-3">
                                                                     <label for="fund_code" class="form-label fw-medium">Fund Code <span class="text-danger">*</span></label>
                                                                     <input type="text" class="form-control" id="fund_code" name="fund_code" value="" required>
-                                                                    <div class="form-text">This will be used in the LDDAP-ADA reference number format</div>
+                                                                    <!-- <div class="form-text">This will be used in the LDDAP-ADA reference number format</div> -->
                                                                 </div>
                                                                 
                                                                 <div class="mb-3">
@@ -820,12 +844,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         </div>
                                         <form method="POST" action="back_end/merge_payees.php" id="mergePayeeForm">
                                             <div class="modal-body">
-                                                <div class="alert alert-info d-flex align-items-center mb-4" role="alert">
+                                                <!-- <div class="alert alert-info d-flex align-items-center mb-4" role="alert">
                                                     <i class="bi bi-info-circle-fill me-2 fs-4"></i>
                                                     <div>
                                                         You are creating a consolidated internal payee group for multiple vouchers. This allows you to process them as a single payment.
                                                     </div>
-                                                </div>
+                                                </div> -->
                                                 
                                                 <div class="card mb-4 border-0 shadow-sm">
                                                     <div class="card-header bg-light">
@@ -835,8 +859,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                         <div class="row mb-3">
                                                             <div class="col-md-8">
                                                                 <label for="merge_name" class="form-label fw-medium">Merged Payee Name <span class="text-danger">*</span></label>
-                                                                <input type="text" class="form-control form-control-lg" id="merge_name" name="merge_name" 
-                                                                       placeholder="Enter a name for this group (e.g. Department Utilities Bills)" required>
+                                                                <select class="form-select form-select-lg" id="merge_name" name="merge_name" required>
+                                                                    <option value="">Select Payee Name</option>
+                                                                    <?php
+                                                                    // Query to get only DTI payee information
+                                                                    $payee_query = "SELECT payee_id, payee_name, bank_acc_no FROM payee WHERE payee_name = 'DEPARTMENT OF TRADE AND INDUSTRY XII'";
+                                                                    $payee_result = $connection->query($payee_query);
+                                                                    
+                                                                    if ($payee_result && $payee_result->num_rows > 0) {
+                                                                        $payee = $payee_result->fetch_assoc();
+                                                                        echo '<option value="' . htmlspecialchars($payee['payee_name']) . '" selected data-bank-account="' . htmlspecialchars($payee['bank_acc_no']) . '">' . 
+                                                                             htmlspecialchars($payee['payee_name']) . '</option>';
+                                                                    }
+                                                                    ?>
+                                                                </select>
                                                             </div>
                                                             <div class="col-md-4">
                                                                 <label for="payee_type" class="form-label fw-medium">Payee Type</label>
@@ -845,6 +881,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                                     <option value="External">External</option>
                                                                 </select>
                                                             </div>
+                                                        </div>
+                                                        
+                                                        <div class="mb-3">
+                                                            <label for="bank_account" class="form-label fw-medium">Bank Account Number</label>
+                                                            <input type="text" class="form-control" id="bank_account" name="bank_account" readonly>
+                                                            <div class="form-text">Bank account for selected payee</div>
                                                         </div>
                                                         
                                                         <div class="mb-3">
@@ -1864,19 +1906,57 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Enable button only if at least 2 DVs are selected
-        const checkedCount = dvCheckboxes.length;
-        mergePayeesBtn.disabled = checkedCount < 2;
+        // Check if any selected DVs are external payees
+        let hasExternalPayee = false;
+        dvCheckboxes.forEach(checkbox => {
+            // First check the data attribute
+            const payeeType = checkbox.getAttribute('data-payee-type');
+            console.log('Payee type from data attribute:', payeeType);
+            
+            if (payeeType && payeeType.toLowerCase() === 'external') {
+                hasExternalPayee = true;
+                console.log('Found external payee from data attribute');
+                return;
+            }
+            
+            // If not found in data attribute, check the hidden span
+            const row = checkbox.closest('tr');
+            if (row) {
+                const payeeTypeSpan = row.querySelector('.payee-type');
+                if (payeeTypeSpan) {
+                    const spanPayeeType = payeeTypeSpan.textContent.trim().toLowerCase();
+                    console.log('Payee type from span:', spanPayeeType);
+                    if (spanPayeeType === 'external') {
+                        hasExternalPayee = true;
+                        console.log('Found external payee from span');
+                    }
+                }
+            }
+        });
         
-        // Update button appearance
-        if (checkedCount >= 2) {
+        // Enable button only if at least 2 DVs are selected and no external payees
+        const checkedCount = dvCheckboxes.length;
+        const shouldEnable = checkedCount >= 2 && !hasExternalPayee;
+        
+        // Update button state
+        mergePayeesBtn.disabled = !shouldEnable;
+        
+        // Update button appearance and tooltip
+        if (shouldEnable) {
             mergePayeesBtn.classList.remove('btn-secondary');
             mergePayeesBtn.classList.add('btn-success');
-            console.log('Merge button enabled - enough DVs selected');
+            mergePayeesBtn.title = 'Merge selected vouchers';
+            console.log('Merge button enabled - enough DVs selected and no external payees');
         } else {
             mergePayeesBtn.classList.remove('btn-success');
             mergePayeesBtn.classList.add('btn-secondary');
-            console.log('Merge button disabled - need at least 2 DVs');
+            if (hasExternalPayee) {
+                mergePayeesBtn.title = 'Merge payee feature is only available for internal payees';
+                console.log('Merge button disabled - external payee selected');
+            } else if (checkedCount < 2) {
+                mergePayeesBtn.title = 'Select at least 2 vouchers to merge';
+                console.log('Merge button disabled - need at least 2 DVs');
+            }
         }
     }
     
@@ -2752,6 +2832,24 @@ document.addEventListener('DOMContentLoaded', function() {
             return true;
         });
     }
+});
+</script>
+
+<script>
+$(document).ready(function() {
+    // Handle bank account display when payee is selected
+    $('#merge_name').change(function() {
+        var selectedOption = $(this).find('option:selected');
+        var bankAccount = selectedOption.data('bank-account');
+        if (bankAccount) {
+            $('#bank_account').val(bankAccount);
+        } else {
+            $('#bank_account').val('');
+        }
+    });
+
+    // Trigger change event on page load to set initial bank account
+    $('#merge_name').trigger('change');
 });
 </script>
 </body>

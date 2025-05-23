@@ -108,11 +108,13 @@ if (isset($_POST['update_profile'])) {
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
 </head>
 <body>
-<?php include "Includes/sidebar.php"; ?>
-<?php include "Includes/header.php"; ?>
+ <?php include "Includes/header.php"; ?>'
+
+
+    <?php include "Includes/sidebar.php"; ?>
 <main class="main" id="main">
     <section class="section dashboard">
-        <div id="wrapper">  
+        <div id="row">  
             <div id="content-wrapper" class="d-flex flex-column">
                 <div id="content">
                     <div class="container-fluid">

@@ -103,6 +103,8 @@ $payee_result = mysqli_query($connection, $payee_query);
 
 <!DOCTYPE html>
 <html lang="en">
+    
+    <link href="../book_keeper/img/dti_logo.png" rel="icon">
 <link rel="stylesheet" href="css/table.css">
 <?php include 'includes/header.php'; ?>
 <?php include 'includes/sidebar.php'; ?>
@@ -111,12 +113,7 @@ $payee_result = mysqli_query($connection, $payee_query);
 
     <div class="pagetitle">
         <h1>Payment Reports</h1>
-        <nav>
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                <li class="breadcrumb-item active">Payment Reports</li>
-            </ol>
-        </nav>
+       
     </div><!-- End Page Title -->
 
     <section class="section dashboard">
@@ -124,10 +121,10 @@ $payee_result = mysqli_query($connection, $payee_query);
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Generate Report</h5>
+                        <!-- <h5 class="card-title">Generate Report</h5> -->
                         
                         <!-- Filter Form -->
-                        <form method="GET" action="" class="mb-4">
+                        <form method="GET" action="" class="mb-4 mt-5">
                             <div class="row g-3 align-items-end">
                                 <div class="col-md-3">
                                     <label for="from_date" class="form-label">From Date</label>

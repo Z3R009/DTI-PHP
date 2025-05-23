@@ -237,6 +237,18 @@ if (isset($_SERVER['HTTP_REFERER'])) {
                     $dv_id = $dv['dv_id'];
                     $ref = isset($dv['reference_no']) ? $dv['reference_no'] : '';
                     
+                    // Get payee information including bank account
+                    $payee_query = "SELECT p.bank_acc_no, p.payee_name 
+                                   FROM payment pm 
+                                   JOIN payee p ON pm.payee_name = p.payee_name 
+                                   WHERE pm.dv_id = ? AND pm.reference_no = ? AND pm.payment_type = 'ADA' 
+                                   LIMIT 1";
+                    $stmt = $connection->prepare($payee_query);
+                    $stmt->bind_param("is", $dv_id, $ref);
+                    $stmt->execute();
+                    $payee_result = $stmt->get_result();
+                    $payee_data = $payee_result->fetch_assoc();
+                    
                     $remarks_query = "SELECT remarks FROM payment 
                                     WHERE dv_id = ? AND reference_no = ? AND payment_type = 'ADA' 
                                     LIMIT 1";
@@ -245,11 +257,14 @@ if (isset($_SERVER['HTTP_REFERER'])) {
                     $stmt->execute();
                     $result = $stmt->get_result();
                     $payment_data = $result->fetch_assoc();
+                    
                     $dv_clean = $dv;
                     if (isset($dv_clean['purpose'])) {
                         unset($dv_clean['purpose']);
                     }
                     $dv_clean['remarks'] = $payment_data ? $payment_data['remarks'] : '';
+                    $dv_clean['bank_acc_no'] = $payee_data ? $payee_data['bank_acc_no'] : '';
+                    $dv_clean['payee_name'] = $payee_data ? $payee_data['payee_name'] : $dv['payee_name'];
                     
                     return $dv_clean;
                 }, $dvs);
@@ -266,7 +281,10 @@ if (isset($_SERVER['HTTP_REFERER'])) {
             totalWithholding: <?php echo $total_withholding; ?>,
             totalNet: <?php echo $total_net; ?>,
             amountInWords: "<?php echo htmlspecialchars($amount_in_words); ?>",
-            remarks: "<?php echo isset($lddap_data['remarks']) ? htmlspecialchars(str_replace(array("\r\n", "\r", "\n"), "\\n", $lddap_data['remarks'])) : ''; ?>"
+            remarks: "<?php echo isset($lddap_data['remarks']) ? htmlspecialchars(str_replace(array("\r\n", "\r", "\n"), "\\n", $lddap_data['remarks'])) : ''; ?>",
+            bankInfo: "<?php echo isset($unique_dvs[0]['bank_acc_no']) ? 'LAND BANK OF THE PHILIPPINES- KORONADAL BRANCH- ' . $unique_dvs[0]['bank_acc_no'] : ''; ?>",
+            bankName: "LAND BANK OF THE PHILIPPINES- KORONADAL BRANCH",
+            accountNumber: "<?php echo isset($unique_dvs[0]['bank_acc_no']) ? $unique_dvs[0]['bank_acc_no'] : ''; ?>"
         };
         localStorage.setItem('lddap_<?php echo htmlspecialchars($reference_no); ?>', JSON.stringify(lddapData));
         

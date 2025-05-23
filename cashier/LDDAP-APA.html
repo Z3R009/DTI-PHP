@@ -181,10 +181,10 @@
             </tr>
             <tr>
                 <td colspan="3" class="center" style="padding-top: 0; padding-bottom: 0;"><strong>CREDITOR</strong> </td>
-                <td rowspan="2"><strong>Obligation <br>Request NO.</strong></td>
-                <td rowspan="2"><strong>Account <br>Code</strong></td>
+                <td rowspan="2" class="center"><strong>Obligation <br>Request No.</strong></td>
+                <td rowspan="2" class="center"><strong>Account <br>Class] <br> (per UACS)</strong></td>
                 <td colspan="3" class="left"><strong>In Pesos</strong></td>
-                <td rowspan="3"><strong>REMARKS</strong></td>
+                <td rowspan="3" class="center"><strong>REMARKS</strong></td>
             </tr>
             <tr>
                 <td rowspan="2" class="center">ADA</td>
@@ -199,7 +199,7 @@
             </tr>
             <tr>
                 <td colspan="8" class="left">I. Current Year A/Ps</td>
-                <td rowspan="9" id="remarks" >Cashier Remarks data</td>
+                <td rowspan="9" class="center" id="remarks" >Cashier Remarks data</td>
             </tr>
             
             <!-- DV rows will be inserted here -->
@@ -328,17 +328,11 @@
                 document.getElementById('fundCodeDisplay').textContent = data.fundCode;
             }
             
+            // Set bank info from data
             if (data.bankInfo) {
                 document.getElementById('bankInfoDisplay').textContent = data.bankInfo;
-                
-                const bankInfoParts = data.bankInfo.split('-');
-                if (bankInfoParts.length >= 2) {
-                    const accountNumber = bankInfoParts[bankInfoParts.length - 1].trim();
-                    const bankName = bankInfoParts.slice(0, bankInfoParts.length - 1).join('-').trim();
-                    
-                    document.getElementById('bankNameDisplay').textContent = bankName;
-                    document.getElementById('accountNumberDisplay').textContent = accountNumber;
-                }
+                document.getElementById('bankNameDisplay').textContent = data.bankName;
+                document.getElementById('accountNumberDisplay').textContent = data.accountNumber;
             }
             
             if (data.referenceNo) {
@@ -449,7 +443,7 @@
                     row.innerHTML = `
                         <td><i class="bi bi-people-fill me-1"></i> ${adaDisplay}</td>
                         <td><strong>${dv.payee_name}</strong></td>
-                        <td><strong>${dv.bank_account}</strong></td>
+                        <td><strong>2075-9006-81</strong></td>
                         <td>${dv.ors_no}</td>
                         <td>${dv.account_code || '-'}</td>
                         <td class="right"><strong>${formatCurrency(dv.gross_amount)}</strong></td>
@@ -460,7 +454,7 @@
                     row.innerHTML = `
                         <td>${adaDisplay}</td>
                         <td><strong>${dv.payee_name}</strong></td>
-                        <td><strong>${dv.bank_account}</strong></td>
+                        <td><strong>2075-9006-81</strong></td>
                         <td>${dv.ors_no}</td>
                         <td>${dv.account_code || '-'}</td>
                         <td class="right"><strong>${formatCurrency(dv.gross_amount)}</strong></td>
