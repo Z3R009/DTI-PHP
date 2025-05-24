@@ -10,6 +10,7 @@ include 'DBConnection.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registry of Suppliers - DTI Region 12</title>
+      <link href="img/dti_logo.png" rel="icon">
     <link href="bootstrap-5.2.3/css/bootstrap.min.css" rel="stylesheet">
     <link href="NiceAdmin/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="css/index.css">
