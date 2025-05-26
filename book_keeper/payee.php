@@ -67,8 +67,7 @@ if (isset($_POST['submit'])) {
 }
 
 // retrieve payee
-
-$select = mysqli_query($connection, "SELECT * FROM payee");
+$select = mysqli_query($connection, "SELECT * FROM payee ORDER BY LOWER(payee_name) ASC");
 ?>
 
 <!DOCTYPE html>
@@ -312,9 +311,9 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                     </div>
 
                     <!-- Table with stripped rows -->
-                    <div class="table-responsive">
+                    <div class="table-responsive" style="height: 400px; overflow-y: auto;">
                         <table class="datatable">
-                            <thead class="table-light">
+                            <thead class="table-light sticky-top">
                                 <tr>
                                     <th scope="col"></th>
                                     <th scope="col">Payee Name</th>
@@ -500,37 +499,26 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
 
     <!-- Direct search implementation -->
     <script>
-        // Wait for the document to be fully loaded
         document.addEventListener('DOMContentLoaded', function () {
             // Clear any existing search script
             window.dataTableSearchInitialized = false;
 
-            // Function to perform a direct search on the table
             function directTableSearch() {
-                // Get the search input and table
                 const searchInput = document.getElementById('directTableSearch');
                 if (!searchInput) return;
 
-                // Pure JavaScript implementation that works regardless of the library
                 searchInput.addEventListener('input', function () {
                     const searchText = this.value.toLowerCase();
-
-                    // Get all table rows from the tbody
                     const tableRows = document.querySelectorAll('.datatable tbody tr');
                     if (!tableRows.length) return;
 
-                    // Loop through all rows and check if they match the search
                     tableRows.forEach(function (row) {
-                        // Skip the expandable rows (the ones with the additional data)
                         if (row.classList.contains('expandable-row')) return;
 
                         let rowText = row.textContent.toLowerCase();
                         let matchFound = rowText.includes(searchText);
 
-                        // Show/hide the row based on search match
                         row.style.display = matchFound ? '' : 'none';
-
-                        // Also hide/show the corresponding expandable row
                         const rowIndex = row.rowIndex;
                         const expandableRow = document.querySelector('.datatable tbody tr.expandable-row:nth-of-type(' + (rowIndex + 1) + ')');
                         if (expandableRow) {
@@ -541,11 +529,8 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
 
                 console.log('Direct table search activated');
             }
-
-            // Initialize the search immediately
             directTableSearch();
 
-            // Also try again after a delay in case the table isn't loaded yet
             setTimeout(directTableSearch, 1000);
         });
     </script>

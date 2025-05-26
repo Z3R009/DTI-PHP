@@ -84,7 +84,7 @@ $select = mysqli_query($connection, "SELECT * FROM payee ORDER BY payee_name ASC
     <meta content="" name="keywords">
 
     <!-- Favicons -->
-    <link href="../NiceAdmin/assets/img/favicon.png" rel="icon">
+    <link href="../book_keeper/img/dti_logo.png" rel="icon">
     <link href="../NiceAdmin/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
     <!-- Google Fonts -->
@@ -105,13 +105,18 @@ $select = mysqli_query($connection, "SELECT * FROM payee ORDER BY payee_name ASC
 
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
     <link rel="stylesheet" href="css/table.css">
+    <style>
+          .datatable-top .datatable-search {
+                            display: none !important;
+                        }
+    </style>
 </head>
 <?php include 'includes/header.php'; ?>
 <?php include 'includes/sidebar.php'; ?>
 <body>
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1>Add Payee</h1>
+            <h1>Payee</h1>
            
         </div>
 
@@ -121,14 +126,21 @@ $select = mysqli_query($connection, "SELECT * FROM payee ORDER BY payee_name ASC
                     <div class="card border-0 shadow-sm">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-4">
-                                <div>
+                                <!-- <div>
                                     <h5 class="card-title fs-4 text-primary mb-1">Payee Management</h5>
                                     <p class="text-muted">Add and manage payees in the system.</p>
                                 </div>
                                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPayeeModal">
                                     <i class="bi bi-plus-circle me-1"></i> Add New Payee
-                                </button>
+                                </button> -->
                             </div>
+                             <div class="mb-3">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            <input type="text" id="directTableSearch" class="form-control"
+                                placeholder="Search in table...">
+                        </div>
+                    </div>
 
                             <!-- Add Payee Modal -->
                             <div class="modal fade" id="addPayeeModal" tabindex="-1" aria-labelledby="addPayeeModalLabel" aria-hidden="true">
@@ -205,85 +217,90 @@ $select = mysqli_query($connection, "SELECT * FROM payee ORDER BY payee_name ASC
                                 </div>
                             </div>
 
-                            <!-- Payees Table --><div class="table-responsive">
-    <table class="datatable">
-        <thead class="table-light">
-            <tr>
-                <th scope="col"></th>
-                <th scope="col">Payee Name</th>
-                <th scope="col">Bank Account No.</th>
-                <th scope="col">TIN/Employee No.</th>
-                <th scope="col">Address</th>
-                <th scope="col" class="d-none expandable-col">Nature of Business</th>
-                <th scope="col" class="d-none expandable-col">Contact Number</th>
-                <th scope="col" class="d-none expandable-col">Payee Type</th>
-                <th scope="col">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php while ($row = mysqli_fetch_assoc($select)) { ?>
-                <tr>
-                    <td>
-                        <button class="btn btn-sm btn-outline-secondary expand-row" type="button" data-bs-toggle="collapse" data-bs-target="#expand<?php echo $row['payee_id']; ?>" aria-expanded="false">
-                            <i class="bi bi-chevron-down"></i>
-                        </button>
-                    </td>
-                    <td><?php echo htmlspecialchars($row['payee_name']); ?></td>
-                    <td><?php echo htmlspecialchars($row['bank_acc_no']); ?></td>
-                    <td><?php echo htmlspecialchars($row['tin_no']); ?></td>
-                    <td><?php echo htmlspecialchars($row['address']); ?></td>
-                    <td class="d-none expandable-col"><?php echo htmlspecialchars($row['nature']); ?></td>
-                    <td class="d-none expandable-col"><?php echo htmlspecialchars($row['contact_no']); ?></td>
-                    <td class="d-none expandable-col"><?php echo htmlspecialchars($row['payee_type']); ?></td>
-                    <td>
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-sm btn-info text-white rounded-circle me-1 edit-btn" 
-                                    data-id="<?php echo $row['payee_id']; ?>"
-                                    data-payee_name="<?php echo htmlspecialchars($row['payee_name']); ?>"
-                                    data-bank_acc_no="<?php echo htmlspecialchars($row['bank_acc_no']); ?>"
-                                    data-tin_no="<?php echo htmlspecialchars($row['tin_no']); ?>"
-                                    data-address="<?php echo htmlspecialchars($row['address']); ?>"
-                                    data-nature="<?php echo htmlspecialchars($row['nature']); ?>"
-                                    data-contact_no="<?php echo htmlspecialchars($row['contact_no']); ?>"
-                                    data-payee_type="<?php echo htmlspecialchars($row['payee_type']); ?>"
-                                    title="Edit Payee">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-                            <a href="delete_payee.php?payee_id=<?php echo $row['payee_id']; ?>&confirm=yes" 
-                               class="btn btn-sm btn-danger text-white rounded-circle delete-btn"
-                               title="Delete Payee">
-                                <i class="bi bi-trash"></i>
-                            </a>
-                        </div>
-                    </td>
-                </tr>
-                <tr class="expandable-row">
-                    <td colspan="9" class="p-0">
-                        <div class="collapse" id="expand<?php echo $row['payee_id']; ?>">
-                            <div class="card card-body border-custom">
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <p class="mb-1"><strong>Nature of Business:</strong></p>
-                                        <p><?php echo htmlspecialchars($row['nature']); ?></p>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <p class="mb-1"><strong>Contact Number:</strong></p>
-                                        <p><?php echo htmlspecialchars($row['contact_no']); ?></p>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <p class="mb-1"><strong>Payee Type:</strong></p>
-                                        <p><?php echo htmlspecialchars($row['payee_type']); ?></p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-            <?php } ?>
-        </tbody>
-    </table>
-</div>
-
+                            <!-- Payees Table -->
+                          <div class="table-responsive">
+                        <table class="datatable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col"></th>
+                                    <th scope="col">Payee Name</th>
+                                    <th scope="col">Bank Account No.</th>
+                                    <th scope="col">TIN/Employee No.</th>
+                                    <th scope="col">Address</th>
+                                    <th scope="col" class="d-none expandable-col">Nature of Business</th>
+                                    <th scope="col" class="d-none expandable-col">Contact Number</th>
+                                    <th scope="col" class="d-none expandable-col">Payee Type</th>
+                                    <!-- <th scope="col">Actions</th> -->
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php while ($row = mysqli_fetch_assoc($select)) { ?>
+                                    <tr>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-secondary expand-row" type="button" 
+                                                    onclick="toggleExpand(this, 'expand<?php echo $row['payee_id']; ?>')"
+                                                    aria-expanded="false">
+                                                <i class="bi bi-chevron-down"></i>
+                                            </button>
+                                        </td>
+                                        <td><?php echo htmlspecialchars($row['payee_name']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['bank_acc_no']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['tin_no']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['address']); ?></td>
+                                        <td class="d-none expandable-col"><?php echo htmlspecialchars($row['nature']); ?>
+                                        </td>
+                                        <td class="d-none expandable-col">
+                                            <?php echo htmlspecialchars($row['contact_no']); ?>
+                                        </td>
+                                        <td class="d-none expandable-col">
+                                            <?php echo htmlspecialchars($row['payee_type']); ?>
+                                        </td>
+                                        <!-- <td class="text-end">
+                                             <button type="button" class="btn btn-sm btn-outline-primary edit-btn"
+                                                data-bs-toggle="modal" data-bs-target="#editUserModal"
+                                                data-id="<?php echo $row['payee_id']; ?>"
+                                                data-payee_name="<?= htmlspecialchars($row['payee_name']); ?>"
+                                                data-bank_acc_no="<?= htmlspecialchars($row['bank_acc_no']); ?>"
+                                                data-tin_no="<?= htmlspecialchars($row['tin_no']); ?>"
+                                                data-address="<?= htmlspecialchars($row['address']); ?>"
+                                                data-nature="<?= htmlspecialchars($row['nature']); ?>"
+                                                data-contact_no="<?= htmlspecialchars($row['contact_no']); ?>"
+                                                data-payee_type="<?= htmlspecialchars($row['payee_type']); ?>">
+                                                <i class="bi bi-pencil" data-bs-toggle="tooltip" data-bs-placement="top"
+                                                    title="Edit"></i>
+                                            </button> -->
+                                            <!-- <button type="button" class="btn btn-sm btn-outline-danger"
+                                                onclick="deleteUser(<?php echo $row['payee_id']; ?>)"><i class="bi bi-trash"
+                                                    data-bs-toggle="tooltip" data-bs-placement="top"
+                                                    title="Delete"></i></button> 
+                                        </td> -->
+                                    </tr>
+                                    <tr class="expandable-row">
+                                        <td colspan="9" class="p-0">
+                                            <div class="collapse" id="expand<?php echo $row['payee_id']; ?>">
+                                                <div class="card card-body border-custom">
+                                                    <div class="row">
+                                                        <div class="col-md-4">
+                                                            <p class="mb-1"><strong>Category:</strong></p>
+                                                            <p><?php echo htmlspecialchars($row['nature']); ?></p>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <p class="mb-1"><strong>Contact Number:</strong></p>
+                                                            <p><?php echo htmlspecialchars($row['contact_no']); ?></p>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <p class="mb-1"><strong>Payee Type:</strong></p>
+                                                            <p><?php echo htmlspecialchars($row['payee_type']); ?></p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php } ?>
+                            </tbody>
+                        </table>
+                    </div>
                         </div>
                     </div>
                 </div>
@@ -486,6 +503,52 @@ $select = mysqli_query($connection, "SELECT * FROM payee ORDER BY payee_name ASC
                 }
             });
         }
+          function toggleExpand(button, targetId) {
+            const icon = button.querySelector('i');
+            const targetElement = document.getElementById(targetId);
+            
+            if (targetElement.style.display === 'block') {
+                targetElement.style.display = 'none';
+                icon.classList.replace('bi-chevron-up', 'bi-chevron-down');
+            } else {
+                targetElement.style.display = 'block';
+                icon.classList.replace('bi-chevron-down', 'bi-chevron-up');
+            }
+        }   
+          document.addEventListener('DOMContentLoaded', function () {
+            // Clear any existing search script
+            window.dataTableSearchInitialized = false;
+
+            function directTableSearch() {
+                const searchInput = document.getElementById('directTableSearch');
+                if (!searchInput) return;
+
+                searchInput.addEventListener('input', function () {
+                    const searchText = this.value.toLowerCase();
+                    const tableRows = document.querySelectorAll('.datatable tbody tr');
+                    if (!tableRows.length) return;
+
+                    tableRows.forEach(function (row) {
+                        if (row.classList.contains('expandable-row')) return;
+
+                        let rowText = row.textContent.toLowerCase();
+                        let matchFound = rowText.includes(searchText);
+
+                        row.style.display = matchFound ? '' : 'none';
+                        const rowIndex = row.rowIndex;
+                        const expandableRow = document.querySelector('.datatable tbody tr.expandable-row:nth-of-type(' + (rowIndex + 1) + ')');
+                        if (expandableRow) {
+                            expandableRow.style.display = matchFound ? '' : 'none';
+                        }
+                    });
+                });
+
+                console.log('Direct table search activated');
+            }
+            directTableSearch();
+
+            setTimeout(directTableSearch, 1000);
+        });
     </script>
 
     <?php echo $alert; ?>
