@@ -47,7 +47,6 @@ $result = $stmt->get_result();
 
 if ($result->num_rows > 0) {
     $dv_form = $result->fetch_assoc();
-    $ors_id = $dv_form['ors_id']; // Get the related ORS ID (again, for safety)
 } else {
     die("No record found in 'dv' table for DV ID: " . htmlspecialchars($dv_id));
 }
@@ -76,44 +75,43 @@ while ($account = $accounts_result->fetch_assoc()) {
 }
 $accounts_stmt->close();
 
-// ============================
-// Fetch ORS record and join with other tables
-$query2 = "
-    SELECT ors.*, dv.*, dv_history.*,
-           approver.approver_name,
-           payee.payee_name,
-           account_title.account_title,
-           account_title.account_code,
-           approver.designation,
-           CONCAT(fund_cluster.uacs_code, '-', fund_cluster.fund_cluster_name) AS fund_cluster,
-           responsibility_center.code AS code,
-           oopap.oopap_name
-    FROM ors 
-    INNER JOIN dv ON ors.ors_id = dv.ors_id
-    INNER JOIN dv_history ON dv_history.dv_id = dv.dv_id
-    LEFT JOIN approver ON ors.approver_id = approver.approver_id
-    LEFT JOIN payee ON ors.payee_id = payee.payee_id
-    LEFT JOIN account_title ON account_title.account_id = account_title.account_id
-    LEFT JOIN fund_cluster ON ors.fund_cluster_id = fund_cluster.fund_cluster_id
-    LEFT JOIN responsibility_center ON ors.rc_id = responsibility_center.rc_id
-    LEFT JOIN oopap ON ors.oopap_id = oopap.oopap_id
-    WHERE ors.ors_id = ? ";
+// Fetch all ORS numbers and their details for this JEV
+$ors_query = "SELECT o.*, 
+              approver.approver_name,
+              payee.payee_name,
+              account_title.account_title,
+              account_title.account_code,
+              approver.designation,
+              CONCAT(fund_cluster.uacs_code, '-', fund_cluster.fund_cluster_name) AS fund_cluster,
+              responsibility_center.code AS code,
+              oopap.oopap_name
+              FROM jev_multiple_ors jmo 
+              JOIN ors o ON jmo.ors_id = o.ors_id
+              LEFT JOIN approver ON o.approver_id = approver.approver_id
+              LEFT JOIN payee ON o.payee_id = payee.payee_id
+              LEFT JOIN account_title ON o.account_id = account_title.account_id
+              LEFT JOIN fund_cluster ON o.fund_cluster_id = fund_cluster.fund_cluster_id
+              LEFT JOIN responsibility_center ON o.rc_id = responsibility_center.rc_id
+              LEFT JOIN oopap ON o.oopap_id = oopap.oopap_id
+              WHERE jmo.jev_id = ?";
 
-$stmt2 = $connection->prepare($query2);
-if (!$stmt2) {
+$ors_stmt = $connection->prepare($ors_query);
+if (!$ors_stmt) {
     die("Query preparation failed: " . $connection->error);
 }
-$stmt2->bind_param("s", $ors_id);
-$stmt2->execute();
-$result2 = $stmt2->get_result();
+$ors_stmt->bind_param("i", $jev_form['jev_id']);
+$ors_stmt->execute();
+$ors_result = $ors_stmt->get_result();
 
-// Fetch data from 'ors' table
-if ($result2->num_rows > 0) {
-    $ors_form = $result2->fetch_assoc();
-} else {
-    $ors_form = []; // If no ORS record found
+// Store all ORS details in an array
+$ors_details = [];
+while ($ors = $ors_result->fetch_assoc()) {
+    $ors_details[] = $ors;
 }
-$stmt2->close();
+$ors_stmt->close();
+
+// Use the first ORS record for common details
+$ors_form = !empty($ors_details) ? $ors_details[0] : [];
 
 // Close the database connection
 $connection->close();
@@ -142,7 +140,7 @@ if (isset($ors_form['purpose'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <link href="img/dti_logo.png" rel="icon">
     <title>Accounting Entries</title>
     <style>
@@ -315,15 +313,25 @@ if (isset($ors_form['purpose'])) {
                 <tr></tr>
                 <tr></tr>
                 <td colspan="2"><strong>DV No.:</strong></td>
-                <td colspan="3"><?php echo $ors_form['dv_no']; ?></td>
+                <td colspan="3"><?php echo $dv_form['dv_no']; ?></td>
                 <td></td>
-
                 <td></td>
                 <td></td>
                 </tr>
                 <tr>
                     <td colspan="2"><strong>O.R.S No.:</strong></td>
-                    <td colspan="3"><?php echo $ors_form['ors_no']; ?></td>
+                    <td colspan="3">
+                        <?php
+                        if (!empty($ors_details)) {
+                            $ors_numbers = array_map(function ($ors) {
+                                return $ors['ors_no'];
+                            }, $ors_details);
+                            echo htmlspecialchars(implode(', ', $ors_numbers));
+                        } else {
+                            echo isset($ors_form['ors_no']) ? htmlspecialchars($ors_form['ors_no']) : '&nbsp;';
+                        }
+                        ?>
+                    </td>
                     <td></td>
                     <td></td>
                     <td></td>

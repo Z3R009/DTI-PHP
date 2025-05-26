@@ -13,7 +13,6 @@ if (isset($_POST['submit'])) {
 
     $date = $_POST['date'];
     $dv_no = $_POST['dv_no'];
-    $ors_no = $_POST['ors_no'];
     $jev_no = $_POST['jev_no'];
     $administrative_aide = $_POST['administrative_aide'];
     $accountant = $_POST['accountant'];
@@ -22,24 +21,6 @@ if (isset($_POST['submit'])) {
     $connection->begin_transaction();
 
     try {
-        // Get ors_id from ors_no
-        $ors_query = "SELECT ors_id FROM ors WHERE ors_no = ?";
-        $ors_stmt = $connection->prepare($ors_query);
-        if ($ors_stmt === false) {
-            throw new Exception('Prepare failed (ORS): ' . htmlspecialchars($connection->error));
-        }
-        $ors_stmt->bind_param("s", $ors_no);
-        if (!$ors_stmt->execute()) {
-            throw new Exception("Error getting ORS ID: " . $ors_stmt->error);
-        }
-        $ors_result = $ors_stmt->get_result();
-        if ($ors_result->num_rows === 0) {
-            throw new Exception("ORS number not found: " . $ors_no);
-        }
-        $ors_row = $ors_result->fetch_assoc();
-        $ors_id = $ors_row['ors_id'];
-        $ors_stmt->close();
-
         // Get dv_id from dv_no
         $dv_query = "SELECT dv_id FROM dv WHERE dv_no = ?";
         $dv_stmt = $connection->prepare($dv_query);
@@ -57,6 +38,30 @@ if (isset($_POST['submit'])) {
         $dv_row = $dv_result->fetch_assoc();
         $dv_id = $dv_row['dv_id'];
         $dv_stmt->close();
+
+        // Get all ORS IDs from dv_multiple_ors table
+        $ors_ids_query = "SELECT ors_id FROM dv_multiple_ors WHERE dv_id = ?";
+        $ors_ids_stmt = $connection->prepare($ors_ids_query);
+        if ($ors_ids_stmt === false) {
+            throw new Exception('Prepare failed (ORS IDs): ' . htmlspecialchars($connection->error));
+        }
+        $ors_ids_stmt->bind_param("i", $dv_id);
+        if (!$ors_ids_stmt->execute()) {
+            throw new Exception("Error getting ORS IDs: " . $ors_ids_stmt->error);
+        }
+        $ors_ids_result = $ors_ids_stmt->get_result();
+        $ors_ids = [];
+        while ($row = $ors_ids_result->fetch_assoc()) {
+            $ors_ids[] = $row['ors_id'];
+        }
+        $ors_ids_stmt->close();
+
+        if (empty($ors_ids)) {
+            throw new Exception("No ORS IDs found for DV: " . $dv_no);
+        }
+
+        // Use the first ORS ID as the main ORS ID for the JEV
+        $ors_id = $ors_ids[0];
 
         // Insert into jev table
         $sql = "INSERT INTO jev (date, dv_id, ors_id, jev_no, administrative_aide, accountant) 
@@ -81,18 +86,46 @@ if (isset($_POST['submit'])) {
             throw new Exception("Insert error: " . $stmt->error);
         }
 
+        $jev_id = $connection->insert_id;
         $stmt->close();
 
-        // Update the dv status to 'Processed'
+        // Link JEV with all ORS entries using jev_multiple_ors table
+        foreach ($ors_ids as $ors_id) {
+            $link_sql = "INSERT INTO jev_multiple_ors (jev_id, ors_id) VALUES (?, ?)";
+            $link_stmt = $connection->prepare($link_sql);
+            if ($link_stmt === false) {
+                throw new Exception('Prepare failed (JEV-ORS link): ' . htmlspecialchars($connection->error));
+            }
+
+            $link_stmt->bind_param("ii", $jev_id, $ors_id);
+            if (!$link_stmt->execute()) {
+                throw new Exception("Error linking JEV with ORS: " . $link_stmt->error);
+            }
+            $link_stmt->close();
+
+            // Update ORS status to 'Endorsed'
+            $update_ors_sql = "UPDATE ors SET status = 'Endorsed' WHERE ors_id = ?";
+            $update_ors_stmt = $connection->prepare($update_ors_sql);
+            if ($update_ors_stmt === false) {
+                throw new Exception('Prepare failed (ORS update): ' . htmlspecialchars($connection->error));
+            }
+            $update_ors_stmt->bind_param("i", $ors_id);
+            if (!$update_ors_stmt->execute()) {
+                throw new Exception("Error updating ORS status: " . $update_ors_stmt->error);
+            }
+            $update_ors_stmt->close();
+        }
+
+        // Update the dv status to 'Endorsed'
         $update_status_sql = "UPDATE dv SET status = 'Endorsed' WHERE dv_id = ?";
         $update_status_stmt = $connection->prepare($update_status_sql);
         if ($update_status_stmt === false) {
-            throw new Exception('Prepare failed (ORS update): ' . htmlspecialchars($connection->error));
+            throw new Exception('Prepare failed (DV update): ' . htmlspecialchars($connection->error));
         }
 
         $update_status_stmt->bind_param("i", $dv_id);
         if (!$update_status_stmt->execute()) {
-            throw new Exception("Error updating ORS status: " . $update_status_stmt->error);
+            throw new Exception("Error updating DV status: " . $update_status_stmt->error);
         }
         $update_status_stmt->close();
 
@@ -141,7 +174,7 @@ WHERE dv.status = 'Pending'
 
 ");
 
-
+$select = mysqli_query($connection, "SELECT * FROM dv_multiple_ors");
 
 ?>
 
@@ -288,6 +321,12 @@ WHERE dv.status = 'Pending'
                                     <input type="text" class="form-control" id="dv_no" name="dv_no" readonly>
                                 </div>
                             </div>
+                            <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <label for="ors_notes" class="form-label">ORS Notes</label>
+                                    <textarea class="form-control" id="ors_notes" name="ors_notes" rows="3" readonly></textarea>
+                                </div>
+                            </div>
 
 
                             <!-- Payee Details Section -->
@@ -430,7 +469,18 @@ WHERE dv.status = 'Pending'
                                 throw new Error('Form not found after template restoration');
                             }
 
-                            form.querySelector('#ors_no').value = data.ors_no || '';
+                            form.querySelector('#ors_no').value = data.ors_details
+                                ? data.ors_details.map(ors => ors.ors_no).join(', ')
+                                : '';
+                            const notesField = form.querySelector('#ors_notes');
+                            if (notesField) {
+                                notesField.value = data.ors_details
+                                    ? data.ors_details
+                                        .filter(ors => ors.notes && ors.notes.trim() !== '')
+                                        .map(ors => `${ors.ors_no}: ${ors.notes}`)
+                                        .join('\n')
+                                    : '';
+                            }
                             form.querySelector('#dv_no').value = data.dv_no || '';
                             form.querySelector('#payee_name').value = data.payee_name || '';
                             form.querySelector('#fund_cluster').value = data.fund_cluster || '';
