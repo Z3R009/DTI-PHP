@@ -289,32 +289,6 @@ WHERE dv.status = 'Pending'
                                 </div>
                             </div>
 
-                            <div class="form-section">
-                                <Label>ORS Number</Label>
-                                <div class="table-responsive">
-                                    <table class="table table-bordered">
-                                        <thead>
-                                            <tr>
-                                                <th>ORS No.</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php foreach ($ors_details as $ors): ?>
-                                                <tr>
-                                                    <td><?php echo htmlspecialchars($ors['ors_no']); ?></td>
-                                                <?php endforeach; ?>
-                                        </tbody>
-                                        <tfoot>
-                                            <tr>
-                                                <th colspan="3" class="text-end">Total Amount:</th>
-                                                <th class="text-end">₱<?php echo number_format($total_amount, 2); ?>
-                                                </th>
-                                            </tr>
-                                        </tfoot>
-                                    </table>
-                                </div>
-                            </div>
-
                             <!-- Payee Details Section -->
                             <div class="mb-4">
                                 <h5 class="border-bottom pb-2 mb-3">Payee Details</h5>
