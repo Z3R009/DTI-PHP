@@ -305,7 +305,17 @@ if (isset($ors_form['purpose'])) {
                 <!-- Notes Row (aligned properly) -->
                 <tr>
                     <td colspan="6" style="font-style: italic;">
-                        <strong>Notes:</strong> <?php echo $prefix . ' ' . $ors_form['notes']; ?>
+                        <strong>Notes:</strong> 
+                        <?php 
+                        if (!empty($ors_details)) {
+                            $notes = array_map(function($ors) use ($prefix) {
+                                return $prefix . ' ' . $ors['notes'];
+                            }, $ors_details);
+                            echo htmlspecialchars(implode(", ", $notes));
+                        } else {
+                            echo $prefix . ' ' . $ors_form['notes'];
+                        }
+                        ?>
                     </td>
                 </tr>
 
