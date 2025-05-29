@@ -108,7 +108,7 @@ $whereSql = ' WHERE ' . implode(' AND ', $whereClauses);
 $ors_query = "SELECT * FROM ors
               LEFT JOIN services ON ors.services_id = services.services_id
               $whereSql
-              ORDER BY ors.date DESC";
+              ORDER BY ors.date DESC, ors_no DESC";
 
 $stmt = $connection->prepare($ors_query);
 
