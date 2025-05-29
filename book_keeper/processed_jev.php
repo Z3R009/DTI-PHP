@@ -12,6 +12,8 @@ $select = mysqli_query($connection, "
     LEFT JOIN ors ON jev.ors_id = ors.ors_id
     LEFT JOIN payee ON ors.payee_id = payee.payee_id
 
+    ORDER BY jev.date DESC, jev_no DESC
+
 ");
 
 ?>
