@@ -4,19 +4,11 @@ include '../DBConnection.php';
 // insert
 
 if (isset($_POST['submit'])) {
-    echo "Form submitted!";
-
-
-    echo "<pre>";
-    print_r($_POST);
-    echo "</pre>";
-
     $date = $_POST['date'];
     $dv_no = $_POST['dv_no'];
     $jev_no = $_POST['jev_no'];
     $administrative_aide = $_POST['administrative_aide'];
     $accountant = $_POST['accountant'];
-
 
     $connection->begin_transaction();
 
@@ -56,8 +48,24 @@ if (isset($_POST['submit'])) {
         }
         $ors_ids_stmt->close();
 
+        // If no ORS IDs found in dv_multiple_ors, try getting from dv table
         if (empty($ors_ids)) {
-            throw new Exception("No ORS IDs found for DV: " . $dv_no);
+            $main_ors_query = "SELECT ors_id FROM dv WHERE dv_id = ?";
+            $main_ors_stmt = $connection->prepare($main_ors_query);
+            if ($main_ors_stmt === false) {
+                throw new Exception('Prepare failed (Main ORS): ' . htmlspecialchars($connection->error));
+            }
+            $main_ors_stmt->bind_param("i", $dv_id);
+            if (!$main_ors_stmt->execute()) {
+                throw new Exception("Error getting main ORS ID: " . $main_ors_stmt->error);
+            }
+            $main_ors_result = $main_ors_stmt->get_result();
+            if ($main_ors_result->num_rows === 0) {
+                throw new Exception("No ORS ID found for DV: " . $dv_no);
+            }
+            $main_ors_row = $main_ors_result->fetch_assoc();
+            $ors_ids[] = $main_ors_row['ors_id'];
+            $main_ors_stmt->close();
         }
 
         // Use the first ORS ID as the main ORS ID for the JEV
@@ -132,13 +140,14 @@ if (isset($_POST['submit'])) {
         // Commit transaction
         $connection->commit();
 
-        // Redirect
+        // Return success response
         header("Location: jev_form.php?jev_no=$jev_no");
         exit();
 
     } catch (Exception $e) {
         $connection->rollback();
-        echo "Error: " . $e->getMessage();
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        exit();
     }
 
     $connection->close();
@@ -169,6 +178,9 @@ LEFT JOIN oopap ON ors.oopap_id = oopap.oopap_id
 LEFT JOIN payee ON ors.payee_id = payee.payee_id
 
 WHERE dv.status = 'Pending'
+
+
+ORDER BY dv.date DESC, dv_no DESC
 ;
 
 
@@ -210,6 +222,13 @@ $select = mysqli_query($connection, "SELECT * FROM dv_multiple_ors");
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
     <link rel="stylesheet" href="css/jev.css">
     <link rel="stylesheet" href="css/table.css">
+
+    <style>
+        td:nth-child(3),
+        th:nth-child(3) {
+            display: none;
+        }
+    </style>
 </head>
 
 <body>
@@ -294,7 +313,7 @@ $select = mysqli_query($connection, "SELECT * FROM dv_multiple_ors");
                 <div class="modal-body">
                     <!-- Form Template -->
                     <div id="jevFormTemplate" style="display: none;">
-                        <form action="" method="post" id="jevForm">
+                        <form action="jev.php" method="post" id="jevForm">
                             <input type="hidden" name="submit" value="1">
                             <div class="row mb-3">
                                 <div class="col-md-4">
@@ -324,7 +343,8 @@ $select = mysqli_query($connection, "SELECT * FROM dv_multiple_ors");
                             <div class="row mb-3">
                                 <div class="col-md-12">
                                     <label for="ors_notes" class="form-label">ORS Notes</label>
-                                    <textarea class="form-control" id="ors_notes" name="ors_notes" rows="3" readonly></textarea>
+                                    <textarea class="form-control" id="ors_notes" name="ors_notes" rows="3"
+                                        readonly></textarea>
                                 </div>
                             </div>
 
@@ -545,9 +565,6 @@ $select = mysqli_query($connection, "SELECT * FROM dv_multiple_ors");
 
                     const formData = new FormData(this);
 
-                    // Add submit flag
-                    formData.append('submit', '1');
-
                     // Show loading state
                     const submitButton = this.querySelector('button[type="submit"]');
                     if (submitButton) {
@@ -564,35 +581,18 @@ $select = mysqli_query($connection, "SELECT * FROM dv_multiple_ors");
                             if (!response.ok) {
                                 throw new Error('Network response was not ok');
                             }
-                            return response.text();
+                            return response.json();
                         })
                         .then(data => {
-                            if (data.includes('Error:')) {
-                                throw new Error(data);
+                            if (!data.success) {
+                                throw new Error(data.error || 'An error occurred while submitting the form');
                             }
 
-                            const jevNo = formData.get('jev_no');
-                            if (!jevNo) {
-                                throw new Error('JEV number is missing');
-                            }
+                            // Close the modal first
+                            modal.hide();
 
-                            // Show success message
-                            const modalBody = modalEl.querySelector('.modal-body');
-                            if (modalBody) {
-                                modalBody.innerHTML = `
-                                <div class="alert alert-success">
-                                    <h4 class="alert-heading">Success!</h4>
-                                    <p>JEV has been created successfully.</p>
-                                    <hr>
-                                    <p class="mb-0">Redirecting to JEV form...</p>
-                                </div>
-                            `;
-                            }
-
-                            // Redirect after a short delay
-                            setTimeout(() => {
-                                window.location.href = `jev_form.php?jev_no=${jevNo}`;
-                            }, 2000);
+                            // Redirect immediately to jev_form.php
+                            window.location.replace(`jev_form.php?jev_no=${data.jev_no}`);
                         })
                         .catch(error => {
                             console.error('Error:', error);
