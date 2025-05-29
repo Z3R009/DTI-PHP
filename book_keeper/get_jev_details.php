@@ -79,12 +79,42 @@ if (isset($_GET['id'])) {
 
         $ors_result = $ors_stmt->get_result();
         $ors_details = [];
-        while ($ors_row = $ors_result->fetch_assoc()) {
-            $ors_details[] = [
-                'ors_no' => $ors_row['ors_no'],
-                'notes' => $ors_row['notes']
-            ];
+        
+        // If no results from dv_multiple_ors, try getting from main ors table
+        if ($ors_result->num_rows === 0) {
+            $main_ors_query = "SELECT o.ors_no, o.notes 
+                             FROM dv d
+                             JOIN ors o ON d.ors_id = o.ors_id 
+                             WHERE d.dv_id = ?";
+            $main_ors_stmt = $connection->prepare($main_ors_query);
+            if ($main_ors_stmt === false) {
+                error_log("Failed to prepare main ORS query: " . $connection->error);
+                throw new Exception('Failed to prepare main ORS query: ' . $connection->error);
+            }
+
+            $main_ors_stmt->bind_param("i", $dv_id);
+            if (!$main_ors_stmt->execute()) {
+                error_log("Failed to execute main ORS query: " . $main_ors_stmt->error);
+                throw new Exception('Failed to execute main ORS query: ' . $main_ors_stmt->error);
+            }
+
+            $main_ors_result = $main_ors_stmt->get_result();
+            while ($ors_row = $main_ors_result->fetch_assoc()) {
+                $ors_details[] = [
+                    'ors_no' => $ors_row['ors_no'],
+                    'notes' => $ors_row['notes']
+                ];
+            }
+            $main_ors_stmt->close();
+        } else {
+            while ($ors_row = $ors_result->fetch_assoc()) {
+                $ors_details[] = [
+                    'ors_no' => $ors_row['ors_no'],
+                    'notes' => $ors_row['notes']
+                ];
+            }
         }
+        $ors_stmt->close();
 
         // Add ORS details to the response data
         $data['ors_details'] = $ors_details;
