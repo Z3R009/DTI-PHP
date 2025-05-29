@@ -170,7 +170,8 @@ SELECT
     oopap.oopap_name,
     payee.payee_name,
     payee.tin_no,
-    payee.address
+    payee.address,
+    services.services_name
 FROM dv
 LEFT JOIN ors ON dv.ors_id = ors.ors_id
 LEFT JOIN account_title ON ors.account_id = account_title.account_id
@@ -178,9 +179,9 @@ LEFT JOIN approver ON ors.approver_id = approver.approver_id
 LEFT JOIN fund_cluster ON ors.fund_cluster_id = fund_cluster.fund_cluster_id
 LEFT JOIN responsibility_center ON ors.rc_id = responsibility_center.rc_id
 LEFT JOIN oopap ON ors.oopap_id = oopap.oopap_id
-LEFT JOIN payee ON ors.payee_id = payee.payee_id;
-
-
+LEFT JOIN payee ON ors.payee_id = payee.payee_id
+LEFT JOIN services ON ors.services_id = services.services_id
+ORDER BY dv.date DESC, dv.dv_no DESC;
 ");
 
 ?>
@@ -192,18 +193,18 @@ $month = isset($_GET['month']) ? intval($_GET['month']) : '';
 $service = isset($_GET['service']) ? mysqli_real_escape_string($connection, $_GET['service']) : '';
 
 // Build WHERE clause
-$whereClauses = ["ors.status = 'Pending'"]; // Always include status
+$whereClauses = [];
 $params = [];
 $types = '';
 
 // Always filter by year
-$whereClauses[] = "YEAR(ors.date) = ?";
+$whereClauses[] = "YEAR(dv.date) = ?";
 $params[] = $year;
 $types .= 'i';
 
 // Add month filter if selected
 if (!empty($month)) {
-    $whereClauses[] = "MONTH(ors.date) = ?";
+    $whereClauses[] = "MONTH(dv.date) = ?";
     $params[] = $month;
     $types .= 'i';
 }
@@ -216,11 +217,13 @@ if (!empty($service)) {
 }
 
 // Build final WHERE SQL
-$whereSql = ' WHERE ' . implode(' AND ', $whereClauses);
+$whereSql = !empty($whereClauses) ? ' WHERE ' . implode(' AND ', $whereClauses) : '';
 
 // Final query
-$ors_query = "SELECT 
-    ors.*, 
+$dv_query = "SELECT 
+    ors.*,
+    ors.total_amount AS ors_total_amount,
+    dv.*, 
     account_title.account_title, 
     approver.approver_name,
     CONCAT(fund_cluster.uacs_code, '-', fund_cluster.fund_cluster_name) AS fund_cluster,
@@ -230,7 +233,8 @@ $ors_query = "SELECT
     payee.tin_no,
     payee.address,
     services.services_name
-FROM ors
+FROM dv
+LEFT JOIN ors ON dv.ors_id = ors.ors_id
 LEFT JOIN account_title ON ors.account_id = account_title.account_id
 LEFT JOIN approver ON ors.approver_id = approver.approver_id
 LEFT JOIN fund_cluster ON ors.fund_cluster_id = fund_cluster.fund_cluster_id
@@ -239,10 +243,10 @@ LEFT JOIN oopap ON ors.oopap_id = oopap.oopap_id
 LEFT JOIN payee ON ors.payee_id = payee.payee_id
 LEFT JOIN services ON ors.services_id = services.services_id
 $whereSql
-ORDER BY ors.date DESC, ors_no DESC";
+ORDER BY dv.date DESC, dv.dv_no DESC";
 
 // Prepare and bind
-$stmt = $connection->prepare($ors_query);
+$stmt = $connection->prepare($dv_query);
 
 if ($stmt === false) {
     die('Prepare failed: ' . $connection->error);
@@ -253,9 +257,9 @@ if (!empty($params)) {
 }
 
 $stmt->execute();
-$select_ors = $stmt->get_result();
+$select_dv = $stmt->get_result();
 
-if ($select_ors->num_rows === 0) {
+if ($select_dv->num_rows === 0) {
     echo "<p>No records found for the selected filters.</p>";
 }
 ?>
@@ -403,6 +407,7 @@ if ($select_ors->num_rows === 0) {
                             <table class="datatable">
                                 <thead>
                                     <tr>
+                                        <th>ORS No.</th>
                                         <th>DV No.</th>
                                         <th>Date</th>
                                         <th>Payee Name</th>
@@ -415,6 +420,7 @@ if ($select_ors->num_rows === 0) {
                                 <tbody>
                                     <?php while ($row = mysqli_fetch_assoc($select_dv)) { ?>
                                         <tr>
+                                            <td><?php echo htmlspecialchars($row['ors_no']); ?></td>
                                             <td><?php echo htmlspecialchars($row['dv_no']); ?></td>
                                             <td>
                                                 <?php
