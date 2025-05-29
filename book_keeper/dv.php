@@ -1874,6 +1874,8 @@ if ($select_ors->num_rows === 0) {
             });
         </script>
 
+
+        <!-- filter -->
         <script>
             // JavaScript to handle filtering with visual feedback
             document.addEventListener('DOMContentLoaded', function () {
