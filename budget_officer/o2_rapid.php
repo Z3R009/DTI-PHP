@@ -387,14 +387,7 @@ $select = mysqli_query(
     <div class="pagetitle page-header d-flex justify-content-between align-items-center">
             <div>
                 <h1>O2-RAPID LP 2024 CONTINUING - Rapid LP 2024 Continuing <?php echo date('Y'); ?></h1>
-                <nav>
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index.php">Home</a></li>
-                        <li class="breadcrumb-item"><a href="index.php">Status of Fund</a></li>
-                        <li class="breadcrumb-item"><a href="index.php">RAPID</a></li>
-                        <li class="breadcrumb-item active">O2-Rapid LP 2024 Continuing</li>
-                    </ol>
-                </nav>
+                
             </div>
             <div class="d-flex align-items-center">
             <form method="get" action="o2_rapid.php" class="d-flex align-items-center me-3 filter-form">
