@@ -302,8 +302,8 @@ if ($select_dv->num_rows === 0) {
     <link rel="stylesheet" href="css/table.css">
 
     <style>
-        td:nth-child(2),
-        th:nth-child(2) {
+        td:nth-child(1),
+        th:nth-child(1) {
             display: none;
         }
     </style>
