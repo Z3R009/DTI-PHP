@@ -51,26 +51,83 @@ if (isset($_GET['id'])) {
         }
         
         $result = $stmt->get_result();
-        $dv_details = $result->fetch_assoc();
+        $data = $result->fetch_assoc();
         
-        error_log("DV query result: " . print_r($dv_details, true));
+        error_log("DV query result: " . print_r($data, true));
         
-        if (!$dv_details) {
+        if (!$data) {
             error_log("DV not found for ID: " . $dv_id);
             throw new Exception('DV not found');
         }
 
-        // Fetch related accounts from dv_history
+        // Fetch all ORS numbers associated with this DV
+        $ors_query = "SELECT o.ors_no, o.notes 
+                     FROM dv_multiple_ors dmo 
+                     JOIN ors o ON dmo.ors_id = o.ors_id 
+                     WHERE dmo.dv_id = ?";
+        $ors_stmt = $connection->prepare($ors_query);
+        if ($ors_stmt === false) {
+            error_log("Failed to prepare ORS query: " . $connection->error);
+            throw new Exception('Failed to prepare ORS query: ' . $connection->error);
+        }
+
+        $ors_stmt->bind_param("i", $dv_id);
+        if (!$ors_stmt->execute()) {
+            error_log("Failed to execute ORS query: " . $ors_stmt->error);
+            throw new Exception('Failed to execute ORS query: ' . $ors_stmt->error);
+        }
+
+        $ors_result = $ors_stmt->get_result();
+        $ors_details = [];
+        
+        // If no results from dv_multiple_ors, try getting from main ors table
+        if ($ors_result->num_rows === 0) {
+            $main_ors_query = "SELECT o.ors_no, o.notes 
+                             FROM dv d
+                             JOIN ors o ON d.ors_id = o.ors_id 
+                             WHERE d.dv_id = ?";
+            $main_ors_stmt = $connection->prepare($main_ors_query);
+            if ($main_ors_stmt === false) {
+                error_log("Failed to prepare main ORS query: " . $connection->error);
+                throw new Exception('Failed to prepare main ORS query: ' . $connection->error);
+            }
+
+            $main_ors_stmt->bind_param("i", $dv_id);
+            if (!$main_ors_stmt->execute()) {
+                error_log("Failed to execute main ORS query: " . $main_ors_stmt->error);
+                throw new Exception('Failed to execute main ORS query: ' . $main_ors_stmt->error);
+            }
+
+            $main_ors_result = $main_ors_stmt->get_result();
+            while ($ors_row = $main_ors_result->fetch_assoc()) {
+                $ors_details[] = [
+                    'ors_no' => $ors_row['ors_no'],
+                    'notes' => $ors_row['notes']
+                ];
+            }
+            $main_ors_stmt->close();
+        } else {
+            while ($ors_row = $ors_result->fetch_assoc()) {
+                $ors_details[] = [
+                    'ors_no' => $ors_row['ors_no'],
+                    'notes' => $ors_row['notes']
+                ];
+            }
+        }
+        $ors_stmt->close();
+
+        // Add ORS details to the response data
+        $data['ors_details'] = $ors_details;
+
+        // Fetch accounting entries
         $accounts_query = "SELECT 
             dv_history.*,
             account_title.account_title,
             account_title.account_code
-            FROM dv_history 
+            FROM dv_history
             LEFT JOIN account_title ON dv_history.account_id = account_title.account_id
             WHERE dv_history.dv_id = ?";
 
-        error_log("Preparing accounts query: " . $accounts_query);
-        
         $accounts_stmt = $connection->prepare($accounts_query);
         if ($accounts_stmt === false) {
             error_log("Failed to prepare accounts query: " . $connection->error);
@@ -86,7 +143,6 @@ if (isset($_GET['id'])) {
         }
         
         $accounts_result = $accounts_stmt->get_result();
-        
         $accounts = [];
         while ($account = $accounts_result->fetch_assoc()) {
             $accounts[] = $account;
@@ -94,11 +150,10 @@ if (isset($_GET['id'])) {
 
         error_log("Accounts query result: " . print_r($accounts, true));
 
-        // Combine DV details and accounts
-        $response = array_merge($dv_details, ['accounts' => $accounts]);
-        
-        error_log("Final response: " . print_r($response, true));
-        echo json_encode($response);
+        // Add accounts to the response data
+        $data['accounts'] = $accounts;
+
+        echo json_encode($data);
 
     } catch (Exception $e) {
         error_log("Error occurred: " . $e->getMessage());

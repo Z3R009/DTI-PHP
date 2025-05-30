@@ -126,8 +126,8 @@ $select = mysqli_query($connection, "SELECT * FROM account_title $where ORDER BY
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h5 class="card-title mb-0"></h5>
-                        <button type="button" class="btn btn-primary rounded-pill" data-bs-toggle="modal"
-                            data-bs-target="#addUserModal">
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal""
+                            data-bs-target=" #addUserModal">
                             <i class="bi bi-plus-circle me-1"></i> Add Account Title
                         </button>
                     </div>

@@ -4,42 +4,15 @@ include '../DBConnection.php';
 // insert
 
 if (isset($_POST['submit'])) {
-    echo "Form submitted!";
-
-
-    echo "<pre>";
-    print_r($_POST);
-    echo "</pre>";
-
     $date = $_POST['date'];
     $dv_no = $_POST['dv_no'];
-    $ors_no = $_POST['ors_no'];
     $jev_no = $_POST['jev_no'];
     $administrative_aide = $_POST['administrative_aide'];
     $accountant = $_POST['accountant'];
 
-
     $connection->begin_transaction();
 
     try {
-        // Get ors_id from ors_no
-        $ors_query = "SELECT ors_id FROM ors WHERE ors_no = ?";
-        $ors_stmt = $connection->prepare($ors_query);
-        if ($ors_stmt === false) {
-            throw new Exception('Prepare failed (ORS): ' . htmlspecialchars($connection->error));
-        }
-        $ors_stmt->bind_param("s", $ors_no);
-        if (!$ors_stmt->execute()) {
-            throw new Exception("Error getting ORS ID: " . $ors_stmt->error);
-        }
-        $ors_result = $ors_stmt->get_result();
-        if ($ors_result->num_rows === 0) {
-            throw new Exception("ORS number not found: " . $ors_no);
-        }
-        $ors_row = $ors_result->fetch_assoc();
-        $ors_id = $ors_row['ors_id'];
-        $ors_stmt->close();
-
         // Get dv_id from dv_no
         $dv_query = "SELECT dv_id FROM dv WHERE dv_no = ?";
         $dv_stmt = $connection->prepare($dv_query);
@@ -57,6 +30,46 @@ if (isset($_POST['submit'])) {
         $dv_row = $dv_result->fetch_assoc();
         $dv_id = $dv_row['dv_id'];
         $dv_stmt->close();
+
+        // Get all ORS IDs from dv_multiple_ors table
+        $ors_ids_query = "SELECT ors_id FROM dv_multiple_ors WHERE dv_id = ?";
+        $ors_ids_stmt = $connection->prepare($ors_ids_query);
+        if ($ors_ids_stmt === false) {
+            throw new Exception('Prepare failed (ORS IDs): ' . htmlspecialchars($connection->error));
+        }
+        $ors_ids_stmt->bind_param("i", $dv_id);
+        if (!$ors_ids_stmt->execute()) {
+            throw new Exception("Error getting ORS IDs: " . $ors_ids_stmt->error);
+        }
+        $ors_ids_result = $ors_ids_stmt->get_result();
+        $ors_ids = [];
+        while ($row = $ors_ids_result->fetch_assoc()) {
+            $ors_ids[] = $row['ors_id'];
+        }
+        $ors_ids_stmt->close();
+
+        // If no ORS IDs found in dv_multiple_ors, try getting from dv table
+        if (empty($ors_ids)) {
+            $main_ors_query = "SELECT ors_id FROM dv WHERE dv_id = ?";
+            $main_ors_stmt = $connection->prepare($main_ors_query);
+            if ($main_ors_stmt === false) {
+                throw new Exception('Prepare failed (Main ORS): ' . htmlspecialchars($connection->error));
+            }
+            $main_ors_stmt->bind_param("i", $dv_id);
+            if (!$main_ors_stmt->execute()) {
+                throw new Exception("Error getting main ORS ID: " . $main_ors_stmt->error);
+            }
+            $main_ors_result = $main_ors_stmt->get_result();
+            if ($main_ors_result->num_rows === 0) {
+                throw new Exception("No ORS ID found for DV: " . $dv_no);
+            }
+            $main_ors_row = $main_ors_result->fetch_assoc();
+            $ors_ids[] = $main_ors_row['ors_id'];
+            $main_ors_stmt->close();
+        }
+
+        // Use the first ORS ID as the main ORS ID for the JEV
+        $ors_id = $ors_ids[0];
 
         // Insert into jev table
         $sql = "INSERT INTO jev (date, dv_id, ors_id, jev_no, administrative_aide, accountant) 
@@ -81,31 +94,60 @@ if (isset($_POST['submit'])) {
             throw new Exception("Insert error: " . $stmt->error);
         }
 
+        $jev_id = $connection->insert_id;
         $stmt->close();
 
-        // Update the dv status to 'Processed'
+        // Link JEV with all ORS entries using jev_multiple_ors table
+        foreach ($ors_ids as $ors_id) {
+            $link_sql = "INSERT INTO jev_multiple_ors (jev_id, ors_id) VALUES (?, ?)";
+            $link_stmt = $connection->prepare($link_sql);
+            if ($link_stmt === false) {
+                throw new Exception('Prepare failed (JEV-ORS link): ' . htmlspecialchars($connection->error));
+            }
+
+            $link_stmt->bind_param("ii", $jev_id, $ors_id);
+            if (!$link_stmt->execute()) {
+                throw new Exception("Error linking JEV with ORS: " . $link_stmt->error);
+            }
+            $link_stmt->close();
+
+            // Update ORS status to 'Endorsed'
+            $update_ors_sql = "UPDATE ors SET status = 'Endorsed' WHERE ors_id = ?";
+            $update_ors_stmt = $connection->prepare($update_ors_sql);
+            if ($update_ors_stmt === false) {
+                throw new Exception('Prepare failed (ORS update): ' . htmlspecialchars($connection->error));
+            }
+            $update_ors_stmt->bind_param("i", $ors_id);
+            if (!$update_ors_stmt->execute()) {
+                throw new Exception("Error updating ORS status: " . $update_ors_stmt->error);
+            }
+            $update_ors_stmt->close();
+        }
+
+        // Update the dv status to 'Endorsed'
         $update_status_sql = "UPDATE dv SET status = 'Endorsed' WHERE dv_id = ?";
         $update_status_stmt = $connection->prepare($update_status_sql);
         if ($update_status_stmt === false) {
-            throw new Exception('Prepare failed (ORS update): ' . htmlspecialchars($connection->error));
+            throw new Exception('Prepare failed (DV update): ' . htmlspecialchars($connection->error));
         }
 
         $update_status_stmt->bind_param("i", $dv_id);
         if (!$update_status_stmt->execute()) {
-            throw new Exception("Error updating ORS status: " . $update_status_stmt->error);
+            throw new Exception("Error updating DV status: " . $update_status_stmt->error);
         }
         $update_status_stmt->close();
 
         // Commit transaction
         $connection->commit();
 
-        // Redirect
+        // Return success response
         header("Location: jev_form.php?jev_no=$jev_no");
         exit();
 
     } catch (Exception $e) {
         $connection->rollback();
-        echo "Error: " . $e->getMessage();
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        exit();
     }
 
     $connection->close();
@@ -136,12 +178,15 @@ LEFT JOIN oopap ON ors.oopap_id = oopap.oopap_id
 LEFT JOIN payee ON ors.payee_id = payee.payee_id
 
 WHERE dv.status = 'Pending'
+
+
+ORDER BY dv.date DESC, dv_no DESC
 ;
 
 
 ");
 
-
+$select = mysqli_query($connection, "SELECT * FROM dv_multiple_ors");
 
 ?>
 
@@ -177,6 +222,13 @@ WHERE dv.status = 'Pending'
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
     <link rel="stylesheet" href="css/jev.css">
     <link rel="stylesheet" href="css/table.css">
+
+    <style>
+        td:nth-child(3),
+        th:nth-child(3) {
+            display: none;
+        }
+    </style>
 </head>
 
 <body>
@@ -261,7 +313,7 @@ WHERE dv.status = 'Pending'
                 <div class="modal-body">
                     <!-- Form Template -->
                     <div id="jevFormTemplate" style="display: none;">
-                        <form action="" method="post" id="jevForm">
+                        <form action="jev.php" method="post" id="jevForm">
                             <input type="hidden" name="submit" value="1">
                             <div class="row mb-3">
                                 <div class="col-md-4">
@@ -288,25 +340,14 @@ WHERE dv.status = 'Pending'
                                     <input type="text" class="form-control" id="dv_no" name="dv_no" readonly>
                                 </div>
                             </div>
-
-                            <!-- <div class="form-section">
-                                <Label>ORS Number</Label>
-                                <div class="table-responsive">
-                                    <table class="table table-bordered">
-                                        <thead>
-                                            <tr>
-                                                <th>ORS No.</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php foreach ($ors_details as $ors): ?>
-                                                <tr>
-                                                    <td><?php echo htmlspecialchars($ors['ors_no']); ?></td>
-                                                <?php endforeach; ?>
-                                        </tbody>
-                                    </table>
+                            <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <label for="ors_notes" class="form-label">ORS Notes</label>
+                                    <textarea class="form-control" id="ors_notes" name="ors_notes" rows="3"
+                                        readonly></textarea>
                                 </div>
-                            </div> -->
+                            </div>
+
 
                             <!-- Payee Details Section -->
                             <div class="mb-4">
@@ -448,7 +489,18 @@ WHERE dv.status = 'Pending'
                                 throw new Error('Form not found after template restoration');
                             }
 
-                            form.querySelector('#ors_no').value = data.ors_no || '';
+                            form.querySelector('#ors_no').value = data.ors_details
+                                ? data.ors_details.map(ors => ors.ors_no).join(', ')
+                                : '';
+                            const notesField = form.querySelector('#ors_notes');
+                            if (notesField) {
+                                notesField.value = data.ors_details
+                                    ? data.ors_details
+                                        .filter(ors => ors.notes && ors.notes.trim() !== '')
+                                        .map(ors => `${ors.ors_no}: ${ors.notes}`)
+                                        .join('\n')
+                                    : '';
+                            }
                             form.querySelector('#dv_no').value = data.dv_no || '';
                             form.querySelector('#payee_name').value = data.payee_name || '';
                             form.querySelector('#fund_cluster').value = data.fund_cluster || '';
@@ -513,9 +565,6 @@ WHERE dv.status = 'Pending'
 
                     const formData = new FormData(this);
 
-                    // Add submit flag
-                    formData.append('submit', '1');
-
                     // Show loading state
                     const submitButton = this.querySelector('button[type="submit"]');
                     if (submitButton) {
@@ -532,35 +581,18 @@ WHERE dv.status = 'Pending'
                             if (!response.ok) {
                                 throw new Error('Network response was not ok');
                             }
-                            return response.text();
+                            return response.json();
                         })
                         .then(data => {
-                            if (data.includes('Error:')) {
-                                throw new Error(data);
+                            if (!data.success) {
+                                throw new Error(data.error || 'An error occurred while submitting the form');
                             }
 
-                            const jevNo = formData.get('jev_no');
-                            if (!jevNo) {
-                                throw new Error('JEV number is missing');
-                            }
+                            // Close the modal first
+                            modal.hide();
 
-                            // Show success message
-                            const modalBody = modalEl.querySelector('.modal-body');
-                            if (modalBody) {
-                                modalBody.innerHTML = `
-                                <div class="alert alert-success">
-                                    <h4 class="alert-heading">Success!</h4>
-                                    <p>JEV has been created successfully.</p>
-                                    <hr>
-                                    <p class="mb-0">Redirecting to JEV form...</p>
-                                </div>
-                            `;
-                            }
-
-                            // Redirect after a short delay
-                            setTimeout(() => {
-                                window.location.href = `jev_form.php?jev_no=${jevNo}`;
-                            }, 2000);
+                            // Redirect immediately to jev_form.php
+                            window.location.replace(`jev_form.php?jev_no=${data.jev_no}`);
                         })
                         .catch(error => {
                             console.error('Error:', error);

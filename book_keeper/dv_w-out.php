@@ -176,6 +176,8 @@ $select_dv = mysqli_query($connection, "
     LEFT JOIN oopap ON dv_non_ors.oopap_id = oopap.oopap_id
     LEFT JOIN payee ON dv_non_ors.payee_id = payee.payee_id
 
+    ORDER BY dv_non_ors.date DESC, dv_no DESC;
+
 ");
 ?>
 
@@ -844,6 +846,8 @@ $select_dv = mysqli_query($connection, "
                 </button>
             </div>
         </div>
+
+
 
         <section class="section dashboard">
             <h5 class="card-title">
@@ -2066,6 +2070,62 @@ $select_dv = mysqli_query($connection, "
                 }
             });
         });
+    </script>
+
+    <!-- filter -->
+    <script>
+        // JavaScript to handle filtering with visual feedback
+        document.addEventListener('DOMContentLoaded', function () {
+            // Add visual indicators for active filters
+            highlightActiveFilters();
+        });
+
+        function applyFilter() {
+            // Show loading indicator
+            const tableBody = document.querySelector('tbody');
+            tableBody.innerHTML = '<tr><td colspan="8" class="text-center py-4"><i class="bi bi-arrow-repeat spin me-2"></i> Loading records...</td></tr>';
+
+            var year = document.getElementById('yearFilter').value;
+            var month = document.getElementById('monthFilter').value;
+            var service = document.getElementById('servicesFilter').value;
+
+            // Build URL with only non-empty parameters
+            var params = new URLSearchParams();
+            if (year) params.append('year', year);
+            if (month) params.append('month', month);
+            if (service) params.append('service', service);
+
+            // Get the current URL and append the filters
+            var newUrl = window.location.origin + window.location.pathname;
+            if (params.toString()) {
+                newUrl += '?' + params.toString();
+            }
+
+            // Update the URL with the selected filters
+            window.location.href = newUrl;
+        }
+
+        function resetFilters() {
+            window.location.href = window.location.pathname;
+        }
+
+        function highlightActiveFilters() {
+            // Get all filter dropdowns
+            const filterElements = ['yearFilter', 'monthFilter', 'servicesFilter'];
+
+            filterElements.forEach(id => {
+                const select = document.getElementById(id);
+                if (select && select.value) {
+                    // Add a class to indicate active filter
+                    select.classList.add('active-filter');
+                    // Add a visual indicator to the label
+                    const label = select.previousElementSibling;
+                    if (label) {
+                        label.innerHTML += ' <i class="bi bi-funnel-fill text-primary"></i>';
+                    }
+                }
+            });
+        }
     </script>
 
 </body>

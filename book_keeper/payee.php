@@ -67,8 +67,7 @@ if (isset($_POST['submit'])) {
 }
 
 // retrieve payee
-
-$select = mysqli_query($connection, "SELECT * FROM payee");
+$select = mysqli_query($connection, "SELECT * FROM payee ORDER BY LOWER(payee_name) ASC");
 ?>
 
 <!DOCTYPE html>
@@ -312,9 +311,9 @@ $select = mysqli_query($connection, "SELECT * FROM payee");
                     </div>
 
                     <!-- Table with stripped rows -->
-                    <div class="table-responsive">
+                    <div class="table-responsive" style="height: 400px; overflow-y: auto;">
                         <table class="datatable">
-                            <thead class="table-light">
+                            <thead class="table-light sticky-top">
                                 <tr>
                                     <th scope="col"></th>
                                     <th scope="col">Payee Name</th>

@@ -170,7 +170,8 @@ SELECT
     oopap.oopap_name,
     payee.payee_name,
     payee.tin_no,
-    payee.address
+    payee.address,
+    services.services_name
 FROM dv
 LEFT JOIN ors ON dv.ors_id = ors.ors_id
 LEFT JOIN account_title ON ors.account_id = account_title.account_id
@@ -178,13 +179,89 @@ LEFT JOIN approver ON ors.approver_id = approver.approver_id
 LEFT JOIN fund_cluster ON ors.fund_cluster_id = fund_cluster.fund_cluster_id
 LEFT JOIN responsibility_center ON ors.rc_id = responsibility_center.rc_id
 LEFT JOIN oopap ON ors.oopap_id = oopap.oopap_id
-LEFT JOIN payee ON ors.payee_id = payee.payee_id;
-
-
+LEFT JOIN payee ON ors.payee_id = payee.payee_id
+LEFT JOIN services ON ors.services_id = services.services_id
+ORDER BY dv.date DESC, dv.dv_no DESC;
 ");
 
+?>
 
+<?php
+// Fetch filter values
+$year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
+$month = isset($_GET['month']) ? intval($_GET['month']) : '';
+$service = isset($_GET['service']) ? mysqli_real_escape_string($connection, $_GET['service']) : '';
 
+// Build WHERE clause
+$whereClauses = [];
+$params = [];
+$types = '';
+
+// Always filter by year
+$whereClauses[] = "YEAR(dv.date) = ?";
+$params[] = $year;
+$types .= 'i';
+
+// Add month filter if selected
+if (!empty($month)) {
+    $whereClauses[] = "MONTH(dv.date) = ?";
+    $params[] = $month;
+    $types .= 'i';
+}
+
+// Add service filter if selected
+if (!empty($service)) {
+    $whereClauses[] = "services.services_name = ?";
+    $params[] = $service;
+    $types .= 's';
+}
+
+// Build final WHERE SQL
+$whereSql = !empty($whereClauses) ? ' WHERE ' . implode(' AND ', $whereClauses) : '';
+
+// Final query
+$dv_query = "SELECT 
+    ors.*,
+    ors.total_amount AS ors_total_amount,
+    dv.*, 
+    account_title.account_title, 
+    approver.approver_name,
+    CONCAT(fund_cluster.uacs_code, '-', fund_cluster.fund_cluster_name) AS fund_cluster,
+    responsibility_center.code,
+    oopap.oopap_name,
+    payee.payee_name,
+    payee.tin_no,
+    payee.address,
+    services.services_name
+FROM dv
+LEFT JOIN ors ON dv.ors_id = ors.ors_id
+LEFT JOIN account_title ON ors.account_id = account_title.account_id
+LEFT JOIN approver ON ors.approver_id = approver.approver_id
+LEFT JOIN fund_cluster ON ors.fund_cluster_id = fund_cluster.fund_cluster_id
+LEFT JOIN responsibility_center ON ors.rc_id = responsibility_center.rc_id
+LEFT JOIN oopap ON ors.oopap_id = oopap.oopap_id
+LEFT JOIN payee ON ors.payee_id = payee.payee_id
+LEFT JOIN services ON ors.services_id = services.services_id
+$whereSql
+ORDER BY dv.date DESC, dv.dv_no DESC";
+
+// Prepare and bind
+$stmt = $connection->prepare($dv_query);
+
+if ($stmt === false) {
+    die('Prepare failed: ' . $connection->error);
+}
+
+if (!empty($params)) {
+    $stmt->bind_param($types, ...$params);
+}
+
+$stmt->execute();
+$select_dv = $stmt->get_result();
+
+if ($select_dv->num_rows === 0) {
+    echo "<p>No records found for the selected filters.</p>";
+}
 ?>
 
 <!DOCTYPE html>
@@ -221,6 +298,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
     <!-- Template Main CSS File -->
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
     <link rel="stylesheet" href="css/processed_dv.css">
+    <link rel="stylesheet" href="css/dv.css">
     <link rel="stylesheet" href="css/table.css">
 </head>
 
@@ -245,6 +323,79 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
             </div>
         </div>
 
+        <div class="filter-section">
+            <h3><i class="bi bi-funnel-fill"></i> Filter Records</h3>
+            <div class="form-row">
+                <!-- Year Filter -->
+                <div class="form-group col-md-4">
+                    <label for="yearFilter" class="form-label">Year</label>
+                    <select class="form-control" id="yearFilter" name="year">
+                        <option value="">Select Year</option>
+                        <?php
+                        for ($yearOption = 2010; $yearOption <= date('Y'); $yearOption++) {
+                            $selected = ($yearOption == $year) ? 'selected' : '';
+                            echo "<option value='" . $yearOption . "' $selected>" . $yearOption . "</option>";
+                        }
+                        ?>
+                    </select>
+                </div>
+
+                <!-- Month Filter -->
+                <div class="form-group col-md-4">
+                    <label for="monthFilter" class="form-label">Month</label>
+                    <select class="form-control" id="monthFilter" name="month">
+                        <option value="">All Months</option>
+                        <?php
+                        $months = [
+                            "January",
+                            "February",
+                            "March",
+                            "April",
+                            "May",
+                            "June",
+                            "July",
+                            "August",
+                            "September",
+                            "October",
+                            "November",
+                            "December"
+                        ];
+                        foreach ($months as $index => $monthName) {
+                            $monthNumber = $index + 1;
+                            $selected = ($monthNumber == $month) ? 'selected' : '';
+                            echo "<option value='" . $monthNumber . "' $selected>" . $monthName . "</option>";
+                        }
+                        ?>
+                    </select>
+                </div>
+
+                <!-- Services Filter -->
+                <div class="form-group col-md-4">
+                    <label for="servicesFilter" class="form-label">Services</label>
+                    <select class="form-control" id="servicesFilter" name="service">
+                        <option value="">All Services</option>
+                        <?php
+                        $services_query = "SELECT DISTINCT services_name FROM services ORDER BY services_name ASC";
+                        $services_result = $connection->query($services_query);
+                        while ($row = $services_result->fetch_assoc()) {
+                            $selected = ($row['services_name'] == $service) ? 'selected' : '';
+                            echo "<option value='" . htmlspecialchars($row['services_name']) . "' $selected>" . htmlspecialchars($row['services_name']) . "</option>";
+                        }
+                        ?>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row mt-2">
+                <div class="col-12">
+                    <button type="button" class="btn btn-primary" onclick="applyFilter()">
+                        <i class="bi bi-funnel me-1"></i> Apply Filters
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="resetFilters()">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+                    </button>
+                </div>
+            </div>
+        </div>
 
         <div class="content-wrapper">
             <div class="form-container">
@@ -256,6 +407,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                             <table class="datatable">
                                 <thead>
                                     <tr>
+                                        <th>ORS No.</th>
                                         <th>DV No.</th>
                                         <th>Date</th>
                                         <th>Payee Name</th>
@@ -268,6 +420,7 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
                                 <tbody>
                                     <?php while ($row = mysqli_fetch_assoc($select_dv)) { ?>
                                         <tr>
+                                            <td><?php echo htmlspecialchars($row['ors_no']); ?></td>
                                             <td><?php echo htmlspecialchars($row['dv_no']); ?></td>
                                             <td>
                                                 <?php
@@ -318,6 +471,63 @@ LEFT JOIN payee ON ors.payee_id = payee.payee_id;
 
     <!-- Template Main JS File -->
     <script src="../NiceAdmin/assets/js/main.js"></script>
+
+
+    <!-- filter -->
+    <script>
+        // JavaScript to handle filtering with visual feedback
+        document.addEventListener('DOMContentLoaded', function () {
+            // Add visual indicators for active filters
+            highlightActiveFilters();
+        });
+
+        function applyFilter() {
+            // Show loading indicator
+            const tableBody = document.querySelector('tbody');
+            tableBody.innerHTML = '<tr><td colspan="8" class="text-center py-4"><i class="bi bi-arrow-repeat spin me-2"></i> Loading records...</td></tr>';
+
+            var year = document.getElementById('yearFilter').value;
+            var month = document.getElementById('monthFilter').value;
+            var service = document.getElementById('servicesFilter').value;
+
+            // Build URL with only non-empty parameters
+            var params = new URLSearchParams();
+            if (year) params.append('year', year);
+            if (month) params.append('month', month);
+            if (service) params.append('service', service);
+
+            // Get the current URL and append the filters
+            var newUrl = window.location.origin + window.location.pathname;
+            if (params.toString()) {
+                newUrl += '?' + params.toString();
+            }
+
+            // Update the URL with the selected filters
+            window.location.href = newUrl;
+        }
+
+        function resetFilters() {
+            window.location.href = window.location.pathname;
+        }
+
+        function highlightActiveFilters() {
+            // Get all filter dropdowns
+            const filterElements = ['yearFilter', 'monthFilter', 'servicesFilter'];
+
+            filterElements.forEach(id => {
+                const select = document.getElementById(id);
+                if (select && select.value) {
+                    // Add a class to indicate active filter
+                    select.classList.add('active-filter');
+                    // Add a visual indicator to the label
+                    const label = select.previousElementSibling;
+                    if (label) {
+                        label.innerHTML += ' <i class="bi bi-funnel-fill text-primary"></i>';
+                    }
+                }
+            });
+        }
+    </script>
 
 </body>
 

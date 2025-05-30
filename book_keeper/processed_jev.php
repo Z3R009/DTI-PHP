@@ -12,6 +12,8 @@ $select = mysqli_query($connection, "
     LEFT JOIN ors ON jev.ors_id = ors.ors_id
     LEFT JOIN payee ON ors.payee_id = payee.payee_id
 
+    ORDER BY jev.date DESC, jev_no DESC
+
 ");
 
 ?>
@@ -128,6 +130,23 @@ $select = mysqli_query($connection, "
     <script src="../NiceAdmin/assets/vendor/tinymce/tinymce.min.js"></script>
     <script src="../NiceAdmin/assets/vendor/php-email-form/validate.js"></script>
 
+    <!-- Initialize DataTable -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const datatable = new simpleDatatables.DataTable(".datatable", {
+                perPageSelect: [5, 10, 15, ["All", -1]],
+                searchable: true,
+                fixedHeight: true,
+                sortable: true,
+                labels: {
+                    placeholder: "Search...",
+                    perPage: "entries per page",
+                    noRows: "No entries found",
+                    info: "Showing {start} to {end} of {rows} entries"
+                }
+            });
+        });
+    </script>
 
 </body>
 
