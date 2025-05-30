@@ -210,7 +210,7 @@ $select = mysqli_query($connection, "SELECT * FROM payee ORDER BY LOWER(payee_na
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-search"></i></span>
                             <input type="text" id="directTableSearch" class="form-control"
-                                placeholder="Search in table...">
+                                placeholder="Search in table..." autocomplete="off">
                         </div>
                     </div>
 
