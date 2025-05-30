@@ -202,7 +202,7 @@ $select = mysqli_query($connection, "SELECT * FROM payee ORDER BY LOWER(payee_na
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h5 class="card-title"></h5>
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                            data-bs-target="#addUserModal">Add Payee</button>
+                            data-bs-target="#addUserModal"><i class="bi bi-plus-circle me-1"></i> Add Payee</button>
                     </div>
 
                     <!-- Add custom search bar -->
@@ -330,9 +330,9 @@ $select = mysqli_query($connection, "SELECT * FROM payee ORDER BY LOWER(payee_na
                                 <?php while ($row = mysqli_fetch_assoc($select)) { ?>
                                     <tr>
                                         <td>
-                                            <button class="btn btn-sm btn-outline-secondary expand-row" type="button" 
-                                                    onclick="toggleExpand(this, 'expand<?php echo $row['payee_id']; ?>')"
-                                                    aria-expanded="false">
+                                            <button class="btn btn-sm btn-outline-secondary expand-row" type="button"
+                                                onclick="toggleExpand(this, 'expand<?php echo $row['payee_id']; ?>')"
+                                                aria-expanded="false">
                                                 <i class="bi bi-chevron-down"></i>
                                             </button>
                                         </td>
@@ -583,7 +583,7 @@ $select = mysqli_query($connection, "SELECT * FROM payee ORDER BY LOWER(payee_na
                     const icon = this.querySelector('i');
                     const targetId = this.getAttribute('data-bs-target');
                     const targetElement = document.querySelector(targetId);
-                    
+
                     // Toggle the collapse manually
                     if (targetElement.classList.contains('show')) {
                         targetElement.classList.remove('show');
@@ -601,7 +601,7 @@ $select = mysqli_query($connection, "SELECT * FROM payee ORDER BY LOWER(payee_na
         function toggleExpand(button, targetId) {
             const icon = button.querySelector('i');
             const targetElement = document.getElementById(targetId);
-            
+
             if (targetElement.style.display === 'block') {
                 targetElement.style.display = 'none';
                 icon.classList.replace('bi-chevron-up', 'bi-chevron-down');

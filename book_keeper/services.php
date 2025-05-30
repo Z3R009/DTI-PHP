@@ -133,7 +133,7 @@ while ($row = $result_oopap->fetch_assoc()) {
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h5 class="card-title"></h5>
                         <button type="button " class="btn btn-primary " data-bs-toggle="modal"
-                            data-bs-target="#addUserModal">Add Services</button>
+                            data-bs-target="#addUserModal"><i class="bi bi-plus-circle me-1"></i> Add Services</button>
                     </div>
 
                     <!-- Modal for Add User Form -->
