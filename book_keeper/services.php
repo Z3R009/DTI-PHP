@@ -91,7 +91,7 @@ while ($row = $result_oopap->fetch_assoc()) {
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Book Keeper - Service</title>
+    <title>Book Keeper - Services</title>
     <meta content="" name="code">
     <meta content="" name="keywords">
     <link href="img/dti_logo.png" rel="icon">
@@ -124,7 +124,7 @@ while ($row = $result_oopap->fetch_assoc()) {
     <main id="main" class="main">
 
         <div class="pagetitle">
-            <h1>Service</h1>
+            <h1>Services</h1>
         </div>
 
         <section class="section dashboard">
