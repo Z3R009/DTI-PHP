@@ -300,6 +300,13 @@ if ($select_dv->num_rows === 0) {
     <link rel="stylesheet" href="css/processed_dv.css">
     <link rel="stylesheet" href="css/dv.css">
     <link rel="stylesheet" href="css/table.css">
+
+    <style>
+        td:nth-child(2),
+        th:nth-child(2) {
+            display: none;
+        }
+    </style>
 </head>
 
 <body>
