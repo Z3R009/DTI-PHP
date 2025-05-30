@@ -77,7 +77,7 @@ $select = mysqli_query($connection, "SELECT * FROM payee ORDER BY LOWER(payee_na
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>BookKeeper - Registry of Supplier</title>
+    <title>Book Keeper - Registry of Supplier</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
     <link href="img/dti_logo.png" rel="icon">
@@ -303,7 +303,7 @@ $select = mysqli_query($connection, "SELECT * FROM payee ORDER BY LOWER(payee_na
                                                 <div class="form-floating mb-3">
                                                     <select class="form-select" id="payee_type" name="payee_type"
                                                         required>
-                                                        <option value="">Select payee type</option>
+                                                        <option value="" selected disabled>Select payee type</option>
                                                         <option value="Internal">Internal</option>
                                                         <option value="External">External (supplier)</option>
                                                     </select>
