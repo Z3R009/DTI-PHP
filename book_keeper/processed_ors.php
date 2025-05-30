@@ -135,7 +135,7 @@ if ($ors_result->num_rows === 0) {
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Obligation Request and Status</title>
+    <title>Book Keeper - Obligation Request and Status</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
     <link href="../NiceAdmin/assets/img/favicon.png" rel="icon">
@@ -154,6 +154,7 @@ if ($ors_result->num_rows === 0) {
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
     <link rel="stylesheet" href="css/processed_ors.css">
     <link rel="stylesheet" href="css/table.css">
+    <link href="img/dti_logo.png" rel="icon">
 
 </head>
 

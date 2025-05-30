@@ -271,7 +271,7 @@ if ($select_dv->num_rows === 0) {
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Bookkeeper</title>
+    <title>Book Keeper - Disbursement Voucher</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
@@ -300,6 +300,13 @@ if ($select_dv->num_rows === 0) {
     <link rel="stylesheet" href="css/processed_dv.css">
     <link rel="stylesheet" href="css/dv.css">
     <link rel="stylesheet" href="css/table.css">
+
+    <style>
+        td:nth-child(1),
+        th:nth-child(1) {
+            display: none;
+        }
+    </style>
 </head>
 
 <body>

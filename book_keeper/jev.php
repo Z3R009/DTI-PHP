@@ -224,8 +224,8 @@ $select = mysqli_query($connection, "SELECT * FROM dv_multiple_ors");
     <link rel="stylesheet" href="css/table.css">
 
     <style>
-        td:nth-child(3),
-        th:nth-child(3) {
+        #datatable td:nth-child(3),
+        #datatable th:nth-child(3) {
             display: none;
         }
     </style>
@@ -257,7 +257,7 @@ $select = mysqli_query($connection, "SELECT * FROM dv_multiple_ors");
                 <div class="tab-content">
                     <div>
                         <div class="card-body">
-                            <table class="datatable">
+                            <table class="datatable" id="datatable">
                                 <thead>
                                     <tr>
                                         <th>DV No.</th>

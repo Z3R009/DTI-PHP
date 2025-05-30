@@ -238,7 +238,7 @@ $ors_result = $connection->query($ors_query);
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Obligation Request and Status</title>
+    <title>Book Keeper - Obligation Request and Status</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
@@ -275,7 +275,7 @@ $ors_result = $connection->query($ors_query);
         .dropdown-toggle {
             padding: 0.375rem 0.75rem;
             background-color: #fff;
-          
+
             border-radius: 0.25rem;
             cursor: pointer;
             display: flex;

@@ -91,7 +91,7 @@ while ($row = $result_oopap->fetch_assoc()) {
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Book Keeper - Service</title>
+    <title>Book Keeper - Services</title>
     <meta content="" name="code">
     <meta content="" name="keywords">
     <link href="img/dti_logo.png" rel="icon">
@@ -124,7 +124,7 @@ while ($row = $result_oopap->fetch_assoc()) {
     <main id="main" class="main">
 
         <div class="pagetitle">
-            <h1>Service</h1>
+            <h1>Services</h1>
         </div>
 
         <section class="section dashboard">
@@ -133,7 +133,7 @@ while ($row = $result_oopap->fetch_assoc()) {
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h5 class="card-title"></h5>
                         <button type="button " class="btn btn-primary " data-bs-toggle="modal"
-                            data-bs-target="#addUserModal">Add Services</button>
+                            data-bs-target="#addUserModal"><i class="bi bi-plus-circle me-1"></i> Add Services</button>
                     </div>
 
                     <!-- Modal for Add User Form -->

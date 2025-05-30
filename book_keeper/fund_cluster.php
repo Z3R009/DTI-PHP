@@ -75,7 +75,7 @@ $select = mysqli_query($connection, "SELECT * FROM fund_cluster ");
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Bookkepper - Fund Cluster Management</title>
+    <title>Book kepper - Fund Cluster Management</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
