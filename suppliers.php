@@ -495,7 +495,7 @@ include 'DBConnection.php';
                         payee.contact_no?.toLowerCase().includes(searchTerm);
 
                     const matchesCategory = !categoryFilter ||
-                        (payee.payee_type && payee.payee_type.toLowerCase() === categoryFilter);
+                        (payee.nature && payee.nature.toLowerCase() === categoryFilter);
 
                     return matchesSearch && matchesCategory;
                 });
