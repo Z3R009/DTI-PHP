@@ -68,6 +68,12 @@
                         </a>
                     </li>
 
+                    <li>
+                        <a href="dti.php">
+                            <i class="bi bi-circle"></i><span>DTI</span>
+                        </a>
+                    </li>
+
                 </ul>
             </li>
             

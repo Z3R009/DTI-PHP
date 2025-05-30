@@ -399,3 +399,8 @@
 2025-05-06 05:55:38 - Current values: Allotment: 222, Balance: 200
 2025-05-06 05:55:38 - Calculated new balance: 478
 2025-05-06 05:55:38 - Update successful
+2025-05-30 05:13:18 - Update request received
+2025-05-30 05:13:18 - Draft ID: 5, Payee: asdasda, New Cash_Allotment: 500
+2025-05-30 05:13:18 - Current values: Allotment: 1000, Balance: 1000
+2025-05-30 05:13:18 - Calculated new balance: 500
+2025-05-30 05:13:18 - Update successful
