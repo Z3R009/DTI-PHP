@@ -136,14 +136,7 @@ $total_balances = mysqli_fetch_assoc($total_balances_result)['total_balances'];
         <div class="pagetitle page-header d-flex justify-content-between align-items-center">
             <div>
                 <h1>MOOE-GENERAL ADMINISTRATIVE AND SUPPORT <?php echo date('Y'); ?></h1>
-                <nav>
-                    <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="index.php">Home</a></li>
-                        <li class="breadcrumb-item"><a href="index.php">Status of Fund</a></li>
-                        <li class="breadcrumb-item"><a href="index.php">MOOE</a></li>
-                        <li class="breadcrumb-item active">GAS</li>
-                    </ol>
-                </nav>
+                
             </div>
             <div class="d-flex align-items-center">
            
