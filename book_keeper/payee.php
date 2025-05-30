@@ -269,8 +269,23 @@ $select = mysqli_query($connection, "SELECT * FROM payee ORDER BY LOWER(payee_na
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-floating mb-3">
-                                                    <input type="text" class="form-control" id="nature" name="nature"
-                                                        placeholder="Enter Nature of Business" autocomplete="off">
+                                                    <select id="categoryFilter" class="form-select" name="nature">
+                                                        <option value="" selected disabled>All Categories</option>
+                                                        <option value="Office Supplies">Office Supplies</option>
+                                                        <option value="Other Supplies and Materials">Other Supplies and
+                                                            Materials</option>
+                                                        <option value="Printing and Publication Services">Printing and
+                                                            Publication Services</option>
+                                                        <option value="Vehicle Rental">Vehicle Rental</option>
+                                                        <option value="Food/Catering Services">Food/Catering Services
+                                                        </option>
+                                                        <option value="Repairs and Maintenance">Repairs and Maintenance
+                                                        </option>
+                                                        <option value="Other Services">Other Services</option>
+                                                        <option value="Venue/Accomodation">Venue/Accomodation</option>
+                                                        <option value="Rents">Rents</option>
+                                                        <option value="Others">Others</option>
+                                                    </select>
                                                     <label for="nature">Category</label>
                                                 </div>
                                             </div>
@@ -444,8 +459,22 @@ $select = mysqli_query($connection, "SELECT * FROM payee ORDER BY LOWER(payee_na
                             </div>
                             <div class="col-md-6">
                                 <div class="form-floating mb-3">
-                                    <input type="text" class="form-control" id="edit_nature" name="nature">
-                                    <label for="edit_nature">Nature of Business</label>
+                                    <select id="categoryFilter" class="form-select" name="nature">
+                                        <option value="" selected disabled>All Categories</option>
+                                        <option value="Office Supplies">Office Supplies</option>
+                                        <option value="Other Supplies and Materials">Other Supplies and Materials
+                                        </option>
+                                        <option value="Printing and Publication Services">Printing and Publication
+                                            Services</option>
+                                        <option value="Vehicle Rental">Vehicle Rental</option>
+                                        <option value="Food/Catering Services">Food/Catering Services</option>
+                                        <option value="Repairs and Maintenance">Repairs and Maintenance</option>
+                                        <option value="Other Services">Other Services</option>
+                                        <option value="Venue/Accomodation">Venue/Accomodation</option>
+                                        <option value="Rents">Rents</option>
+                                        <option value="Others">Others</option>
+                                    </select>
+                                    <label for="edit_nature">Category</label>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -460,7 +489,7 @@ $select = mysqli_query($connection, "SELECT * FROM payee ORDER BY LOWER(payee_na
                             <div class="col-md-6">
                                 <div class="form-floating mb-3">
                                     <select class="form-select" id="edit_payee_type" name="payee_type" required>
-                                        <option value="">Select payee type</option>
+                                        <option value="" selected disabled>Select payee type</option>
                                         <option value="Internal">Internal</option>
                                         <option value="External">External (supplier)</option>
                                     </select>
@@ -570,9 +599,20 @@ $select = mysqli_query($connection, "SELECT * FROM payee ORDER BY LOWER(payee_na
                     document.getElementById("edit_bank_acc_no").value = bank_acc_no;
                     document.getElementById("edit_tin_no").value = tin_no;
                     document.getElementById("edit_address").value = address;
-                    document.getElementById("edit_nature").value = nature;
+
+                    // Set the category/nature select value
+                    const natureSelect = document.querySelector("#editUserModal select[name='nature']");
+                    if (natureSelect) {
+                        natureSelect.value = nature;
+                    }
+
                     document.getElementById("edit_contact_no").value = contact_no;
-                    document.getElementById("edit_payee_type").value = payee_type;
+
+                    // Set the payee type select value
+                    const payeeTypeSelect = document.getElementById("edit_payee_type");
+                    if (payeeTypeSelect) {
+                        payeeTypeSelect.value = payee_type;
+                    }
                 });
             });
 
