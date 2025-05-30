@@ -241,7 +241,7 @@ if ($ors_result->num_rows === 0) {
             </div>
 
             <div class="form-container">
-                <div class="d-flex justify-content-between align-items-center mb-4">
+                <!-- <div class="d-flex justify-content-between align-items-center mb-4">
                     <h2 class="card-title mb-0">Obligation Request Records</h2>
                     <div class="d-flex gap-2">
                         <button class="btn btn-sm btn-outline-primary" onclick="printTable()">
@@ -251,7 +251,7 @@ if ($ors_result->num_rows === 0) {
                             <i class="bi bi-file-earmark-excel"></i> Export
                         </button>
                     </div>
-                </div>
+                </div> -->
 
                 <!-- ors list -->
                 <div>

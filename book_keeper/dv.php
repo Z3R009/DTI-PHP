@@ -267,7 +267,7 @@ $stmt->execute();
 $select_ors = $stmt->get_result();
 
 if ($select_ors->num_rows === 0) {
-    echo "<p>No records found for the selected filters.</p>";
+    // echo "<p>No records found for the selected filters.</p>";
 }
 ?>
 
