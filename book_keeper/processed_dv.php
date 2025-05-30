@@ -271,7 +271,7 @@ if ($select_dv->num_rows === 0) {
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Bookkeeper</title>
+    <title>Book Keeper - Disbursement Voucher</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 

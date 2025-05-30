@@ -278,7 +278,7 @@ if ($select_ors->num_rows === 0) {
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Disbursement Voucher - DTI Book Keeper</title>
+    <title>Book Keeper - Disbursement Voucher</title>
     <meta content="Disbursement Voucher Management System for DTI" name="description">
     <meta content="disbursement, voucher, dti, finance, accounting" name="keywords">
     <link href="img/dti_logo.png" rel="icon">

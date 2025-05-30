@@ -190,7 +190,7 @@ $select_dv = mysqli_query($connection, "
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Dashboard - NiceAdmin Bootstrap Template</title>
+    <title>Book Keeper - Disburement Voucher</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
@@ -214,6 +214,7 @@ $select_dv = mysqli_query($connection, "
     <link href="../NiceAdmin/assets/vendor/simple-datatables/style.css" rel="stylesheet">
 
     <link rel="stylesheet" href="css/table.css">
+    <link href="img/dti_logo.png" rel="icon">
 
     <!-- Template Main CSS File -->
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
