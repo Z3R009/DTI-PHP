@@ -1,6 +1,7 @@
 <?php
 include 'DBConnection.php';
 
+
 $payee_name = 'DEPARTMENT OF TRADE AND INDUSTRY';
 $payee_type = 'Internal';
 
@@ -18,7 +19,7 @@ if ($count > 0) {
 } else {
     $insert_sql = "INSERT INTO payee (payee_name, payee_type) VALUES (?, ?)";
     $stmt = $connection->prepare($insert_sql);
-    
+
     if ($stmt === false) {
         echo "Error preparing the statement: " . $connection->error;
     } else {
@@ -34,4 +35,4 @@ if ($count > 0) {
 
 $check_stmt->close();
 $connection->close();
-?> 
+?>

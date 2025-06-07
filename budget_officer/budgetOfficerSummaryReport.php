@@ -1,12 +1,14 @@
 <?php
 include '../DBConnection.php';
 
+
 // Get filter parameters
 $selected_year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
 $selected_month = isset($_GET['month']) ? intval($_GET['month']) : date('n');
 
 // Function to get obligations for a specific oopap and time period
-function getObligations($connection, $oopap_id, $year, $start_month, $end_month) {
+function getObligations($connection, $oopap_id, $year, $start_month, $end_month)
+{
     $query = "SELECT COALESCE(SUM(ors.total_amount), 0) as total
               FROM obligation_history oh
               JOIN ors ON oh.ors_id = ors.ors_id
@@ -14,7 +16,7 @@ function getObligations($connection, $oopap_id, $year, $start_month, $end_month)
               WHERE project.oopap_id = ? 
               AND YEAR(ors.date) = ?
               AND MONTH(ors.date) BETWEEN ? AND ?";
-    
+
     $stmt = $connection->prepare($query);
     $stmt->bind_param("iiii", $oopap_id, $year, $start_month, $end_month);
     $stmt->execute();
@@ -24,12 +26,13 @@ function getObligations($connection, $oopap_id, $year, $start_month, $end_month)
 }
 
 // Function to get total allotment for a specific oopap
-function getAllotment($connection, $oopap_id, $year) {
+function getAllotment($connection, $oopap_id, $year)
+{
     $query = "SELECT COALESCE(SUM(allotment), 0) as total_allotment
               FROM project
               WHERE oopap_id = ?
               AND YEAR(created_at) = ?";
-    
+
     $stmt = $connection->prepare($query);
     $stmt->bind_param("ii", $oopap_id, $year);
     $stmt->execute();
@@ -57,19 +60,19 @@ $total_percent_utilized = 0;
 
 foreach ($oopap_categories as $oopap) {
     $oopap_id = $oopap['oopap_id'];
-    
+
     // Get allotment
     $allotment = getAllotment($connection, $oopap_id, $selected_year);
-    
+
     // Get obligations
     $last_month_obligations = getObligations($connection, $oopap_id, $selected_year, 1, $selected_month - 1);
     $this_month_obligations = getObligations($connection, $oopap_id, $selected_year, $selected_month, $selected_month);
     $to_date_obligations = $last_month_obligations + $this_month_obligations;
-    
+
     // Calculate balance and utilization percentage
     $balance = $allotment - $to_date_obligations;
     $percent_utilized = ($allotment > 0) ? ($to_date_obligations / $allotment) * 100 : 0;
-    
+
     // Add to summary data
     $summary_data[] = [
         'oopap_id' => $oopap_id,
@@ -82,7 +85,7 @@ foreach ($oopap_categories as $oopap) {
         'balance' => $balance,
         'percent_utilized' => $percent_utilized
     ];
-    
+
     // Update totals
     $total_allotment += $allotment;
     $total_last_month += $last_month_obligations;
@@ -130,9 +133,18 @@ $top_expenses = $stmt->get_result();
 
 // Get month name
 $months = [
-    1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
-    5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
-    9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
+    1 => 'January',
+    2 => 'February',
+    3 => 'March',
+    4 => 'April',
+    5 => 'May',
+    6 => 'June',
+    7 => 'July',
+    8 => 'August',
+    9 => 'September',
+    10 => 'October',
+    11 => 'November',
+    12 => 'December'
 ];
 
 // Get monthly expenditure data for charts
@@ -202,7 +214,9 @@ $chart_json = json_encode($chart_data);
 
     <!-- Google Fonts -->
     <link href="https://fonts.gstatic.com" rel="preconnect">
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+        rel="stylesheet">
 
     <!-- Vendor CSS Files -->
     <link href="../NiceAdmin/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -215,10 +229,10 @@ $chart_json = json_encode($chart_data);
 
     <!-- Template Main CSS File -->
     <link href="../NiceAdmin/assets/css/style.css" rel="stylesheet">
-    
+
     <!-- ApexCharts -->
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    
+
     <style>
         .report-header {
             background: #f6f9ff;
@@ -228,43 +242,44 @@ $chart_json = json_encode($chart_data);
             margin-bottom: 20px;
             border-left: 5px solid #012970;
         }
-        
+
         .report-header h1 {
             margin: 0;
             font-size: 24px;
             font-weight: 600;
             color: #012970;
         }
-        
+
         .report-header p {
             margin: 5px 0 0;
             color: #899bbd;
         }
-        
+
         .filter-card {
             border-radius: 5px;
             box-shadow: 0 0 20px rgba(1, 41, 112, 0.1);
             margin-bottom: 20px;
         }
-        
+
         .filter-card .card-body {
             padding: 15px 20px;
         }
-        
+
         .filter-card .card-title {
             color: #012970;
             font-weight: 600;
             font-size: 16px;
             margin-bottom: 15px;
         }
-        
-        .form-control, .form-select {
+
+        .form-control,
+        .form-select {
             border-radius: 4px;
             padding: 8px 12px;
             border-color: #ced4da;
             color: #212529;
         }
-        
+
         .btn-primary {
             border-radius: 4px;
             padding: 8px 15px;
@@ -272,7 +287,7 @@ $chart_json = json_encode($chart_data);
             border: none;
             font-weight: 500;
         }
-        
+
         .btn-outline-primary {
             border-radius: 4px;
             padding: 8px 15px;
@@ -280,7 +295,7 @@ $chart_json = json_encode($chart_data);
             border-color: #4154f1;
             font-weight: 500;
         }
-        
+
         .stats-card {
             border-radius: 5px;
             box-shadow: 0 0 20px rgba(1, 41, 112, 0.1);
@@ -288,35 +303,35 @@ $chart_json = json_encode($chart_data);
             overflow: hidden;
             border: none;
         }
-        
+
         .stats-card .card-body {
             padding: 20px;
         }
-        
+
         .stats-card .card-title {
             font-size: 15px;
             font-weight: 600;
             margin-bottom: 15px;
         }
-        
+
         .stats-card-primary {
             background: white;
             color: #012970;
             border-left: 5px solid #4154f1;
         }
-        
+
         .stats-card-success {
             background: white;
             color: #012970;
             border-left: 5px solid #2eca6a;
         }
-        
+
         .stats-card-warning {
             background: white;
             color: #012970;
             border-left: 5px solid #ff771d;
         }
-        
+
         .stats-card .icon {
             float: right;
             width: 40px;
@@ -327,46 +342,46 @@ $chart_json = json_encode($chart_data);
             justify-content: center;
             margin-bottom: 15px;
         }
-        
+
         .stats-card-primary .icon {
             background: #f6f6fe;
             color: #4154f1;
         }
-        
+
         .stats-card-success .icon {
             background: #e0f8e9;
             color: #2eca6a;
         }
-        
+
         .stats-card-warning .icon {
             background: #ffecdf;
             color: #ff771d;
         }
-        
+
         .stats-card h2 {
             font-size: 28px;
             font-weight: 700;
             color: #012970;
             margin-bottom: 5px;
         }
-        
+
         .stats-card p {
             margin: 0;
             font-size: 14px;
             color: #899bbd;
         }
-        
+
         .chart-card {
             border-radius: 5px;
             box-shadow: 0 0 20px rgba(1, 41, 112, 0.1);
             margin-bottom: 20px;
             overflow: hidden;
         }
-        
+
         .chart-card .card-body {
             padding: 20px;
         }
-        
+
         .chart-card .card-title {
             color: #012970;
             font-size: 16px;
@@ -375,13 +390,13 @@ $chart_json = json_encode($chart_data);
             padding-bottom: 15px;
             border-bottom: 1px solid #ebeef4;
         }
-        
+
         .data-table {
             border-radius: 5px;
             box-shadow: 0 0 20px rgba(1, 41, 112, 0.1);
             overflow: hidden;
         }
-        
+
         .data-table .card-title {
             color: #012970;
             font-size: 16px;
@@ -390,15 +405,15 @@ $chart_json = json_encode($chart_data);
             border-bottom: 1px solid #ebeef4;
             margin: 0;
         }
-        
+
         .data-table .card-body {
             padding: 0;
         }
-        
+
         .data-table .table {
             margin-bottom: 0;
         }
-        
+
         .data-table .table th {
             background-color: #f6f9ff;
             font-weight: 600;
@@ -407,19 +422,19 @@ $chart_json = json_encode($chart_data);
             white-space: nowrap;
             vertical-align: middle;
         }
-        
+
         .data-table .table-header-blue {
             background-color: #B8CCE4 !important;
         }
-        
+
         .data-table .table-header-orange {
             background-color: #FCD5B4 !important;
         }
-        
+
         .data-table .table-header-red {
             background-color: #E6B8B7 !important;
         }
-        
+
         .pagination-container {
             padding: 15px 20px;
             border-top: 1px solid #ebeef4;
@@ -428,7 +443,7 @@ $chart_json = json_encode($chart_data);
             color: #899bbd;
             font-size: 14px;
         }
-        
+
         .info-row {
             padding: 15px 20px 5px;
             background-color: #f6f9ff;
@@ -438,7 +453,7 @@ $chart_json = json_encode($chart_data);
             color: #899bbd;
             font-size: 14px;
         }
-        
+
         /* Badge Styling */
         .badge-pill {
             padding: 4px 8px;
@@ -446,53 +461,60 @@ $chart_json = json_encode($chart_data);
             font-size: 12px;
             font-weight: 600;
         }
-        
+
         .badge-success {
             background-color: #e0f8e9;
             color: #2eca6a;
         }
-        
+
         .badge-warning {
             background-color: #ffecdf;
             color: #ff771d;
         }
-        
+
         .badge-danger {
             background-color: #f8d7da;
             color: #dc3545;
         }
-        
+
         @media print {
             @page {
                 size: landscape;
                 margin: 10mm;
             }
-            
+
             body * {
                 visibility: hidden;
             }
-            
-            .main, .main * {
+
+            .main,
+            .main * {
                 visibility: visible;
             }
-            
+
             .main {
                 position: absolute;
                 left: 0;
                 top: 0;
                 width: 100%;
             }
-            
+
             .card {
                 break-inside: avoid;
                 border: 1px solid #dee2e6;
             }
-            
-            .btn, form button, .datatable-top, .datatable-bottom {
+
+            .btn,
+            form button,
+            .datatable-top,
+            .datatable-bottom {
                 display: none !important;
             }
-            
-            .sidebar, header, .back-to-top, .floating-nav {
+
+            .sidebar,
+            header,
+            .back-to-top,
+            .floating-nav {
                 display: none !important;
             }
         }
@@ -611,7 +633,8 @@ $chart_json = json_encode($chart_data);
                     Budget Allocation & Utilization Summary
                 </h5>
                 <div class="info-row">
-                    <div>Showing all OOPAP categories for <?php echo $months[$selected_month] . ' ' . $selected_year; ?></div>
+                    <div>Showing all OOPAP categories for <?php echo $months[$selected_month] . ' ' . $selected_year; ?>
+                    </div>
                     <div><strong>Total Allotment:</strong> ₱<?php echo number_format($total_allotment, 2); ?></div>
                 </div>
                 <div class="card-body">
@@ -621,14 +644,18 @@ $chart_json = json_encode($chart_data);
                                 <tr>
                                     <th rowspan="2" style="vertical-align: middle; width: 10%;">OOPAP</th>
                                     <th rowspan="2" style="vertical-align: middle; width: 20%;">DESCRIPTION</th>
-                                    <th rowspan="2" style="vertical-align: middle; width: 13%;" class="text-end">ALLOTMENT</th>
+                                    <th rowspan="2" style="vertical-align: middle; width: 13%;" class="text-end">
+                                        ALLOTMENT</th>
                                     <th colspan="3" class="text-center">OBLIGATIONS</th>
-                                    <th rowspan="2" style="vertical-align: middle; width: 13%;" class="text-end">BALANCES</th>
-                                    <th rowspan="2" style="vertical-align: middle; width: 10%;" class="text-end">% UTILIZED</th>
+                                    <th rowspan="2" style="vertical-align: middle; width: 13%;" class="text-end">
+                                        BALANCES</th>
+                                    <th rowspan="2" style="vertical-align: middle; width: 10%;" class="text-end">%
+                                        UTILIZED</th>
                                 </tr>
                                 <tr>
                                     <th class="text-end table-header-blue" style="width: 11%;">LAST MONTH</th>
-                                    <th class="text-end table-header-orange" style="width: 11%;">THIS MONTH <br><?php echo $months[$selected_month]?></th>
+                                    <th class="text-end table-header-orange" style="width: 11%;">THIS MONTH
+                                        <br><?php echo $months[$selected_month] ?></th>
                                     <th class="text-end table-header-red" style="width: 12%;">TO DATE</th>
                                 </tr>
                             </thead>
@@ -638,12 +665,16 @@ $chart_json = json_encode($chart_data);
                                         <td><strong><?php echo htmlspecialchars($row['oopap_name']); ?></strong></td>
                                         <td><?php echo htmlspecialchars($row['description']); ?></td>
                                         <td class="text-end">₱<?php echo number_format($row['allotment'], 2); ?></td>
-                                        <td class="text-end" style="background-color: #B8CCE4;">₱<?php echo number_format($row['last_month'], 2); ?></td>
-                                        <td class="text-end" style="background-color: #FCD5B4;">₱<?php echo number_format($row['this_month'], 2); ?></td>
-                                        <td class="text-end" style="background-color: #E6B8B7;">₱<?php echo number_format($row['to_date'], 2); ?></td>
+                                        <td class="text-end" style="background-color: #B8CCE4;">
+                                            ₱<?php echo number_format($row['last_month'], 2); ?></td>
+                                        <td class="text-end" style="background-color: #FCD5B4;">
+                                            ₱<?php echo number_format($row['this_month'], 2); ?></td>
+                                        <td class="text-end" style="background-color: #E6B8B7;">
+                                            ₱<?php echo number_format($row['to_date'], 2); ?></td>
                                         <td class="text-end">₱<?php echo number_format($row['balance'], 2); ?></td>
                                         <td class="text-end">
-                                            <span class="badge-pill <?php echo $row['percent_utilized'] < 50 ? 'badge-danger' : ($row['percent_utilized'] < 70 ? 'badge-warning' : 'badge-success'); ?>">
+                                            <span
+                                                class="badge-pill <?php echo $row['percent_utilized'] < 50 ? 'badge-danger' : ($row['percent_utilized'] < 70 ? 'badge-warning' : 'badge-success'); ?>">
                                                 <?php echo number_format($row['percent_utilized'], 2); ?>%
                                             </span>
                                         </td>
@@ -654,12 +685,16 @@ $chart_json = json_encode($chart_data);
                                 <tr class="fw-bold">
                                     <td colspan="2" class="text-end">GRAND TOTAL</td>
                                     <td class="text-end">₱<?php echo number_format($total_allotment, 2); ?></td>
-                                    <td class="text-end" style="background-color: #B8CCE4;">₱<?php echo number_format($total_last_month, 2); ?></td>
-                                    <td class="text-end" style="background-color: #FCD5B4;">₱<?php echo number_format($total_this_month, 2); ?></td>
-                                    <td class="text-end" style="background-color: #E6B8B7;">₱<?php echo number_format($total_to_date, 2); ?></td>
+                                    <td class="text-end" style="background-color: #B8CCE4;">
+                                        ₱<?php echo number_format($total_last_month, 2); ?></td>
+                                    <td class="text-end" style="background-color: #FCD5B4;">
+                                        ₱<?php echo number_format($total_this_month, 2); ?></td>
+                                    <td class="text-end" style="background-color: #E6B8B7;">
+                                        ₱<?php echo number_format($total_to_date, 2); ?></td>
                                     <td class="text-end">₱<?php echo number_format($total_balances, 2); ?></td>
                                     <td class="text-end">
-                                        <span class="badge-pill <?php echo $total_percent_utilized < 50 ? 'badge-danger' : ($total_percent_utilized < 70 ? 'badge-warning' : 'badge-success'); ?>">
+                                        <span
+                                            class="badge-pill <?php echo $total_percent_utilized < 50 ? 'badge-danger' : ($total_percent_utilized < 70 ? 'badge-warning' : 'badge-success'); ?>">
                                             <?php echo number_format($total_percent_utilized, 2); ?>%
                                         </span>
                                     </td>
@@ -769,16 +804,16 @@ $chart_json = json_encode($chart_data);
     <script>
         // Chart data from PHP
         const chartData = <?php echo $chart_json; ?>;
-        
+
         // Initialize monthly expenditure chart
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Monthly Expenditure Chart
             const monthlyData = [];
             const monthNames = [
-                'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
             ];
-            
+
             // Fill in data for all months, using 0 for months with no data
             for (let i = 1; i <= 12; i++) {
                 monthlyData.push(chartData.monthly[i] || 0);
@@ -897,4 +932,4 @@ $chart_json = json_encode($chart_data);
     </script>
 </body>
 
-</html> 
+</html>

@@ -68,7 +68,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="theme-color" content="#03045e">
 </head>
 <style>
-    
     body {
         font-family: 'Inter', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
         margin: 0;
@@ -245,12 +244,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     .login-text.hidden {
         display: none;
     }
-    
+
     /* Payee Button Style */
     .payee-btn {
         display: none;
     }
-    
+
     .payee-modal {
         display: none;
         position: fixed;
@@ -263,7 +262,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         justify-content: center;
         align-items: center;
     }
-    
+
     .payee-modal-content {
         background-color: white;
         border-radius: 10px;
@@ -275,7 +274,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         display: flex;
         flex-direction: column;
     }
-    
+
     .payee-modal-header {
         display: flex;
         justify-content: space-between;
@@ -284,7 +283,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         background-color: #03045e;
         color: white;
     }
-    
+
     .payee-modal-title {
         margin: 0;
         font-size: 18px;
@@ -292,11 +291,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         display: flex;
         align-items: center;
     }
-    
+
     .payee-modal-title i {
         margin-right: 8px;
     }
-    
+
     .payee-close {
         background: none;
         border: none;
@@ -314,29 +313,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         justify-content: center;
         border-radius: 50%;
     }
-    
+
     .payee-close:hover {
         opacity: 1;
         transform: scale(1.1);
         background-color: rgba(255, 255, 255, 0.1);
     }
-    
+
     .payee-close:active {
         transform: scale(0.95);
     }
-    
+
     .payee-modal-body {
         padding: 20px;
         overflow-y: auto;
         max-height: calc(80vh - 130px);
     }
-    
+
     .payee-search {
         margin-bottom: 15px;
         display: flex;
         position: relative;
     }
-    
+
     .payee-search input {
         width: 100%;
         padding: 10px 15px 10px 40px;
@@ -344,7 +343,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         border-radius: 5px;
         font-size: 14px;
     }
-    
+
     .payee-search i {
         position: absolute;
         left: 15px;
@@ -352,7 +351,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         transform: translateY(-50%);
         color: #666;
     }
-    
+
     .payee-table {
         width: 100%;
         border-collapse: collapse;
@@ -360,13 +359,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         border-radius: 5px;
         overflow: hidden;
     }
-    
-    .payee-table th, .payee-table td {
+
+    .payee-table th,
+    .payee-table td {
         padding: 12px 15px;
         text-align: left;
         border-bottom: 1px solid #eee;
     }
-    
+
     .payee-table th {
         background-color: #f8f9fa;
         font-weight: 600;
@@ -375,15 +375,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         color: #03045e;
     }
-    
+
     .payee-table tbody tr:hover {
         background-color: #f5f5f5;
     }
-    
+
     .payee-table tbody tr:last-child td {
         border-bottom: none;
     }
-    
+
     .payee-badge {
         padding: 5px 10px;
         border-radius: 20px;
@@ -391,15 +391,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         font-weight: 600;
         color: white;
     }
-    
+
     .payee-badge-internal {
         background-color: #0d6efd;
     }
-    
+
     .payee-badge-external {
         background-color: #fd7e14;
     }
-    
+
     .payee-modal-footer {
         padding: 15px 20px;
         border-top: 1px solid #eee;
@@ -407,7 +407,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         justify-content: flex-end;
         background-color: #f8f9fa;
     }
-    
+
     .payee-modal-footer button {
         padding: 8px 20px;
         border: none;
@@ -421,13 +421,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         display: flex;
         align-items: center;
     }
-    
+
     .payee-modal-footer button:hover {
         background-color: #D90429;
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     }
-    
+
     .payee-modal-footer button:active {
         transform: translateY(1px);
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -440,7 +440,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         padding: 30px;
         flex-direction: column;
     }
-    
+
     .payee-loader-spinner {
         width: 40px;
         height: 40px;
@@ -450,16 +450,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         animation: spin 1s linear infinite;
         margin-bottom: 15px;
     }
-    
+
     .payee-loader-text {
         color: #666;
         font-size: 14px;
     }
-    
+
     @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
     }
+
     .main-header {
         position: fixed;
         top: 0;
@@ -661,7 +667,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
         z-index: 90;
     }
-    
+
     .footer-content {
         display: flex;
         align-items: center;
@@ -669,49 +675,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         flex-wrap: wrap;
         gap: 15px;
     }
-    
+
     footer img {
         vertical-align: middle;
         margin-right: 5px;
     }
-    
+
     footer p {
         margin: 0;
     }
-    
+
     .footer-links {
         display: flex;
         align-items: center;
     }
-    
+
     .footer-divider {
         margin: 0 8px;
         color: #ccc;
         font-size: 10px;
     }
-    
+
     footer a {
         color: #03045e;
         text-decoration: none;
         transition: color 0.3s;
         font-weight: 500;
     }
-    
+
     footer a:hover {
         color: #D90429;
     }
-    
+
     @media (max-width: 768px) {
         footer {
             padding: 8px 15px;
             font-size: 11px;
         }
-        
+
         .footer-content {
             flex-direction: column;
             gap: 8px;
         }
-        
+
         .footer-links {
             margin-top: 5px;
         }
@@ -724,26 +730,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             max-height: 90vh;
             margin: 20px 0;
         }
-        
+
         .payee-modal-header {
             padding: 12px 15px;
         }
-        
+
         .payee-modal-title {
             font-size: 16px;
         }
-        
+
         .payee-modal-body {
             padding: 15px;
             max-height: calc(90vh - 120px);
         }
-        
-        .payee-table th, .payee-table td {
+
+        .payee-table th,
+        .payee-table td {
             padding: 10px 12px;
             font-size: 13px;
         }
     }
-    
+
     @media (max-width: 580px) {
         .payee-modal-content {
             width: 98%;
@@ -752,33 +759,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin: 10px 0;
             border-radius: 8px;
         }
-        
+
         .payee-modal-header {
             padding: 10px;
         }
-        
+
         .payee-modal-title {
             font-size: 15px;
         }
-        
+
         .payee-modal-body {
             padding: 10px;
             max-height: calc(95vh - 110px);
         }
-        
+
         .payee-search input {
             padding: 8px 8px 8px 35px;
             font-size: 13px;
         }
-        
+
         .payee-table {
             font-size: 12px;
         }
-        
-        .payee-table th, .payee-table td {
+
+        .payee-table th,
+        .payee-table td {
             padding: 8px 10px;
         }
-        
+
         /* Make table responsive on small screens */
         .payee-table-container {
             overflow-x: auto;
@@ -933,21 +941,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .header-nav {
             gap: 10px;
         }
-        
+
         .nav-link span {
             display: none;
         }
-        
+
         .nav-link {
             padding: 8px;
             border-radius: 50%;
         }
-        
+
         .nav-link i {
             margin: 0;
             font-size: 18px;
         }
-        
+
         .modal-content {
             width: 95%;
             margin: 20px;
@@ -958,124 +966,148 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .modal-header h3 {
             font-size: 16px;
         }
-        
+
         .about-content h4 {
             font-size: 18px;
         }
-        
+
         .about-features li {
             font-size: 14px;
         }
-        
+
         .about-contact p {
             font-size: 14px;
         }
+    }
+
+    .easter-egg {
+        text-decoration: none;
+        color: inherit;
+        opacity: 0;
+        /* Fully hidden */
+        pointer-events: none;
+        /* Prevent interaction when hidden */
+        margin-left: 4px;
+        font-weight: bold;
+        transition: opacity 0.3s ease;
+    }
+
+    .easter-egg.visible {
+        opacity: 1;
+        pointer-events: auto;
+        color: #ff6600;
+    }
+
+    .easter-egg:hover {
+        text-decoration: underline;
     }
 </style>
 
 <body>
 
-<header class="main-header">
-    <div class="header-container">
-        <div class="logo-section">
-      
-            <div class="header-titles">
-                <h1>Department of Trade and Industry Region 12</h1>
-                <h2>Financial Processing System</h2>
-            </div>
-        </div>
-        <div class="header-right">
-            <nav class="header-nav">
-                <a href="suppliers.php" class="nav-link">
-                    <i class="bi bi-people-fill"></i>
-                    <span>Registry of Suppliers</span>
-                </a>
-                <a href="about.php" class="nav-link">
-                    <i class="bi bi-info-circle-fill"></i>
-                    <span>About</span>
-                </a>
-            </nav>
-        </div>
-    </div>
-</header>
+    <header class="main-header">
+        <div class="header-container">
+            <div class="logo-section">
 
-<!-- About Modal -->
-<div id="aboutModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3><i class="bi bi-info-circle-fill"></i> About the System</h3>
-            <button class="close-modal" id="closeAboutModal"><i class="bi bi-x-lg"></i></button>
-        </div>
-        <div class="modal-body">
-            <div class="about-content">
-                <h4>DTI Region 12 Financial Processing System</h4>
-                <p>This system is designed to streamline and modernize the financial processes of the Department of Trade and Industry Region 12. It provides a comprehensive platform for managing financial transactions, supplier information, and other related administrative tasks.</p>
-                
-                <div class="about-features">
-                    <h5>Key Features:</h5>
-                    <ul>
-                        <li>Secure user authentication and role-based access control</li>
-                        <li>Comprehensive supplier registry management</li>
-                        <li>Efficient financial transaction processing</li>
-                        <li>Real-time data tracking and reporting</li>
-                        <li>User-friendly interface for all stakeholders</li>
-                    </ul>
-                </div>
-                
-                <div class="about-contact">
-                    <h5>Contact Information:</h5>
-                    <p><i class="bi bi-geo-alt-fill"></i> DTI Region 12 Office, Koronadal City</p>
-                    <p><i class="bi bi-telephone-fill"></i> (083) 228-0016</p>
-                    <p><i class="bi bi-envelope-fill"></i> ro12@dti.gov.ph</p>
+                <div class="header-titles">
+                    <h1>Department of Trade and Industry Region 12</h1>
+                    <h2>Financial Processing System</h2>
                 </div>
             </div>
+            <div class="header-right">
+                <nav class="header-nav">
+                    <a href="suppliers.php" class="nav-link">
+                        <i class="bi bi-people-fill"></i>
+                        <span>Registry of Suppliers</span>
+                    </a>
+                    <a href="about.php" class="nav-link">
+                        <i class="bi bi-info-circle-fill"></i>
+                        <span>About</span>
+                    </a>
+                </nav>
+            </div>
         </div>
-    </div>
-</div>
+    </header>
 
-<!-- Payee Modal -->
-<div id="payeeModal" class="payee-modal">
-    <div class="payee-modal-content">
-        <div class="payee-modal-header">
-            <h3 class="payee-modal-title">
-                <i class="bi bi-people-fill"></i> Suppliers
-            </h3>
-            <button class="payee-close" id="closePayeeModal"><i class="bi bi-x-lg"></i></button>
-        </div>
-        <div class="payee-modal-body">
-            <div class="payee-search">
-                <i class="bi bi-search"></i>
-                <input type="text" id="payeeSearch" placeholder="Search payee by name, TIN, address...">
+    <!-- About Modal -->
+    <div id="aboutModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="bi bi-info-circle-fill"></i> About the System</h3>
+                <button class="close-modal" id="closeAboutModal"><i class="bi bi-x-lg"></i></button>
             </div>
-            <div class="payee-table-container">
-                <table class="payee-table" id="payeeTable">
-                    <thead>
-                        <tr>
-                            <th>Payee Name</th>
-                          
-                            <th>Address</th>
-                            <th>Category</th>
-                            <th>Contact Number</th>
-                           
-                        </tr>
-                    </thead>
-                    <tbody id="payeeTableBody">
-                        <!-- Payee data will be loaded here via AJAX -->
-                        <tr>
-                            <td colspan="7">
-                                <div class="payee-loader">
-                                    <div class="payee-loader-spinner"></div>
-                                    <div class="payee-loader-text">Loading payee data...</div>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="modal-body">
+                <div class="about-content">
+                    <h4>DTI Region 12 Financial Processing System</h4>
+                    <p>This system is designed to streamline and modernize the financial processes of the Department of
+                        Trade and Industry Region 12. It provides a comprehensive platform for managing financial
+                        transactions, supplier information, and other related administrative tasks.</p>
+
+                    <div class="about-features">
+                        <h5>Key Features:</h5>
+                        <ul>
+                            <li>Secure user authentication and role-based access control</li>
+                            <li>Comprehensive supplier registry management</li>
+                            <li>Efficient financial transaction processing</li>
+                            <li>Real-time data tracking and reporting</li>
+                            <li>User-friendly interface for all stakeholders</li>
+                        </ul>
+                    </div>
+
+                    <div class="about-contact">
+                        <h5>Contact Information:</h5>
+                        <p><i class="bi bi-geo-alt-fill"></i> DTI Region 12 Office, Koronadal City</p>
+                        <p><i class="bi bi-telephone-fill"></i> (083) 228-0016</p>
+                        <p><i class="bi bi-envelope-fill"></i> ro12@dti.gov.ph</p>
+                    </div>
+                </div>
             </div>
         </div>
-       
     </div>
-</div>
+
+    <!-- Payee Modal -->
+    <div id="payeeModal" class="payee-modal">
+        <div class="payee-modal-content">
+            <div class="payee-modal-header">
+                <h3 class="payee-modal-title">
+                    <i class="bi bi-people-fill"></i> Suppliers
+                </h3>
+                <button class="payee-close" id="closePayeeModal"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="payee-modal-body">
+                <div class="payee-search">
+                    <i class="bi bi-search"></i>
+                    <input type="text" id="payeeSearch" placeholder="Search payee by name, TIN, address...">
+                </div>
+                <div class="payee-table-container">
+                    <table class="payee-table" id="payeeTable">
+                        <thead>
+                            <tr>
+                                <th>Payee Name</th>
+
+                                <th>Address</th>
+                                <th>Category</th>
+                                <th>Contact Number</th>
+
+                            </tr>
+                        </thead>
+                        <tbody id="payeeTableBody">
+                            <!-- Payee data will be loaded here via AJAX -->
+                            <tr>
+                                <td colspan="7">
+                                    <div class="payee-loader">
+                                        <div class="payee-loader-spinner"></div>
+                                        <div class="payee-loader-text">Loading payee data...</div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
 
     <div class="loader-container" id="loader-container">
         <div class="loader">
@@ -1176,11 +1208,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <span class="login-text">Login</span>
             </button>
         </form>
-    </div> 
+    </div>
     <footer>
         <div class="footer-content">
-            <img src="img/DTI_short.png" alt="DTI Logo" height="16">
+            <img src="img/DTI_short.png" alt="DTI Logo" height="16"><a href="#" class="easter-egg"
+                id="easterTrigger">i</a>
             <p>Copyright &copy; 2025 Department of Trade and Industry</p>
+
             <!-- <div class="footer-links">
                 <a href="#">Terms</a>
                 <span class="footer-divider">|</span>
@@ -1190,8 +1224,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div> -->
         </div>
     </footer>
+    <div class="easter-modal" id="easterModal">
+    </div>
 
-    
+
     <!-- Bootstrap Script -->
     <script src="bootstrap-5.2.3/js/bootstrap.bundle.min.js"></script>
 </body>
@@ -1206,13 +1242,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     function rotateLogo(timestamp) {
         if (!lastTimestamp) lastTimestamp = timestamp;
         const elapsed = timestamp - lastTimestamp;
-        
+
         if (elapsed >= animationSpeed) {
             currentRotation += 180;
             carousel.style.transform = `rotateY(${currentRotation}deg)`;
             lastTimestamp = timestamp;
         }
-        
+
         if (animationRunning) {
             requestAnimationFrame(rotateLogo);
         }
@@ -1231,7 +1267,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Handle visibility change
-    document.addEventListener('visibilitychange', function() {
+    document.addEventListener('visibilitychange', function () {
         if (document.hidden) {
             stopAnimation();
         } else {
@@ -1259,49 +1295,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         loaderContainer.style.display = 'none';
         loginButton.disabled = false;
     });
-    
+
     // Payee Modal Functionality
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const viewPayeesBtn = document.getElementById('viewPayeesBtn');
         const payeeModal = document.getElementById('payeeModal');
         const closePayeeModal = document.getElementById('closePayeeModal');
         const payeeSearch = document.getElementById('payeeSearch');
         const payeeTableBody = document.getElementById('payeeTableBody');
-        
+
         // Open modal
-        viewPayeesBtn.addEventListener('click', function() {
+        viewPayeesBtn.addEventListener('click', function () {
             payeeModal.style.display = 'flex';
             fetchPayeeData();
         });
-        
+
         // Close modal
-        closePayeeModal.addEventListener('click', function() {
+        closePayeeModal.addEventListener('click', function () {
             payeeModal.style.display = 'none';
         });
-        
+
         // Close when clicking outside modal
-        window.addEventListener('click', function(event) {
+        window.addEventListener('click', function (event) {
             if (event.target === payeeModal) {
                 payeeModal.style.display = 'none';
             }
         });
-        
+
         // Search functionality
-        payeeSearch.addEventListener('input', function() {
+        payeeSearch.addEventListener('input', function () {
             const searchText = this.value.toLowerCase().trim();
             const rows = document.querySelectorAll('#payeeTableBody tr');
-            
+
             rows.forEach(row => {
                 // Skip the loading row
                 if (row.querySelector('.payee-loader')) {
                     return;
                 }
-                
+
                 // Get all cell text from the row
                 const rowText = Array.from(row.querySelectorAll('td'))
                     .map(cell => cell.textContent.toLowerCase())
                     .join(' ');
-                
+
                 // Show/hide based on search match
                 if (rowText.includes(searchText)) {
                     row.style.display = '';
@@ -1309,11 +1345,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     row.style.display = 'none';
                 }
             });
-            
+
             // Show a message if no results found
             const visibleRows = document.querySelectorAll('#payeeTableBody tr:not([style*="display: none"])');
             const noResultsRow = document.getElementById('no-search-results');
-            
+
             if (visibleRows.length === 0 && searchText !== '') {
                 if (!noResultsRow) {
                     const noResults = document.createElement('tr');
@@ -1333,7 +1369,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 noResultsRow.style.display = 'none';
             }
         });
-        
+
         // Fetch payee data from server
         function fetchPayeeData() {
             // Show loading message
@@ -1346,16 +1382,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 </td>
             </tr>`;
-            
+
             // Use AJAX to fetch data
             const xhr = new XMLHttpRequest();
             xhr.open('GET', 'get_payees.php', true);
-            
-            xhr.onload = function() {
+
+            xhr.onload = function () {
                 if (this.status === 200) {
                     try {
                         const payees = JSON.parse(this.responseText);
-                        
+
                         if (payees.length === 0) {
                             payeeTableBody.innerHTML = `
                             <tr>
@@ -1366,7 +1402,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </tr>`;
                             return;
                         }
-                        
+
                         // Build the table rows
                         let html = '';
                         payees.forEach(payee => {
@@ -1379,14 +1415,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </tr>
                             `;
                         });
-                        
+
                         payeeTableBody.innerHTML = html;
-                        
+
                         // Apply any existing search filter
                         if (payeeSearch.value.trim() !== '') {
                             payeeSearch.dispatchEvent(new Event('input'));
                         }
-                        
+
                     } catch (e) {
                         payeeTableBody.innerHTML = `
                         <tr>
@@ -1407,8 +1443,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </tr>`;
                 }
             };
-            
-            xhr.onerror = function() {
+
+            xhr.onerror = function () {
                 payeeTableBody.innerHTML = `
                 <tr>
                     <td colspan="4" style="text-align: center; padding: 30px;">
@@ -1417,35 +1453,71 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </td>
                 </tr>`;
             };
-            
+
             xhr.send();
         }
     });
 
     // About Modal Functionality
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const aboutBtn = document.getElementById('aboutBtn');
         const aboutModal = document.getElementById('aboutModal');
         const closeAboutModal = document.getElementById('closeAboutModal');
-        
+
         // Open About modal
-        aboutBtn.addEventListener('click', function(e) {
+        aboutBtn.addEventListener('click', function (e) {
             e.preventDefault();
             aboutModal.style.display = 'flex';
         });
-        
+
         // Close About modal
-        closeAboutModal.addEventListener('click', function() {
+        closeAboutModal.addEventListener('click', function () {
             aboutModal.style.display = 'none';
         });
-        
+
         // Close when clicking outside modal
-        window.addEventListener('click', function(event) {
+        window.addEventListener('click', function (event) {
             if (event.target === aboutModal) {
                 aboutModal.style.display = 'none';
             }
         });
     });
 </script>
+
+
+<!-- egg -->
+
+<script>
+    const eggLink = document.getElementById('easterTrigger');
+    const modal = document.getElementById('easterModal');
+
+    // Show the Easter egg link when spacebar is pressed
+    document.addEventListener('keydown', function (e) {
+        if (e.code === 'Space') {
+            eggLink.classList.add('visible');
+        }
+    });
+
+    // Hide it again when spacebar is released
+    document.addEventListener('keyup', function (e) {
+        if (e.code === 'Space') {
+            eggLink.classList.remove('visible');
+        }
+    });
+
+    // Load the hidden content from log-egg.php
+    eggLink.addEventListener('click', function (e) {
+        e.preventDefault();
+
+        fetch('NiceAdmin/assets/log-egg.php')
+            .then(response => response.text())
+            .then(data => {
+                modal.innerHTML = data;
+                modal.style.display = 'block';
+            })
+            .catch(err => console.error('Error loading creators:', err));
+    });
+</script>
+
 
 </html>
